@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Remove output: 'export' for Docker deployment
+  // output: 'export',
+
+  // Add standalone output for Docker
+  output: 'standalone',
+  productionBrowserSourceMaps: false,
 
   async redirects() {
     return [

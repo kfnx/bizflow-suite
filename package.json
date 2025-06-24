@@ -1,17 +1,8 @@
 {
-  "name": "template-finance-banking",
-  "description": "Apex Finance - AlignUI Template with Next.js",
+  "name": "bizdocgen",
+  "description": "BizDocGen",
   "version": "0.1.0",
   "private": true,
-  "author": {
-    "name": "Doğukan Çavuş",
-    "email": "dogukan@alignui.com",
-    "url": "https://github.com/alignui"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alignui/template-finance-banking-nextjs.git"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

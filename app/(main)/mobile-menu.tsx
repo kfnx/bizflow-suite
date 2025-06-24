@@ -126,33 +126,35 @@ export default function MobileMenu() {
                   className='data-[state=active]:duration-300 data-[state=active]:animate-in data-[state=active]:fade-in-0'
                 >
                   <div className='flex flex-col gap-5'>
-                    {navigationLinks.flatMap(item => item.links).map(({ icon: Icon, label, href }, i) => (
-                      <Link
-                        key={i}
-                        href={href}
-                        aria-current={pathname === href ? 'page' : undefined}
-                        className={cn(
-                          'group relative flex w-full items-center gap-2.5 whitespace-nowrap px-5 text-text-sub-600',
-                        )}
-                      >
-                        <Icon
+                    {navigationLinks
+                      .flatMap((item) => item.links)
+                      .map(({ icon: Icon, label, href }, i) => (
+                        <Link
+                          key={i}
+                          href={href}
+                          aria-current={pathname === href ? 'page' : undefined}
                           className={cn(
-                            'transition-default size-[22px] shrink-0 text-text-sub-600',
-                            'group-aria-[current=page]:text-primary-base',
+                            'group relative flex w-full items-center gap-2.5 whitespace-nowrap px-5 text-text-sub-600',
                           )}
-                        />
-                        <div className='flex-1 text-label-md'>{label}</div>
-                        <div
-                          className={cn(
-                            'transition-default absolute left-0 top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
-                            {
-                              'scale-0': pathname !== href,
-                            },
-                          )}
-                        />
-                        <RiArrowRightSLine className='size-6 text-text-sub-600' />
-                      </Link>
-                    ))}
+                        >
+                          <Icon
+                            className={cn(
+                              'transition-default size-[22px] shrink-0 text-text-sub-600',
+                              'group-aria-[current=page]:text-primary-base',
+                            )}
+                          />
+                          <div className='flex-1 text-label-md'>{label}</div>
+                          <div
+                            className={cn(
+                              'transition-default absolute left-0 top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
+                              {
+                                'scale-0': pathname !== href,
+                              },
+                            )}
+                          />
+                          <RiArrowRightSLine className='size-6 text-text-sub-600' />
+                        </Link>
+                      ))}
                   </div>
                 </TabMenuHorizontal.Content>
                 <TabMenuHorizontal.Content

@@ -1,6 +1,9 @@
 'use client';
 
+import { RiBarChart2Line } from '@remixicon/react';
+
 import * as Avatar from '@/components/ui/avatar';
+import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import { MoveMoneyButton } from '@/components/move-money-button';
 import WidgetBudgetOverview from '@/components/widgets/widget-budget-overview';
@@ -17,8 +20,6 @@ import WidgetSpendingSummary from '@/components/widgets/widget-spending-summary'
 import WidgetTotalBalance from '@/components/widgets/widget-total-balance';
 import WidgetTotalExpenses from '@/components/widgets/widget-total-expenses';
 import WidgetTransactionsTable from '@/components/widgets/widget-transactions-table';
-import { ActionButton } from '@/components/action-button';
-import { RiBarChart2Line } from '@remixicon/react';
 
 export default function PageHome() {
   return (

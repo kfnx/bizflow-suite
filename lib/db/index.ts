@@ -9,7 +9,7 @@ const connectionConfig = {
   port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'bizdocgen_santraktor',
+  database: process.env.DB_NAME || 'bizdocgen',
 };
 
 // Create connection function

@@ -91,9 +91,7 @@ export function UserButton({ className }: { className?: string }) {
             </Link>
           </Dropdown.Item>
         </Dropdown.Group>
-        <div className='p-2 text-paragraph-sm text-text-soft-400'>
-          v.0.1
-        </div>
+        <div className='p-2 text-paragraph-sm text-text-soft-400'>v.0.1</div>
       </Dropdown.Content>
     </Dropdown.Root>
   );
@@ -168,9 +166,7 @@ export function UserButtonMobile({ className }: { className?: string }) {
             </Link>
           </Dropdown.Item>
         </Dropdown.Group>
-        <div className='p-2 text-paragraph-sm text-text-soft-400'>
-          v.0.1
-        </div>
+        <div className='p-2 text-paragraph-sm text-text-soft-400'>v.0.1</div>
       </Dropdown.Content>
     </Dropdown.Root>
   );

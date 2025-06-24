@@ -6,9 +6,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: bizdocgen_santraktor
-      MYSQL_USER: bizdocgen_user
-      MYSQL_PASSWORD: bizdocgen_password
+      MYSQL_DATABASE: bizdocgen
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     ports:
       - '3306:3306'
     volumes:
@@ -34,9 +34,9 @@ services:
       - NODE_ENV=production
       - DB_HOST=mysql
       - DB_PORT=3306
-      - DB_USER=bizdocgen_user
-      - DB_PASSWORD=bizdocgen_password
-      - DB_NAME=bizdocgen_santraktor
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=bizdocgen
     depends_on:
       mysql:
         condition: service_healthy
@@ -49,34 +49,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  # Development version (optional)
-  app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: bizdocgen-app-dev
-    restart: unless-stopped
-    ports:
-      - '3001:3000'
-    environment:
-      - NODE_ENV=development
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USER=bizdocgen_user
-      - DB_PASSWORD=bizdocgen_password
-      - DB_NAME=bizdocgen_santraktor
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - bizdocgen-network
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-    profiles:
-      - dev
 
 volumes:
   mysql_data:

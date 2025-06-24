@@ -14,6 +14,7 @@ import {
 import * as Button from '@/components/ui/button';
 import * as CompactButton from '@/components/ui/compact-button';
 import * as Divider from '@/components/ui/divider';
+import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import { MoveMoneyButton } from '@/components/move-money-button';
 import {
@@ -23,7 +24,6 @@ import {
 } from '@/components/transactions-table';
 
 import { Filters } from './filters';
-import { ActionButton } from '@/components/action-button';
 
 const data: TransactionTableData[] = [
   {

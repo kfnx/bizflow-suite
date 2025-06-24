@@ -30,7 +30,7 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
-DB_NAME=bizdocgen_santraktor
+DB_NAME=bizdocgen
 
 # JWT Secret for authentication
 JWT_SECRET=your-super-secret-jwt-key-here
@@ -45,7 +45,7 @@ NEXTAUTH_SECRET=your-nextauth-secret
 1. **Create the database:**
 
    ```sql
-   CREATE DATABASE bizdocgen_santraktor;
+   CREATE DATABASE bizdocgen;
    ```
 
 2. **Generate migrations:**

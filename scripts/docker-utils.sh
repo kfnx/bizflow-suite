@@ -111,7 +111,7 @@ open_shell() {
 # Function to connect to MySQL
 connect_mysql() {
     print_header "Connecting to MySQL"
-    docker-compose exec mysql mysql -u bizdocgen_user -p bizdocgen_santraktor
+    docker-compose exec mysql mysql -u user -p bizdocgen
 }
 
 # Function to run migrations
@@ -136,7 +136,7 @@ create_backup() {
     
     print_header "Creating Database Backup"
     mkdir -p backups
-    docker-compose exec mysql mysqldump -u bizdocgen_user -p bizdocgen_santraktor > "backups/${backup_file}"
+    docker-compose exec mysql mysqldump -u user -p bizdocgen > "backups/${backup_file}"
     print_status "Backup created: backups/${backup_file}"
 }
 
@@ -160,7 +160,7 @@ restore_backup() {
     read -p "Are you sure? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker-compose exec -T mysql mysql -u bizdocgen_user -p bizdocgen_santraktor < "$backup_file"
+        docker-compose exec -T mysql mysql -u user -p bizdocgen < "$backup_file"
         print_status "Database restored successfully!"
     else
         print_status "Restore cancelled."

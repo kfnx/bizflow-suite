@@ -52,9 +52,9 @@ docker-compose exec app pnpm db:seed
 
 - **Next.js App**: http://localhost:3000
 - **MySQL Database**: localhost:3306
-  - Database: `bizdocgen_santraktor`
-  - User: `bizdocgen_user`
-  - Password: `bizdocgen_password`
+  - Database: `bizdocgen`
+  - User: `user`
+  - Password: `password`
   - Root Password: `rootpassword`
 
 ### Development Environment
@@ -100,7 +100,7 @@ docker-compose restart
 
 ```bash
 # Connect to MySQL
-docker-compose exec mysql mysql -u bizdocgen_user -p bizdocgen_santraktor
+docker-compose exec mysql mysql -u user -p bizdocgen
 
 # Or as root
 docker-compose exec mysql mysql -u root -p
@@ -137,14 +137,14 @@ docker-compose exec app pnpm db:migrate
 
 The following environment variables are automatically set in the Docker environment:
 
-| Variable      | Value                  | Description                         |
-| ------------- | ---------------------- | ----------------------------------- |
-| `NODE_ENV`    | `production`           | Node.js environment                 |
-| `DB_HOST`     | `mysql`                | Database host (Docker service name) |
-| `DB_PORT`     | `3306`                 | Database port                       |
-| `DB_USER`     | `bizdocgen_user`       | Database username                   |
-| `DB_PASSWORD` | `bizdocgen_password`   | Database password                   |
-| `DB_NAME`     | `bizdocgen_santraktor` | Database name                       |
+| Variable      | Value        | Description                         |
+| ------------- | ------------ | ----------------------------------- |
+| `NODE_ENV`    | `production` | Node.js environment                 |
+| `DB_HOST`     | `mysql`      | Database host (Docker service name) |
+| `DB_PORT`     | `3306`       | Database port                       |
+| `DB_USER`     | `user`       | Database username                   |
+| `DB_PASSWORD` | `password`   | Database password                   |
+| `DB_NAME`     | `bizdocgen`  | Database name                       |
 
 ## Default Users
 

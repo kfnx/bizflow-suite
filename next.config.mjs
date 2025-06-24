@@ -1,24 +1,15 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove output: 'export' for Docker deployment
-  // output: 'export',
-
-  // Add standalone output for Docker
   output: 'standalone',
   productionBrowserSourceMaps: false,
-
-  async redirects() {
-    return [
-      {
-        source: '/settings',
-        destination: '/settings/profile-settings',
-        permanent: true,
-      },
-    ];
-  },
-
-  webpack: (config) => {
-    // svgr
+  webpack: (config, { isServer }) => {
+    // SVG handling with proper path resolution
     config.module.rules.push({
       test: /\.svg$/i,
       use: [
@@ -28,11 +19,24 @@ const nextConfig = {
             typescript: true,
             icon: true,
             dimensions: false,
-            // removeAttributes: {}
           },
         },
       ],
     });
+
+    // Add comprehensive path alias resolution
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '~': path.resolve(__dirname, 'public'),
+      '@': path.resolve(__dirname, '.'),
+    };
+
+    // Ensure proper module resolution
+    config.resolve.modules = [
+      ...(config.resolve.modules || []),
+      path.resolve(__dirname, 'public'),
+      'node_modules',
+    ];
 
     return config;
   },

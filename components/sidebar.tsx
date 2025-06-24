@@ -6,18 +6,18 @@ import { usePathname } from 'next/navigation';
 import {
   RiArrowRightSLine,
   RiBillLine,
+  RiBox1Line,
+  RiExchangeFundsLine,
+  RiFileTextLine,
   RiHeadphoneLine,
+  RiImportLine,
   RiLayoutGridLine,
   RiSettings2Line,
-  RiFileTextLine,
-  RiTruckLine,
-  RiBox1Line,
-  RiImportLine,
   RiStoreLine,
-  RiExchangeFundsLine,
-  RiUserSettingsLine,
   RiTeamLine,
+  RiTruckLine,
   RiUserLine,
+  RiUserSettingsLine,
 } from '@remixicon/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
@@ -43,40 +43,83 @@ type NavigationCategory = {
 export const navigationLinks: NavigationCategory[] = [
   {
     label: 'Overview',
-    links: [
-      { icon: RiLayoutGridLine, label: 'Dashboard', href: '/' },
-    ],
+    links: [{ icon: RiLayoutGridLine, label: 'Dashboard', href: '/' }],
   },
   {
     label: 'Documents',
     links: [
       { icon: RiFileTextLine, label: 'Quotations', href: '/quotations' },
-      { icon: RiBillLine, label: 'Invoices', href: '/invoices', disabled: true, },
-      { icon: RiTruckLine, label: 'Delivery Notes', href: '/delivery-notes', disabled: true, },
+      {
+        icon: RiBillLine,
+        label: 'Invoices',
+        href: '/invoices',
+        disabled: true,
+      },
+      {
+        icon: RiTruckLine,
+        label: 'Delivery Notes',
+        href: '/delivery-notes',
+        disabled: true,
+      },
     ],
   },
   {
     label: 'Inventory',
     links: [
-      { icon: RiBox1Line, label: 'Products', href: '/products', disabled: true, },
-      { icon: RiImportLine, label: 'Imports', href: '/imports', disabled: true, },
-      { icon: RiStoreLine, label: 'Warehouses', href: '/warehouses', disabled: true, },
-      { icon: RiExchangeFundsLine, label: 'Transfers', href: '/transfers', disabled: true, },
+      {
+        icon: RiBox1Line,
+        label: 'Products',
+        href: '/products',
+        disabled: true,
+      },
+      {
+        icon: RiImportLine,
+        label: 'Imports',
+        href: '/imports',
+        disabled: true,
+      },
+      {
+        icon: RiStoreLine,
+        label: 'Warehouses',
+        href: '/warehouses',
+        disabled: true,
+      },
+      {
+        icon: RiExchangeFundsLine,
+        label: 'Transfers',
+        href: '/transfers',
+        disabled: true,
+      },
     ],
   },
   // Business Partesrs
   {
     label: 'Business Partners',
     links: [
-      { icon: RiUserLine, label: 'Suppliers', href: '/suppliers', disabled: true, },
-      { icon: RiTeamLine, label: 'Customers', href: '/customers', disabled: true, },
+      {
+        icon: RiUserLine,
+        label: 'Suppliers',
+        href: '/suppliers',
+        disabled: true,
+      },
+      {
+        icon: RiTeamLine,
+        label: 'Customers',
+        href: '/customers',
+        disabled: true,
+      },
     ],
   },
   // Administration
   {
     label: 'Administration',
     links: [
-      { icon: RiUserSettingsLine, label: 'User Management', href: '/user-management', disabled: true, },
+      {
+        icon: RiUserSettingsLine,
+        label: 'User Management',
+        href: '/user-management',
+        disabled: true,
+      },
     ],
   },
 ];

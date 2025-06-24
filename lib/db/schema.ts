@@ -128,6 +128,9 @@ export const products = mysqlTable(
   ],
 );
 
+// keep simple type for now but use mysql enum when system requirement is clearer
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
+
 // Quotations table
 export const quotations = mysqlTable(
   'quotations',
@@ -136,15 +139,18 @@ export const quotations = mysqlTable(
     quotationNumber: varchar('quotation_number', { length: 50 })
       .notNull()
       .unique(),
-    customerId: varchar('customer_id', { length: 36 }).notNull(),
     quotationDate: date('quotation_date').notNull(),
     validUntil: date('valid_until').notNull(),
+    customerId: varchar('customer_id', { length: 36 }).notNull(),
+    approverId: varchar('approver_id', { length: 36 }),
+    isIncludePPN: boolean('is_include_ppn').default(false),
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
     status: varchar('status', { length: 50 }).default('draft'), // draft, sent, accepted, rejected
     notes: text('notes'),
+    termsAndConditions: text('terms_and_conditions'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -176,6 +182,9 @@ export const quotationItems = mysqlTable(
   ],
 );
 
+// keep simple type for now but use mysql enum when system requirement is clearer
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'void';
+
 // Invoices table
 export const invoices = mysqlTable(
   'invoices',
@@ -183,14 +192,14 @@ export const invoices = mysqlTable(
     id: varchar('id', { length: 36 }).primaryKey(),
     invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
     quotationId: varchar('quotation_id', { length: 36 }),
-    customerId: varchar('customer_id', { length: 36 }).notNull(),
     invoiceDate: date('invoice_date').notNull(),
     dueDate: date('due_date').notNull(),
+    customerId: varchar('customer_id', { length: 36 }).notNull(),
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
-    status: varchar('status', { length: 50 }).default('draft'), // draft, sent, paid, overdue
+    status: varchar('status', { length: 50 }).default('draft'), // draft, sent, paid, void
     paymentMethod: varchar('payment_method', { length: 100 }),
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
@@ -216,6 +225,8 @@ export const invoiceItems = mysqlTable(
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
     unitPrice: decimal('unit_price', { precision: 15, scale: 2 }).notNull(),
     total: decimal('total', { precision: 15, scale: 2 }).notNull(),
+    paymentTerms: varchar('payment_terms', { length: 100 }),
+    termsAndConditions: text('terms_and_conditions'),
     notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
   },
@@ -224,6 +235,9 @@ export const invoiceItems = mysqlTable(
     index('product_id_idx').on(table.productId),
   ],
 );
+
+// keep simple type for now but use mysql enum when system requirement is clearer
+export type DeliveryNoteStatus = 'pending' | 'delivered' | 'canceled';
 
 // Delivery Notes table
 export const deliveryNotes = mysqlTable(
@@ -240,8 +254,10 @@ export const deliveryNotes = mysqlTable(
     driverName: varchar('driver_name', { length: 100 }),
     vehicleNumber: varchar('vehicle_number', { length: 20 }),
     status: varchar('status', { length: 50 }).default('pending'), // pending, in_transit, delivered
+    deliveredBy: varchar('delivered_by', { length: 36 }),
+    receivedBy: varchar('received_by', { length: 36 }),
     notes: text('notes'),
-    createdBy: varchar('created_by', { length: 36 }).notNull(),
+    createdBy: varchar('created_by', { length: 36 }).notNull(), // == preparedBy
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },

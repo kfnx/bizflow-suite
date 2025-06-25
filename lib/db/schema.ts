@@ -3,6 +3,7 @@ import {
   boolean,
   date,
   decimal,
+  foreignKey,
   index,
   int,
   mysqlTable,
@@ -125,6 +126,11 @@ export const products = mysqlTable(
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
     index('supplier_id_idx').on(table.supplierId),
+    foreignKey({
+      columns: [table.supplierId],
+      foreignColumns: [suppliers.id],
+      name: 'fk_products_supplier',
+    }),
   ],
 );
 
@@ -160,6 +166,21 @@ export const quotations = mysqlTable(
     index('customer_id_idx').on(table.customerId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
+    foreignKey({
+      columns: [table.customerId],
+      foreignColumns: [customers.id],
+      name: 'fk_quotations_customer',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_quotations_created_by',
+    }),
+    foreignKey({
+      columns: [table.approverId],
+      foreignColumns: [users.id],
+      name: 'fk_quotations_approver',
+    }),
   ],
 );
 
@@ -179,6 +200,16 @@ export const quotationItems = mysqlTable(
   (table) => [
     index('quotation_id_idx').on(table.quotationId),
     index('product_id_idx').on(table.productId),
+    foreignKey({
+      columns: [table.quotationId],
+      foreignColumns: [quotations.id],
+      name: 'fk_quotation_items_quotation',
+    }),
+    foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_quotation_items_product',
+    }),
   ],
 );
 
@@ -212,6 +243,21 @@ export const invoices = mysqlTable(
     index('customer_id_idx').on(table.customerId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
+    foreignKey({
+      columns: [table.quotationId],
+      foreignColumns: [quotations.id],
+      name: 'fk_invoices_quotation',
+    }),
+    foreignKey({
+      columns: [table.customerId],
+      foreignColumns: [customers.id],
+      name: 'fk_invoices_customer',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_invoices_created_by',
+    }),
   ],
 );
 
@@ -233,6 +279,16 @@ export const invoiceItems = mysqlTable(
   (table) => [
     index('invoice_id_idx').on(table.invoiceId),
     index('product_id_idx').on(table.productId),
+    foreignKey({
+      columns: [table.invoiceId],
+      foreignColumns: [invoices.id],
+      name: 'fk_invoice_items_invoice',
+    }),
+    foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_invoice_items_product',
+    }),
   ],
 );
 
@@ -267,6 +323,31 @@ export const deliveryNotes = mysqlTable(
     index('customer_id_idx').on(table.customerId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
+    foreignKey({
+      columns: [table.invoiceId],
+      foreignColumns: [invoices.id],
+      name: 'fk_delivery_notes_invoice',
+    }),
+    foreignKey({
+      columns: [table.customerId],
+      foreignColumns: [customers.id],
+      name: 'fk_delivery_notes_customer',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_delivery_notes_created_by',
+    }),
+    foreignKey({
+      columns: [table.deliveredBy],
+      foreignColumns: [users.id],
+      name: 'fk_delivery_notes_delivered_by',
+    }),
+    foreignKey({
+      columns: [table.receivedBy],
+      foreignColumns: [users.id],
+      name: 'fk_delivery_notes_received_by',
+    }),
   ],
 );
 
@@ -288,6 +369,16 @@ export const deliveryNoteItems = mysqlTable(
   (table) => [
     index('delivery_note_id_idx').on(table.deliveryNoteId),
     index('product_id_idx').on(table.productId),
+    foreignKey({
+      columns: [table.deliveryNoteId],
+      foreignColumns: [deliveryNotes.id],
+      name: 'fk_delivery_note_items_delivery_note',
+    }),
+    foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_delivery_note_items_product',
+    }),
   ],
 );
 
@@ -317,6 +408,21 @@ export const imports = mysqlTable(
     index('warehouse_id_idx').on(table.warehouseId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
+    foreignKey({
+      columns: [table.supplierId],
+      foreignColumns: [suppliers.id],
+      name: 'fk_imports_supplier',
+    }),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_imports_warehouse',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_imports_created_by',
+    }),
   ],
 );
 
@@ -340,6 +446,16 @@ export const importItems = mysqlTable(
   (table) => [
     index('import_id_idx').on(table.importId),
     index('product_id_idx').on(table.productId),
+    foreignKey({
+      columns: [table.importId],
+      foreignColumns: [imports.id],
+      name: 'fk_import_items_import',
+    }),
+    foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_import_items_product',
+    }),
   ],
 );
 
@@ -367,6 +483,21 @@ export const transfers = mysqlTable(
     index('to_warehouse_id_idx').on(table.toWarehouseId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
+    foreignKey({
+      columns: [table.fromWarehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_transfers_from_warehouse',
+    }),
+    foreignKey({
+      columns: [table.toWarehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_transfers_to_warehouse',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_transfers_created_by',
+    }),
   ],
 );
 
@@ -388,6 +519,16 @@ export const transferItems = mysqlTable(
   (table) => [
     index('transfer_id_idx').on(table.transferId),
     index('product_id_idx').on(table.productId),
+    foreignKey({
+      columns: [table.transferId],
+      foreignColumns: [transfers.id],
+      name: 'fk_transfer_items_transfer',
+    }),
+    foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_transfer_items_product',
+    }),
   ],
 );
 

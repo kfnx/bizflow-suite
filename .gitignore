@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# only ignored during development, uncomment after mvp.
+/lib/db/migrations/

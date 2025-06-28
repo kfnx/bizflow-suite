@@ -25,19 +25,16 @@ pnpm add -D drizzle-kit @types/mysql tsx
 Create a `.env.local` file in your project root with the following variables:
 
 ```env
+# App Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret
+
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=bizdocgen
-
-# JWT Secret for authentication
-JWT_SECRET=your-super-secret-jwt-key-here
-
-# App Configuration
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-nextauth-secret
 ```
 
 ## Database Setup

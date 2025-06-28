@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import {
   RiEyeLine,
@@ -10,6 +11,7 @@ import {
   RiMailLine,
   RiUserFill,
 } from '@remixicon/react';
+import { signIn } from 'next-auth/react';
 
 import { cn } from '@/utils/cn';
 import * as Checkbox from '@/components/ui/checkbox';
@@ -46,81 +48,135 @@ function PasswordInput(
 }
 
 export default function PageLogin() {
+  const router = useRouter();
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+
+      if (result?.error) {
+        console.error('Sign in error:', result.error);
+        setError('Invalid email or password');
+      } else {
+        router.push('/');
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Sign in exception:', error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className='w-full max-w-[472px] px-4'>
-      <div className='flex w-full flex-col gap-6 rounded-20 bg-bg-white-0 p-5 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200 md:p-8'>
-        <div className='flex flex-col items-center gap-2'>
-          {/* icon */}
-          <div
-            className={cn(
-              'relative flex size-[68px] shrink-0 items-center justify-center rounded-full backdrop-blur-xl lg:size-24',
-              // bg
-              'before:absolute before:inset-0 before:rounded-full',
-              'before:bg-gradient-to-b before:from-neutral-500 before:to-transparent before:opacity-10',
-            )}
-          >
-            <div className='relative z-10 flex size-12 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200 lg:size-16'>
-              <RiUserFill className='size-6 text-text-sub-600 lg:size-8' />
-            </div>
-          </div>
-
-          <div className='space-y-1 text-center'>
-            <div className='text-title-h6 lg:text-title-h5'>
-              Login to your account
-            </div>
-            <div className='text-paragraph-sm text-text-sub-600 lg:text-paragraph-md'>
-              Enter your details to login.
-            </div>
-          </div>
-        </div>
-
-        <Divider.Root />
-
-        <div className='flex flex-col gap-3'>
-          <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='email'>
-              Email Address <Label.Asterisk />
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Icon as={RiMailLine} />
-                <Input.Input
-                  id='email'
-                  type='email'
-                  placeholder='hello@alignui.com'
-                  required
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
-
-          <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='password'>
-              Password <Label.Asterisk />
-            </Label.Root>
-            <PasswordInput id='password' required />
-          </div>
-        </div>
-
-        <div className='flex items-center justify-between gap-4'>
-          <div className='flex items-start gap-2'>
-            <Checkbox.Root id='agree' />
-            <LabelPrimitive.Root
-              htmlFor='agree'
-              className='block cursor-pointer text-paragraph-sm'
+      <form onSubmit={handleSubmit}>
+        <div className='flex w-full flex-col gap-6 rounded-20 bg-bg-white-0 p-5 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200 md:p-8'>
+          <div className='flex flex-col items-center gap-2'>
+            {/* icon */}
+            <div
+              className={cn(
+                'relative flex size-[68px] shrink-0 items-center justify-center rounded-full backdrop-blur-xl lg:size-24',
+                // bg
+                'before:absolute before:inset-0 before:rounded-full',
+                'before:bg-gradient-to-b before:from-neutral-500 before:to-transparent before:opacity-10',
+              )}
             >
-              Keep me logged in
-            </LabelPrimitive.Root>
-          </div>
-          <LinkButton.Root variant='gray' size='medium' underline asChild>
-            <Link href='/reset-password'>Forgot password?</Link>
-          </LinkButton.Root>
-        </div>
+              <div className='relative z-10 flex size-12 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200 lg:size-16'>
+                <RiUserFill className='size-6 text-text-sub-600 lg:size-8' />
+              </div>
+            </div>
 
-        <FancyButton.Root variant='primary' size='medium'>
-          Login
-        </FancyButton.Root>
-      </div>
+            <div className='space-y-1 text-center'>
+              <div className='text-title-h6 lg:text-title-h5'>
+                Login to your account
+              </div>
+              <div className='text-paragraph-sm text-text-sub-600 lg:text-paragraph-md'>
+                Enter your details to login.
+              </div>
+            </div>
+          </div>
+
+          <Divider.Root />
+
+          {error && (
+            <div className='text-sm rounded-lg bg-red-50 p-3 text-red-600'>
+              {error}
+            </div>
+          )}
+
+          <div className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-1'>
+              <Label.Root htmlFor='email'>
+                Email Address <Label.Asterisk />
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Icon as={RiMailLine} />
+                  <Input.Input
+                    id='email'
+                    type='email'
+                    placeholder='staff_asep@bizdocgen.com'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
+
+            <div className='flex flex-col gap-1'>
+              <Label.Root htmlFor='password'>
+                Password <Label.Asterisk />
+              </Label.Root>
+              <PasswordInput
+                id='password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className='flex items-center justify-between gap-4'>
+            <div className='flex items-start gap-2'>
+              <Checkbox.Root id='agree' />
+              <LabelPrimitive.Root
+                htmlFor='agree'
+                className='block cursor-pointer text-paragraph-sm'
+              >
+                Keep me logged in
+              </LabelPrimitive.Root>
+            </div>
+            <LinkButton.Root variant='gray' size='medium' underline asChild>
+              <Link href='/reset-password'>Forgot password?</Link>
+            </LinkButton.Root>
+          </div>
+
+          <FancyButton.Root
+            variant='primary'
+            size='medium'
+            type='submit'
+            disabled={isLoading}
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </FancyButton.Root>
+        </div>
+      </form>
     </div>
   );
 }

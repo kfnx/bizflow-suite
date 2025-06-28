@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { drizzle } from 'drizzle-orm/mysql2';
 
-import * as schema from './schema';
 import { createConnection } from './index';
+import * as schema from './schema';
 
 async function main() {
   const connection = await createConnection();
@@ -28,32 +28,32 @@ async function main() {
   await db.insert(schema.users).values([
     {
       id: 'user-1',
-      email: 'admin@bizdocgen.com',
+      email: 'staff_asep@bizdocgen.com',
       password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'User',
+      firstName: 'Asep',
+      lastName: 'Sutrisno',
       phone: '+6281234567890',
-      role: 'admin',
+      role: 'staff',
       isActive: true,
     },
     {
       id: 'user-2',
-      email: 'manager@bizdocgen.com',
+      email: 'manager_budi@bizdocgen.com',
       password: hashedPassword,
-      firstName: 'Manager',
-      lastName: 'User',
+      firstName: 'Budi',
+      lastName: 'Santoso',
       phone: '+6281234567891',
       role: 'manager',
       isActive: true,
     },
     {
       id: 'user-3',
-      email: 'user@bizdocgen.com',
+      email: 'director_rizky@bizdocgen.com',
       password: hashedPassword,
-      firstName: 'Regular',
-      lastName: 'User',
+      firstName: 'Rizky',
+      lastName: 'Wicaksono',
       phone: '+6281234567892',
-      role: 'user',
+      role: 'director',
       isActive: true,
     },
   ]);

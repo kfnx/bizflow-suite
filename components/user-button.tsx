@@ -13,6 +13,7 @@ import {
   RiSettings2Line,
 } from '@remixicon/react';
 import { useTheme } from 'next-themes';
+import { useSession, signOut } from 'next-auth/react';
 
 import { cn, cnExt } from '@/utils/cn';
 import * as Avatar from '@/components/ui/avatar';
@@ -24,6 +25,37 @@ import IconVerifiedFill from '~/icons/icon-verified-fill.svg';
 
 export function UserButton({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
+  const { data: session, status } = useSession();
+
+  // Show loading state while session is loading
+  if (status === 'loading') {
+    return (
+      <div className={cnExt(
+        'flex w-full items-center gap-3 whitespace-nowrap rounded-10 p-3 text-left outline-none',
+        className,
+      )}>
+        <div className="size-10 animate-pulse rounded-full bg-bg-weak-50" />
+        <div className="flex-1 space-y-2" data-hide-collapsed>
+          <div className="h-4 animate-pulse rounded bg-bg-weak-50" />
+          <div className="h-3 animate-pulse rounded bg-bg-weak-50" />
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if no session
+  if (!session?.user) {
+    return null;
+  }
+
+  const user = session.user;
+  const userDisplayName = user.firstName && user.lastName
+    ? `${user.firstName} ${user.lastName}`
+    : user.name || 'User';
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
 
   return (
     <Dropdown.Root>
@@ -34,7 +66,10 @@ export function UserButton({ className }: { className?: string }) {
         )}
       >
         <Avatar.Root size='40' color='blue'>
-          <Avatar.Image src='/images/avatar/illustration/arthur.png' alt='' />
+          <Avatar.Image
+            src={user.avatar || '/images/avatar/illustration/arthur.png'}
+            alt={userDisplayName}
+          />
         </Avatar.Root>
         <div
           className='flex w-[172px] shrink-0 items-center gap-3'
@@ -42,11 +77,11 @@ export function UserButton({ className }: { className?: string }) {
         >
           <div className='flex-1 space-y-1'>
             <div className='flex items-center gap-0.5 text-label-sm'>
-              Arthur Taylor
+              {userDisplayName}
               <IconVerifiedFill className='size-5 text-verified-base' />
             </div>
             <div className='text-paragraph-xs text-text-sub-600'>
-              arthur@alignui.com
+              {user.email}
             </div>
           </div>
 
@@ -84,11 +119,9 @@ export function UserButton({ className }: { className?: string }) {
         </Dropdown.Group>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
-          <Dropdown.Item asChild>
-            <Link href='/login'>
-              <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
-              Logout
-            </Link>
+          <Dropdown.Item onSelect={handleLogout}>
+            <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
+            Logout
           </Dropdown.Item>
         </Dropdown.Group>
         <div className='p-2 text-paragraph-sm text-text-soft-400'>v.0.1</div>
@@ -99,6 +132,37 @@ export function UserButton({ className }: { className?: string }) {
 
 export function UserButtonMobile({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
+  const { data: session, status } = useSession();
+
+  // Show loading state while session is loading
+  if (status === 'loading') {
+    return (
+      <div className={cnExt(
+        'flex w-full items-center gap-3 whitespace-nowrap rounded-10 p-3 text-left outline-none',
+        className,
+      )}>
+        <div className="size-12 animate-pulse rounded-full bg-bg-weak-50" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 animate-pulse rounded bg-bg-weak-50" />
+          <div className="h-3 animate-pulse rounded bg-bg-weak-50" />
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if no session
+  if (!session?.user) {
+    return null;
+  }
+
+  const user = session.user;
+  const userDisplayName = user.firstName && user.lastName
+    ? `${user.firstName} ${user.lastName}`
+    : user.name || 'User';
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
 
   return (
     <Dropdown.Root modal={false}>
@@ -109,15 +173,18 @@ export function UserButtonMobile({ className }: { className?: string }) {
         )}
       >
         <Avatar.Root size='48' color='blue'>
-          <Avatar.Image src='/images/avatar/illustration/arthur.png' alt='' />
+          <Avatar.Image
+            src={user.avatar || '/images/avatar/illustration/arthur.png'}
+            alt={userDisplayName}
+          />
         </Avatar.Root>
         <div className='flex-1 space-y-1'>
           <div className='flex items-center gap-0.5 text-label-md'>
-            Arthur Taylor
+            {userDisplayName}
             <IconVerifiedFill className='size-5 text-verified-base' />
           </div>
           <div className='text-paragraph-sm text-text-sub-600'>
-            arthur@alignui.com
+            {user.email}
           </div>
         </div>
         <div
@@ -159,11 +226,9 @@ export function UserButtonMobile({ className }: { className?: string }) {
         </Dropdown.Group>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
-          <Dropdown.Item asChild>
-            <Link href='/login'>
-              <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
-              Logout
-            </Link>
+          <Dropdown.Item onSelect={handleLogout}>
+            <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
+            Logout
           </Dropdown.Item>
         </Dropdown.Group>
         <div className='p-2 text-paragraph-sm text-text-soft-400'>v.0.1</div>

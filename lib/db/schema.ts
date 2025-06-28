@@ -35,6 +35,48 @@ export const users = mysqlTable(
   ],
 );
 
+// NextAuth.js required tables
+export const accounts = mysqlTable(
+  'accounts',
+  {
+    userId: varchar('userId', { length: 255 }).notNull(),
+    type: varchar('type', { length: 255 }).notNull(),
+    provider: varchar('provider', { length: 255 }).notNull(),
+    providerAccountId: varchar('providerAccountId', { length: 255 }).notNull(),
+    refresh_token: text('refresh_token'),
+    access_token: text('access_token'),
+    expires_at: int('expires_at'),
+    token_type: varchar('token_type', { length: 255 }),
+    scope: varchar('scope', { length: 255 }),
+    id_token: text('id_token'),
+    session_state: varchar('session_state', { length: 255 }),
+  },
+  (account) => [
+    primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+    index('userId_idx').on(account.userId),
+  ],
+);
+
+export const sessions = mysqlTable('sessions', {
+  sessionToken: varchar('sessionToken', { length: 255 }).notNull().primaryKey(),
+  userId: varchar('userId', { length: 255 }).notNull(),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+});
+
+export const verificationTokens = mysqlTable(
+  'verificationToken',
+  {
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    token: varchar('token', { length: 255 }).notNull(),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+  (vt) => [
+    primaryKey({ columns: [vt.identifier, vt.token] }),
+  ],
+);
+
 // Customers table
 export const customers = mysqlTable(
   'customers',
@@ -110,13 +152,23 @@ export const products = mysqlTable(
   'products',
   {
     id: varchar('id', { length: 36 }).primaryKey(),
-    code: varchar('code', { length: 50 }).notNull().unique(),
+    code: varchar('code', { length: 100 }).notNull().unique(), // This serves as both code and serial number
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description'),
     category: varchar('category', { length: 100 }),
+    brand: varchar('brand', { length: 100 }),
+    model: varchar('model', { length: 100 }),
+    year: int('year'),
+    condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
+    status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
+    location: varchar('location', { length: 255 }),
     unit: varchar('unit', { length: 20 }).notNull(), // pcs, kg, m, etc.
     price: decimal('price', { precision: 15, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
+    // Product Specifications
+    engineModel: varchar('engine_model', { length: 100 }),
+    enginePower: varchar('engine_power', { length: 50 }), // e.g., "378 hp"
+    operatingWeight: varchar('operating_weight', { length: 50 }), // e.g., "47,250 kg"
     supplierId: varchar('supplier_id', { length: 36 }),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
@@ -125,6 +177,9 @@ export const products = mysqlTable(
   (table) => [
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
+    index('brand_idx').on(table.brand),
+    index('category_idx').on(table.category),
+    index('status_idx').on(table.status),
     index('supplier_id_idx').on(table.supplierId),
     foreignKey({
       columns: [table.supplierId],
@@ -539,6 +594,16 @@ export const usersRelations = relations(users, ({ many }) => ({
   deliveryNotes: many(deliveryNotes),
   imports: many(imports),
   transfers: many(transfers),
+  accounts: many(accounts),
+  sessions: many(sessions),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, { fields: [accounts.userId], references: [users.id] }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
 export const customersRelations = relations(customers, ({ many }) => ({

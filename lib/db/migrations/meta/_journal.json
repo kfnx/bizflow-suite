@@ -1,12 +1,19 @@
 {
-  "version": "7",
+  "version": "8",
   "dialect": "mysql",
   "entries": [
     {
       "idx": 0,
       "version": "5",
-      "when": 1750829967879,
-      "tag": "0000_faulty_marvel_apes",
+      "when": 1751132124803,
+      "tag": "0000_organic_whistler",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1751133582621,
+      "tag": "0001_loose_wendell_vaughn",
       "breakpoints": true
     }
   ]

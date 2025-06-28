@@ -11,16 +11,8 @@ const languages = [
     label: 'ENG',
   },
   {
-    value: 'spa',
-    label: 'SPA',
-  },
-  {
-    value: 'tur',
-    label: 'TUR',
-  },
-  {
-    value: 'deu',
-    label: 'DEU',
+    value: 'ina',
+    label: 'INA',
   },
 ];
 

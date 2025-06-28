@@ -1,165 +1,416 @@
 import bcrypt from 'bcryptjs';
 import { drizzle } from 'drizzle-orm/mysql2';
-import { seed } from 'drizzle-seed';
-import mysql from 'mysql2/promise';
 
 import * as schema from './schema';
+import { createConnection } from './index';
 
 async function main() {
-  const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '3306'),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'bizdocgen',
-  });
-
+  const connection = await createConnection();
   const db = drizzle(connection, { schema, mode: 'default' });
 
   // Use a fixed password hash for all users
   const hashedPassword = await bcrypt.hash('password123', 12);
 
-  await seed(db, schema).refine((f) => ({
-    users: {
-      count: 3,
-      columns: {
-        id: f.valuesFromArray({ values: ['user-1', 'user-2', 'user-3'] }),
-        email: f.valuesFromArray({
-          values: [
-            'admin@bizdocgen.com',
-            'manager@bizdocgen.com',
-            'user@bizdocgen.com',
-          ],
-        }),
-        password: f.default({ defaultValue: hashedPassword }),
-        firstName: f.valuesFromArray({
-          values: ['Admin', 'Manager', 'Regular'],
-        }),
-        lastName: f.default({ defaultValue: 'User' }),
-        phone: f.valuesFromArray({
-          values: ['+6281234567890', '+6281234567891', '+6281234567892'],
-        }),
-        role: f.valuesFromArray({ values: ['admin', 'manager', 'user'] }),
-        isActive: f.default({ defaultValue: true }),
-      },
+  // Clear existing data in reverse foreign key order (ignore errors if tables empty)
+  try {
+    await db.delete(schema.quotations);
+    await db.delete(schema.products);
+    await db.delete(schema.warehouses);
+    await db.delete(schema.suppliers);
+    await db.delete(schema.customers);
+    await db.delete(schema.users);
+    console.log('🗑️ Cleared existing data');
+  } catch (error) {
+    console.log('📝 No existing data to clear');
+  }
+
+  // Direct database inserts to ensure proper relationships
+  await db.insert(schema.users).values([
+    {
+      id: 'user-1',
+      email: 'admin@bizdocgen.com',
+      password: hashedPassword,
+      firstName: 'Admin',
+      lastName: 'User',
+      phone: '+6281234567890',
+      role: 'admin',
+      isActive: true,
     },
-    customers: {
-      count: 2,
-      columns: {
-        id: f.valuesFromArray({ values: ['customer-1', 'customer-2'] }),
-        code: f.valuesFromArray({ values: ['CUST001', 'CUST002'] }),
-        name: f.valuesFromArray({
-          values: ['PT Customer Pertama', 'CV Customer Kedua'],
-        }),
-        email: f.valuesFromArray({
-          values: ['contact@customerpertama.com', 'info@customerkedua.com'],
-        }),
-        phone: f.valuesFromArray({
-          values: ['+6281234567897', '+6281234567898'],
-        }),
-        address: f.valuesFromArray({
-          values: [
-            'Jl. Customer No. 1, Jakarta',
-            'Jl. Customer No. 2, Surabaya',
-          ],
-        }),
-        city: f.valuesFromArray({ values: ['Jakarta', 'Surabaya'] }),
-        country: f.default({ defaultValue: 'Indonesia' }),
-        taxNumber: f.valuesFromArray({
-          values: ['123456789012345', '987654321098765'],
-        }),
-        isActive: f.default({ defaultValue: true }),
-      },
+    {
+      id: 'user-2',
+      email: 'manager@bizdocgen.com',
+      password: hashedPassword,
+      firstName: 'Manager',
+      lastName: 'User',
+      phone: '+6281234567891',
+      role: 'manager',
+      isActive: true,
     },
-    suppliers: {
-      count: 2,
-      columns: {
-        id: f.valuesFromArray({ values: ['supplier-1', 'supplier-2'] }),
-        code: f.valuesFromArray({ values: ['SUP001', 'SUP002'] }),
-        name: f.valuesFromArray({
-          values: ['PT Supplier Utama', 'CV Supplier Mitra'],
-        }),
-        contactPerson: f.valuesFromArray({
-          values: ['John Doe', 'Jane Smith'],
-        }),
-        email: f.valuesFromArray({
-          values: ['contact@supplierutama.com', 'info@suppliermitra.com'],
-        }),
-        phone: f.valuesFromArray({
-          values: ['+6281234567893', '+6281234567894'],
-        }),
-        address: f.valuesFromArray({
-          values: ['Jl. Supplier No. 123', 'Jl. Mitra No. 456'],
-        }),
-        city: f.valuesFromArray({ values: ['Jakarta', 'Surabaya'] }),
-        country: f.default({ defaultValue: 'Indonesia' }),
-        taxNumber: f.valuesFromArray({
-          values: ['123456789012345', '987654321098765'],
-        }),
-        isActive: f.default({ defaultValue: true }),
-      },
+    {
+      id: 'user-3',
+      email: 'user@bizdocgen.com',
+      password: hashedPassword,
+      firstName: 'Regular',
+      lastName: 'User',
+      phone: '+6281234567892',
+      role: 'user',
+      isActive: true,
     },
-    warehouses: {
-      count: 2,
-      columns: {
-        id: f.valuesFromArray({ values: ['warehouse-1', 'warehouse-2'] }),
-        code: f.valuesFromArray({ values: ['WH001', 'WH002'] }),
-        name: f.valuesFromArray({
-          values: ['Warehouse Jakarta Pusat', 'Warehouse Surabaya'],
-        }),
-        address: f.valuesFromArray({
-          values: ['Jl. Warehouse No. 1', 'Jl. Warehouse No. 2'],
-        }),
-        city: f.valuesFromArray({ values: ['Jakarta', 'Surabaya'] }),
-        country: f.default({ defaultValue: 'Indonesia' }),
-        manager: f.valuesFromArray({
-          values: ['Warehouse Manager', 'Warehouse Manager 2'],
-        }),
-        phone: f.valuesFromArray({
-          values: ['+6281234567895', '+6281234567896'],
-        }),
-        isActive: f.default({ defaultValue: true }),
-      },
+  ]);
+
+  await db.insert(schema.customers).values([
+    {
+      id: 'customer-1',
+      code: 'CUST001',
+      name: 'PT Customer Pertama',
+      email: 'contact@customerpertama.com',
+      phone: '+6281234567897',
+      address: 'Jl. Customer No. 1, Jakarta',
+      city: 'Jakarta',
+      country: 'Indonesia',
+      taxNumber: '123456789012345',
+      isActive: true,
     },
-    products: {
-      count: 3,
-      columns: {
-        id: f.valuesFromArray({
-          values: ['product-1', 'product-2', 'product-3'],
-        }),
-        code: f.valuesFromArray({ values: ['PROD001', 'PROD002', 'PROD003'] }),
-        name: f.valuesFromArray({
-          values: [
-            'Laptop Dell Inspiron',
-            'Printer HP LaserJet',
-            'Office Chair',
-          ],
-        }),
-        description: f.valuesFromArray({
-          values: [
-            'Laptop Dell Inspiron 15 inch',
-            'Printer HP LaserJet Pro',
-            'Ergonomic office chair',
-          ],
-        }),
-        category: f.valuesFromArray({
-          values: ['Electronics', 'Electronics', 'Furniture'],
-        }),
-        unit: f.default({ defaultValue: 'pcs' }),
-        price: f.valuesFromArray({
-          values: ['15000000.00', '2500000.00', '1500000.00'],
-        }),
-        currency: f.default({ defaultValue: 'IDR' }),
-        supplierId: f.valuesFromArray({
-          values: ['supplier-1', 'supplier-1', 'supplier-2'],
-        }),
-        isActive: f.default({ defaultValue: true }),
-      },
+    {
+      id: 'customer-2',
+      code: 'CUST002',
+      name: 'CV Customer Kedua',
+      email: 'info@customerkedua.com',
+      phone: '+6281234567898',
+      address: 'Jl. Customer No. 2, Surabaya',
+      city: 'Surabaya',
+      country: 'Indonesia',
+      taxNumber: '987654321098765',
+      isActive: true,
     },
-  }));
+    {
+      id: 'customer-3',
+      code: 'CUST003',
+      name: 'PT Customer Ketiga',
+      email: 'contact@customerketiga.com',
+      phone: '+6281234567899',
+      address: 'Jl. Customer No. 3, Jakarta',
+      city: 'Jakarta',
+      country: 'Indonesia',
+      taxNumber: '123456789012346',
+      isActive: true,
+    },
+    {
+      id: 'customer-4',
+      code: 'CUST004',
+      name: 'CV Customer Keempat',
+      email: 'info@customerkeempat.com',
+      phone: '+6281234567900',
+      address: 'Jl. Customer No. 4, Surabaya',
+      city: 'Surabaya',
+      country: 'Indonesia',
+      taxNumber: '987654321098766',
+      isActive: true,
+    },
+    {
+      id: 'customer-5',
+      code: 'CUST005',
+      name: 'PT Customer Kelima',
+      email: 'contact@customerkelima.com',
+      phone: '+6281234567901',
+      address: 'Jl. Customer No. 5, Jakarta',
+      city: 'Jakarta',
+      country: 'Indonesia',
+      taxNumber: '123456789012347',
+      isActive: true,
+    },
+  ]);
+
+  await db.insert(schema.suppliers).values([
+    {
+      id: 'supplier-1',
+      code: 'SUP001',
+      name: 'PT Supplier Utama',
+      contactPerson: 'John Doe',
+      email: 'contact@supplierutama.com',
+      phone: '+6281234567893',
+      address: 'Jl. Supplier No. 123',
+      city: 'Jakarta',
+      country: 'Indonesia',
+      taxNumber: '123456789012345',
+      isActive: true,
+    },
+    {
+      id: 'supplier-2',
+      code: 'SUP002',
+      name: 'CV Supplier Mitra',
+      contactPerson: 'Jane Smith',
+      email: 'info@suppliermitra.com',
+      phone: '+6281234567894',
+      address: 'Jl. Mitra No. 456',
+      city: 'Surabaya',
+      country: 'Indonesia',
+      taxNumber: '987654321098765',
+      isActive: true,
+    },
+    {
+      id: 'supplier-3',
+      code: 'SUP003',
+      name: 'PT Supplier Ketiga',
+      contactPerson: 'Ahmad Rizki',
+      email: 'contact@supplierketiga.com',
+      phone: '+6281234567895',
+      address: 'Jl. Supplier No. 789',
+      city: 'Bekasi',
+      country: 'Indonesia',
+      taxNumber: '123456789012348',
+      isActive: true,
+    },
+  ]);
+
+  await db.insert(schema.warehouses).values([
+    {
+      id: 'warehouse-1',
+      code: 'WH001',
+      name: 'Warehouse Jakarta Pusat',
+      address: 'Jl. Warehouse No. 1',
+      city: 'Jakarta',
+      country: 'Indonesia',
+      manager: 'Warehouse Manager Jakarta',
+      phone: '+6281234567895',
+      isActive: true,
+    },
+    {
+      id: 'warehouse-2',
+      code: 'WH002',
+      name: 'Warehouse Surabaya',
+      address: 'Jl. Warehouse No. 2',
+      city: 'Surabaya',
+      country: 'Indonesia',
+      manager: 'Warehouse Manager Surabaya',
+      phone: '+6281234567896',
+      isActive: true,
+    },
+  ]);
+
+  await db.insert(schema.products).values([
+    {
+      id: 'product-1',
+      code: 'SHA-1750609617450-853',
+      name: 'Shantui L36-B3',
+      description: 'Wheel Loader for construction and material handling',
+      category: 'wheel_loader',
+      brand: 'Shantui',
+      model: 'L36-B3',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-2',
+      code: 'SHA-1749810376237-569',
+      name: 'Shantui L36-B3',
+      description: 'Wheel Loader for construction and material handling',
+      category: 'wheel_loader',
+      brand: 'Shantui',
+      model: 'L36-B3',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-3',
+      code: 'SHA-1749809344351-476',
+      name: 'Shantui SL36-B3',
+      description: 'Wheel Loader for construction and material handling',
+      category: 'wheel_loader',
+      brand: 'Shantui',
+      model: 'SL36-B3',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-4',
+      code: 'SHA-1749715519206-385',
+      name: 'Shantui DH08-B3-XL',
+      description: 'Bulldozer for earthmoving and construction',
+      category: 'bulldozer',
+      brand: 'Shantui',
+      model: 'DH08-B3-XL',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-5',
+      code: 'SHA-1749713879644-288',
+      name: 'Shantui SFD35 - 3000',
+      description: 'Excavator for construction and digging operations',
+      category: 'excavator',
+      brand: 'Shantui',
+      model: 'SFD35 - 3000',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-6',
+      code: 'SHA-1749615913191-381',
+      name: 'Shantui SR 20H-B6',
+      description: 'Compactor for road construction and maintenance',
+      category: 'compactor',
+      brand: 'Shantui',
+      model: 'SR 20H-B6',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Surabaya Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-7',
+      code: 'SHA-1749615117434-413',
+      name: 'Shantui SFD70-3000',
+      description: 'Forklift for material handling and warehouse operations',
+      category: 'forklift',
+      brand: 'Shantui',
+      model: 'SFD70-3000',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Surabaya Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-8',
+      code: 'SHA-1749532223148-878',
+      name: 'Shantui SD16F',
+      description: 'Bulldozer for earthmoving and construction',
+      category: 'bulldozer',
+      brand: 'Shantui',
+      model: 'SD16F',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-9',
+      code: 'SHA-1749462416657-376',
+      name: 'Shantui SD17',
+      description: 'Bulldozer for earthmoving and construction',
+      category: 'bulldozer',
+      brand: 'Shantui',
+      model: 'SD17',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Jakarta Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+    {
+      id: 'product-10',
+      code: 'SHA-1749458225471-648',
+      name: 'Shantui SE75',
+      description: 'Excavator for construction and digging operations',
+      category: 'excavator',
+      brand: 'Shantui',
+      model: 'SE75',
+      year: 2025,
+      condition: 'new',
+      status: 'in_stock',
+      location: 'Surabaya Warehouse',
+      unit: 'pcs',
+      price: '0.00',
+      currency: 'IDR',
+      supplierId: 'supplier-1',
+      isActive: true,
+    },
+  ]);
+
+  await db.insert(schema.quotations).values([
+    {
+      id: 'quotation-1',
+      quotationNumber: 'QT-2024-001',
+      quotationDate: new Date('2024-01-15'),
+      validUntil: new Date('2024-02-15'),
+      customerId: 'customer-1',
+      createdBy: 'user-1',
+      isIncludePPN: true,
+      subtotal: '15000000.00',
+      tax: '1500000.00',
+      total: '16500000.00',
+      currency: 'IDR',
+      status: 'draft',
+      notes: 'Standard quotation for heavy equipment',
+      termsAndConditions: null,
+    },
+    {
+      id: 'quotation-2',
+      quotationNumber: 'QT-2024-002',
+      quotationDate: new Date('2024-01-20'),
+      validUntil: new Date('2024-02-20'),
+      customerId: 'customer-2',
+      createdBy: 'user-2',
+      isIncludePPN: false,
+      subtotal: '25000000.00',
+      tax: '0.00',
+      total: '25000000.00',
+      currency: 'IDR',
+      status: 'sent',
+      notes: 'Special pricing for bulk order',
+      termsAndConditions: null,
+    },
+  ]);
 
   await connection.end();
   console.log('✅ Database seeded successfully!');
 }
 
-main();
+main().catch((error) => {
+  console.error('❌ Error seeding database:', error);
+  process.exit(1);
+});

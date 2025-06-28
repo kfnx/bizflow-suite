@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "ac5b8a06-edf8-4e45-b690-5b60da726765",
+  "id": "2a02b9da-f858-4594-b058-727af17dc826",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "customers": {
@@ -1182,7 +1182,7 @@
         },
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1204,6 +1204,50 @@
         "category": {
           "name": "category",
           "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "brand": {
+          "name": "brand",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "model": {
+          "name": "model",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "condition": {
+          "name": "condition",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'new'"
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'in_stock'"
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1230,6 +1274,27 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'IDR'"
+        },
+        "engine_model": {
+          "name": "engine_model",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "engine_power": {
+          "name": "engine_power",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "operating_weight": {
+          "name": "operating_weight",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "supplier_id": {
           "name": "supplier_id",
@@ -1276,6 +1341,27 @@
           "name": "name_idx",
           "columns": [
             "name"
+          ],
+          "isUnique": false
+        },
+        "brand_idx": {
+          "name": "brand_idx",
+          "columns": [
+            "brand"
+          ],
+          "isUnique": false
+        },
+        "category_idx": {
+          "name": "category_idx",
+          "columns": [
+            "category"
+          ],
+          "isUnique": false
+        },
+        "status_idx": {
+          "name": "status_idx",
+          "columns": [
+            "status"
           ],
           "isUnique": false
         },

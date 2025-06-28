@@ -45,7 +45,7 @@ export default function RootLayout({
             >
               {children}
             </TooltipProvider>
-            <SearchMenu />
+            {/* <SearchMenu /> */}
           </ThemeProvider>
         </Providers>
       </body>

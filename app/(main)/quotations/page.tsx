@@ -1,179 +1,62 @@
 'use client';
 
-import {
-  RiArrowDownSLine,
-  RiComputerLine,
-  RiDownload2Line,
-  RiFlashlightLine,
-  RiHistoryLine,
-  RiLineChartLine,
-  RiPieChartLine,
-  RiShareForwardBoxFill,
-} from '@remixicon/react';
+import { useEffect, useState } from 'react';
+import { RiHistoryLine } from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
-import * as CompactButton from '@/components/ui/compact-button';
-import * as Divider from '@/components/ui/divider';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
-import { MoveMoneyButton } from '@/components/move-money-button';
 import {
-  TransactionsTable,
-  TransactionTablePagination,
-  type TransactionTableData,
-} from '@/components/transactions-table';
+  QuotationsTable,
+  QuotationTablePagination,
+  type QuotationTableData,
+} from '@/components/quotations-table';
 
 import { Filters } from './filters';
+import { TransactionsTable, transactions } from '@/components/transactions-table';
 
-const data: TransactionTableData[] = [
-  {
-    id: '326860a3',
-    toFrom: {
-      label: 'Investment Return',
-      icon: RiLineChartLine,
-    },
-    amount: {
-      type: 'enter',
-      value: 560,
-    },
-    account: {
-      label: 'Checking',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'wire',
-  },
-  {
-    id: '326860b3',
-    toFrom: {
-      label: 'James Brown',
-      avatar: '/images/avatar/illustration/james.png',
-    },
-    amount: {
-      type: 'exit',
-      value: 35.2,
-    },
-    account: {
-      label: 'Ops Payroll',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'transfer-exit',
-  },
-  {
-    id: '326860c3',
-    toFrom: {
-      label: 'Stock Dividend',
-      icon: RiPieChartLine,
-    },
-    amount: {
-      type: 'enter',
-      value: 1250,
-    },
-    account: {
-      label: 'AP',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'ach',
-  },
-  {
-    id: '326860d3',
-    toFrom: {
-      label: 'Sophia Williams',
-      avatar: '/images/avatar/illustration/sophia.png',
-    },
-    amount: {
-      type: 'enter',
-      value: 150,
-    },
-    account: {
-      label: 'Checking',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'transfer-enter',
-  },
-  {
-    id: '326860e3',
-    toFrom: {
-      label: 'Freelance Income',
-      icon: RiComputerLine,
-    },
-    amount: {
-      type: 'enter',
-      value: 250,
-    },
-    account: {
-      label: 'Checking',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'ach',
-  },
-  {
-    id: '326860f3',
-    toFrom: {
-      label: 'Emma Wright',
-    },
-    amount: {
-      type: 'exit',
-      value: 21.8,
-    },
-    account: {
-      label: 'AP',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'wire',
-  },
-  {
-    id: '326860g3',
-    toFrom: {
-      label: 'Utilities Payment',
-      icon: RiFlashlightLine,
-    },
-    amount: {
-      type: 'exit',
-      value: 63.75,
-    },
-    account: {
-      label: 'Ops Payroll',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'ach',
-  },
-  {
-    id: '326860h3',
-    toFrom: {
-      label: 'Matthew Johnson',
-      avatar: '/images/avatar/illustration/matthew.png',
-    },
-    amount: {
-      type: 'exit',
-      value: 45,
-    },
-    account: {
-      label: 'Checking',
-    },
-    date: {
-      label: '2024-09-12T00:00:00Z',
-    },
-    method: 'transfer-exit',
-  },
-];
+export default function PageQuotations() {
+  const [quotations, setQuotations] = useState<QuotationTableData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function PageTransactions() {
-  return (
-    <>
+  useEffect(() => {
+    fetchQuotations();
+  }, []);
+
+  const fetchQuotations = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/quotations');
+      if (!response.ok) {
+        throw new Error('Failed to fetch quotations');
+      }
+      const data = await response.json();
+      setQuotations(data.data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleView = (id: string) => {
+    console.log('View quotation:', id);
+    // TODO: Navigate to quotation detail page
+  };
+
+  const handleEdit = (id: string) => {
+    console.log('Edit quotation:', id);
+    // TODO: Navigate to quotation edit page
+  };
+
+  const handleDelete = (id: string) => {
+    console.log('Delete quotation:', id);
+    // TODO: Show confirmation dialog and delete quotation
+  };
+
+  const HeaderComponent = () => {
+    return (
       <Header
         icon={
           <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
@@ -181,48 +64,77 @@ export default function PageTransactions() {
           </div>
         }
         title='Quotations'
-        description='Track your quotations to stay in control of your income and expenses.'
+        description='Track your quotations to stay in control of your business proposals.'
       >
-        {/* <Button.Root
-          variant='neutral'
-          mode='stroke'
-          className='w-full md:w-auto'
-        >
-          <Button.Icon as={RiShareForwardBoxFill} />
-          Export
-        </Button.Root> */}
         <ActionButton className='hidden lg:flex' label='New Quotation' />
-        {/* <MoveMoneyButton className='hidden lg:flex' /> */}
       </Header>
+    );
+  };
 
-      <div className='px-4 lg:px-8'>
-        <Divider.Root />
-        <div className='flex items-center gap-3 py-4'>
-          <div className='flex-1'>
-            <div className='flex items-center gap-1.5'>
-              <div className='text-label-md text-text-strong-950'>
-                All Cards
-              </div>
-              <CompactButton.Root variant='stroke' size='medium' fullRadius>
-                <CompactButton.Icon as={RiArrowDownSLine} />
-              </CompactButton.Root>
-            </div>
-            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              Monitor and manage transactions across all your cards.
+  if (loading) {
+    return (
+      <>
+        <HeaderComponent />
+
+        <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
+          <Filters />
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-text-sub-600'>Loading quotations...</div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <HeaderComponent />
+
+        <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
+          <Filters />
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='text-text-danger-600 mb-2'>Error loading quotations</div>
+              <div className='mb-4 text-text-sub-600'>{error}</div>
+              <Button.Root onClick={fetchQuotations} variant='primary'>
+                Try Again
+              </Button.Root>
             </div>
           </div>
-          <Button.Root variant='neutral' mode='stroke'>
-            <Button.Icon as={RiDownload2Line} />
-            Export As
-          </Button.Root>
         </div>
-        <Divider.Root />
-      </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <HeaderComponent />
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
         <Filters />
-        <TransactionsTable data={data} />
-        <TransactionTablePagination />
+        {quotations.length > 0 ? (
+          <>
+            <QuotationsTable
+              data={quotations}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+            <TransactionsTable data={transactions} />
+            <QuotationTablePagination />
+          </>
+        ) : (
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='mb-2 text-text-sub-600'>No quotations found</div>
+              <div className='mb-4 text-text-sub-600'>
+                Create your first quotation to get started.
+              </div>
+              <ActionButton label='Create Quotation' />
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

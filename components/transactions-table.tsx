@@ -39,6 +39,153 @@ import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
 
+
+export const transactions: TransactionTableData[] = [
+  {
+    id: '326860a3',
+    toFrom: {
+      label: 'Investment Return',
+      icon: RiLineChartLine,
+    },
+    amount: {
+      type: 'enter',
+      value: 560,
+    },
+    account: {
+      label: 'Checking',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'wire',
+  },
+  {
+    id: '326860b3',
+    toFrom: {
+      label: 'James Brown',
+      avatar: '/images/avatar/illustration/james.png',
+    },
+    amount: {
+      type: 'exit',
+      value: 35.2,
+    },
+    account: {
+      label: 'Ops Payroll',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'transfer-exit',
+  },
+  {
+    id: '326860c3',
+    toFrom: {
+      label: 'Stock Dividend',
+      icon: RiPieChartLine,
+    },
+    amount: {
+      type: 'enter',
+      value: 1250,
+    },
+    account: {
+      label: 'AP',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'ach',
+  },
+  {
+    id: '326860d3',
+    toFrom: {
+      label: 'Sophia Williams',
+      avatar: '/images/avatar/illustration/sophia.png',
+    },
+    amount: {
+      type: 'enter',
+      value: 150,
+    },
+    account: {
+      label: 'Checking',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'transfer-enter',
+  },
+  {
+    id: '326860e3',
+    toFrom: {
+      label: 'Freelance Income',
+      icon: RiComputerLine,
+    },
+    amount: {
+      type: 'enter',
+      value: 250,
+    },
+    account: {
+      label: 'Checking',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'ach',
+  },
+  {
+    id: '326860f3',
+    toFrom: {
+      label: 'Emma Wright',
+    },
+    amount: {
+      type: 'exit',
+      value: 21.8,
+    },
+    account: {
+      label: 'AP',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'wire',
+  },
+  {
+    id: '326860g3',
+    toFrom: {
+      label: 'Utilities Payment',
+      icon: RiFlashlightLine,
+    },
+    amount: {
+      type: 'exit',
+      value: 63.75,
+    },
+    account: {
+      label: 'Ops Payroll',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'ach',
+  },
+  {
+    id: '326860h3',
+    toFrom: {
+      label: 'Matthew Johnson',
+      avatar: '/images/avatar/illustration/matthew.png',
+    },
+    amount: {
+      type: 'exit',
+      value: 45,
+    },
+    account: {
+      label: 'Checking',
+    },
+    date: {
+      label: '2024-09-12T00:00:00Z',
+    },
+    method: 'transfer-exit',
+  },
+];
+
 import { TransactionDetailDrawer } from './transaction-detail-drawer';
 
 export const transactionDetailModalOpenAtom = atom(false);
@@ -320,9 +467,9 @@ export function TransactionsTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                   </Table.Head>
                 );
               })}

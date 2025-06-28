@@ -24,7 +24,7 @@ export const users = mysqlTable(
     lastName: varchar('last_name', { length: 100 }).notNull(),
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
-    role: varchar('role', { length: 50 }).default('user'), // admin, user, manager
+    role: varchar('role', { length: 50 }).notNull().default('user'), // staff, manager, director
     isActive: boolean('is_active').default(true), // for soft delete
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -72,9 +72,7 @@ export const verificationTokens = mysqlTable(
     token: varchar('token', { length: 255 }).notNull(),
     expires: timestamp('expires', { mode: 'date' }).notNull(),
   },
-  (vt) => [
-    primaryKey({ columns: [vt.identifier, vt.token] }),
-  ],
+  (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })],
 );
 
 // Customers table

@@ -118,7 +118,6 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiUserSettingsLine,
         label: 'User Management',
         href: '/user-management',
-        disabled: true,
       },
     ],
   },
@@ -446,7 +445,7 @@ export default function Sidebar({
             })}
           >
             <NavigationMenu collapsed={collapsed} />
-            <SettingsAndSupport collapsed={collapsed} />
+            {/* <SettingsAndSupport collapsed={collapsed} /> */}
           </div>
 
           <SidebarDivider collapsed={collapsed} />

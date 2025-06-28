@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+this project use pnpm for package manager and task runner
+this project use @remixicon/react for importing icons

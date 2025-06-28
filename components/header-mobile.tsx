@@ -15,9 +15,9 @@ export default function HeaderMobile() {
       </Link>
 
       <div className='flex gap-3'>
-        <SearchMenuButton />
+        {/* <SearchMenuButton /> */}
 
-        <NotificationButton />
+        {/* <NotificationButton /> */}
 
         <div className='flex w-1 shrink-0 items-center before:h-full before:w-px before:bg-stroke-soft-200' />
 

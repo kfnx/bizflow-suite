@@ -1,19 +1,13 @@
+import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import bcrypt from 'bcryptjs';
+import { eq } from 'drizzle-orm';
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { users, accounts, sessions, verificationTokens } from '@/lib/db/schema';
+import { accounts, sessions, users, verificationTokens } from '@/lib/db/schema';
 
 export const authConfig: NextAuthConfig = {
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
   session: {
     strategy: 'jwt',
   },
@@ -29,8 +23,10 @@ export const authConfig: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        console.log('NextAuth authorize called with:', { email: credentials?.email });
-        
+        console.log('NextAuth authorize called with:', {
+          email: credentials?.email,
+        });
+
         if (!credentials?.email || !credentials?.password) {
           console.log('Missing credentials');
           return null;
@@ -78,7 +74,7 @@ export const authConfig: NextAuthConfig = {
             name: `${dbUser.firstName} ${dbUser.lastName}`,
             firstName: dbUser.firstName,
             lastName: dbUser.lastName,
-            role: dbUser.role,
+            role: dbUser.role || 'user',
             phone: dbUser.phone,
             avatar: dbUser.avatar,
           };

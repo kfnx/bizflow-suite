@@ -36,8 +36,8 @@ export default function Header({
         </div>
       </div>
       <div className={cnExt('flex items-center gap-3', contentClassName)}>
-        <SearchMenuButton className='hidden lg:flex' />
-        <NotificationButton className='hidden lg:flex' />
+        {/* <SearchMenuButton className='hidden lg:flex' />
+        <NotificationButton className='hidden lg:flex' /> */}
 
         {children}
       </div>

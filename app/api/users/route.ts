@@ -39,6 +39,8 @@ export async function GET(request: NextRequest) {
         lastName: users.lastName,
         phone: users.phone,
         avatar: users.avatar,
+        role: users.role,
+        isActive: users.isActive,
         createdAt: users.createdAt,
       })
       .from(users)

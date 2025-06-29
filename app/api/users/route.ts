@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, like, or } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { requirePermission } from '@/lib/auth/authorization';
@@ -38,7 +38,65 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
+    const search = searchParams.get('search') || '';
+    const role = searchParams.get('role') || '';
+    const status = searchParams.get('status') || '';
+    const sortBy = searchParams.get('sortBy') || 'date-desc';
     const offset = (page - 1) * limit;
+
+    // Build where conditions
+    const conditions = [];
+
+    // Search condition
+    if (search) {
+      conditions.push(
+        or(
+          like(users.firstName, `%${search}%`),
+          like(users.lastName, `%${search}%`),
+          like(users.email, `%${search}%`),
+          like(users.phone, `%${search}%`),
+        ),
+      );
+    }
+
+    // Role filter
+    if (role && role !== 'all') {
+      conditions.push(eq(users.role, role));
+    }
+
+    // Status filter
+    if (status && status !== 'all') {
+      const isActive = status === 'active';
+      conditions.push(eq(users.isActive, isActive));
+    }
+
+    const whereCondition =
+      conditions.length > 0 ? and(...conditions) : undefined;
+
+    // Build order by condition
+    let orderBy;
+    switch (sortBy) {
+      case 'date-asc':
+        orderBy = users.createdAt;
+        break;
+      case 'date-desc':
+        orderBy = desc(users.createdAt);
+        break;
+      case 'name-asc':
+        orderBy = users.firstName;
+        break;
+      case 'name-desc':
+        orderBy = desc(users.firstName);
+        break;
+      case 'email-asc':
+        orderBy = users.email;
+        break;
+      case 'email-desc':
+        orderBy = desc(users.email);
+        break;
+      default:
+        orderBy = desc(users.createdAt);
+    }
 
     const allUsers = await db
       .select({
@@ -53,10 +111,16 @@ export async function GET(request: NextRequest) {
         createdAt: users.createdAt,
       })
       .from(users)
+      .where(whereCondition)
+      .orderBy(orderBy)
       .limit(limit)
       .offset(offset);
 
-    const totalUsers = await db.select({ count: users.id }).from(users);
+    // Get total count with same filters
+    const totalUsers = await db
+      .select({ count: users.id })
+      .from(users)
+      .where(whereCondition);
 
     return NextResponse.json({
       users: allUsers,

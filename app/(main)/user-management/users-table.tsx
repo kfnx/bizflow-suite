@@ -1,96 +1,59 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { RiDeleteBinLine, RiEditLine, RiMoreLine, RiUserLine } from '@remixicon/react';
+import * as React from 'react';
+import {
+  RiDeleteBinLine,
+  RiEditLine,
+  RiMoreLine,
+  RiUserLine,
+  RiArrowDownSFill,
+  RiArrowUpSFill,
+  RiExpandUpDownFill,
+} from '@remixicon/react';
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type SortingState,
+} from '@tanstack/react-table';
 
+import { cn } from '@/utils/cn';
+import { formatDate } from '@/utils/date-formatter';
 import { Root as Avatar, Image as AvatarImage } from '@/components/ui/avatar';
 import { Root as Badge } from '@/components/ui/badge';
 import { Root as Button } from '@/components/ui/button';
 import { Root as Dropdown, Trigger as DropdownTrigger, Content as DropdownContent, Item as DropdownItem } from '@/components/ui/dropdown';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useUsers, useDeleteUser, type User } from '@/hooks/use-users';
+import * as Table from '@/components/ui/table';
 
-type User = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  avatar?: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
+const getSortingIcon = (state: 'asc' | 'desc' | false) => {
+  if (state === 'asc')
+    return <RiArrowUpSFill className='size-5 text-text-sub-600' />;
+  if (state === 'desc')
+    return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
+  return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-type UsersResponse = {
-  users: User[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+const getRoleColor = (role: string) => {
+  switch (role) {
+    case 'director':
+      return 'purple';
+    case 'manager':
+      return 'blue';
+    case 'staff':
+      return 'orange';
+    default:
+      return 'gray';
+  }
 };
 
-interface UsersTableProps {
-  refreshTrigger?: number;
-}
-
-export function UsersTable({ refreshTrigger = 0 }: UsersTableProps) {
+function ActionCell({ row }: { row: any }) {
   const { can, role: currentUserRole } = usePermissions();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'director':
-        return 'purple';
-      case 'manager':
-        return 'blue';
-      case 'staff':
-        return 'orange';
-      default:
-        return 'gray';
-    }
-  };
-
-  const fetchUsers = useCallback(async () => {
-    try {
-      const response = await fetch('/api/users');
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      const data: UsersResponse = await response.json();
-      setUsers(data.users);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/users/${userId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to delete user');
-      }
-
-      // Refresh the users list
-      await fetchUsers();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
+  const deleteUserMutation = useDeleteUser();
 
   const canDeleteUser = (userRole: string) => {
     // Check if current user has delete permission
@@ -104,139 +67,301 @@ export function UsersTable({ refreshTrigger = 0 }: UsersTableProps) {
     return currentUserRoleIndex >= targetUserRoleIndex;
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers, refreshTrigger]);
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
 
-  if (loading) {
+    try {
+      await deleteUserMutation.mutateAsync(userId);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'An error occurred');
+    }
+  };
+
+  return (
+    <PermissionGate permission="users:update">
+      <Dropdown>
+        <DropdownTrigger asChild>
+          <Button
+            variant="neutral"
+            mode="ghost"
+            size="xsmall"
+            className="h-8 w-8 p-0"
+          >
+            <RiMoreLine className="size-4" />
+          </Button>
+        </DropdownTrigger>
+        <DropdownContent>
+          <DropdownItem>
+            <RiEditLine className="size-4" />
+            Edit User
+          </DropdownItem>
+          {canDeleteUser(row.original.role) && (
+            <DropdownItem
+              onClick={() => handleDeleteUser(row.original.id)}
+              className="text-red-600"
+            >
+              <RiDeleteBinLine className="size-4" />
+              Delete User
+            </DropdownItem>
+          )}
+        </DropdownContent>
+      </Dropdown>
+    </PermissionGate>
+  );
+}
+
+const columns: ColumnDef<User>[] = [
+  {
+    id: 'user',
+    accessorKey: 'firstName',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        User
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Avatar size="32" className="size-8">
+          {row.original.avatar ? (
+            <AvatarImage src={row.original.avatar} alt={`${row.original.firstName} ${row.original.lastName}`} />
+          ) : (
+            <div className="bg-gray-100 flex size-8 items-center justify-center rounded-full">
+              <RiUserLine className="text-gray-600 size-4" />
+            </div>
+          )}
+        </Avatar>
+        <div className="ml-4">
+          <div className="text-sm text-gray-900 font-medium">
+            {row.original.firstName} {row.original.lastName}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'email',
+    accessorKey: 'email',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Email
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='text-paragraph-sm text-text-sub-600'>{row.original.email}</div>
+    ),
+  },
+  {
+    id: 'phone',
+    accessorKey: 'phone',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Phone
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {row.original.phone || '—'}
+      </div>
+    ),
+  },
+  {
+    id: 'role',
+    accessorKey: 'role',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Role
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <Badge variant="light" color={getRoleColor(row.original.role)}>
+        {row.original.role}
+      </Badge>
+    ),
+  },
+  {
+    id: 'status',
+    accessorKey: 'isActive',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Status
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <Badge variant="light" color={row.original.isActive ? "green" : "red"}>
+        {row.original.isActive ? "Active" : "Inactive"}
+      </Badge>
+    ),
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Created
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {formatDate(row.original.createdAt)}
+      </div>
+    ),
+  },
+  {
+    id: 'actions',
+    enableHiding: false,
+    cell: ActionCell,
+    meta: {
+      className: 'px-5 w-0',
+    },
+  },
+];
+
+interface UsersTableProps {
+  filters?: {
+    search?: string;
+    role?: string;
+    status?: string;
+    sortBy?: string;
+    page?: number;
+    limit?: number;
+  };
+}
+
+export function UsersTable({ filters }: UsersTableProps) {
+  const { data, isLoading, error } = useUsers(filters);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+
+  const table = useReactTable({
+    data: data?.users || [],
+    columns,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+    initialState: {
+      sorting: [
+        {
+          id: 'createdAt',
+          desc: true,
+        },
+      ],
+    },
+  });
+
+  if (isLoading) {
     return <div className="text-gray-500 p-4 text-center">Loading users...</div>;
   }
 
   if (error) {
     return (
       <div className="p-4 text-center text-red-500">
-        Error: {error}
+        Error: {error.message}
       </div>
     );
   }
 
-  if (users.length === 0) {
+  if (!data?.users || data.users.length === 0) {
     return (
       <div className="p-8 text-center">
         <RiUserLine className="text-gray-400 mx-auto size-12" />
         <h3 className="text-sm text-gray-900 mt-2 font-medium">No users found</h3>
         <p className="text-sm text-gray-500 mt-1">
-          Get started by creating a new user account.
+          {filters?.search || filters?.role || filters?.status
+            ? "No users match your current filters. Try adjusting your search criteria."
+            : "Get started by creating a new user account."
+          }
         </p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="divide-gray-200 min-w-full divide-y">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="text-xs text-gray-500 px-6 py-3 text-left font-medium uppercase tracking-wider">
-              User
-            </th>
-            <th className="text-xs text-gray-500 px-6 py-3 text-left font-medium uppercase tracking-wider">
-              Email
-            </th>
-            <th className="text-xs text-gray-500 px-6 py-3 text-left font-medium uppercase tracking-wider">
-              Phone
-            </th>
-            <th className="text-xs text-gray-500 px-6 py-3 text-left font-medium uppercase tracking-wider">
-              Role
-            </th>
-            <th className="text-xs text-gray-500 px-6 py-3 text-left font-medium uppercase tracking-wider">
-              Status
-            </th>
-            <th className="text-xs text-gray-500 px-6 py-3 text-left font-medium uppercase tracking-wider">
-              Created
-            </th>
-            <th className="relative px-6 py-3">
-              <span className="sr-only">Actions</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-gray-200 divide-y bg-white">
-          {users.map((user) => (
-            <tr key={user.id} className="hover:bg-gray-50">
-              <td className="whitespace-nowrap px-6 py-4">
-                <div className="flex items-center">
-                  <Avatar size="32" className="size-8">
-                    {user.avatar ? (
-                      <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
-                    ) : (
-                      <div className="bg-gray-100 flex size-8 items-center justify-center rounded-full">
-                        <RiUserLine className="text-gray-600 size-4" />
-                      </div>
+    <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[860px]'>
+      <Table.Header className='whitespace-nowrap'>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <Table.Row key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              return (
+                <Table.Head
+                  key={header.id}
+                  className={header.column.columnDef.meta?.className}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
                     )}
-                  </Avatar>
-                  <div className="ml-4">
-                    <div className="text-sm text-gray-900 font-medium">
-                      {user.firstName} {user.lastName}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-6 py-4">
-                <div className="text-sm text-gray-900">{user.email}</div>
-              </td>
-              <td className="whitespace-nowrap px-6 py-4">
-                <div className="text-sm text-gray-900">
-                  {user.phone || '—'}
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-6 py-4">
-                <Badge variant="light" color={getRoleColor(user.role)}>
-                  {user.role}
-                </Badge>
-              </td>
-              <td className="whitespace-nowrap px-6 py-4">
-                <Badge variant="light" color={user.isActive ? "green" : "red"}>
-                  {user.isActive ? "Active" : "Inactive"}
-                </Badge>
-              </td>
-              <td className="text-sm text-gray-500 whitespace-nowrap px-6 py-4">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </td>
-              <td className="text-sm whitespace-nowrap px-6 py-4 text-right font-medium">
-                <PermissionGate permission="users:update">
-                  <Dropdown>
-                    <DropdownTrigger asChild>
-                      <Button
-                        variant="neutral"
-                        mode="ghost"
-                        size="xsmall"
-                        className="h-8 w-8 p-0"
-                      >
-                        <RiMoreLine className="size-4" />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownContent>
-                      <DropdownItem>
-                        <RiEditLine className="size-4" />
-                        Edit User
-                      </DropdownItem>
-                      {canDeleteUser(user.role) && (
-                        <DropdownItem
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-600"
-                        >
-                          <RiDeleteBinLine className="size-4" />
-                          Delete User
-                        </DropdownItem>
-                      )}
-                    </DropdownContent>
-                  </Dropdown>
-                </PermissionGate>
-              </td>
-            </tr>
+                </Table.Head>
+              );
+            })}
+          </Table.Row>
+        ))}
+      </Table.Header>
+      <Table.Body>
+        {table.getRowModel().rows?.length > 0 &&
+          table.getRowModel().rows.map((row, i, arr) => (
+            <React.Fragment key={row.id}>
+              <Table.Row data-state={row.getIsSelected() && 'selected'}>
+                {row.getVisibleCells().map((cell) => (
+                  <Table.Cell
+                    key={cell.id}
+                    className={cn(
+                      'h-12',
+                      cell.column.columnDef.meta?.className,
+                    )}
+                  >
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  </Table.Cell>
+                ))}
+              </Table.Row>
+              {i < arr.length - 1 && <Table.RowDivider />}
+            </React.Fragment>
           ))}
-        </tbody>
-      </table>
-    </div>
+      </Table.Body>
+    </Table.Root>
   );
 } 

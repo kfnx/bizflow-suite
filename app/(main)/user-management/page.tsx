@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { RiAddLine } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 

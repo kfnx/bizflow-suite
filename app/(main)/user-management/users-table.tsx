@@ -133,13 +133,13 @@ const columns: ColumnDef<User>[] = [
           {row.original.avatar ? (
             <AvatarImage src={row.original.avatar} alt={`${row.original.firstName} ${row.original.lastName}`} />
           ) : (
-            <div className="bg-gray-100 flex size-8 items-center justify-center rounded-full">
-              <RiUserLine className="text-gray-600 size-4" />
+            <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+              <RiUserLine className="size-4 text-text-sub-600" />
             </div>
           )}
         </Avatar>
         <div className="ml-4">
-          <div className="text-sm text-gray-900 font-medium">
+          <div className='text-paragraph-sm text-text-strong-950'>
             {row.original.firstName} {row.original.lastName}
           </div>
         </div>
@@ -229,7 +229,7 @@ const columns: ColumnDef<User>[] = [
     accessorKey: 'createdAt',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
-        Created
+        Created at
         <button
           type='button'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}

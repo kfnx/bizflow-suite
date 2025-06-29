@@ -1,7 +1,7 @@
 'use client';
 
+import { useState, useCallback, useEffect } from 'react';
 import { RiFilter3Fill, RiSearch2Line, RiSortDesc } from '@remixicon/react';
-import { atom, useAtom } from 'jotai';
 
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -13,19 +13,43 @@ import IconCmd from '~/icons/icon-cmd.svg';
 
 type QuotationStatus = 'all' | 'draft' | 'sent' | 'accepted' | 'rejected';
 
-export const filteredQuotationStatusAtom = atom<QuotationStatus>('all');
+export interface QuotationsFilters {
+  search: string;
+  status: QuotationStatus;
+  sortBy: string;
+}
 
-export function Filters() {
-  const [filteredQuotationStatus, setFilteredQuotationStatus] = useAtom(
-    filteredQuotationStatusAtom,
-  );
+interface FiltersProps {
+  onFiltersChange?: (filters: QuotationsFilters) => void;
+}
+
+export function Filters({ onFiltersChange }: FiltersProps) {
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<QuotationStatus>('all');
+  const [sortBy, setSortBy] = useState('');
+
+  const handleFiltersChange = useCallback(() => {
+    onFiltersChange?.({
+      search,
+      status,
+      sortBy,
+    });
+  }, [search, status, sortBy, onFiltersChange]);
+
+  useEffect(() => {
+    handleFiltersChange();
+  }, [handleFiltersChange]);
 
   return (
     <div className='flex flex-col justify-between gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:gap-3'>
       <Input.Root className='lg:hidden'>
         <Input.Wrapper>
           <Input.Icon as={RiSearch2Line} />
-          <Input.Input placeholder='Search quotations...' />
+          <Input.Input
+            placeholder='Search quotations...'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <button type='button'>
             <RiFilter3Fill className='size-5 text-text-soft-400' />
           </button>
@@ -33,8 +57,8 @@ export function Filters() {
       </Input.Root>
 
       <SegmentedControl.Root
-        value={filteredQuotationStatus}
-        onValueChange={(v) => setFilteredQuotationStatus(v as QuotationStatus)}
+        value={status}
+        onValueChange={(v) => setStatus(v as QuotationStatus)}
         className='lg:w-96'
       >
         <SegmentedControl.List className='w-full'>
@@ -58,7 +82,11 @@ export function Filters() {
         <Input.Root size='small' className='w-[300px]'>
           <Input.Wrapper>
             <Input.Icon as={RiSearch2Line} />
-            <Input.Input placeholder='Search quotations...' />
+            <Input.Input
+              placeholder='Search quotations...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <Kbd.Root>
               <IconCmd className='size-2.5' />1
             </Kbd.Root>
@@ -75,7 +103,7 @@ export function Filters() {
           Filter
         </Button.Root>
 
-        <Select.Root size='small'>
+        <Select.Root size='small' value={sortBy} onValueChange={setSortBy}>
           <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
             <Select.TriggerIcon as={RiSortDesc} />
             <Select.Value placeholder='Sort by' />

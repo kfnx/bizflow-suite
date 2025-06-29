@@ -1,48 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import * as React from 'react';
 import {
+  RiArrowDownSFill,
+  RiArrowUpSFill,
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
   RiCalendarLine,
+  RiExpandUpDownFill,
   RiFileTextLine,
   RiMoreLine,
   RiUserLine,
 } from '@remixicon/react';
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type SortingState,
+} from '@tanstack/react-table';
 
+import { cn } from '@/utils/cn';
+import { formatDate } from '@/utils/date-formatter';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 import * as Table from '@/components/ui/table';
 import * as Badge from '@/components/ui/badge';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
-import { formatDate } from '@/utils/date-formatter';
+import { useQuotations, useDeleteQuotation, type Quotation } from '@/hooks/use-quotations';
 
-export interface QuotationTableData {
-  id: string;
-  quotationNumber: string;
-  quotationDate: string;
-  validUntil: string;
-  customerName: string;
-  customerCode: string;
-  subtotal: number;
-  tax: number;
-  total: number;
-  currency: string;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected';
-  notes?: string;
-  createdByUser: string;
-  createdAt: string;
-}
-
-interface QuotationsTableProps {
-  data: QuotationTableData[];
-  onView?: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-}
+const getSortingIcon = (state: 'asc' | 'desc' | false) => {
+  if (state === 'asc')
+    return <RiArrowUpSFill className='size-5 text-text-sub-600' />;
+  if (state === 'desc')
+    return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
+  return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
+};
 
 const statusConfig = {
   draft: {
@@ -75,165 +72,359 @@ const formatCurrency = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-export function QuotationsTable({
-  data,
-  onView,
-  onEdit,
-  onDelete,
-}: QuotationsTableProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+function ActionCell({ row }: { row: any }) {
+  const deleteQuotationMutation = useDeleteQuotation();
 
-  const handleAction = (action: 'view' | 'edit' | 'delete', id: string) => {
-    setSelectedId(null);
-    switch (action) {
-      case 'view':
-        onView?.(id);
-        break;
-      case 'edit':
-        onEdit?.(id);
-        break;
-      case 'delete':
-        onDelete?.(id);
-        break;
+  const handleDeleteQuotation = async (quotationId: string) => {
+    if (!confirm('Are you sure you want to delete this quotation? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await deleteQuotationMutation.mutateAsync(quotationId);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
-  return (<Table.Root>
-    <Table.Header>
-      <Table.Row>
-        <Table.Head className='w-[200px]'>Quotation</Table.Head>
-        <Table.Head className='w-[200px]'>Customer</Table.Head>
-        <Table.Head className='w-[120px]'>Date</Table.Head>
-        <Table.Head className='w-[120px]'>Valid Until</Table.Head>
-        <Table.Head className='w-[120px] text-right'>Total</Table.Head>
-        <Table.Head className='w-[100px]'>Status</Table.Head>
-        <Table.Head className='w-[100px]'>Created By</Table.Head>
-        <Table.Head className='w-[50px]'></Table.Head>
-      </Table.Row>
-    </Table.Header>
-    <Table.Body>
-      {data.map((quotation) => {
-        const status = statusConfig[quotation.status];
-        return (
-          <Table.Row key={quotation.id} className='group'>
-            <Table.Cell>
-              <div className='flex items-center gap-3'>
-                <div className='bg-bg-subtle-50 flex size-10 shrink-0 items-center justify-center rounded-lg'>
-                  <RiFileTextLine className='size-5 text-text-sub-600' />
-                </div>
-                <div className='flex flex-col'>
-                  <div className='font-medium text-text-strong-950'>
-                    {quotation.quotationNumber}
-                  </div>
-                  {quotation.notes && (
-                    <div className='text-sm line-clamp-1 text-text-sub-600'>
-                      {quotation.notes}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <div className='flex items-center gap-2'>
-                <div className='bg-bg-subtle-50 flex size-8 shrink-0 items-center justify-center rounded-full'>
-                  <RiUserLine className='size-4 text-text-sub-600' />
-                </div>
-                <div className='flex flex-col'>
-                  <div className='font-medium text-text-strong-950'>
-                    {quotation.customerName}
-                  </div>
-                  <div className='text-sm text-text-sub-600'>
-                    {quotation.customerCode}
-                  </div>
-                </div>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <div className='flex items-center gap-1.5'>
-                <RiCalendarLine className='size-4 text-text-sub-600' />
-                <span className='text-sm text-text-strong-950'>
-                  {formatDate(quotation.quotationDate)}
-                </span>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <div className='flex items-center gap-1.5'>
-                <RiCalendarLine className='size-4 text-text-sub-600' />
-                <span className='text-sm text-text-strong-950'>
-                  {formatDate(quotation.validUntil)}
-                </span>
-              </div>
-            </Table.Cell>
-            <Table.Cell className='text-right'>
-              <div className='flex flex-col'>
-                <div className='font-semibold text-text-strong-950'>
-                  {formatCurrency(quotation.total, quotation.currency)}
-                </div>
-                <div className='text-sm text-text-sub-600'>
-                  {formatCurrency(quotation.subtotal, quotation.currency)}
-                </div>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <Badge.Root
-                variant={status.variant}
-                color={status.color}
-                size='medium'
-              >
-                {status.label}
-              </Badge.Root>
-            </Table.Cell>
-            <Table.Cell>
-              <div className='text-sm text-text-strong-950'>
-                {quotation.createdByUser}
-              </div>
-              <div className='text-xs text-text-sub-600'>
-                {formatDate(quotation.createdAt)}
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <Dropdown.Root
-                open={selectedId === quotation.id}
-                onOpenChange={(open) =>
-                  setSelectedId(open ? quotation.id : null)
-                }
-              >
-                <Dropdown.Trigger asChild>
-                  <Button.Root
-                    variant='neutral'
-                    mode='ghost'
-                    size='small'
-                    className='opacity-0 group-hover:opacity-100'
-                  >
-                    <Button.Icon as={RiMoreLine} />
-                  </Button.Root>
-                </Dropdown.Trigger>
-                <Dropdown.Content align='end'>
-                  <Dropdown.Item
-                    onClick={() => handleAction('view', quotation.id)}
-                  >
-                    View Details
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => handleAction('edit', quotation.id)}
-                  >
-                    Edit Quotation
-                  </Dropdown.Item>
-                  <Dropdown.Separator />
-                  <Dropdown.Item
-                    onClick={() => handleAction('delete', quotation.id)}
-                    className='text-danger-600'
-                  >
-                    Delete
-                  </Dropdown.Item>
-                </Dropdown.Content>
-              </Dropdown.Root>
-            </Table.Cell>
+  return (
+    <Dropdown.Root>
+      <Dropdown.Trigger asChild>
+        <Button.Root
+          variant="neutral"
+          mode="ghost"
+          size="xsmall"
+          className="h-8 w-8 p-0"
+        >
+          <RiMoreLine className="size-4" />
+        </Button.Root>
+      </Dropdown.Trigger>
+      <Dropdown.Content>
+        <Dropdown.Item>
+          View Details
+        </Dropdown.Item>
+        <Dropdown.Item>
+          Edit Quotation
+        </Dropdown.Item>
+        <Dropdown.Separator />
+        <Dropdown.Item
+          onClick={() => handleDeleteQuotation(row.original.id)}
+          className="text-red-600"
+        >
+          Delete
+        </Dropdown.Item>
+      </Dropdown.Content>
+    </Dropdown.Root>
+  );
+}
+
+const columns: ColumnDef<Quotation>[] = [
+  {
+    id: 'quotation',
+    accessorKey: 'quotationNumber',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Quotation
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='flex items-center gap-3'>
+        <div className='bg-bg-subtle-50 flex size-10 shrink-0 items-center justify-center rounded-lg'>
+          <RiFileTextLine className='size-5 text-text-sub-600' />
+        </div>
+        <div className='flex flex-col'>
+          <div className='font-medium text-text-strong-950'>
+            {row.original.quotationNumber}
+          </div>
+          {row.original.notes && (
+            <div className='text-sm line-clamp-1 text-text-sub-600'>
+              {row.original.notes}
+            </div>
+          )}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'customer',
+    accessorKey: 'customerName',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Customer
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='flex items-center gap-2'>
+        <div className='bg-bg-subtle-50 flex size-8 shrink-0 items-center justify-center rounded-full'>
+          <RiUserLine className='size-4 text-text-sub-600' />
+        </div>
+        <div className='flex flex-col'>
+          <div className='font-medium text-text-strong-950'>
+            {row.original.customerName}
+          </div>
+          <div className='text-sm text-text-sub-600'>
+            {row.original.customerCode}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'quotationDate',
+    accessorKey: 'quotationDate',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Date
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='flex items-center gap-1.5'>
+        <RiCalendarLine className='size-4 text-text-sub-600' />
+        <span className='text-sm text-text-strong-950'>
+          {formatDate(row.original.quotationDate)}
+        </span>
+      </div>
+    ),
+  },
+  {
+    id: 'validUntil',
+    accessorKey: 'validUntil',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Valid Until
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='flex items-center gap-1.5'>
+        <RiCalendarLine className='size-4 text-text-sub-600' />
+        <span className='text-sm text-text-strong-950'>
+          {formatDate(row.original.validUntil)}
+        </span>
+      </div>
+    ),
+  },
+  {
+    id: 'total',
+    accessorKey: 'total',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5 text-right'>
+        Total
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='text-right'>
+        <div className='flex flex-col'>
+          <div className='font-semibold text-text-strong-950'>
+            {formatCurrency(row.original.total, row.original.currency)}
+          </div>
+          <div className='text-sm text-text-sub-600'>
+            {formatCurrency(row.original.subtotal, row.original.currency)}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'status',
+    accessorKey: 'status',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Status
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const status = statusConfig[row.original.status];
+      return (
+        <Badge.Root
+          variant={status.variant}
+          color={status.color}
+          size='medium'
+        >
+          {status.label}
+        </Badge.Root>
+      );
+    },
+  },
+  {
+    id: 'createdBy',
+    accessorKey: 'createdByUser',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Created By
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div>
+        <div className='text-sm text-text-strong-950'>
+          {row.original.createdByUser}
+        </div>
+        <div className='text-xs text-text-sub-600'>
+          {formatDate(row.original.createdAt)}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'actions',
+    enableHiding: false,
+    cell: ActionCell,
+    meta: {
+      className: 'px-5 w-0',
+    },
+  },
+];
+
+interface QuotationsTableProps {
+  filters?: {
+    search?: string;
+    status?: string;
+    customerId?: string;
+    sortBy?: string;
+    page?: number;
+    limit?: number;
+  };
+}
+
+export function QuotationsTable({ filters }: QuotationsTableProps) {
+  const { data, isLoading, error } = useQuotations(filters);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+
+  const table = useReactTable({
+    data: data?.data || [],
+    columns,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+    initialState: {
+      sorting: [
+        {
+          id: 'createdBy',
+          desc: true,
+        },
+      ],
+    },
+  });
+
+  if (isLoading) {
+    return <div className="text-gray-500 p-4 text-center">Loading quotations...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center text-red-500">
+        Error: {error.message}
+      </div>
+    );
+  }
+
+  if (!data?.data || data.data.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <RiFileTextLine className="text-gray-400 mx-auto size-12" />
+        <h3 className="text-sm text-gray-900 mt-2 font-medium">No quotations found</h3>
+        <p className="text-sm text-gray-500 mt-1">
+          {filters?.search || filters?.status || filters?.customerId
+            ? "No quotations match your current filters. Try adjusting your search criteria."
+            : "Get started by creating a new quotation."
+          }
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[860px]'>
+      <Table.Header className='whitespace-nowrap'>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <Table.Row key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              return (
+                <Table.Head
+                  key={header.id}
+                  className={header.column.columnDef.meta?.className}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                </Table.Head>
+              );
+            })}
           </Table.Row>
-        );
-      })}
-    </Table.Body>
-  </Table.Root>
+        ))}
+      </Table.Header>
+      <Table.Body>
+        {table.getRowModel().rows?.length > 0 &&
+          table.getRowModel().rows.map((row, i, arr) => (
+            <React.Fragment key={row.id}>
+              <Table.Row data-state={row.getIsSelected() && 'selected'}>
+                {row.getVisibleCells().map((cell) => (
+                  <Table.Cell
+                    key={cell.id}
+                    className={cn(
+                      'h-12',
+                      cell.column.columnDef.meta?.className,
+                    )}
+                  >
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  </Table.Cell>
+                ))}
+              </Table.Row>
+              {i < arr.length - 1 && <Table.RowDivider />}
+            </React.Fragment>
+          ))}
+      </Table.Body>
+    </Table.Root>
   );
 }
 

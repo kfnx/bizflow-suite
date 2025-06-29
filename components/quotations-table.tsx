@@ -135,15 +135,12 @@ const columns: ColumnDef<Quotation>[] = [
     ),
     cell: ({ row }) => (
       <div className='flex items-center gap-3'>
-        <div className='bg-bg-subtle-50 flex size-10 shrink-0 items-center justify-center rounded-lg'>
-          <RiFileTextLine className='size-5 text-text-sub-600' />
-        </div>
         <div className='flex flex-col'>
-          <div className='font-medium text-text-strong-950'>
+          <div className='text-paragraph-sm text-text-sub-600'>
             {row.original.quotationNumber}
           </div>
           {row.original.notes && (
-            <div className='text-sm line-clamp-1 text-text-sub-600'>
+            <div className='line-clamp-1 text-paragraph-xs text-text-soft-400'>
               {row.original.notes}
             </div>
           )}
@@ -167,14 +164,11 @@ const columns: ColumnDef<Quotation>[] = [
     ),
     cell: ({ row }) => (
       <div className='flex items-center gap-2'>
-        <div className='bg-bg-subtle-50 flex size-8 shrink-0 items-center justify-center rounded-full'>
-          <RiUserLine className='size-4 text-text-sub-600' />
-        </div>
         <div className='flex flex-col'>
-          <div className='font-medium text-text-strong-950'>
+          <div className='text-paragraph-sm text-text-sub-600'>
             {row.original.customerName}
           </div>
-          <div className='text-sm text-text-sub-600'>
+          <div className='text-paragraph-xs text-text-soft-400'>
             {row.original.customerCode}
           </div>
         </div>
@@ -196,11 +190,8 @@ const columns: ColumnDef<Quotation>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className='flex items-center gap-1.5'>
-        <RiCalendarLine className='size-4 text-text-sub-600' />
-        <span className='text-sm text-text-strong-950'>
-          {formatDate(row.original.quotationDate)}
-        </span>
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {formatDate(row.original.quotationDate)}
       </div>
     ),
   },
@@ -219,11 +210,8 @@ const columns: ColumnDef<Quotation>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className='flex items-center gap-1.5'>
-        <RiCalendarLine className='size-4 text-text-sub-600' />
-        <span className='text-sm text-text-strong-950'>
-          {formatDate(row.original.validUntil)}
-        </span>
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {formatDate(row.original.validUntil)}
       </div>
     ),
   },
@@ -244,10 +232,10 @@ const columns: ColumnDef<Quotation>[] = [
     cell: ({ row }) => (
       <div className='text-right'>
         <div className='flex flex-col'>
-          <div className='font-semibold text-text-strong-950'>
+          <div className='text-paragraph-sm text-text-sub-600'>
             {formatCurrency(row.original.total, row.original.currency)}
           </div>
-          <div className='text-sm text-text-sub-600'>
+          <div className='text-paragraph-xs text-text-soft-400'>
             {formatCurrency(row.original.subtotal, row.original.currency)}
           </div>
         </div>
@@ -297,10 +285,10 @@ const columns: ColumnDef<Quotation>[] = [
     ),
     cell: ({ row }) => (
       <div>
-        <div className='text-sm text-text-strong-950'>
+        <div className='text-paragraph-sm text-text-sub-600'>
           {row.original.createdByUser}
         </div>
-        <div className='text-xs text-text-sub-600'>
+        <div className='text-paragraph-xs text-text-soft-400'>
           {formatDate(row.original.createdAt)}
         </div>
       </div>
@@ -366,8 +354,8 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
     return (
       <div className="p-8 text-center">
         <RiFileTextLine className="text-gray-400 mx-auto size-12" />
-        <h3 className="text-sm text-gray-900 mt-2 font-medium">No quotations found</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <h3 className="text-gray-900 mt-2 text-paragraph-sm font-medium">No quotations found</h3>
+        <p className="text-gray-500 mt-1 text-paragraph-sm">
           {filters?.search || filters?.status || filters?.customerId
             ? "No quotations match your current filters. Try adjusting your search criteria."
             : "Get started by creating a new quotation."

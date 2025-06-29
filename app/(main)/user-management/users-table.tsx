@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { RiEditLine, RiMoreLine, RiUserLine } from '@remixicon/react';
+import { useEffect, useState, useCallback } from 'react';
+import { RiDeleteBinLine, RiEditLine, RiMoreLine, RiUserLine } from '@remixicon/react';
 
 import { Root as Avatar, Image as AvatarImage } from '@/components/ui/avatar';
 import { Root as Badge } from '@/components/ui/badge';
 import { Root as Button } from '@/components/ui/button';
 import { Root as Dropdown, Trigger as DropdownTrigger, Content as DropdownContent, Item as DropdownItem } from '@/components/ui/dropdown';
+import { PermissionGate } from '@/components/auth/permission-gate';
+import { usePermissions } from '@/hooks/use-permissions';
 
 type User = {
   id: string;
@@ -30,7 +32,12 @@ type UsersResponse = {
   };
 };
 
-export function UsersTable() {
+interface UsersTableProps {
+  refreshTrigger?: number;
+}
+
+export function UsersTable({ refreshTrigger = 0 }: UsersTableProps) {
+  const { can, role: currentUserRole } = usePermissions();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,24 +55,58 @@ export function UsersTable() {
     }
   };
 
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const response = await fetch('/api/users');
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-        const data: UsersResponse = await response.json();
-        setUsers(data.users);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+  const fetchUsers = useCallback(async () => {
+    try {
+      const response = await fetch('/api/users');
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
       }
+      const data: UsersResponse = await response.json();
+      setUsers(data.users);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
     }
 
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete user');
+      }
+
+      // Refresh the users list
+      await fetchUsers();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'An error occurred');
+    }
+  };
+
+  const canDeleteUser = (userRole: string) => {
+    // Check if current user has delete permission
+    if (!can('users:delete')) return false;
+
+    // Check role hierarchy - can only delete users with equal or lower roles
+    const roleOrder = ['staff', 'manager', 'director'];
+    const currentUserRoleIndex = roleOrder.indexOf(currentUserRole);
+    const targetUserRoleIndex = roleOrder.indexOf(userRole);
+
+    return currentUserRoleIndex >= targetUserRoleIndex;
+  };
+
+  useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers, refreshTrigger]);
 
   if (loading) {
     return <div className="text-gray-500 p-4 text-center">Loading users...</div>;
@@ -162,24 +203,35 @@ export function UsersTable() {
                 {new Date(user.createdAt).toLocaleDateString()}
               </td>
               <td className="text-sm whitespace-nowrap px-6 py-4 text-right font-medium">
-                <Dropdown>
-                  <DropdownTrigger asChild>
-                    <Button
-                      variant="neutral"
-                      mode="ghost"
-                      size="xsmall"
-                      className="h-8 w-8 p-0"
-                    >
-                      <RiMoreLine className="size-4" />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownContent>
-                    <DropdownItem>
-                      <RiEditLine className="size-4" />
-                      Edit User
-                    </DropdownItem>
-                  </DropdownContent>
-                </Dropdown>
+                <PermissionGate permission="users:update">
+                  <Dropdown>
+                    <DropdownTrigger asChild>
+                      <Button
+                        variant="neutral"
+                        mode="ghost"
+                        size="xsmall"
+                        className="h-8 w-8 p-0"
+                      >
+                        <RiMoreLine className="size-4" />
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownContent>
+                      <DropdownItem>
+                        <RiEditLine className="size-4" />
+                        Edit User
+                      </DropdownItem>
+                      {canDeleteUser(user.role) && (
+                        <DropdownItem
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="text-red-600"
+                        >
+                          <RiDeleteBinLine className="size-4" />
+                          Delete User
+                        </DropdownItem>
+                      )}
+                    </DropdownContent>
+                  </Dropdown>
+                </PermissionGate>
               </td>
             </tr>
           ))}

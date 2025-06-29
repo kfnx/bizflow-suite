@@ -33,13 +33,13 @@ export default function PageHome() {
         title='Documents Overview'
         description='Welcome back 👋🏻'
       >
-        <ActionButton className='hidden lg:flex' label='New Quotation' />
-        <ActionButton className='hidden lg:flex' label='New Invoice' />
-        <ActionButton className='hidden lg:flex' label='New Delivery Note' />
+        <ActionButton className='hidden lg:flex' label='New Quotation' href='/quotations' />
+        <ActionButton className='hidden lg:flex' label='New Invoice' href='/invoices' />
+        <ActionButton className='hidden lg:flex' label='New Delivery Note' href='/delivery-notes' />
         {/* <MoveMoneyButton className='hidden lg:flex' /> */}
       </Header>
 
-      <div className='flex flex-col gap-6 overflow-hidden px-4 pb-6 lg:px-8 lg:pt-1'>
+      {/* <div className='flex flex-col gap-6 overflow-hidden px-4 pb-6 lg:px-8 lg:pt-1'>
         <div className='mx-auto grid w-full max-w-md grid-cols-1 items-start gap-6 lg:max-w-3xl lg:grid-cols-2 lg:justify-center min-[1300px]:max-w-4xl min-[1400px]:max-w-full min-[1400px]:grid-cols-3'>
           <WidgetMyCards className='lg:row-span-2' />
           <WidgetBudgetOverview className='[grid-column:1/-1] min-[1300px]:col-span-2' />
@@ -58,7 +58,7 @@ export default function PageHome() {
           <WidgetMajorExpenses />
           <WidgetTransactionsTable className='[grid-column:1/-1]' />
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

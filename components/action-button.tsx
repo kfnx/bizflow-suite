@@ -9,16 +9,18 @@ import * as Button from '@/components/ui/button';
 export function ActionButton({
   className,
   label,
+  href,
 }: {
   className?: string;
   label: string;
+  href: string;
 }) {
   return (
-    <Button.Root className={cn('rounded-xl', className)} asChild>
-      <Link href='/add-product'>
+    <Link href={href}>
+      <Button.Root className={cn('rounded-xl', className)}>
         <Button.Icon as={RiAddLine} />
         {label}
-      </Link>
-    </Button.Root>
+      </Button.Root>
+    </Link>
   );
 }

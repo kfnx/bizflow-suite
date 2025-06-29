@@ -66,7 +66,7 @@ export default function PageQuotations() {
         title='Quotations'
         description='Track your quotations to stay in control of your business proposals.'
       >
-        <ActionButton className='hidden lg:flex' label='New Quotation' />
+        <ActionButton className='hidden lg:flex' label='New Quotation' href='/quotations/new' />
       </Header>
     );
   };
@@ -131,7 +131,7 @@ export default function PageQuotations() {
               <div className='mb-4 text-text-sub-600'>
                 Create your first quotation to get started.
               </div>
-              <ActionButton label='Create Quotation' />
+              <ActionButton label='Create Quotation' href='/quotations/new' />
             </div>
           </div>
         )}

@@ -3,8 +3,10 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
+import { requirePermission } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { users } from '@/lib/db/schema';
+import { canCreateRole } from '@/lib/permissions';
 
 // Validation schemas
 const createUserSchema = z.object({
@@ -13,6 +15,7 @@ const createUserSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   phone: z.string().optional(),
+  role: z.enum(['staff', 'manager', 'director']),
 });
 
 const updateUserSchema = z.object({
@@ -22,8 +25,14 @@ const updateUserSchema = z.object({
   avatar: z.string().url().optional(),
 });
 
-// GET /api/users - Get all users (with pagination)
+// GET /api/users - Get all users (requires users:read permission)
 export async function GET(request: NextRequest) {
+  const session = await requirePermission(request, 'users:read');
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
     const db = await getDB();
     const { searchParams } = new URL(request.url);
@@ -67,12 +76,29 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/users - Create a new user
+// POST /api/users - Create a new user (requires users:create permission)
 export async function POST(request: NextRequest) {
+  const session = await requirePermission(request, 'users:create');
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
     const db = await getDB();
     const body = await request.json();
     const validatedData = createUserSchema.parse(body);
+
+    // Check if user can create the specified role
+    if (!canCreateRole(session.user.role, validatedData.role)) {
+      return NextResponse.json(
+        {
+          error:
+            'You can only create users with roles equal to or lower than your own',
+        },
+        { status: 403 },
+      );
+    }
 
     // Check if user already exists
     const existingUser = await db
@@ -99,6 +125,7 @@ export async function POST(request: NextRequest) {
       firstName: validatedData.firstName,
       lastName: validatedData.lastName,
       phone: validatedData.phone,
+      role: validatedData.role,
     });
 
     return NextResponse.json(

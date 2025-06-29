@@ -20,11 +20,12 @@ import {
   RiUserSettingsLine,
 } from '@remixicon/react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useSession } from 'next-auth/react';
 
 import { cn } from '@/utils/cn';
 import * as Divider from '@/components/ui/divider';
-import { CompanySwitch } from '@/components/company-switch';
 import { UserButton } from '@/components/user-button';
+import { hasPermission, Permission } from '@/lib/permissions';
 
 import IconCmd from '~/icons/icon-cmd.svg';
 
@@ -92,7 +93,7 @@ export const navigationLinks: NavigationCategory[] = [
       },
     ],
   },
-  // Business Partesrs
+  // Business Partners
   {
     label: 'Business Partners',
     links: [
@@ -185,26 +186,25 @@ function useCollapsedState({
 
     elementsToHide.forEach((el) => {
       const hideListener = () => {
-        el.classList.add('hidden');
-        el.classList.remove('transition', 'duration-300');
-      };
-
-      const showListener = () => {
-        el.classList.remove('transition', 'duration-300');
-      };
-
-      if (collapsed) {
         el.classList.add('opacity-0', 'transition', 'duration-300');
         el.addEventListener('transitionend', hideListener, { once: true });
         listeners.push({ el, listener: hideListener });
-      } else {
-        el.classList.add('transition', 'duration-300');
+      };
+
+      const showListener = () => {
         el.classList.remove('hidden');
+        el.classList.add('transition', 'duration-300');
         setTimeout(() => {
           el.classList.remove('opacity-0');
         }, 1);
         el.addEventListener('transitionend', showListener, { once: true });
         listeners.push({ el, listener: showListener });
+      };
+
+      if (collapsed) {
+        hideListener();
+      } else {
+        showListener();
       }
     });
 
@@ -220,25 +220,47 @@ function useCollapsedState({
 
 export function SidebarHeader({ collapsed }: { collapsed?: boolean }) {
   return (
-    <div
-      className={cn('lg:p-3', {
-        'lg:px-2': collapsed,
-      })}
-    >
-      <div className='px-4 text-label-xl'>BizDocGen</div>
-      {/* <CompanySwitch
-        className={cn('transition-all-default', {
-          'w-16': collapsed,
+    <Link href='/'>
+      <div
+        className={cn('lg:p-3', {
+          'lg:px-2': collapsed,
         })}
-      /> */}
-    </div>
+      >
+        <div className='px-4 text-label-xl'>BizDocGen</div>
+      </div>
+    </Link>
   );
 }
 
 function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
-  return navigationLinks.map(({ label, links }) => (
+  // Filter navigation links based on user permissions
+  const filteredNavigationLinks = navigationLinks.map(category => ({
+    ...category,
+    links: category.links.filter(link => {
+      // Check if user has permission for this route
+      const routePermissions: Record<string, Permission[]> = {
+        '/user-management': ['users:read'],
+        '/quotations': ['quotations:read'],
+        '/invoices': ['invoices:read'],
+        '/products': ['products:read'],
+        '/warehouses': ['warehouses:read'],
+        '/reports': ['reports:view'],
+        '/settings': ['settings:manage'],
+      };
+
+      const requiredPermissions = routePermissions[link.href];
+      if (!requiredPermissions) return true; // No permission required
+
+      return requiredPermissions.some(permission =>
+        hasPermission(session?.user?.role || 'guest', permission)
+      );
+    })
+  })).filter(category => category.links.length > 0);
+
+  return filteredNavigationLinks.map(({ label, links }) => (
     <div key={label} className='space-y-2'>
       <div
         className={cn('p-1 text-subheading-xs uppercase text-text-soft-400', {

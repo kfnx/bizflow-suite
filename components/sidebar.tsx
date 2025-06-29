@@ -71,7 +71,6 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiBox1Line,
         label: 'Products',
         href: '/products',
-        disabled: true,
       },
       {
         icon: RiImportLine,

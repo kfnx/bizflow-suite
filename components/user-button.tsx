@@ -104,11 +104,11 @@ export function UserButton({ className }: { className?: string }) {
         </Dropdown.Item>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
-          <Dropdown.Item>
+          <Dropdown.Item disabled>
             <Dropdown.ItemIcon as={RiPulseLine} />
             Activity
           </Dropdown.Item>
-          <Dropdown.Item>
+          <Dropdown.Item disabled>
             <Dropdown.ItemIcon as={RiLayoutGridLine} />
             Integrations
           </Dropdown.Item>

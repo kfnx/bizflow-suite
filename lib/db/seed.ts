@@ -11,21 +11,6 @@ async function main() {
   // Use a fixed password hash for all users
   const hashedPassword = await bcrypt.hash('password123', 12);
 
-  // Clear existing data in reverse foreign key order (ignore errors if tables empty)
-  try {
-    await db.delete(schema.quotationItems);
-    await db.delete(schema.quotations);
-    await db.delete(schema.products);
-    await db.delete(schema.warehouses);
-    await db.delete(schema.suppliers);
-    await db.delete(schema.customers);
-    await db.delete(schema.users);
-    console.log('🗑️ Cleared existing data');
-  } catch (error) {
-    console.error('📝 Failed to clear existing data');
-    throw error;
-  }
-
   // Direct database inserts to ensure proper relationships
   await db.insert(schema.users).values([
     {

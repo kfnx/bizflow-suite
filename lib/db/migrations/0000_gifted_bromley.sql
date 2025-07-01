@@ -17,13 +17,16 @@ CREATE TABLE `customers` (
 	`id` varchar(36) NOT NULL,
 	`code` varchar(50) NOT NULL,
 	`name` varchar(255) NOT NULL,
-	`email` varchar(255),
-	`phone` varchar(20),
-	`address` text,
-	`city` varchar(100),
-	`country` varchar(100),
-	`tax_number` varchar(50),
-	`is_active` boolean DEFAULT true,
+	`type` varchar(50) DEFAULT 'individual',
+	`npwp` varchar(50),
+	`npwp16` varchar(50),
+	`billing_address` text,
+	`shipping_address` text,
+	`contact_person_name` varchar(100),
+	`contact_person_email` varchar(255),
+	`contact_person_phone` varchar(20),
+	`payment_terms` varchar(100),
+	`is_ppn` boolean DEFAULT false,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `customers_id` PRIMARY KEY(`id`),
@@ -196,17 +199,32 @@ CREATE TABLE `sessions` (
 	CONSTRAINT `sessions_sessionToken` PRIMARY KEY(`sessionToken`)
 );
 --> statement-breakpoint
+CREATE TABLE `stock_movements` (
+	`id` varchar(36) NOT NULL,
+	`warehouse_stock_id` varchar(36) NOT NULL,
+	`warehouse_id` varchar(36) NOT NULL,
+	`machine_id` varchar(36) NOT NULL,
+	`quantity` int NOT NULL,
+	`movement_type` varchar(20) NOT NULL,
+	`invoice_id` varchar(50),
+	`delivery_id` varchar(50),
+	`notes` text,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `stock_movements_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `suppliers` (
 	`id` varchar(36) NOT NULL,
 	`code` varchar(50) NOT NULL,
 	`name` varchar(255) NOT NULL,
-	`contact_person` varchar(100),
-	`email` varchar(255),
-	`phone` varchar(20),
+	`country` varchar(50),
 	`address` text,
-	`city` varchar(100),
-	`country` varchar(100),
-	`tax_number` varchar(50),
+	`transaction_currency` varchar(3) DEFAULT 'USD',
+	`postal_code` varchar(20),
+	`contact_person_name` varchar(100),
+	`contact_person_email` varchar(255),
+	`contact_person_phone` varchar(20),
 	`is_active` boolean DEFAULT true,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -243,17 +261,25 @@ CREATE TABLE `transfers` (
 --> statement-breakpoint
 CREATE TABLE `users` (
 	`id` varchar(36) NOT NULL,
-	`email` varchar(255) NOT NULL,
-	`password` varchar(255) NOT NULL,
+	`code` varchar(50) NOT NULL,
 	`first_name` varchar(100) NOT NULL,
 	`last_name` varchar(100) NOT NULL,
+	`nik` varchar(50) NOT NULL,
+	`email` varchar(255) NOT NULL,
+	`password` varchar(255) NOT NULL,
+	`job_title` varchar(100),
+	`join_date` date DEFAULT CURRENT_DATE,
+	`type` varchar(50) DEFAULT 'full-time',
 	`phone` varchar(20),
 	`avatar` varchar(500),
-	`role` varchar(50) NOT NULL DEFAULT 'user',
+	`role` varchar(50) NOT NULL DEFAULT 'staff',
+	`signature` varchar(500),
 	`is_active` boolean DEFAULT true,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `users_id` PRIMARY KEY(`id`),
+	CONSTRAINT `users_code_unique` UNIQUE(`code`),
+	CONSTRAINT `users_nik_unique` UNIQUE(`nik`),
 	CONSTRAINT `users_email_unique` UNIQUE(`email`)
 );
 --> statement-breakpoint
@@ -262,6 +288,17 @@ CREATE TABLE `verificationToken` (
 	`token` varchar(255) NOT NULL,
 	`expires` timestamp NOT NULL,
 	CONSTRAINT `verificationToken_identifier_token_pk` PRIMARY KEY(`identifier`,`token`)
+);
+--> statement-breakpoint
+CREATE TABLE `warehouse_stocks` (
+	`id` varchar(36) NOT NULL,
+	`warehouse_id` varchar(36) NOT NULL,
+	`machine_id` varchar(36) NOT NULL,
+	`last_check` timestamp,
+	`condition` varchar(20) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `warehouse_stocks_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `warehouses` (
@@ -303,15 +340,19 @@ ALTER TABLE `quotation_items` ADD CONSTRAINT `fk_quotation_items_product` FOREIG
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_approver` FOREIGN KEY (`approver_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_warehouse_stock` FOREIGN KEY (`warehouse_stock_id`) REFERENCES `warehouse_stocks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_machine` FOREIGN KEY (`machine_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfer_items` ADD CONSTRAINT `fk_transfer_items_transfer` FOREIGN KEY (`transfer_id`) REFERENCES `transfers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfer_items` ADD CONSTRAINT `fk_transfer_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_from_warehouse` FOREIGN KEY (`from_warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_to_warehouse` FOREIGN KEY (`to_warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `warehouse_stocks` ADD CONSTRAINT `fk_warehouse_stocks_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `warehouse_stocks` ADD CONSTRAINT `fk_warehouse_stocks_machine` FOREIGN KEY (`machine_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `userId_idx` ON `accounts` (`userId`);--> statement-breakpoint
 CREATE INDEX `code_idx` ON `customers` (`code`);--> statement-breakpoint
 CREATE INDEX `name_idx` ON `customers` (`name`);--> statement-breakpoint
-CREATE INDEX `email_idx` ON `customers` (`email`);--> statement-breakpoint
 CREATE INDEX `delivery_note_id_idx` ON `delivery_note_items` (`delivery_note_id`);--> statement-breakpoint
 CREATE INDEX `product_id_idx` ON `delivery_note_items` (`product_id`);--> statement-breakpoint
 CREATE INDEX `delivery_number_idx` ON `delivery_notes` (`delivery_number`);--> statement-breakpoint
@@ -345,6 +386,10 @@ CREATE INDEX `quotation_number_idx` ON `quotations` (`quotation_number`);--> sta
 CREATE INDEX `customer_id_idx` ON `quotations` (`customer_id`);--> statement-breakpoint
 CREATE INDEX `status_idx` ON `quotations` (`status`);--> statement-breakpoint
 CREATE INDEX `created_by_idx` ON `quotations` (`created_by`);--> statement-breakpoint
+CREATE INDEX `warehouse_stock_id_idx` ON `stock_movements` (`warehouse_stock_id`);--> statement-breakpoint
+CREATE INDEX `warehouse_id_idx` ON `stock_movements` (`warehouse_id`);--> statement-breakpoint
+CREATE INDEX `machine_id_idx` ON `stock_movements` (`machine_id`);--> statement-breakpoint
+CREATE INDEX `movement_type_idx` ON `stock_movements` (`movement_type`);--> statement-breakpoint
 CREATE INDEX `code_idx` ON `suppliers` (`code`);--> statement-breakpoint
 CREATE INDEX `name_idx` ON `suppliers` (`name`);--> statement-breakpoint
 CREATE INDEX `transfer_id_idx` ON `transfer_items` (`transfer_id`);--> statement-breakpoint
@@ -356,5 +401,8 @@ CREATE INDEX `status_idx` ON `transfers` (`status`);--> statement-breakpoint
 CREATE INDEX `created_by_idx` ON `transfers` (`created_by`);--> statement-breakpoint
 CREATE INDEX `email_idx` ON `users` (`email`);--> statement-breakpoint
 CREATE INDEX `role_idx` ON `users` (`role`);--> statement-breakpoint
+CREATE INDEX `warehouse_id_idx` ON `warehouse_stocks` (`warehouse_id`);--> statement-breakpoint
+CREATE INDEX `machine_id_idx` ON `warehouse_stocks` (`machine_id`);--> statement-breakpoint
+CREATE INDEX `condition_idx` ON `warehouse_stocks` (`condition`);--> statement-breakpoint
 CREATE INDEX `code_idx` ON `warehouses` (`code`);--> statement-breakpoint
 CREATE INDEX `name_idx` ON `warehouses` (`name`);

@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
   date,
@@ -18,13 +18,19 @@ export const users = mysqlTable(
   'users',
   {
     id: varchar('id', { length: 36 }).primaryKey(),
-    email: varchar('email', { length: 255 }).notNull().unique(),
-    password: varchar('password', { length: 255 }).notNull(),
+    code: varchar('code', { length: 50 }).notNull().unique(),
     firstName: varchar('first_name', { length: 100 }).notNull(),
     lastName: varchar('last_name', { length: 100 }).notNull(),
+    NIK: varchar('nik', { length: 50 }).notNull().unique(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    password: varchar('password', { length: 255 }).notNull(),
+    jobTitle: varchar('job_title', { length: 100 }),
+    joinDate: date('join_date').notNull(),
+    type: varchar('type', { length: 50 }).default('full-time'), // full-time, resigned, contract
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
-    role: varchar('role', { length: 50 }).notNull().default('user'), // staff, manager, director
+    role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, director
+    signature: varchar('signature', { length: 500 }),
     isActive: boolean('is_active').default(true), // for soft delete
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -82,20 +88,22 @@ export const customers = mysqlTable(
     id: varchar('id', { length: 36 }).primaryKey(),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
-    email: varchar('email', { length: 255 }),
-    phone: varchar('phone', { length: 20 }),
-    address: text('address'),
-    city: varchar('city', { length: 100 }),
-    country: varchar('country', { length: 100 }),
-    taxNumber: varchar('tax_number', { length: 50 }),
-    isActive: boolean('is_active').default(true),
+    type: varchar('type', { length: 50 }).default('individual'), // individual, company
+    npwp: varchar('npwp', { length: 50 }),
+    npwp16: varchar('npwp16', { length: 50 }),
+    billingAddress: text('billing_address'),
+    shippingAddress: text('shipping_address'),
+    contactPersonName: varchar('contact_person_name', { length: 100 }),
+    contactPersonEmail: varchar('contact_person_email', { length: 255 }),
+    contactPersonPhone: varchar('contact_person_phone', { length: 20 }),
+    paymentTerms: varchar('payment_terms', { length: 100 }), // NET 30, NET 15
+    isPPN: boolean('is_ppn').default(false),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
   (table) => [
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
-    index('email_idx').on(table.email),
   ],
 );
 
@@ -106,13 +114,15 @@ export const suppliers = mysqlTable(
     id: varchar('id', { length: 36 }).primaryKey(),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
-    contactPerson: varchar('contact_person', { length: 100 }),
-    email: varchar('email', { length: 255 }),
-    phone: varchar('phone', { length: 20 }),
+    country: varchar('country', { length: 50 }),
     address: text('address'),
-    city: varchar('city', { length: 100 }),
-    country: varchar('country', { length: 100 }),
-    taxNumber: varchar('tax_number', { length: 50 }),
+    transactionCurrency: varchar('transaction_currency', { length: 3 }).default(
+      'USD',
+    ),
+    postalCode: varchar('postal_code', { length: 20 }),
+    contactPersonName: varchar('contact_person_name', { length: 100 }),
+    contactPersonEmail: varchar('contact_person_email', { length: 255 }),
+    contactPersonPhone: varchar('contact_person_phone', { length: 20 }),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -585,6 +595,74 @@ export const transferItems = mysqlTable(
   ],
 );
 
+// Warehouse Stocks table
+export const warehouseStocks = mysqlTable(
+  'warehouse_stocks',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
+    machineId: varchar('machine_id', { length: 36 }).notNull(), // FK to products.id
+    lastCheck: timestamp('last_check'),
+    condition: varchar('condition', { length: 20 }).notNull(), // good, damaged, repair
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index('warehouse_id_idx').on(table.warehouseId),
+    index('machine_id_idx').on(table.machineId),
+    index('condition_idx').on(table.condition),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_warehouse_stocks_warehouse',
+    }),
+    foreignKey({
+      columns: [table.machineId],
+      foreignColumns: [products.id],
+      name: 'fk_warehouse_stocks_machine',
+    }),
+  ],
+);
+
+// Stock Movements table
+export const stockMovements = mysqlTable(
+  'stock_movements',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    warehouseStockId: varchar('warehouse_stock_id', { length: 36 }).notNull(),
+    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
+    machineId: varchar('machine_id', { length: 36 }).notNull(),
+    quantity: int('quantity').notNull(),
+    movementType: varchar('movement_type', { length: 20 }).notNull(), // in, out, transfer, adjustment
+    invoiceId: varchar('invoice_id', { length: 50 }),
+    deliveryId: varchar('delivery_id', { length: 50 }),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index('warehouse_stock_id_idx').on(table.warehouseStockId),
+    index('warehouse_id_idx').on(table.warehouseId),
+    index('machine_id_idx').on(table.machineId),
+    index('movement_type_idx').on(table.movementType),
+    foreignKey({
+      columns: [table.warehouseStockId],
+      foreignColumns: [warehouseStocks.id],
+      name: 'fk_stock_movements_warehouse_stock',
+    }),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_stock_movements_warehouse',
+    }),
+    foreignKey({
+      columns: [table.machineId],
+      foreignColumns: [products.id],
+      name: 'fk_stock_movements_machine',
+    }),
+  ],
+);
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   quotations: many(quotations),
@@ -770,6 +848,36 @@ export const transferItemsRelations = relations(transferItems, ({ one }) => ({
   }),
   product: one(products, {
     fields: [transferItems.productId],
+    references: [products.id],
+  }),
+}));
+
+export const warehouseStocksRelations = relations(
+  warehouseStocks,
+  ({ one, many }) => ({
+    warehouse: one(warehouses, {
+      fields: [warehouseStocks.warehouseId],
+      references: [warehouses.id],
+    }),
+    machine: one(products, {
+      fields: [warehouseStocks.machineId],
+      references: [products.id],
+    }),
+    stockMovements: many(stockMovements),
+  }),
+);
+
+export const stockMovementsRelations = relations(stockMovements, ({ one }) => ({
+  warehouseStock: one(warehouseStocks, {
+    fields: [stockMovements.warehouseStockId],
+    references: [warehouseStocks.id],
+  }),
+  warehouse: one(warehouses, {
+    fields: [stockMovements.warehouseId],
+    references: [warehouses.id],
+  }),
+  machine: one(products, {
+    fields: [stockMovements.machineId],
     references: [products.id],
   }),
 }));

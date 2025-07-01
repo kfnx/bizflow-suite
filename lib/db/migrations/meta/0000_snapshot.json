@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "5837ff6a-3231-4018-94c3-2e10bcae7cb7",
+  "id": "6705a94e-0695-49df-a60c-430e7481ad10",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -131,55 +131,77 @@
           "notNull": true,
           "autoincrement": false
         },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
+        "type": {
+          "name": "type",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'individual'"
         },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "address": {
-          "name": "address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "city": {
-          "name": "city",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "country": {
-          "name": "country",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "tax_number": {
-          "name": "tax_number",
+        "npwp": {
+          "name": "npwp",
           "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "is_active": {
-          "name": "is_active",
+        "npwp16": {
+          "name": "npwp16",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "billing_address": {
+          "name": "billing_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "shipping_address": {
+          "name": "shipping_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "contact_person_name": {
+          "name": "contact_person_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "contact_person_email": {
+          "name": "contact_person_email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "contact_person_phone": {
+          "name": "contact_person_phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_terms": {
+          "name": "payment_terms",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_ppn": {
+          "name": "is_ppn",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": true
+          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -211,13 +233,6 @@
           "name": "name_idx",
           "columns": [
             "name"
-          ],
-          "isUnique": false
-        },
-        "email_idx": {
-          "name": "email_idx",
-          "columns": [
-            "email"
           ],
           "isUnique": false
         }
@@ -1884,6 +1899,172 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "stock_movements": {
+      "name": "stock_movements",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "warehouse_stock_id": {
+          "name": "warehouse_stock_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "machine_id": {
+          "name": "machine_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "movement_type": {
+          "name": "movement_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "invoice_id": {
+          "name": "invoice_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delivery_id": {
+          "name": "delivery_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "warehouse_stock_id_idx": {
+          "name": "warehouse_stock_id_idx",
+          "columns": [
+            "warehouse_stock_id"
+          ],
+          "isUnique": false
+        },
+        "warehouse_id_idx": {
+          "name": "warehouse_id_idx",
+          "columns": [
+            "warehouse_id"
+          ],
+          "isUnique": false
+        },
+        "machine_id_idx": {
+          "name": "machine_id_idx",
+          "columns": [
+            "machine_id"
+          ],
+          "isUnique": false
+        },
+        "movement_type_idx": {
+          "name": "movement_type_idx",
+          "columns": [
+            "movement_type"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_stock_movements_warehouse_stock": {
+          "name": "fk_stock_movements_warehouse_stock",
+          "tableFrom": "stock_movements",
+          "tableTo": "warehouse_stocks",
+          "columnsFrom": [
+            "warehouse_stock_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_stock_movements_warehouse": {
+          "name": "fk_stock_movements_warehouse",
+          "tableFrom": "stock_movements",
+          "tableTo": "warehouses",
+          "columnsFrom": [
+            "warehouse_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_stock_movements_machine": {
+          "name": "fk_stock_movements_machine",
+          "tableFrom": "stock_movements",
+          "tableTo": "products",
+          "columnsFrom": [
+            "machine_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "stock_movements_id": {
+          "name": "stock_movements_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "suppliers": {
       "name": "suppliers",
       "columns": {
@@ -1908,23 +2089,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "contact_person": {
-          "name": "contact_person",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(20)",
+        "country": {
+          "name": "country",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1936,23 +2103,38 @@
           "notNull": false,
           "autoincrement": false
         },
-        "city": {
-          "name": "city",
+        "transaction_currency": {
+          "name": "transaction_currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'USD'"
+        },
+        "postal_code": {
+          "name": "postal_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "contact_person_name": {
+          "name": "contact_person_name",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "country": {
-          "name": "country",
-          "type": "varchar(100)",
+        "contact_person_email": {
+          "name": "contact_person_email",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "tax_number": {
-          "name": "tax_number",
-          "type": "varchar(50)",
+        "contact_person_phone": {
+          "name": "contact_person_phone",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -2319,16 +2501,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "password": {
-          "name": "password",
-          "type": "varchar(255)",
+        "code": {
+          "name": "code",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -2346,6 +2521,50 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "nik": {
+          "name": "nik",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "job_title": {
+          "name": "job_title",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "join_date": {
+          "name": "join_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_DATE"
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'full-time'"
         },
         "phone": {
           "name": "phone",
@@ -2367,7 +2586,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'user'"
+          "default": "'staff'"
+        },
+        "signature": {
+          "name": "signature",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "is_active": {
           "name": "is_active",
@@ -2421,6 +2647,18 @@
         }
       },
       "uniqueConstraints": {
+        "users_code_unique": {
+          "name": "users_code_unique",
+          "columns": [
+            "code"
+          ]
+        },
+        "users_nik_unique": {
+          "name": "users_nik_unique",
+          "columns": [
+            "nik"
+          ]
+        },
         "users_email_unique": {
           "name": "users_email_unique",
           "columns": [
@@ -2463,6 +2701,124 @@
           "columns": [
             "identifier",
             "token"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "warehouse_stocks": {
+      "name": "warehouse_stocks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "machine_id": {
+          "name": "machine_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "last_check": {
+          "name": "last_check",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "condition": {
+          "name": "condition",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "warehouse_id_idx": {
+          "name": "warehouse_id_idx",
+          "columns": [
+            "warehouse_id"
+          ],
+          "isUnique": false
+        },
+        "machine_id_idx": {
+          "name": "machine_id_idx",
+          "columns": [
+            "machine_id"
+          ],
+          "isUnique": false
+        },
+        "condition_idx": {
+          "name": "condition_idx",
+          "columns": [
+            "condition"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_warehouse_stocks_warehouse": {
+          "name": "fk_warehouse_stocks_warehouse",
+          "tableFrom": "warehouse_stocks",
+          "tableTo": "warehouses",
+          "columnsFrom": [
+            "warehouse_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_warehouse_stocks_machine": {
+          "name": "fk_warehouse_stocks_machine",
+          "tableFrom": "warehouse_stocks",
+          "tableTo": "products",
+          "columnsFrom": [
+            "machine_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "warehouse_stocks_id": {
+          "name": "warehouse_stocks_id",
+          "columns": [
+            "id"
           ]
         }
       },

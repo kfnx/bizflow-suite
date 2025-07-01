@@ -13,16 +13,63 @@ async function main() {
   const db = drizzle(connection, { schema, mode: 'default' });
 
   // Clear existing data in reverse foreign key order (ignore errors if tables empty)
-  await db.delete(schema.quotationItems);
-  await db.delete(schema.quotations);
-  await db.delete(schema.products);
-  await db.delete(schema.warehouses);
-  await db.delete(schema.suppliers);
-  await db.delete(schema.customers);
-  await db.delete(schema.users);
-  console.log('🗑️ Truncated existing data');
+  try {
+    await db.delete(schema.transferItems);
+  } catch (error) {
+    console.error('⚠️ Error truncating transferItems:', error);
+  }
+  try {
+    await db.delete(schema.transfers);
+  } catch (error) {
+    console.error('⚠️ Error truncating transfers:', error);
+  }
+  try {
+    await db.delete(schema.stockMovements);
+  } catch (error) {
+    console.error('⚠️ Error truncating stockMovements:', error);
+  }
+  try {
+    await db.delete(schema.warehouseStocks);
+  } catch (error) {
+    console.error('⚠️ Error truncating warehouseStocks:', error);
+  }
+  try {
+    await db.delete(schema.importItems);
+  } catch (error) {
+    console.error('⚠️ Error truncating importItems:', error);
+  }
+  try {
+    await db.delete(schema.imports);
+  } catch (error) {
+    console.error('⚠️ Error truncating imports:', error);
+  }
+  try {
+    await db.delete(schema.warehouses);
+  } catch (error) {
+    console.error('⚠️ Error truncating warehouses:', error);
+  }
+  try {
+    await db.delete(schema.suppliers);
+  } catch (error) {
+    console.error('⚠️ Error truncating suppliers:', error);
+  }
+  try {
+    await db.delete(schema.customers);
+  } catch (error) {
+    console.error('⚠️ Error truncating customers:', error);
+  }
+  try {
+    await db.delete(schema.users);
+  } catch (error) {
+    console.error('⚠️ Error truncating users:', error);
+  }
+  try {
+    await db.delete(schema.products);
+  } catch (error) {
+    console.error('⚠️ Error truncating products:', error);
+  }
   await connection.end();
-  console.log('✅ Database truncated successfully!');
+  console.log('✅ Finished truncating!');
 }
 
 main().catch((error) => {

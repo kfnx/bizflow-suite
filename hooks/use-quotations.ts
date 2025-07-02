@@ -20,6 +20,7 @@ export type Quotation = {
   createdByUser: string;
   approverId?: string;
   approverName?: string;
+  approverRole?: string;
   createdAt: string;
   updatedAt: string;
 };

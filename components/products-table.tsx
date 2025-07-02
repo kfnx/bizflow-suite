@@ -123,11 +123,11 @@ export function ProductsTable({
 
   const columns: ColumnDef<Product>[] = [
     {
-      id: 'code',
-      accessorKey: 'code',
+      id: 'name',
+      accessorKey: 'name',
       header: ({ column }) => (
         <div className='flex items-center gap-0.5'>
-          Code
+          Name
           <button
             type='button'
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -139,10 +139,10 @@ export function ProductsTable({
       cell: ({ row }) => (
         <div className='flex flex-col'>
           <div className='text-text-900 text-paragraph-sm font-medium'>
-            {row.original.code}
+            {row.original.name}
           </div>
           <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.name}
+            {row.original.code}
           </div>
         </div>
       ),

@@ -55,6 +55,26 @@ export async function GET(
       );
     }
 
+    // Fetch approver name and role if approver exists
+    let approverName: string | undefined;
+    let approverRole: string | undefined;
+
+    if (quotationData[0].approverId) {
+      const approver = await db
+        .select({
+          firstName: users.firstName,
+          role: users.role,
+        })
+        .from(users)
+        .where(eq(users.id, quotationData[0].approverId))
+        .limit(1);
+
+      if (approver.length > 0) {
+        approverName = approver[0].firstName;
+        approverRole = approver[0].role;
+      }
+    }
+
     // Fetch quotation items
     const items = await db
       .select({
@@ -74,6 +94,8 @@ export async function GET(
     return NextResponse.json({
       data: {
         ...quotationData[0],
+        approverName,
+        approverRole,
         items,
       },
     });
@@ -204,6 +226,7 @@ export async function PUT(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        approverId: quotations.approverId,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
@@ -222,9 +245,33 @@ export async function PUT(
       .where(eq(quotations.id, id))
       .limit(1);
 
+    // Fetch approver name and role if approver exists
+    let approverName: string | undefined;
+    let approverRole: string | undefined;
+
+    if (updatedQuotation[0].approverId) {
+      const approver = await db
+        .select({
+          firstName: users.firstName,
+          role: users.role,
+        })
+        .from(users)
+        .where(eq(users.id, updatedQuotation[0].approverId))
+        .limit(1);
+
+      if (approver.length > 0) {
+        approverName = approver[0].firstName;
+        approverRole = approver[0].role;
+      }
+    }
+
     return NextResponse.json({
       message: 'Quotation updated successfully',
-      data: updatedQuotation[0],
+      data: {
+        ...updatedQuotation[0],
+        approverName,
+        approverRole,
+      },
     });
   } catch (error) {
     console.error('Error updating quotation:', error);

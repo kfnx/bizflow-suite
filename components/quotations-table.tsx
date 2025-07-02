@@ -314,6 +314,9 @@ const columns: ColumnDef<Quotation>[] = [
           <div className='text-paragraph-sm text-text-sub-600'>
             {row.original.approverName}
           </div>
+          <div className='text-paragraph-xs text-text-soft-400'>
+            {row.original.approverRole}
+          </div>
         </div>
       );
     },

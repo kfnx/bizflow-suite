@@ -14,6 +14,13 @@ const PROTECTED_ROUTES: Record<string, Permission[]> = {
   '/warehouses': ['warehouses:read'],
   '/reports': ['reports:view'],
   '/settings': ['settings:manage'],
+  '/pending-approvals': ['quotations:read'],
+};
+
+// Define role-based access for specific routes
+const ROLE_BASED_ROUTES: Record<string, string[]> = {
+  '/pending-approvals': ['manager', 'director'],
+  '/user-management': ['manager', 'director'],
 };
 
 export async function middleware(request: NextRequest) {
@@ -49,6 +56,17 @@ export async function middleware(request: NextRequest) {
       );
 
       if (!hasAccess) {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+    }
+
+    // Check role-based access for specific routes
+    const requiredRoles = ROLE_BASED_ROUTES[pathname];
+
+    if (requiredRoles) {
+      const hasRoleAccess = requiredRoles.includes(session.user.role);
+
+      if (!hasRoleAccess) {
         return NextResponse.redirect(new URL('/unauthorized', request.url));
       }
     }

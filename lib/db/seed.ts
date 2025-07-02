@@ -70,6 +70,8 @@ async function main() {
     quotation5: randomUUID(),
     quotation6: randomUUID(),
     quotation7: randomUUID(),
+    quotation8: randomUUID(),
+    quotation9: randomUUID(),
   };
 
   const invoiceIds = {
@@ -835,8 +837,42 @@ async function main() {
       notes: 'JCB backhoe loader for construction site',
       termsAndConditions: null,
     },
+    {
+      id: quotationIds.quotation8,
+      quotationNumber: 'QT/2025/10/001',
+      quotationDate: new Date('2025-10-15'),
+      validUntil: new Date('2025-11-15'),
+      customerId: customerIds.customer3,
+      approverId: userIds.user2, // Manager
+      createdBy: userIds.user1,
+      isIncludePPN: true,
+      subtotal: '45000000.00',
+      tax: '4500000.00',
+      total: '49500000.00',
+      currency: 'IDR',
+      status: 'sent',
+      notes: 'Hitachi excavator for large construction project',
+      termsAndConditions: null,
+    },
+    {
+      id: quotationIds.quotation9,
+      quotationNumber: 'QT/2025/10/002',
+      quotationDate: new Date('2025-10-20'),
+      validUntil: new Date('2025-11-20'),
+      customerId: customerIds.customer4,
+      approverId: userIds.user3, // Director
+      createdBy: userIds.user2,
+      isIncludePPN: false,
+      subtotal: '22000000.00',
+      tax: '0.00',
+      total: '22000000.00',
+      currency: 'IDR',
+      status: 'sent',
+      notes: 'Volvo wheel loader for logistics center',
+      termsAndConditions: null,
+    },
   ]);
-  console.log('✅ Seeded 7 quotations');
+  console.log('✅ Seeded 9 quotations');
 
   console.log('🔄 Seeding quotation items...');
   await db.insert(schema.quotationItems).values([
@@ -903,8 +939,26 @@ async function main() {
       total: '32000000.00',
       notes: 'JCB backhoe loader for construction site',
     },
+    {
+      id: randomUUID(),
+      quotationId: quotationIds.quotation8,
+      productId: productIds.product13,
+      quantity: '1.00',
+      unitPrice: '45000000.00',
+      total: '45000000.00',
+      notes: 'Hitachi excavator for large construction project',
+    },
+    {
+      id: randomUUID(),
+      quotationId: quotationIds.quotation9,
+      productId: productIds.product14,
+      quantity: '1.00',
+      unitPrice: '22000000.00',
+      total: '22000000.00',
+      notes: 'Volvo wheel loader for logistics center',
+    },
   ]);
-  console.log('✅ Seeded 7 quotation items');
+  console.log('✅ Seeded 9 quotation items');
 
   console.log('🔄 Seeding invoices...');
   await db.insert(schema.invoices).values([

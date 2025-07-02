@@ -73,3 +73,23 @@ export async function requireRole(request: NextRequest, requiredRole: string) {
 
   return session;
 }
+
+export async function requireAnyRole(
+  request: NextRequest,
+  requiredRoles: string[],
+) {
+  const session = await requireAuth(request);
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
+  if (!requiredRoles.includes(session.user.role)) {
+    return NextResponse.json(
+      { error: 'Forbidden - Insufficient role' },
+      { status: 403 },
+    );
+  }
+
+  return session;
+}

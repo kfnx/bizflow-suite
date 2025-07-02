@@ -7,6 +7,7 @@ import {
   RiArrowRightSLine,
   RiBillLine,
   RiBox1Line,
+  RiCheckLine,
   RiExchangeFundsLine,
   RiFileTextLine,
   RiHeadphoneLine,
@@ -49,6 +50,11 @@ export const navigationLinks: NavigationCategory[] = [
   {
     label: 'Documents',
     links: [
+      {
+        icon: RiCheckLine,
+        label: 'Pending Approvals',
+        href: '/pending-approvals',
+      },
       { icon: RiFileTextLine, label: 'Quotations', href: '/quotations' },
       {
         icon: RiBillLine,
@@ -197,15 +203,34 @@ export function SidebarHeader({ collapsed }: { collapsed?: boolean }) {
 function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const userRole = session?.user?.role || 'guest';
 
-  // Filter navigation links based on user permissions
+  // Debug logging
+  console.log('Sidebar - User role:', userRole);
+  console.log('Sidebar - Session:', session?.user);
+
+  // Filter navigation links based on user permissions and roles
   const filteredNavigationLinks = navigationLinks
     .map((category) => ({
       ...category,
       links: category.links.filter((link) => {
+        // Check role-based access for specific routes first
+        const roleBasedRoutes: Record<string, string[]> = {
+          '/pending-approvals': ['manager', 'director'],
+          '/user-management': ['manager', 'director'],
+        };
+
+        const requiredRoles = roleBasedRoutes[link.href];
+        if (requiredRoles) {
+          const hasAccess = requiredRoles.includes(userRole);
+          console.log(
+            `Sidebar - ${link.href}: ${hasAccess ? 'SHOW' : 'HIDE'} (role: ${userRole}, required: ${requiredRoles.join(', ')})`,
+          );
+          return hasAccess;
+        }
+
         // Check if user has permission for this route
         const routePermissions: Record<string, Permission[]> = {
-          '/user-management': ['users:read'],
           '/quotations': ['quotations:read'],
           '/invoices': ['invoices:read'],
           '/products': ['products:read'],
@@ -218,7 +243,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
         if (!requiredPermissions) return true; // No permission required
 
         return requiredPermissions.some((permission) =>
-          hasPermission(session?.user?.role || 'guest', permission),
+          hasPermission(userRole, permission),
         );
       }),
     }))

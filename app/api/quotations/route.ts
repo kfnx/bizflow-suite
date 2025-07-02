@@ -106,36 +106,43 @@ export async function GET(request: NextRequest) {
       .leftJoin(customers, eq(quotations.customerId, customers.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-    // Fetch approver names for quotations that have approvers
+    // Fetch approver names and roles for quotations that have approvers
     const approverIds = quotationsData
       .filter((q) => q.approverId)
       .map((q) => q.approverId!)
       .filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
 
-    let approverNames: Record<string, string> = {};
+    let approverData: Record<string, { name: string; role: string }> = {};
     if (approverIds.length > 0) {
       const approvers = await db
         .select({
           id: users.id,
           firstName: users.firstName,
+          role: users.role,
         })
         .from(users)
         .where(inArray(users.id, approverIds));
 
-      approverNames = approvers.reduce(
+      approverData = approvers.reduce(
         (acc, user) => {
-          acc[user.id] = user.firstName;
+          acc[user.id] = {
+            name: user.firstName,
+            role: user.role,
+          };
           return acc;
         },
-        {} as Record<string, string>,
+        {} as Record<string, { name: string; role: string }>,
       );
     }
 
-    // Combine quotation data with approver names
+    // Combine quotation data with approver names and roles
     const quotationsWithApprovers = quotationsData.map((quotation) => ({
       ...quotation,
       approverName: quotation.approverId
-        ? approverNames[quotation.approverId]
+        ? approverData[quotation.approverId]?.name
+        : undefined,
+      approverRole: quotation.approverId
+        ? approverData[quotation.approverId]?.role
         : undefined,
     }));
 

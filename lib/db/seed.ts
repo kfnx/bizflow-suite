@@ -706,6 +706,7 @@ async function main() {
       quotationDate: new Date('2025-04-29'),
       validUntil: new Date('2025-07-29'),
       customerId: customerIds.customer1,
+      approverId: userIds.user2, // Manager
       createdBy: userIds.user1,
       isIncludePPN: true,
       subtotal: '15000000.00',
@@ -722,6 +723,7 @@ async function main() {
       quotationDate: new Date('2025-04-29'),
       validUntil: new Date('2025-07-29'),
       customerId: customerIds.customer2,
+      approverId: userIds.user3, // Director
       createdBy: userIds.user2,
       isIncludePPN: false,
       subtotal: '25000000.00',
@@ -738,6 +740,7 @@ async function main() {
       quotationDate: new Date('2025-05-29'),
       validUntil: new Date('2025-07-29'),
       customerId: customerIds.customer3,
+      approverId: userIds.user2, // Manager
       createdBy: userIds.user1,
       isIncludePPN: true,
       subtotal: '35000000.00',
@@ -754,6 +757,7 @@ async function main() {
       quotationDate: new Date('2025-01-30'),
       validUntil: new Date('2025-02-28'),
       customerId: customerIds.customer4,
+      approverId: userIds.user3, // Director
       createdBy: userIds.user3,
       isIncludePPN: true,
       subtotal: '18000000.00',
@@ -770,6 +774,7 @@ async function main() {
       quotationDate: new Date('2025-06-15'),
       validUntil: new Date('2025-07-15'),
       customerId: customerIds.customer5,
+      approverId: userIds.user2, // Manager
       createdBy: userIds.user4,
       isIncludePPN: true,
       subtotal: '42000000.00',
@@ -786,6 +791,7 @@ async function main() {
       quotationDate: new Date('2025-06-20'),
       validUntil: new Date('2025-07-20'),
       customerId: customerIds.customer1,
+      approverId: userIds.user3, // Director
       createdBy: userIds.user2,
       isIncludePPN: false,
       subtotal: '28000000.00',
@@ -802,6 +808,7 @@ async function main() {
       quotationDate: new Date('2025-09-10'),
       validUntil: new Date('2025-12-10'),
       customerId: customerIds.customer2,
+      approverId: userIds.user2, // Manager
       createdBy: userIds.user1,
       isIncludePPN: true,
       subtotal: '32000000.00',

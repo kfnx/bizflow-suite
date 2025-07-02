@@ -4,6 +4,7 @@ export type Permission =
   | 'users:create'
   | 'users:update'
   | 'users:delete'
+  | 'approvers:read'
   | 'quotations:read'
   | 'quotations:create'
   | 'quotations:update'

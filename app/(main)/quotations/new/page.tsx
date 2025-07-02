@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { type CreateQuotationRequest } from '@/lib/validations/quotation';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
+import { useApprovers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
@@ -32,7 +33,7 @@ interface QuotationFormData {
   quotationDate: string;
   validUntil: string;
   customerId: string;
-  approverId?: string;
+  approverId: string;
   isIncludePPN: boolean;
   currency: string;
   notes?: string;
@@ -46,6 +47,7 @@ const initialFormData: QuotationFormData = {
     .toISOString()
     .split('T')[0], // 30 days from now
   customerId: '',
+  approverId: '',
   isIncludePPN: false,
   currency: 'IDR',
   items: [],
@@ -61,6 +63,7 @@ export default function NewQuotationPage() {
   // Fetch data for form options
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
+  const { data: approvers } = useApprovers();
 
   const handleInputChange = useCallback(
     (
@@ -133,6 +136,10 @@ export default function NewQuotationPage() {
         toast.error('Please select a customer');
         return;
       }
+      if (!formData.approverId) {
+        toast.error('Please select an approver');
+        return;
+      }
       if (formData.items.length === 0) {
         toast.error('Please add at least one item');
         return;
@@ -152,7 +159,7 @@ export default function NewQuotationPage() {
         quotationDate: new Date(formData.quotationDate).toISOString(),
         validUntil: new Date(formData.validUntil).toISOString(),
         customerId: formData.customerId,
-        approverId: formData.approverId || undefined,
+        approverId: formData.approverId,
         isIncludePPN: formData.isIncludePPN,
         currency: formData.currency,
         notes: formData.notes,
@@ -278,6 +285,30 @@ export default function NewQuotationPage() {
                     {customers?.data?.map((customer) => (
                       <Select.Item key={customer.id} value={customer.id}>
                         {customer.name} ({customer.code})
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+              </div>
+
+              <div>
+                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+                  Approver <span className='text-red-500'>*</span>
+                </label>
+                <Select.Root
+                  value={formData.approverId}
+                  onValueChange={(value) =>
+                    handleInputChange('approverId', value)
+                  }
+                >
+                  <Select.Trigger>
+                    <Select.Value placeholder='Select an approver' />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {approvers?.map((approver) => (
+                      <Select.Item key={approver.id} value={approver.id}>
+                        {approver.firstName} {approver.lastName} (
+                        {approver.role})
                       </Select.Item>
                     ))}
                   </Select.Content>

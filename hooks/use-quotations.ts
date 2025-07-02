@@ -18,6 +18,8 @@ export type Quotation = {
   notes?: string;
   createdBy: string;
   createdByUser: string;
+  approverId?: string;
+  approverName?: string;
   createdAt: string;
   updatedAt: string;
 };

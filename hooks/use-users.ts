@@ -81,3 +81,23 @@ export function useDeleteUser() {
     },
   });
 }
+
+// Hook to fetch users with manager or director roles for approver selection
+export function useApprovers() {
+  return useQuery({
+    queryKey: ['approvers'],
+    queryFn: async (): Promise<User[]> => {
+      const params = new URLSearchParams();
+      params.append('role', 'manager');
+      params.append('role', 'director');
+      params.append('limit', '100');
+
+      const response = await fetch(`/api/users?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch approvers');
+      }
+      const data = await response.json();
+      return data.users || [];
+    },
+  });
+}

@@ -4,7 +4,8 @@ import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission, Permission } from '@/lib/permissions';
 
-// Define protected routes with required permissions
+// Define protected FRONTEND routes with required permissions
+// Note: API routes are handled separately in their individual route files
 const PROTECTED_ROUTES: Record<string, Permission[]> = {
   '/user-management': ['users:read'],
   '/quotations': ['quotations:read'],
@@ -38,7 +39,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Check role-based access for protected routes
+  // Check role-based access for protected FRONTEND routes only
   if (session && !isAuthRoute) {
     const requiredPermissions = PROTECTED_ROUTES[pathname];
 
@@ -61,12 +62,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth (auth API routes)
+     * - api/ (ALL API routes - handled by individual route files)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

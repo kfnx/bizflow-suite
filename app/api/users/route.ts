@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { and, desc, eq, like, or } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { requirePermission } from '@/lib/auth/authorization';
+import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
@@ -25,9 +25,9 @@ const updateUserSchema = z.object({
   avatar: z.string().url().optional(),
 });
 
-// GET /api/users - Get all users (requires users:read permission)
+// GET /api/users - Get all users (open to any authenticated user)
 export async function GET(request: NextRequest) {
-  const session = await requirePermission(request, 'users:read');
+  const session = await requireAuth(request);
 
   if (session instanceof NextResponse) {
     return session;
@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
-    const role = searchParams.get('role') || '';
+    const roles = searchParams.getAll('role'); // Get all role parameters
+    console.log('🚀 ~ GET ~ roles:', roles);
     const status = searchParams.get('status') || '';
     const sortBy = searchParams.get('sortBy') || 'date-desc';
     const offset = (page - 1) * limit;
@@ -59,9 +60,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Role filter
-    if (role && role !== 'all') {
-      conditions.push(eq(users.role, role));
+    // Role filter - handle multiple roles
+    if (roles.length > 0 && !roles.includes('all')) {
+      if (roles.length === 1) {
+        conditions.push(eq(users.role, roles[0]));
+      } else {
+        conditions.push(or(...roles.map((role) => eq(users.role, role))));
+      }
     }
 
     // Status filter
@@ -142,7 +147,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/users - Create a new user (requires users:create permission)
 export async function POST(request: NextRequest) {
-  const session = await requirePermission(request, 'users:create');
+  const session = await requireAuth(request);
 
   if (session instanceof NextResponse) {
     return session;

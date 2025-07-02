@@ -214,7 +214,7 @@ export const quotations = mysqlTable(
     quotationDate: date('quotation_date').notNull(),
     validUntil: date('valid_until').notNull(),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
-    approverId: varchar('approver_id', { length: 36 }),
+    approverId: varchar('approver_id', { length: 36 }).notNull(),
     isIncludePPN: boolean('is_include_ppn').default(false),
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),

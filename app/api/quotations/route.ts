@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, asc, desc, eq, like, or } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -87,6 +87,7 @@ export async function GET(request: NextRequest) {
         notes: quotations.notes,
         createdBy: quotations.createdBy,
         createdByUser: users.firstName,
+        approverId: quotations.approverId,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
       })
@@ -105,8 +106,41 @@ export async function GET(request: NextRequest) {
       .leftJoin(customers, eq(quotations.customerId, customers.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
+    // Fetch approver names for quotations that have approvers
+    const approverIds = quotationsData
+      .filter((q) => q.approverId)
+      .map((q) => q.approverId!)
+      .filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
+
+    let approverNames: Record<string, string> = {};
+    if (approverIds.length > 0) {
+      const approvers = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+        })
+        .from(users)
+        .where(inArray(users.id, approverIds));
+
+      approverNames = approvers.reduce(
+        (acc, user) => {
+          acc[user.id] = user.firstName;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+    }
+
+    // Combine quotation data with approver names
+    const quotationsWithApprovers = quotationsData.map((quotation) => ({
+      ...quotation,
+      approverName: quotation.approverId
+        ? approverNames[quotation.approverId]
+        : undefined,
+    }));
+
     return NextResponse.json({
-      data: quotationsData,
+      data: quotationsWithApprovers,
       pagination: {
         page,
         limit,
@@ -136,18 +170,19 @@ export async function POST(request: NextRequest) {
     // Validate request body
     const validatedData = createQuotationSchema.parse(body);
 
-    // Generate quotation number (QUO-YYYYMMDD-XXXX format)
+    // Generate quotation number (QT/YYYY/MM/XXX format)
     const date = new Date();
-    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
 
-    // Get count of quotations today to generate sequence number
-    const todayQuotations = await db
+    // Get count of quotations this month to generate sequence number
+    const monthQuotations = await db
       .select({ count: quotations.id })
       .from(quotations)
-      .where(like(quotations.quotationNumber, `QUO-${dateStr}-%`));
+      .where(like(quotations.quotationNumber, `QT/${year}/${month}/%`));
 
-    const sequence = (todayQuotations.length + 1).toString().padStart(4, '0');
-    const quotationNumber = `QUO-${dateStr}-${sequence}`;
+    const sequence = (monthQuotations.length + 1).toString().padStart(3, '0');
+    const quotationNumber = `QT/${year}/${month}/${sequence}`;
 
     // Calculate totals from items
     let subtotal = 0;

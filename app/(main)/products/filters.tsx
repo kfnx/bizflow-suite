@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { RiFilter3Fill, RiSearch2Line, RiSortDesc } from '@remixicon/react';
+import {
+  RiFilter3Fill,
+  RiFilterLine,
+  RiSearch2Line,
+  RiSortDesc,
+} from '@remixicon/react';
 
 import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
@@ -178,7 +183,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             onValueChange={handleCategoryChange}
           >
             <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
-              <Select.TriggerIcon as={RiSortDesc} />
+              <Select.TriggerIcon as={RiFilterLine} />
               <Select.Value placeholder='Category' />
             </Select.Trigger>
             <Select.Content>
@@ -198,7 +203,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           <span className='text-paragraph-sm text-text-sub-600'>Brand:</span>
           <Select.Root value={filters.brand} onValueChange={handleBrandChange}>
             <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
-              <Select.TriggerIcon as={RiSortDesc} />
+              <Select.TriggerIcon as={RiFilterLine} />
               <Select.Value placeholder='Sort by' />
             </Select.Trigger>
             <Select.Content>

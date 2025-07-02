@@ -295,6 +295,30 @@ const columns: ColumnDef<Quotation>[] = [
     ),
   },
   {
+    id: 'approver',
+    accessorKey: 'approverId',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Approver
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className='flex flex-col'>
+          <div className='text-paragraph-sm text-text-sub-600'>
+            {row.original.approverName}
+          </div>
+        </div>
+      );
+    },
+  },
+  {
     id: 'actions',
     enableHiding: false,
     cell: ActionCell,
@@ -367,7 +391,7 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
   }
 
   return (
-    <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[860px]'>
+    <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[960px]'>
       <Table.Header className='whitespace-nowrap'>
         {table.getHeaderGroups().map((headerGroup) => (
           <Table.Row key={headerGroup.id}>

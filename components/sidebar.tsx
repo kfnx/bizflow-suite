@@ -123,39 +123,6 @@ export const navigationLinks: NavigationCategory[] = [
   },
 ];
 
-export const favoriteLinks = [
-  {
-    href: '#',
-    color: 'purple',
-    projectName: 'Loom Mobile App',
-    shortcut: (
-      <>
-        <IconCmd className='size-2.5' />1
-      </>
-    ),
-  },
-  {
-    href: '#',
-    color: 'red',
-    projectName: 'Monday Redesign',
-    shortcut: (
-      <>
-        <IconCmd className='size-2.5' />2
-      </>
-    ),
-  },
-  {
-    href: '#',
-    color: 'pink',
-    projectName: 'Udemy Courses',
-    shortcut: (
-      <>
-        <IconCmd className='size-2.5' />3
-      </>
-    ),
-  },
-];
-
 function useCollapsedState({
   defaultCollapsed = false,
 }: {

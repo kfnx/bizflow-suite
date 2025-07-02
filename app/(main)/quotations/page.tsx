@@ -35,11 +35,7 @@ export default function PageQuotations() {
         title='Quotations'
         description='Track your quotations to stay in control of your business proposals.'
       >
-        <ActionButton
-          className='hidden lg:flex'
-          label='New Quotation'
-          href='/quotations/new'
-        />
+        <ActionButton label='New Quotation' href='/quotations/new' />
       </Header>
     );
   };

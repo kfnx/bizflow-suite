@@ -208,7 +208,7 @@ export const quotations = mysqlTable(
     id: varchar('id', { length: 36 })
       .primaryKey()
       .$defaultFn(() => randomUUID()),
-    quotationNumber: varchar('quotation_number', { length: 50 })
+    quotationNumber: varchar('quotation_number', { length: 50 }) // QT/2025/04/001
       .notNull()
       .unique(),
     quotationDate: date('quotation_date').notNull(),

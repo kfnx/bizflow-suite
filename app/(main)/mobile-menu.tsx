@@ -7,19 +7,14 @@ import * as DialogPrimitives from '@radix-ui/react-dialog';
 import {
   RiArrowRightSLine,
   RiCloseFill,
-  RiHeadphoneLine,
   RiMenu3Fill,
   RiSearch2Line,
-  RiSettings2Line,
 } from '@remixicon/react';
 
 import { cn } from '@/utils/cn';
-import { LABEL_COLORS } from '@/utils/consts';
 import useBreakpoint from '@/hooks/use-breakpoint';
-import * as TabMenuHorizontal from '@/components/ui/tab-menu-horizontal';
-import { CompanySwitchMobile } from '@/components/company-switch';
-import { MoveMoneyButton } from '@/components/move-money-button';
-import { favoriteLinks, navigationLinks } from '@/components/sidebar';
+import * as Divider from '@/components/ui/divider';
+import { navigationLinks } from '@/components/sidebar';
 import * as TopbarItemButton from '@/components/topbar-item-button';
 import { UserButtonMobile } from '@/components/user-button';
 
@@ -70,7 +65,6 @@ export default function MobileMenu() {
               main navigation links, favorite projects, search, and user
               settings.
             </DialogPrimitives.Description>
-
             <div className='flex h-[60px] w-full shrink-0 items-center border-b border-stroke-soft-200 px-4'>
               <div className='relative flex-1'>
                 <RiSearch2Line className='absolute left-0 top-1/2 size-6 -translate-y-1/2 text-text-soft-400' />
@@ -81,14 +75,6 @@ export default function MobileMenu() {
                 />
               </div>
               <div className='flex gap-3'>
-                <div className='flex gap-1'>
-                  <TopbarItemButton.Root>
-                    <TopbarItemButton.Icon as={RiHeadphoneLine} />
-                  </TopbarItemButton.Root>
-                  <TopbarItemButton.Root>
-                    <TopbarItemButton.Icon as={RiSettings2Line} />
-                  </TopbarItemButton.Root>
-                </div>
                 <div className='flex w-1 shrink-0 items-center before:h-full before:w-px before:bg-stroke-soft-200' />
                 <DialogPrimitives.Close asChild>
                   <TopbarItemButton.Root>
@@ -98,105 +84,40 @@ export default function MobileMenu() {
               </div>
             </div>
             {/* <CompanySwitchMobile /> */}
-            <div className='text-label-md'>BizDocGen</div>
-
-            <TabMenuHorizontal.Root
-              defaultValue='main'
-              className='flex flex-1 flex-col'
-            >
-              <TabMenuHorizontal.List className='gap-8 px-7'>
-                <TabMenuHorizontal.Trigger
-                  value='main'
-                  className='flex-1 text-label-md'
-                >
-                  Main
-                </TabMenuHorizontal.Trigger>
-                <div className='flex h-6 w-1 shrink-0 items-center before:h-full before:w-px before:bg-stroke-soft-200' />
-                <TabMenuHorizontal.Trigger
-                  value='favorites'
-                  className='flex-1 text-label-md'
-                >
-                  Favorites
-                </TabMenuHorizontal.Trigger>
-              </TabMenuHorizontal.List>
-
-              <div className='flex-1 py-6'>
-                <TabMenuHorizontal.Content
-                  value='main'
-                  className='data-[state=active]:duration-300 data-[state=active]:animate-in data-[state=active]:fade-in-0'
-                >
-                  <div className='flex flex-col gap-5'>
-                    {navigationLinks
-                      .flatMap((item) => item.links)
-                      .map(({ icon: Icon, label, href }, i) => (
-                        <Link
-                          key={i}
-                          href={href}
-                          aria-current={pathname === href ? 'page' : undefined}
-                          className={cn(
-                            'group relative flex w-full items-center gap-2.5 whitespace-nowrap px-5 text-text-sub-600',
-                          )}
-                        >
-                          <Icon
-                            className={cn(
-                              'transition-default size-[22px] shrink-0 text-text-sub-600',
-                              'group-aria-[current=page]:text-primary-base',
-                            )}
-                          />
-                          <div className='flex-1 text-label-md'>{label}</div>
-                          <div
-                            className={cn(
-                              'transition-default absolute left-0 top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
-                              {
-                                'scale-0': pathname !== href,
-                              },
-                            )}
-                          />
-                          <RiArrowRightSLine className='size-6 text-text-sub-600' />
-                        </Link>
-                      ))}
-                  </div>
-                </TabMenuHorizontal.Content>
-                <TabMenuHorizontal.Content
-                  value='favorites'
-                  className='data-[state=active]:duration-300 data-[state=active]:animate-in data-[state=active]:fade-in-0'
-                >
-                  <div className='flex flex-col gap-5'>
-                    {favoriteLinks.map((project, i) => (
-                      <Link
-                        key={i}
-                        href={project.href}
-                        className={cn(
-                          'group flex w-full items-center gap-2.5 whitespace-nowrap px-5 text-text-sub-600',
-                        )}
-                      >
-                        <div className='flex size-[22px] shrink-0 items-center justify-center'>
-                          <div className='size-3 scale-110 rounded-full border-2 border-stroke-white-0 shadow-regular-sm'>
-                            <div
-                              className={cn(
-                                'size-2 rounded-full',
-                                LABEL_COLORS[
-                                  project.color as keyof typeof LABEL_COLORS
-                                ].bg,
-                              )}
-                            />
-                          </div>
-                        </div>
-                        <div className='flex-1 text-label-md'>
-                          {project.projectName}
-                        </div>
-                        <RiArrowRightSLine className='size-6 text-text-sub-600' />
-                      </Link>
-                    ))}
-                  </div>
-                </TabMenuHorizontal.Content>
-              </div>
-            </TabMenuHorizontal.Root>
-
-            <div className='grid border-y border-stroke-soft-200 p-4'>
-              <MoveMoneyButton />
+            <div className='p-6 text-label-md'>BizDocGen</div>
+            <Divider.Root className='mb-6' />
+            <div className='flex flex-1 flex-col gap-5'>
+              {navigationLinks
+                .flatMap((item) => item.links)
+                .map(({ icon: Icon, label, href }, i) => (
+                  <Link
+                    key={i}
+                    href={href}
+                    aria-current={pathname === href ? 'page' : undefined}
+                    className={cn(
+                      'group relative flex w-full items-center gap-2.5 whitespace-nowrap px-5 text-text-sub-600',
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        'transition-default size-[22px] shrink-0 text-text-sub-600',
+                        'group-aria-[current=page]:text-primary-base',
+                      )}
+                    />
+                    <div className='flex-1 text-label-md'>{label}</div>
+                    <div
+                      className={cn(
+                        'transition-default absolute left-0 top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
+                        {
+                          'scale-0': pathname !== href,
+                        },
+                      )}
+                    />
+                    <RiArrowRightSLine className='size-6 text-text-sub-600' />
+                  </Link>
+                ))}
             </div>
-
+            <Divider.Root />
             <div className='p-2'>
               <UserButtonMobile />
             </div>

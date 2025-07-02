@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
+import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { customers, quotationItems, quotations, users } from '@/lib/db/schema';
 import { createQuotationSchema } from '@/lib/validations/quotation';
 
 export async function GET(request: NextRequest) {
+  const session = await requirePermission(request, 'quotations:read');
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
@@ -117,6 +124,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await requirePermission(request, 'quotations:create');
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
     const body = await request.json();
 
@@ -147,31 +160,28 @@ export async function POST(request: NextRequest) {
 
     // Create quotation and items in a transaction
     const result = await db.transaction(async (tx) => {
-      // Get user ID from session (for now using a placeholder - you'll need to implement auth)
-      // TODO: Get actual user ID from session/auth
-      const createdBy = 'user-1'; // This should come from authentication
+      // Get user ID from authenticated session
+      const createdBy = session.user.id;
 
       // Create quotation (ID will be auto-generated)
-      await tx.insert(quotations).values({
+      const quotationData = {
         quotationNumber,
-        quotationDate: new Date(validatedData.quotationDate)
-          .toISOString()
-          .split('T')[0],
-        validUntil: new Date(validatedData.validUntil)
-          .toISOString()
-          .split('T')[0],
+        quotationDate: new Date(validatedData.quotationDate),
+        validUntil: new Date(validatedData.validUntil),
         customerId: validatedData.customerId,
         approverId: validatedData.approverId,
         isIncludePPN: validatedData.isIncludePPN,
-        subtotal: subtotal.toString(),
-        tax: taxAmount.toString(),
-        total: total.toString(),
+        subtotal: subtotal.toFixed(2),
+        tax: taxAmount.toFixed(2),
+        total: total.toFixed(2),
         currency: validatedData.currency,
-        status: 'draft',
+        status: 'draft' as const,
         notes: validatedData.notes,
         termsAndConditions: validatedData.termsAndConditions,
         createdBy,
-      });
+      };
+
+      await tx.insert(quotations).values(quotationData);
 
       // Get the generated quotation ID
       const createdQuotationResult = await tx

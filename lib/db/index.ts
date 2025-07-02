@@ -19,8 +19,6 @@ const connectionConfig = {
   database: process.env.DB_NAME || 'bizdocgen',
 };
 
-console.log(connectionConfig);
-
 // Create connection pool for better performance
 const pool = mysql.createPool({
   ...connectionConfig,

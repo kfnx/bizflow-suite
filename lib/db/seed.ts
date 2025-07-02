@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
+import bcrypt from 'bcryptjs';
 import { drizzle } from 'drizzle-orm/mysql2';
 
 import { createConnection } from './index';
@@ -15,7 +15,7 @@ async function main() {
   // Generate UUIDs for consistent reference
   const userIds = {
     user1: randomUUID(),
-    user2: randomUUID(), 
+    user2: randomUUID(),
     user3: randomUUID(),
     user4: randomUUID(),
   };

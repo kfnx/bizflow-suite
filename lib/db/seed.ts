@@ -72,6 +72,22 @@ async function main() {
     quotation7: randomUUID(),
   };
 
+  const invoiceIds = {
+    invoice1: randomUUID(),
+    invoice2: randomUUID(),
+    invoice3: randomUUID(),
+    invoice4: randomUUID(),
+    invoice5: randomUUID(),
+    invoice6: randomUUID(),
+  };
+
+  const deliveryNoteIds = {
+    deliveryNote1: randomUUID(),
+    deliveryNote2: randomUUID(),
+    deliveryNote3: randomUUID(),
+    deliveryNote4: randomUUID(),
+  };
+
   // Direct database inserts to ensure proper relationships
   console.log('🔄 Seeding users...');
   await db.insert(schema.users).values([
@@ -889,6 +905,280 @@ async function main() {
     },
   ]);
   console.log('✅ Seeded 7 quotation items');
+
+  console.log('🔄 Seeding invoices...');
+  await db.insert(schema.invoices).values([
+    {
+      id: invoiceIds.invoice1,
+      invoiceNumber: 'INV/2025/04/001',
+      quotationId: quotationIds.quotation3, // Accepted quotation
+      invoiceDate: new Date('2025-04-30'),
+      dueDate: new Date('2025-05-30'),
+      customerId: customerIds.customer3,
+      subtotal: '35000000.00',
+      tax: '3500000.00',
+      total: '38500000.00',
+      currency: 'IDR',
+      status: 'paid',
+      paymentMethod: 'Bank Transfer',
+      notes: 'Invoice for premium equipment package - payment received',
+      createdBy: userIds.user1,
+    },
+    {
+      id: invoiceIds.invoice2,
+      invoiceNumber: 'INV/2025/06/001',
+      quotationId: quotationIds.quotation7, // Accepted quotation
+      invoiceDate: new Date('2025-06-20'),
+      dueDate: new Date('2025-07-20'),
+      customerId: customerIds.customer2,
+      subtotal: '32000000.00',
+      tax: '3200000.00',
+      total: '35200000.00',
+      currency: 'IDR',
+      status: 'sent',
+      paymentMethod: 'Bank Transfer',
+      notes: 'Invoice for JCB backhoe loader - pending payment',
+      createdBy: userIds.user2,
+    },
+    {
+      id: invoiceIds.invoice3,
+      invoiceNumber: 'INV/2025/07/001',
+      quotationId: null, // Direct invoice without quotation
+      invoiceDate: new Date('2025-07-15'),
+      dueDate: new Date('2025-08-15'),
+      customerId: customerIds.customer1,
+      subtotal: '18500000.00',
+      tax: '1850000.00',
+      total: '20350000.00',
+      currency: 'IDR',
+      status: 'draft',
+      paymentMethod: 'Bank Transfer',
+      notes: 'Direct invoice for Shantui wheel loader',
+      createdBy: userIds.user1,
+    },
+    {
+      id: invoiceIds.invoice4,
+      invoiceNumber: 'INV/2025/08/001',
+      quotationId: null, // Direct invoice without quotation
+      invoiceDate: new Date('2025-08-10'),
+      dueDate: new Date('2025-09-10'),
+      customerId: customerIds.customer4,
+      subtotal: '22000000.00',
+      tax: '0.00',
+      total: '22000000.00',
+      currency: 'IDR',
+      status: 'sent',
+      paymentMethod: 'Cash',
+      notes: 'Direct invoice for bulldozer - no PPN',
+      createdBy: userIds.user4,
+    },
+    {
+      id: invoiceIds.invoice5,
+      invoiceNumber: 'INV/2025/09/001',
+      quotationId: null, // Direct invoice without quotation
+      invoiceDate: new Date('2025-09-05'),
+      dueDate: new Date('2025-10-05'),
+      customerId: customerIds.customer5,
+      subtotal: '42000000.00',
+      tax: '4200000.00',
+      total: '46200000.00',
+      currency: 'IDR',
+      status: 'paid',
+      paymentMethod: 'Bank Transfer',
+      notes: 'Direct invoice for Caterpillar excavator - payment received',
+      createdBy: userIds.user2,
+    },
+    {
+      id: invoiceIds.invoice6,
+      invoiceNumber: 'INV/2025/10/001',
+      quotationId: null, // Direct invoice without quotation
+      invoiceDate: new Date('2025-10-01'),
+      dueDate: new Date('2025-11-01'),
+      customerId: customerIds.customer3,
+      subtotal: '13500000.00',
+      tax: '1350000.00',
+      total: '14850000.00',
+      currency: 'IDR',
+      status: 'void',
+      paymentMethod: 'Bank Transfer',
+      notes: 'Voided invoice due to customer cancellation',
+      createdBy: userIds.user1,
+    },
+  ]);
+  console.log('✅ Seeded 6 invoices');
+
+  console.log('🔄 Seeding invoice items...');
+  await db.insert(schema.invoiceItems).values([
+    {
+      id: randomUUID(),
+      invoiceId: invoiceIds.invoice1,
+      productId: productIds.product4,
+      quantity: '1.00',
+      unitPrice: '35000000.00',
+      total: '35000000.00',
+      paymentTerms: 'NET 30',
+      termsAndConditions: 'Standard payment terms apply',
+      notes: 'Bulldozer with advanced controls - fully paid',
+    },
+    {
+      id: randomUUID(),
+      invoiceId: invoiceIds.invoice2,
+      productId: productIds.product15,
+      quantity: '1.00',
+      unitPrice: '32000000.00',
+      total: '32000000.00',
+      paymentTerms: 'NET 30',
+      termsAndConditions: 'Payment due within 30 days',
+      notes: 'JCB backhoe loader for construction site',
+    },
+    {
+      id: randomUUID(),
+      invoiceId: invoiceIds.invoice3,
+      productId: productIds.product1,
+      quantity: '1.00',
+      unitPrice: '18500000.00',
+      total: '18500000.00',
+      paymentTerms: 'NET 30',
+      termsAndConditions: 'Standard terms and conditions',
+      notes: 'Shantui wheel loader - direct sale',
+    },
+    {
+      id: randomUUID(),
+      invoiceId: invoiceIds.invoice4,
+      productId: productIds.product8,
+      quantity: '1.00',
+      unitPrice: '22000000.00',
+      total: '22000000.00',
+      paymentTerms: 'NET 15',
+      termsAndConditions: 'Cash payment preferred',
+      notes: 'Shantui bulldozer - no PPN applied',
+    },
+    {
+      id: randomUUID(),
+      invoiceId: invoiceIds.invoice5,
+      productId: productIds.product11,
+      quantity: '1.00',
+      unitPrice: '42000000.00',
+      total: '42000000.00',
+      paymentTerms: 'NET 30',
+      termsAndConditions: 'Premium equipment warranty included',
+      notes: 'Caterpillar excavator - payment received',
+    },
+    {
+      id: randomUUID(),
+      invoiceId: invoiceIds.invoice6,
+      productId: productIds.product6,
+      quantity: '1.00',
+      unitPrice: '13500000.00',
+      total: '13500000.00',
+      paymentTerms: 'NET 30',
+      termsAndConditions: 'Standard terms apply',
+      notes: 'Shantui compactor - voided due to cancellation',
+    },
+  ]);
+  console.log('✅ Seeded 6 invoice items');
+
+  console.log('🔄 Seeding delivery notes...');
+  await db.insert(schema.deliveryNotes).values([
+    {
+      id: deliveryNoteIds.deliveryNote1,
+      deliveryNumber: 'DN/2025/05/001',
+      invoiceId: invoiceIds.invoice1, // Paid invoice
+      customerId: customerIds.customer3,
+      deliveryDate: new Date('2025-05-05'),
+      deliveryMethod: 'Truck Delivery',
+      driverName: 'Ahmad Supriadi',
+      vehicleNumber: 'B 1234 ABC',
+      status: 'delivered',
+      deliveredBy: userIds.user1,
+      receivedBy: userIds.user3, // Customer representative
+      notes: 'Bulldozer delivered successfully to construction site',
+      createdBy: userIds.user1,
+    },
+    {
+      id: deliveryNoteIds.deliveryNote2,
+      deliveryNumber: 'DN/2025/07/001',
+      invoiceId: invoiceIds.invoice2, // Sent invoice
+      customerId: customerIds.customer2,
+      deliveryDate: new Date('2025-07-25'),
+      deliveryMethod: 'Truck Delivery',
+      driverName: 'Budi Santoso',
+      vehicleNumber: 'B 5678 DEF',
+      status: 'pending',
+      deliveredBy: null,
+      receivedBy: null,
+      notes: 'JCB backhoe loader scheduled for delivery',
+      createdBy: userIds.user2,
+    },
+    {
+      id: deliveryNoteIds.deliveryNote3,
+      deliveryNumber: 'DN/2025/09/001',
+      invoiceId: invoiceIds.invoice5, // Paid invoice
+      customerId: customerIds.customer5,
+      deliveryDate: new Date('2025-09-10'),
+      deliveryMethod: 'Truck Delivery',
+      driverName: 'Rizky Pratama',
+      vehicleNumber: 'B 9012 GHI',
+      status: 'delivered',
+      deliveredBy: userIds.user2,
+      receivedBy: userIds.user4, // Customer representative
+      notes: 'Caterpillar excavator delivered to mining site',
+      createdBy: userIds.user2,
+    },
+    {
+      id: deliveryNoteIds.deliveryNote4,
+      deliveryNumber: 'DN/2025/08/001',
+      invoiceId: invoiceIds.invoice4, // Sent invoice
+      customerId: customerIds.customer4,
+      deliveryDate: new Date('2025-08-15'),
+      deliveryMethod: 'Customer Pickup',
+      driverName: null,
+      vehicleNumber: null,
+      status: 'delivered',
+      deliveredBy: userIds.user4,
+      receivedBy: userIds.user1, // Customer representative
+      notes: 'Bulldozer picked up by customer at warehouse',
+      createdBy: userIds.user4,
+    },
+  ]);
+  console.log('✅ Seeded 4 delivery notes');
+
+  console.log('🔄 Seeding delivery note items...');
+  await db.insert(schema.deliveryNoteItems).values([
+    {
+      id: randomUUID(),
+      deliveryNoteId: deliveryNoteIds.deliveryNote1,
+      productId: productIds.product4,
+      quantity: '1.00',
+      deliveredQuantity: '1.00',
+      notes: 'Shantui DH08-B3-XL bulldozer delivered with full accessories',
+    },
+    {
+      id: randomUUID(),
+      deliveryNoteId: deliveryNoteIds.deliveryNote2,
+      productId: productIds.product15,
+      quantity: '1.00',
+      deliveredQuantity: '0.00',
+      notes: 'JCB 3DX backhoe loader - pending delivery',
+    },
+    {
+      id: randomUUID(),
+      deliveryNoteId: deliveryNoteIds.deliveryNote3,
+      productId: productIds.product11,
+      quantity: '1.00',
+      deliveredQuantity: '1.00',
+      notes: 'Caterpillar 320 excavator delivered with operator training',
+    },
+    {
+      id: randomUUID(),
+      deliveryNoteId: deliveryNoteIds.deliveryNote4,
+      productId: productIds.product8,
+      quantity: '1.00',
+      deliveredQuantity: '1.00',
+      notes: 'Shantui SD16F bulldozer picked up by customer',
+    },
+  ]);
+  console.log('✅ Seeded 4 delivery note items');
 
   await connection.end();
   console.log('🎉 Database seeded successfully with complete sample data!');

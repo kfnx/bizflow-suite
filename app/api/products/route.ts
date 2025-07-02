@@ -134,3 +134,84 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      code,
+      name,
+      description,
+      category,
+      brand,
+      model,
+      year,
+      condition,
+      status,
+      location,
+      unit,
+      price,
+      currency,
+      engineModel,
+      enginePower,
+      operatingWeight,
+      supplierId,
+    } = body;
+
+    // Validate required fields
+    if (!code || !name || !unit) {
+      return NextResponse.json(
+        { error: 'Code, name, and unit are required' },
+        { status: 400 },
+      );
+    }
+
+    // Check if product code already exists
+    const existingProduct = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.code, code))
+      .limit(1);
+
+    if (existingProduct.length > 0) {
+      return NextResponse.json(
+        { error: 'Product code already exists' },
+        { status: 409 },
+      );
+    }
+
+    // Create new product
+    const newProduct = await db.insert(products).values({
+      id: crypto.randomUUID(),
+      code,
+      name,
+      description,
+      category,
+      brand,
+      model,
+      year: year ? parseInt(year, 10) : null,
+      condition: condition || 'new',
+      status: status || 'in_stock',
+      location,
+      unit,
+      price: price ? price.toString() : '0.00',
+      currency: currency || 'IDR',
+      engineModel,
+      enginePower,
+      operatingWeight,
+      supplierId,
+      isActive: true,
+    });
+
+    return NextResponse.json(
+      { message: 'Product created successfully' },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return NextResponse.json(
+      { error: 'Failed to create product' },
+      { status: 500 },
+    );
+  }
+}

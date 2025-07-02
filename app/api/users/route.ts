@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
     const roles = searchParams.getAll('role'); // Get all role parameters
-    console.log('🚀 ~ GET ~ roles:', roles);
     const status = searchParams.get('status') || '';
     const sortBy = searchParams.get('sortBy') || 'date-desc';
     const offset = (page - 1) * limit;
@@ -56,6 +55,9 @@ export async function GET(request: NextRequest) {
           like(users.lastName, `%${search}%`),
           like(users.email, `%${search}%`),
           like(users.phone, `%${search}%`),
+          like(users.code, `%${search}%`),
+          like(users.NIK, `%${search}%`),
+          like(users.jobTitle, `%${search}%`),
         ),
       );
     }
@@ -106,14 +108,21 @@ export async function GET(request: NextRequest) {
     const allUsers = await db
       .select({
         id: users.id,
-        email: users.email,
+        code: users.code,
         firstName: users.firstName,
         lastName: users.lastName,
+        NIK: users.NIK,
+        email: users.email,
+        jobTitle: users.jobTitle,
+        joinDate: users.joinDate,
+        type: users.type,
         phone: users.phone,
         avatar: users.avatar,
         role: users.role,
+        signature: users.signature,
         isActive: users.isActive,
         createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
       })
       .from(users)
       .where(whereCondition)

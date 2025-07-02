@@ -15,6 +15,12 @@ export type Customer = {
 
 export type CustomersResponse = {
   data: Customer[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 };
 
 export type CustomersFilters = {

@@ -54,7 +54,7 @@ export function SearchMenu() {
 
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, []);
+  }, [setOpen]);
 
   return (
     <CommandMenu.Dialog open={open} onOpenChange={setOpen}>

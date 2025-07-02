@@ -1,19 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { RiCloseLine, RiUserAddLine } from '@remixicon/react';
+import { RiUserAddLine } from '@remixicon/react';
 
 import { usePermissions } from '@/hooks/use-permissions';
-import { Root as Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Root as Label } from '@/components/ui/label';
-import {
-  Root as Modal,
-  Body as ModalBody,
-  Content as ModalContent,
-  Footer as ModalFooter,
-  Header as ModalHeader,
-} from '@/components/ui/modal';
+import * as Button from '@/components/ui/button';
+import * as Input from '@/components/ui/input';
+import * as Label from '@/components/ui/label';
+import * as Modal from '@/components/ui/modal';
+import * as Select from '@/components/ui/select';
 
 interface CreateUserModalProps {
   isOpen: boolean;
@@ -93,17 +88,17 @@ export function CreateUserModal({
   };
 
   return (
-    <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent className='sm:max-w-md'>
-        <ModalHeader>
+    <Modal.Root open={isOpen} onOpenChange={onClose}>
+      <Modal.Content className='sm:max-w-md'>
+        <Modal.Header>
           <div className='flex items-center gap-2'>
             <RiUserAddLine className='size-5' />
             <h2 className='text-lg font-semibold'>Create New User</h2>
           </div>
-        </ModalHeader>
+        </Modal.Header>
 
         <form onSubmit={handleSubmit}>
-          <ModalBody className='space-y-4'>
+          <Modal.Body className='space-y-4'>
             {error && (
               <div className='text-sm rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700'>
                 {error}
@@ -111,83 +106,116 @@ export function CreateUserModal({
             )}
 
             <div className='grid grid-cols-2 gap-4'>
-              <div>
-                <Label htmlFor='firstName'>First Name *</Label>
-                <Input
-                  id='firstName'
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    handleInputChange('firstName', e.target.value)
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='firstName'>
+                  First Name <span className='text-red-500'>*</span>
+                </Label.Root>
+                <Input.Root>
+                  <Input.Input
+                    id='firstName'
+                    value={formData.firstName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleInputChange('firstName', e.target.value)
+                    }
+                    required
+                    className='px-3'
+                  />
+                </Input.Root>
+              </div>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='lastName'>
+                  Last Name <span className='text-red-500'>*</span>
+                </Label.Root>
+                <Input.Root>
+                  <Input.Input
+                    id='lastName'
+                    value={formData.lastName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleInputChange('lastName', e.target.value)
+                    }
+                    required
+                    className='px-3'
+                  />
+                </Input.Root>
+              </div>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor='email'>
+                Email Address <span className='text-red-500'>*</span>
+              </Label.Root>
+              <Input.Root>
+                <Input.Input
+                  id='email'
+                  type='email'
+                  value={formData.email}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange('email', e.target.value)
                   }
                   required
+                  className='px-3'
                 />
-              </div>
-              <div>
-                <Label htmlFor='lastName'>Last Name *</Label>
-                <Input
-                  id='lastName'
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    handleInputChange('lastName', e.target.value)
+              </Input.Root>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor='password'>
+                Password <span className='text-red-500'>*</span>
+              </Label.Root>
+              <Input.Root>
+                <Input.Input
+                  id='password'
+                  type='password'
+                  value={formData.password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange('password', e.target.value)
                   }
+                  minLength={8}
                   required
+                  className='px-3'
                 />
-              </div>
+              </Input.Root>
             </div>
 
-            <div>
-              <Label htmlFor='email'>Email Address *</Label>
-              <Input
-                id='email'
-                type='email'
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                required
-              />
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor='phone'>Phone Number</Label.Root>
+              <Input.Root>
+                <Input.Input
+                  id='phone'
+                  type='tel'
+                  value={formData.phone}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange('phone', e.target.value)
+                  }
+                  className='px-3'
+                />
+              </Input.Root>
             </div>
 
-            <div>
-              <Label htmlFor='password'>Password *</Label>
-              <Input
-                id='password'
-                type='password'
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                minLength={8}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor='phone'>Phone Number</Label>
-              <Input
-                id='phone'
-                type='tel'
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor='role'>Role *</Label>
-              <select
-                id='role'
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor='role'>
+                Role <span className='text-red-500'>*</span>
+              </Label.Root>
+              <Select.Root
                 value={formData.role}
-                onChange={(e) => handleInputChange('role', e.target.value)}
-                className='border-gray-300 text-sm w-full rounded-md border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500'
-                required
+                onValueChange={(value) => handleInputChange('role', value)}
               >
-                {availableRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </option>
-                ))}
-              </select>
+                <Select.Trigger>
+                  <Select.Value placeholder='Select role' />
+                </Select.Trigger>
+                <Select.Content>
+                  {availableRoles.map((role) => (
+                    <Select.Item key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
             </div>
-          </ModalBody>
+          </Modal.Body>
 
-          <ModalFooter>
-            <Button
+          <Modal.Footer>
+            <Button.Root
               type='button'
               variant='neutral'
               mode='ghost'
@@ -195,13 +223,13 @@ export function CreateUserModal({
               disabled={isLoading}
             >
               Cancel
-            </Button>
-            <Button type='submit' variant='primary' disabled={isLoading}>
+            </Button.Root>
+            <Button.Root type='submit' variant='primary' disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create User'}
-            </Button>
-          </ModalFooter>
+            </Button.Root>
+          </Modal.Footer>
         </form>
-      </ModalContent>
-    </Modal>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

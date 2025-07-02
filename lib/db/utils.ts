@@ -20,14 +20,21 @@ export async function getUserWithDocuments(userId: string) {
   const user = await db
     .select({
       id: users.id,
-      email: users.email,
+      code: users.code,
       firstName: users.firstName,
       lastName: users.lastName,
+      NIK: users.NIK,
+      email: users.email,
+      jobTitle: users.jobTitle,
+      joinDate: users.joinDate,
+      type: users.type,
       phone: users.phone,
       avatar: users.avatar,
       role: users.role,
+      signature: users.signature,
       isActive: users.isActive,
       createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
     })
     .from(users)
     .where(eq(users.id, userId))

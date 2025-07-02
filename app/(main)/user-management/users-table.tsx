@@ -56,6 +56,19 @@ const getRoleColor = (role: string) => {
   }
 };
 
+const getTypeColor = (type: string) => {
+  switch (type) {
+    case 'full-time':
+      return 'green';
+    case 'contract':
+      return 'blue';
+    case 'resigned':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
 function ActionCell({ row }: { row: any }) {
   const { can, role: currentUserRole } = usePermissions();
   const deleteUserMutation = useDeleteUser();
@@ -154,7 +167,32 @@ const columns: ColumnDef<User>[] = [
           <div className='text-paragraph-sm text-text-strong-950'>
             {row.original.firstName} {row.original.lastName}
           </div>
+          {row.original.jobTitle && (
+            <div className='text-paragraph-xs text-text-sub-600'>
+              {row.original.jobTitle}
+            </div>
+          )}
         </div>
+      </div>
+    ),
+  },
+  {
+    id: 'nik',
+    accessorKey: 'NIK',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        NIK
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='font-mono text-paragraph-sm text-text-sub-600'>
+        {row.original.NIK || '—'}
       </div>
     ),
   },
@@ -219,6 +257,49 @@ const columns: ColumnDef<User>[] = [
     ),
   },
   {
+    id: 'type',
+    accessorKey: 'type',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Type
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <Badge
+        variant='light'
+        color={getTypeColor(row.original.type || 'full-time')}
+      >
+        {row.original.type || 'full-time'}
+      </Badge>
+    ),
+  },
+  {
+    id: 'joinDate',
+    accessorKey: 'joinDate',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Join Date
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {row.original.joinDate ? formatDate(row.original.joinDate) : '—'}
+      </div>
+    ),
+  },
+  {
     id: 'status',
     accessorKey: 'isActive',
     header: ({ column }) => (
@@ -236,26 +317,6 @@ const columns: ColumnDef<User>[] = [
       <Badge variant='light' color={row.original.isActive ? 'green' : 'red'}>
         {row.original.isActive ? 'Active' : 'Inactive'}
       </Badge>
-    ),
-  },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Created at
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.createdAt)}
-      </div>
     ),
   },
   {
@@ -331,7 +392,7 @@ export function UsersTable({ filters }: UsersTableProps) {
   }
 
   return (
-    <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[860px]'>
+    <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[1000px]'>
       <Table.Header className='whitespace-nowrap'>
         {table.getHeaderGroups().map((headerGroup) => (
           <Table.Row key={headerGroup.id}>

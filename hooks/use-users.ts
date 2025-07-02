@@ -4,14 +4,21 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export type User = {
   id: string;
-  email: string;
+  code: string;
   firstName: string;
   lastName: string;
+  NIK: string;
+  email: string;
+  jobTitle?: string;
+  joinDate: string;
+  type: string;
   phone?: string;
   avatar?: string;
   role: string;
+  signature?: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string;
 };
 
 export type UsersResponse = {

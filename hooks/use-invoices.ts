@@ -1,0 +1,101 @@
+'use client';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+export type Invoice = {
+  id: string;
+  invoiceNumber: string;
+  quotationId?: string;
+  invoiceDate: string;
+  dueDate: string;
+  customerId: string;
+  subtotal: string;
+  tax: string;
+  total: string;
+  currency: string;
+  status: string;
+  paymentMethod?: string;
+  notes?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  // Joined data
+  customer?: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  quotation?: {
+    id: string;
+    quotationNumber: string;
+  };
+  createdByUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+};
+
+export type InvoicesResponse = {
+  data: Invoice[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type InvoicesFilters = {
+  search?: string;
+  status?: string;
+  sortBy?: string;
+  page?: number;
+  limit?: number;
+};
+
+const fetchInvoices = async (
+  filters?: InvoicesFilters,
+): Promise<InvoicesResponse> => {
+  const params = new URLSearchParams();
+
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.status && filters.status !== 'all')
+    params.append('status', filters.status);
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters?.page) params.append('page', filters.page.toString());
+  if (filters?.limit) params.append('limit', filters.limit.toString());
+
+  const response = await fetch(`/api/invoices?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch invoices');
+  }
+  return response.json();
+};
+
+const deleteInvoice = async (invoiceId: string): Promise<void> => {
+  const response = await fetch(`/api/invoices/${invoiceId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete invoice');
+  }
+};
+
+export function useInvoices(filters?: InvoicesFilters) {
+  return useQuery({
+    queryKey: ['invoices', filters],
+    queryFn: () => fetchInvoices(filters),
+  });
+}
+
+export function useDeleteInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteInvoice,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}

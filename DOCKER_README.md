@@ -146,16 +146,6 @@ The following environment variables are automatically set in the Docker environm
 | `DB_PASSWORD` | `password`   | Database password                   |
 | `DB_NAME`     | `bizdocgen`  | Database name                       |
 
-## Default Users
-
-The seed script creates the following users:
-
-| Email                   | Password      | Role    |
-| ----------------------- | ------------- | ------- |
-| `admin@bizdocgen.com`   | `password123` | Admin   |
-| `manager@bizdocgen.com` | `password123` | Manager |
-| `user@bizdocgen.com`    | `password123` | User    |
-
 ## Troubleshooting
 
 ### Port Already in Use

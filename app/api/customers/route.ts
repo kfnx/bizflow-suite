@@ -7,13 +7,8 @@ import { customers } from '@/lib/db/schema';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const isActive = searchParams.get('isActive');
-
     // Build query conditions
-    const conditions = [];
-    if (isActive !== null) {
-      conditions.push(eq(customers.isActive, isActive === 'true'));
-    }
+    const conditions: any[] = [];
 
     // Fetch customers
     const customersData = await db
@@ -21,11 +16,11 @@ export async function GET(request: NextRequest) {
         id: customers.id,
         code: customers.code,
         name: customers.name,
-        email: customers.email,
-        phone: customers.phone,
-        city: customers.city,
-        country: customers.country,
-        isActive: customers.isActive,
+        type: customers.type,
+        contactPersonName: customers.contactPersonName,
+        contactPersonEmail: customers.contactPersonEmail,
+        contactPersonPhone: customers.contactPersonPhone,
+        createdAt: customers.createdAt,
       })
       .from(customers)
       .where(conditions.length > 0 ? and(...conditions) : undefined)

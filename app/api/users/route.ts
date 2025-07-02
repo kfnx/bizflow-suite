@@ -181,13 +181,23 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
+    // Generate user code (USR-XXXX format)
+    const userCount = await db.select({ count: users.id }).from(users);
+    const userCode = `USR-${(userCount.length + 1).toString().padStart(4, '0')}`;
+
+    // Generate NIK (placeholder - should be provided by user or system)
+    const nik = `NIK${Date.now().toString().slice(-8)}`;
+
     // Create user
     await db.insert(users).values({
       id: crypto.randomUUID(),
+      code: userCode,
       email: validatedData.email,
       password: hashedPassword,
       firstName: validatedData.firstName,
       lastName: validatedData.lastName,
+      NIK: nik,
+      joinDate: new Date(),
       phone: validatedData.phone,
       role: validatedData.role,
     });

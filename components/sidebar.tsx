@@ -19,13 +19,13 @@ import {
   RiUserLine,
   RiUserSettingsLine,
 } from '@remixicon/react';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { useSession } from 'next-auth/react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
+import { hasPermission, Permission } from '@/lib/permissions';
 import { cn } from '@/utils/cn';
 import * as Divider from '@/components/ui/divider';
 import { UserButton } from '@/components/user-button';
-import { hasPermission, Permission } from '@/lib/permissions';
 
 import IconCmd from '~/icons/icon-cmd.svg';
 
@@ -236,28 +236,30 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const { data: session } = useSession();
 
   // Filter navigation links based on user permissions
-  const filteredNavigationLinks = navigationLinks.map(category => ({
-    ...category,
-    links: category.links.filter(link => {
-      // Check if user has permission for this route
-      const routePermissions: Record<string, Permission[]> = {
-        '/user-management': ['users:read'],
-        '/quotations': ['quotations:read'],
-        '/invoices': ['invoices:read'],
-        '/products': ['products:read'],
-        '/warehouses': ['warehouses:read'],
-        '/reports': ['reports:view'],
-        '/settings': ['settings:manage'],
-      };
+  const filteredNavigationLinks = navigationLinks
+    .map((category) => ({
+      ...category,
+      links: category.links.filter((link) => {
+        // Check if user has permission for this route
+        const routePermissions: Record<string, Permission[]> = {
+          '/user-management': ['users:read'],
+          '/quotations': ['quotations:read'],
+          '/invoices': ['invoices:read'],
+          '/products': ['products:read'],
+          '/warehouses': ['warehouses:read'],
+          '/reports': ['reports:view'],
+          '/settings': ['settings:manage'],
+        };
 
-      const requiredPermissions = routePermissions[link.href];
-      if (!requiredPermissions) return true; // No permission required
+        const requiredPermissions = routePermissions[link.href];
+        if (!requiredPermissions) return true; // No permission required
 
-      return requiredPermissions.some(permission =>
-        hasPermission(session?.user?.role || 'guest', permission)
-      );
-    })
-  })).filter(category => category.links.length > 0);
+        return requiredPermissions.some((permission) =>
+          hasPermission(session?.user?.role || 'guest', permission),
+        );
+      }),
+    }))
+    .filter((category) => category.links.length > 0);
 
   return filteredNavigationLinks.map(({ label, links }) => (
     <div key={label} className='space-y-2'>

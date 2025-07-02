@@ -66,7 +66,6 @@ export default function PageLogin() {
         redirect: false,
       });
 
-
       if (result?.error) {
         console.error('Sign in error:', result.error);
         setError('Invalid email or password');

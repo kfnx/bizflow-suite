@@ -39,6 +39,7 @@ import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
 
+import { TransactionDetailDrawer } from './transaction-detail-drawer';
 
 export const transactions: TransactionTableData[] = [
   {
@@ -185,8 +186,6 @@ export const transactions: TransactionTableData[] = [
     method: 'transfer-exit',
   },
 ];
-
-import { TransactionDetailDrawer } from './transaction-detail-drawer';
 
 export const transactionDetailModalOpenAtom = atom(false);
 
@@ -467,9 +466,9 @@ export function TransactionsTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </Table.Head>
                 );
               })}

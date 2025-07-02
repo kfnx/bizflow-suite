@@ -12,8 +12,8 @@ import {
   RiPulseLine,
   RiSettings2Line,
 } from '@remixicon/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
-import { useSession, signOut } from 'next-auth/react';
 
 import { cn, cnExt } from '@/utils/cn';
 import * as Avatar from '@/components/ui/avatar';
@@ -30,14 +30,16 @@ export function UserButton({ className }: { className?: string }) {
   // Show loading state while session is loading
   if (status === 'loading') {
     return (
-      <div className={cnExt(
-        'flex w-full items-center gap-3 whitespace-nowrap rounded-10 p-3 text-left outline-none',
-        className,
-      )}>
-        <div className="size-10 animate-pulse rounded-full bg-bg-weak-50" />
-        <div className="flex-1 space-y-2" data-hide-collapsed>
-          <div className="h-4 animate-pulse rounded bg-bg-weak-50" />
-          <div className="h-3 animate-pulse rounded bg-bg-weak-50" />
+      <div
+        className={cnExt(
+          'flex w-full items-center gap-3 whitespace-nowrap rounded-10 p-3 text-left outline-none',
+          className,
+        )}
+      >
+        <div className='size-10 animate-pulse rounded-full bg-bg-weak-50' />
+        <div className='flex-1 space-y-2' data-hide-collapsed>
+          <div className='h-4 animate-pulse rounded bg-bg-weak-50' />
+          <div className='h-3 animate-pulse rounded bg-bg-weak-50' />
         </div>
       </div>
     );
@@ -49,9 +51,10 @@ export function UserButton({ className }: { className?: string }) {
   }
 
   const user = session.user;
-  const userDisplayName = user.firstName && user.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : user.name || 'User';
+  const userDisplayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.name || 'User';
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login' });
@@ -137,14 +140,16 @@ export function UserButtonMobile({ className }: { className?: string }) {
   // Show loading state while session is loading
   if (status === 'loading') {
     return (
-      <div className={cnExt(
-        'flex w-full items-center gap-3 whitespace-nowrap rounded-10 p-3 text-left outline-none',
-        className,
-      )}>
-        <div className="size-12 animate-pulse rounded-full bg-bg-weak-50" />
-        <div className="flex-1 space-y-2">
-          <div className="h-4 animate-pulse rounded bg-bg-weak-50" />
-          <div className="h-3 animate-pulse rounded bg-bg-weak-50" />
+      <div
+        className={cnExt(
+          'flex w-full items-center gap-3 whitespace-nowrap rounded-10 p-3 text-left outline-none',
+          className,
+        )}
+      >
+        <div className='size-12 animate-pulse rounded-full bg-bg-weak-50' />
+        <div className='flex-1 space-y-2'>
+          <div className='h-4 animate-pulse rounded bg-bg-weak-50' />
+          <div className='h-3 animate-pulse rounded bg-bg-weak-50' />
         </div>
       </div>
     );
@@ -156,9 +161,10 @@ export function UserButtonMobile({ className }: { className?: string }) {
   }
 
   const user = session.user;
-  const userDisplayName = user.firstName && user.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : user.name || 'User';
+  const userDisplayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.name || 'User';
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login' });

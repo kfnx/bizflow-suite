@@ -16,7 +16,7 @@ const dbCredentials = {
   database: process.env.DB_NAME || 'bizdocgen',
 };
 
-if (process.env.DB_SSL === 'secure') {
+if (process.env.DB_SSL === 'required') {
   (dbCredentials as any).ssl = {
     ca: fs.readFileSync('ca.pem'),
     cert: fs.readFileSync('client-cert.pem'),
@@ -25,7 +25,7 @@ if (process.env.DB_SSL === 'secure') {
   };
 }
 
-if (process.env.DB_SSL === 'insecure') {
+if (process.env.DB_SSL === 'preferred') {
   (dbCredentials as any).ssl = {
     rejectUnauthorized: false,
   };

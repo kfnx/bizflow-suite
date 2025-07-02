@@ -1,14 +1,17 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { RiHistoryLine } from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
-import { QuotationsTable, QuotationTablePagination } from '@/components/quotations-table';
+import {
+  QuotationsTable,
+  QuotationTablePagination,
+} from '@/components/quotations-table';
+
 import { Filters, type QuotationsFilters } from './filters';
-import { TransactionsTable, transactions } from '@/components/transactions-table';
 
 export default function PageQuotations() {
   const [filters, setFilters] = useState<QuotationsFilters>({
@@ -32,7 +35,11 @@ export default function PageQuotations() {
         title='Quotations'
         description='Track your quotations to stay in control of your business proposals.'
       >
-        <ActionButton className='hidden lg:flex' label='New Quotation' href='/quotations/new' />
+        <ActionButton
+          className='hidden lg:flex'
+          label='New Quotation'
+          href='/quotations/new'
+        />
       </Header>
     );
   };

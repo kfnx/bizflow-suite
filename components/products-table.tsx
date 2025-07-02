@@ -3,16 +3,16 @@
 import * as React from 'react';
 import {
   RiArrowDownSFill,
-  RiArrowUpSFill,
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
+  RiArrowUpSFill,
+  RiBuildingLine,
   RiExpandUpDownFill,
   RiFileTextLine,
-  RiMoreLine,
-  RiBuildingLine,
   RiMapPinLine,
+  RiMoreLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -23,13 +23,18 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 
+import {
+  useDeleteProduct,
+  useProducts,
+  type Product,
+  type ProductsResponse,
+} from '@/hooks/use-products';
+import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
-import * as Table from '@/components/ui/table';
-import * as Badge from '@/components/ui/badge';
-import * as Select from '@/components/ui/select';
 import * as Pagination from '@/components/ui/pagination';
-import { useProducts, useDeleteProduct, type Product, type ProductsResponse } from '@/hooks/use-products';
+import * as Select from '@/components/ui/select';
+import * as Table from '@/components/ui/table';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -97,7 +102,11 @@ interface ProductsTableProps {
   onLimitChange?: (limit: number) => void;
 }
 
-export function ProductsTable({ filters, onPageChange, onLimitChange }: ProductsTableProps) {
+export function ProductsTable({
+  filters,
+  onPageChange,
+  onLimitChange,
+}: ProductsTableProps) {
   const { data, isLoading, error } = useProducts(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const deleteProduct = useDeleteProduct();
@@ -168,7 +177,10 @@ export function ProductsTable({ filters, onPageChange, onLimitChange }: Products
       accessorKey: 'condition',
       header: 'Condition',
       cell: ({ row }) => {
-        const config = conditionConfig[row.original.condition as keyof typeof conditionConfig];
+        const config =
+          conditionConfig[
+            row.original.condition as keyof typeof conditionConfig
+          ];
         return (
           <Badge.Root variant={config?.variant} color={config?.color}>
             {config?.label || row.original.condition}
@@ -181,7 +193,8 @@ export function ProductsTable({ filters, onPageChange, onLimitChange }: Products
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const config = statusConfig[row.original.status as keyof typeof statusConfig];
+        const config =
+          statusConfig[row.original.status as keyof typeof statusConfig];
         return (
           <Badge.Root variant={config?.variant} color={config?.color}>
             {config?.label || row.original.status}
@@ -252,10 +265,18 @@ export function ProductsTable({ filters, onPageChange, onLimitChange }: Products
             </Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align='end'>
-            <Dropdown.Item onClick={() => window.open(`/products/${row.original.id}`, '_blank')}>
+            <Dropdown.Item
+              onClick={() =>
+                window.open(`/products/${row.original.id}`, '_blank')
+              }
+            >
               View Details
             </Dropdown.Item>
-            <Dropdown.Item onClick={() => window.open(`/products/${row.original.id}/edit`, '_blank')}>
+            <Dropdown.Item
+              onClick={() =>
+                window.open(`/products/${row.original.id}/edit`, '_blank')
+              }
+            >
               Edit
             </Dropdown.Item>
             <Dropdown.Separator />
@@ -292,27 +313,31 @@ export function ProductsTable({ filters, onPageChange, onLimitChange }: Products
   });
 
   if (isLoading) {
-    return <div className="text-gray-500 p-4 text-center">Loading products...</div>;
+    return (
+      <div className='text-gray-500 p-4 text-center'>Loading products...</div>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-4 text-center text-red-500">
-        Error: {error.message}
-      </div>
+      <div className='p-4 text-center text-red-500'>Error: {error.message}</div>
     );
   }
 
   if (!data?.data || data.data.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <RiFileTextLine className="text-gray-400 mx-auto size-12" />
-        <h3 className="text-gray-900 mt-2 text-paragraph-sm font-medium">No products found</h3>
-        <p className="text-gray-500 mt-1 text-paragraph-sm">
-          {filters?.search || filters?.status || filters?.category || filters?.brand
-            ? "No products match your current filters. Try adjusting your search criteria."
-            : "Get started by adding a new product."
-          }
+      <div className='p-8 text-center'>
+        <RiFileTextLine className='text-gray-400 mx-auto size-12' />
+        <h3 className='text-gray-900 mt-2 text-paragraph-sm font-medium'>
+          No products found
+        </h3>
+        <p className='text-gray-500 mt-1 text-paragraph-sm'>
+          {filters?.search ||
+          filters?.status ||
+          filters?.category ||
+          filters?.brand
+            ? 'No products match your current filters. Try adjusting your search criteria.'
+            : 'Get started by adding a new product.'}
         </p>
       </div>
     );
@@ -329,9 +354,9 @@ export function ProductsTable({ filters, onPageChange, onLimitChange }: Products
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>
@@ -346,20 +371,14 @@ export function ProductsTable({ filters, onPageChange, onLimitChange }: Products
               >
                 {row.getVisibleCells().map((cell) => (
                   <Table.Cell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Cell>
                 ))}
               </Table.Row>
             ))
           ) : (
             <Table.Row>
-              <Table.Cell
-                colSpan={columns.length}
-                className='h-24 text-center'
-              >
+              <Table.Cell colSpan={columns.length} className='h-24 text-center'>
                 No results.
               </Table.Cell>
             </Table.Row>
@@ -389,7 +408,11 @@ interface ProductsTablePaginationProps {
   onLimitChange?: (limit: number) => void;
 }
 
-export function ProductsTablePagination({ data, onPageChange, onLimitChange }: ProductsTablePaginationProps) {
+export function ProductsTablePagination({
+  data,
+  onPageChange,
+  onLimitChange,
+}: ProductsTablePaginationProps) {
   const currentPage = data.page;
   const totalPages = data.totalPages;
   const limit = data.limit;
@@ -498,7 +521,7 @@ export function ProductsTablePagination({ data, onPageChange, onLimitChange }: P
           {pageNumbers.map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? (
-                <span className="px-2 text-text-sub-600">...</span>
+                <span className='px-2 text-text-sub-600'>...</span>
               ) : (
                 <Pagination.Item
                   current={page === currentPage}

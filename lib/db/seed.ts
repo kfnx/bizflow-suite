@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { drizzle } from 'drizzle-orm/mysql2';
 
 import { createConnection } from './index';
@@ -11,10 +12,71 @@ async function main() {
   // Use a fixed password hash for all users
   const hashedPassword = await bcrypt.hash('password123', 12);
 
+  // Generate UUIDs for consistent reference
+  const userIds = {
+    user1: randomUUID(),
+    user2: randomUUID(), 
+    user3: randomUUID(),
+    user4: randomUUID(),
+  };
+
+  const customerIds = {
+    customer1: randomUUID(),
+    customer2: randomUUID(),
+    customer3: randomUUID(),
+    customer4: randomUUID(),
+    customer5: randomUUID(),
+  };
+
+  const supplierIds = {
+    supplier1: randomUUID(),
+    supplier2: randomUUID(),
+    supplier3: randomUUID(),
+  };
+
+  const warehouseIds = {
+    warehouse1: randomUUID(),
+    warehouse2: randomUUID(),
+  };
+
+  const productIds = {
+    product1: randomUUID(),
+    product2: randomUUID(),
+    product3: randomUUID(),
+    product4: randomUUID(),
+    product5: randomUUID(),
+    product6: randomUUID(),
+    product7: randomUUID(),
+    product8: randomUUID(),
+    product9: randomUUID(),
+    product10: randomUUID(),
+    product11: randomUUID(),
+    product12: randomUUID(),
+    product13: randomUUID(),
+    product14: randomUUID(),
+    product15: randomUUID(),
+    product16: randomUUID(),
+    product17: randomUUID(),
+    product18: randomUUID(),
+    product19: randomUUID(),
+    product20: randomUUID(),
+  };
+
+  const quotationIds = {
+    quotation1: randomUUID(),
+    quotation2: randomUUID(),
+    quotation3: randomUUID(),
+    quotation4: randomUUID(),
+    quotation5: randomUUID(),
+    quotation6: randomUUID(),
+    quotation7: randomUUID(),
+  };
+
   // Direct database inserts to ensure proper relationships
+  console.log('🔄 Seeding users...');
   await db.insert(schema.users).values([
     {
-      id: 'user-1',
+      id: userIds.user1,
       code: 'USR001',
       firstName: 'Asep',
       lastName: 'Staff',
@@ -31,7 +93,7 @@ async function main() {
       isActive: true,
     },
     {
-      id: 'user-2',
+      id: userIds.user2,
       code: 'USR002',
       firstName: 'Budi',
       lastName: 'Manager',
@@ -48,7 +110,7 @@ async function main() {
       isActive: true,
     },
     {
-      id: 'user-3',
+      id: userIds.user3,
       code: 'USR003',
       firstName: 'Rizky',
       lastName: 'Director',
@@ -65,7 +127,7 @@ async function main() {
       isActive: true,
     },
     {
-      id: 'user-4',
+      id: userIds.user4,
       code: 'USR004',
       firstName: 'Rini',
       lastName: 'Susanti Staff',
@@ -82,10 +144,12 @@ async function main() {
       isActive: true,
     },
   ]);
+  console.log('✅ Seeded 4 users');
 
+  console.log('🔄 Seeding customers...');
   await db.insert(schema.customers).values([
     {
-      id: 'customer-1',
+      id: customerIds.customer1,
       code: 'CUST001',
       name: 'PT Customer Pertama',
       type: 'company',
@@ -100,7 +164,7 @@ async function main() {
       isPPN: true,
     },
     {
-      id: 'customer-2',
+      id: customerIds.customer2,
       code: 'CUST002',
       name: 'CV Customer Kedua',
       type: 'company',
@@ -115,7 +179,7 @@ async function main() {
       isPPN: false,
     },
     {
-      id: 'customer-3',
+      id: customerIds.customer3,
       code: 'CUST003',
       name: 'PT Customer Ketiga',
       type: 'company',
@@ -130,7 +194,7 @@ async function main() {
       isPPN: true,
     },
     {
-      id: 'customer-4',
+      id: customerIds.customer4,
       code: 'CUST004',
       name: 'CV Customer Keempat',
       type: 'company',
@@ -145,7 +209,7 @@ async function main() {
       isPPN: false,
     },
     {
-      id: 'customer-5',
+      id: customerIds.customer5,
       code: 'CUST005',
       name: 'PT Customer Kelima',
       type: 'company',
@@ -160,10 +224,12 @@ async function main() {
       isPPN: true,
     },
   ]);
+  console.log('✅ Seeded 5 customers');
 
+  console.log('🔄 Seeding suppliers...');
   await db.insert(schema.suppliers).values([
     {
-      id: 'supplier-1',
+      id: supplierIds.supplier1,
       code: 'SUP001',
       name: 'PT Supplier Utama',
       country: 'Indonesia',
@@ -176,7 +242,7 @@ async function main() {
       isActive: true,
     },
     {
-      id: 'supplier-2',
+      id: supplierIds.supplier2,
       code: 'SUP002',
       name: 'CV Supplier Mitra',
       country: 'Indonesia',
@@ -189,7 +255,7 @@ async function main() {
       isActive: true,
     },
     {
-      id: 'supplier-3',
+      id: supplierIds.supplier3,
       code: 'SUP003',
       name: 'PT Supplier Ketiga',
       country: 'Indonesia',
@@ -202,10 +268,12 @@ async function main() {
       isActive: true,
     },
   ]);
+  console.log('✅ Seeded 3 suppliers');
 
+  console.log('🔄 Seeding warehouses...');
   await db.insert(schema.warehouses).values([
     {
-      id: 'warehouse-1',
+      id: warehouseIds.warehouse1,
       code: 'WH001',
       name: 'Warehouse Jakarta Pusat',
       address: 'Jl. Warehouse No. 1',
@@ -216,7 +284,7 @@ async function main() {
       isActive: true,
     },
     {
-      id: 'warehouse-2',
+      id: warehouseIds.warehouse2,
       code: 'WH002',
       name: 'Warehouse Surabaya',
       address: 'Jl. Warehouse No. 2',
@@ -227,10 +295,12 @@ async function main() {
       isActive: true,
     },
   ]);
+  console.log('✅ Seeded 2 warehouses');
 
+  console.log('🔄 Seeding products...');
   await db.insert(schema.products).values([
     {
-      id: 'product-1',
+      id: productIds.product1,
       code: 'SHA-1750609617450-853',
       name: 'Shantui L36-B3',
       description: 'Wheel Loader for construction and material handling',
@@ -247,11 +317,11 @@ async function main() {
       engineModel: 'WD10G220E23',
       enginePower: '220 hp',
       operatingWeight: '18,500 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-2',
+      id: productIds.product2,
       code: 'SHA-1749810376237-569',
       name: 'Shantui L36-B3',
       description: 'Wheel Loader for construction and material handling',
@@ -268,11 +338,11 @@ async function main() {
       engineModel: 'WD10G220E23',
       enginePower: '220 hp',
       operatingWeight: '18,500 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-3',
+      id: productIds.product3,
       code: 'SHA-1749809344351-476',
       name: 'Shantui SL36-B3',
       description: 'Wheel Loader for construction and material handling',
@@ -289,11 +359,11 @@ async function main() {
       engineModel: 'WD10G220E23',
       enginePower: '220 hp',
       operatingWeight: '18,500 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-4',
+      id: productIds.product4,
       code: 'SHA-1749715519206-385',
       name: 'Shantui DH08-B3-XL',
       description: 'Bulldozer for earthmoving and construction',
@@ -310,11 +380,11 @@ async function main() {
       engineModel: 'Cummins NT855-C360',
       enginePower: '360 hp',
       operatingWeight: '32,000 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-5',
+      id: productIds.product5,
       code: 'SHA-1749713879644-288',
       name: 'Shantui SFD35 - 3000',
       description: 'Excavator for construction and digging operations',
@@ -331,11 +401,11 @@ async function main() {
       engineModel: 'Cummins NT855-C360',
       enginePower: '360 hp',
       operatingWeight: '35,000 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-6',
+      id: productIds.product6,
       code: 'SHA-1749615913191-381',
       name: 'Shantui SR 20H-B6',
       description: 'Compactor for road construction and maintenance',
@@ -352,11 +422,11 @@ async function main() {
       engineModel: 'Cummins NT855-C360',
       enginePower: '360 hp',
       operatingWeight: '20,000 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-7',
+      id: productIds.product7,
       code: 'SHA-1749615117434-413',
       name: 'Shantui SFD70-3000',
       description: 'Forklift for material handling and warehouse operations',
@@ -373,11 +443,11 @@ async function main() {
       engineModel: 'Cummins B3.3-C85',
       enginePower: '85 hp',
       operatingWeight: '7,000 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-8',
+      id: productIds.product8,
       code: 'SHA-1749532223148-878',
       name: 'Shantui SD16F',
       description: 'Bulldozer for earthmoving and construction',
@@ -394,11 +464,11 @@ async function main() {
       engineModel: 'Cummins NT855-C360',
       enginePower: '360 hp',
       operatingWeight: '16,000 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-9',
+      id: productIds.product9,
       code: 'SHA-1749462416657-376',
       name: 'Shantui SD17',
       description: 'Bulldozer for earthmoving and construction',
@@ -415,11 +485,11 @@ async function main() {
       engineModel: 'Cummins NT855-C360',
       enginePower: '360 hp',
       operatingWeight: '17,000 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-10',
+      id: productIds.product10,
       code: 'SHA-1749458225471-648',
       name: 'Shantui SE75',
       description: 'Excavator for construction and digging operations',
@@ -436,11 +506,11 @@ async function main() {
       engineModel: 'Cummins NT855-C360',
       enginePower: '360 hp',
       operatingWeight: '7,500 kg',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-11',
+      id: productIds.product11,
       code: 'CAT-1749458225471-649',
       name: 'Caterpillar 320',
       description: 'Hydraulic excavator for heavy construction and mining',
@@ -457,11 +527,11 @@ async function main() {
       engineModel: 'Cat C7.1',
       enginePower: '103 kW (138 hp)',
       operatingWeight: '20,000 kg',
-      supplierId: 'supplier-2',
+      supplierId: supplierIds.supplier2,
       isActive: true,
     },
     {
-      id: 'product-12',
+      id: productIds.product12,
       code: 'KOM-1749458225471-650',
       name: 'Komatsu PC200-8',
       description: 'Hydraulic excavator for construction and earthmoving',
@@ -478,11 +548,11 @@ async function main() {
       engineModel: 'SAA6D107E-1',
       enginePower: '110 kW (148 hp)',
       operatingWeight: '20,500 kg',
-      supplierId: 'supplier-3',
+      supplierId: supplierIds.supplier3,
       isActive: true,
     },
     {
-      id: 'product-13',
+      id: productIds.product13,
       code: 'HIT-1749458225471-651',
       name: 'Hitachi ZX200-5G',
       description: 'Hydraulic excavator with advanced fuel efficiency',
@@ -496,11 +566,11 @@ async function main() {
       unit: 'pcs',
       price: '380000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-2',
+      supplierId: supplierIds.supplier2,
       isActive: true,
     },
     {
-      id: 'product-14',
+      id: productIds.product14,
       code: 'VOL-1749458225471-652',
       name: 'Volvo EC200D',
       description: 'Crawler excavator for construction and material handling',
@@ -514,11 +584,11 @@ async function main() {
       unit: 'pcs',
       price: '320000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-15',
+      id: productIds.product15,
       code: 'JCB-1749458225471-653',
       name: 'JCB 3DX',
       description: 'Backhoe loader for versatile construction applications',
@@ -532,11 +602,11 @@ async function main() {
       unit: 'pcs',
       price: '320000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-3',
+      supplierId: supplierIds.supplier3,
       isActive: true,
     },
     {
-      id: 'product-16',
+      id: productIds.product16,
       code: 'CAT-1749458225471-654',
       name: 'Caterpillar 950K',
       description: 'Wheel loader for heavy-duty material handling',
@@ -550,11 +620,11 @@ async function main() {
       unit: 'pcs',
       price: '450000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-2',
+      supplierId: supplierIds.supplier2,
       isActive: true,
     },
     {
-      id: 'product-17',
+      id: productIds.product17,
       code: 'KOM-1749458225471-655',
       name: 'Komatsu D65PX-18',
       description: 'Bulldozer for earthmoving and construction',
@@ -568,11 +638,11 @@ async function main() {
       unit: 'pcs',
       price: '280000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-3',
+      supplierId: supplierIds.supplier3,
       isActive: true,
     },
     {
-      id: 'product-18',
+      id: productIds.product18,
       code: 'HIT-1749458225471-656',
       name: 'Hitachi ZW310-6',
       description: 'Wheel loader for construction and material handling',
@@ -586,11 +656,11 @@ async function main() {
       unit: 'pcs',
       price: '220000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-2',
+      supplierId: supplierIds.supplier2,
       isActive: true,
     },
     {
-      id: 'product-19',
+      id: productIds.product19,
       code: 'VOL-1749458225471-657',
       name: 'Volvo L90H',
       description: 'Wheel loader for heavy construction applications',
@@ -604,11 +674,11 @@ async function main() {
       unit: 'pcs',
       price: '380000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-1',
+      supplierId: supplierIds.supplier1,
       isActive: true,
     },
     {
-      id: 'product-20',
+      id: productIds.product20,
       code: 'CAT-1749458225471-658',
       name: 'Caterpillar D6T',
       description: 'Bulldozer for earthmoving and construction',
@@ -622,19 +692,21 @@ async function main() {
       unit: 'pcs',
       price: '350000000.00',
       currency: 'IDR',
-      supplierId: 'supplier-2',
+      supplierId: supplierIds.supplier2,
       isActive: true,
     },
   ]);
+  console.log('✅ Seeded 20 products');
 
+  console.log('🔄 Seeding quotations...');
   await db.insert(schema.quotations).values([
     {
-      id: 'quotation-1',
+      id: quotationIds.quotation1,
       quotationNumber: 'QT/2025/04/001',
       quotationDate: new Date('2025-04-29'),
       validUntil: new Date('2025-07-29'),
-      customerId: 'customer-1',
-      createdBy: 'user-1',
+      customerId: customerIds.customer1,
+      createdBy: userIds.user1,
       isIncludePPN: true,
       subtotal: '15000000.00',
       tax: '1500000.00',
@@ -645,12 +717,12 @@ async function main() {
       termsAndConditions: null,
     },
     {
-      id: 'quotation-2',
+      id: quotationIds.quotation2,
       quotationNumber: 'QT/2025/04/002',
       quotationDate: new Date('2025-04-29'),
       validUntil: new Date('2025-07-29'),
-      customerId: 'customer-2',
-      createdBy: 'user-2',
+      customerId: customerIds.customer2,
+      createdBy: userIds.user2,
       isIncludePPN: false,
       subtotal: '25000000.00',
       tax: '0.00',
@@ -661,12 +733,12 @@ async function main() {
       termsAndConditions: null,
     },
     {
-      id: 'quotation-3',
+      id: quotationIds.quotation3,
       quotationNumber: 'QT/2025/05/001',
       quotationDate: new Date('2025-05-29'),
       validUntil: new Date('2025-07-29'),
-      customerId: 'customer-3',
-      createdBy: 'user-1',
+      customerId: customerIds.customer3,
+      createdBy: userIds.user1,
       isIncludePPN: true,
       subtotal: '35000000.00',
       tax: '3500000.00',
@@ -677,12 +749,12 @@ async function main() {
       termsAndConditions: null,
     },
     {
-      id: 'quotation-4',
+      id: quotationIds.quotation4,
       quotationNumber: 'QT/2025/06/001',
       quotationDate: new Date('2025-01-30'),
       validUntil: new Date('2025-02-28'),
-      customerId: 'customer-4',
-      createdBy: 'user-3',
+      customerId: customerIds.customer4,
+      createdBy: userIds.user3,
       isIncludePPN: true,
       subtotal: '18000000.00',
       tax: '1800000.00',
@@ -693,12 +765,12 @@ async function main() {
       termsAndConditions: null,
     },
     {
-      id: 'quotation-5',
+      id: quotationIds.quotation5,
       quotationNumber: 'QT/2025/06/002',
       quotationDate: new Date('2025-06-15'),
       validUntil: new Date('2025-07-15'),
-      customerId: 'customer-5',
-      createdBy: 'user-4',
+      customerId: customerIds.customer5,
+      createdBy: userIds.user4,
       isIncludePPN: true,
       subtotal: '42000000.00',
       tax: '4200000.00',
@@ -709,12 +781,12 @@ async function main() {
       termsAndConditions: null,
     },
     {
-      id: 'quotation-6',
+      id: quotationIds.quotation6,
       quotationNumber: 'QT/2025/06/003',
       quotationDate: new Date('2025-06-20'),
       validUntil: new Date('2025-07-20'),
-      customerId: 'customer-1',
-      createdBy: 'user-2',
+      customerId: customerIds.customer1,
+      createdBy: userIds.user2,
       isIncludePPN: false,
       subtotal: '28000000.00',
       tax: '0.00',
@@ -725,12 +797,12 @@ async function main() {
       termsAndConditions: null,
     },
     {
-      id: 'quotation-7',
+      id: quotationIds.quotation7,
       quotationNumber: 'QT/2025/09/001',
       quotationDate: new Date('2025-09-10'),
       validUntil: new Date('2025-12-10'),
-      customerId: 'customer-2',
-      createdBy: 'user-1',
+      customerId: customerIds.customer2,
+      createdBy: userIds.user1,
       isIncludePPN: true,
       subtotal: '32000000.00',
       tax: '3200000.00',
@@ -741,75 +813,78 @@ async function main() {
       termsAndConditions: null,
     },
   ]);
+  console.log('✅ Seeded 7 quotations');
 
+  console.log('🔄 Seeding quotation items...');
   await db.insert(schema.quotationItems).values([
     {
-      id: 'item-1',
-      quotationId: 'quotation-1',
-      productId: 'product-1',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation1,
+      productId: productIds.product1,
       quantity: '1.00',
       unitPrice: '15000000.00',
       total: '15000000.00',
       notes: 'Wheel loader with standard configuration',
     },
     {
-      id: 'item-2',
-      quotationId: 'quotation-2',
-      productId: 'product-2',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation2,
+      productId: productIds.product2,
       quantity: '1.00',
       unitPrice: '25000000.00',
       total: '25000000.00',
       notes: 'Wheel loader with premium features',
     },
     {
-      id: 'item-3',
-      quotationId: 'quotation-3',
-      productId: 'product-4',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation3,
+      productId: productIds.product4,
       quantity: '1.00',
       unitPrice: '35000000.00',
       total: '35000000.00',
       notes: 'Bulldozer with advanced controls',
     },
     {
-      id: 'item-4',
-      quotationId: 'quotation-4',
-      productId: 'product-5',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation4,
+      productId: productIds.product5,
       quantity: '1.00',
       unitPrice: '18000000.00',
       total: '18000000.00',
       notes: 'Excavator for construction project',
     },
     {
-      id: 'item-5',
-      quotationId: 'quotation-5',
-      productId: 'product-11',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation5,
+      productId: productIds.product11,
       quantity: '1.00',
       unitPrice: '42000000.00',
       total: '42000000.00',
       notes: 'Caterpillar excavator for mining operations',
     },
     {
-      id: 'item-6',
-      quotationId: 'quotation-6',
-      productId: 'product-12',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation6,
+      productId: productIds.product12,
       quantity: '1.00',
       unitPrice: '28000000.00',
       total: '28000000.00',
       notes: 'Komatsu excavator for infrastructure project',
     },
     {
-      id: 'item-7',
-      quotationId: 'quotation-7',
-      productId: 'product-15',
+      id: randomUUID(),
+      quotationId: quotationIds.quotation7,
+      productId: productIds.product15,
       quantity: '1.00',
       unitPrice: '32000000.00',
       total: '32000000.00',
       notes: 'JCB backhoe loader for construction site',
     },
   ]);
+  console.log('✅ Seeded 7 quotation items');
 
   await connection.end();
-  console.log('✅ Database seeded successfully!');
+  console.log('🎉 Database seeded successfully with complete sample data!');
 }
 
 main().catch((error) => {

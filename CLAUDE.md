@@ -136,9 +136,3 @@ The application is fully dockerized with:
 - MySQL database with initialization scripts
 - Environment variable configuration for container deployment
 - Development and production profiles in docker-compose.yml
-
-Default seeded users:
-
-- `admin@bizdocgen.com` / `password123` (Admin)
-- `manager@bizdocgen.com` / `password123` (Manager)
-- `user@bizdocgen.com` / `password123` (User)

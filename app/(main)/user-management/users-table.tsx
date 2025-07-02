@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import {
-  RiDeleteBinLine,
-  RiEditLine,
-  RiMoreLine,
-  RiUserLine,
   RiArrowDownSFill,
   RiArrowUpSFill,
+  RiDeleteBinLine,
+  RiEditLine,
   RiExpandUpDownFill,
+  RiMoreLine,
+  RiUserLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -21,14 +21,19 @@ import {
 
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/date-formatter';
+import { usePermissions } from '@/hooks/use-permissions';
+import { useDeleteUser, useUsers, type User } from '@/hooks/use-users';
 import { Root as Avatar, Image as AvatarImage } from '@/components/ui/avatar';
 import { Root as Badge } from '@/components/ui/badge';
 import { Root as Button } from '@/components/ui/button';
-import { Root as Dropdown, Trigger as DropdownTrigger, Content as DropdownContent, Item as DropdownItem } from '@/components/ui/dropdown';
-import { PermissionGate } from '@/components/auth/permission-gate';
-import { usePermissions } from '@/hooks/use-permissions';
-import { useUsers, useDeleteUser, type User } from '@/hooks/use-users';
+import {
+  Root as Dropdown,
+  Content as DropdownContent,
+  Item as DropdownItem,
+  Trigger as DropdownTrigger,
+} from '@/components/ui/dropdown';
 import * as Table from '@/components/ui/table';
+import { PermissionGate } from '@/components/auth/permission-gate';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -68,7 +73,11 @@ function ActionCell({ row }: { row: any }) {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this user? This action cannot be undone.',
+      )
+    ) {
       return;
     }
 
@@ -80,29 +89,29 @@ function ActionCell({ row }: { row: any }) {
   };
 
   return (
-    <PermissionGate permission="users:update">
+    <PermissionGate permission='users:update'>
       <Dropdown>
         <DropdownTrigger asChild>
           <Button
-            variant="neutral"
-            mode="ghost"
-            size="xsmall"
-            className="h-8 w-8 p-0"
+            variant='neutral'
+            mode='ghost'
+            size='xsmall'
+            className='h-8 w-8 p-0'
           >
-            <RiMoreLine className="size-4" />
+            <RiMoreLine className='size-4' />
           </Button>
         </DropdownTrigger>
         <DropdownContent>
           <DropdownItem>
-            <RiEditLine className="size-4" />
+            <RiEditLine className='size-4' />
             Edit User
           </DropdownItem>
           {canDeleteUser(row.original.role) && (
             <DropdownItem
               onClick={() => handleDeleteUser(row.original.id)}
-              className="text-red-600"
+              className='text-red-600'
             >
-              <RiDeleteBinLine className="size-4" />
+              <RiDeleteBinLine className='size-4' />
               Delete User
             </DropdownItem>
           )}
@@ -128,17 +137,20 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex items-center">
-        <Avatar size="32" className="size-8">
+      <div className='flex items-center'>
+        <Avatar size='32' className='size-8'>
           {row.original.avatar ? (
-            <AvatarImage src={row.original.avatar} alt={`${row.original.firstName} ${row.original.lastName}`} />
+            <AvatarImage
+              src={row.original.avatar}
+              alt={`${row.original.firstName} ${row.original.lastName}`}
+            />
           ) : (
             <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-              <RiUserLine className="size-4 text-text-sub-600" />
+              <RiUserLine className='size-4 text-text-sub-600' />
             </div>
           )}
         </Avatar>
-        <div className="ml-4">
+        <div className='ml-4'>
           <div className='text-paragraph-sm text-text-strong-950'>
             {row.original.firstName} {row.original.lastName}
           </div>
@@ -161,7 +173,9 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>{row.original.email}</div>
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {row.original.email}
+      </div>
     ),
   },
   {
@@ -199,7 +213,7 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <Badge variant="light" color={getRoleColor(row.original.role)}>
+      <Badge variant='light' color={getRoleColor(row.original.role)}>
         {row.original.role}
       </Badge>
     ),
@@ -219,8 +233,8 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <Badge variant="light" color={row.original.isActive ? "green" : "red"}>
-        {row.original.isActive ? "Active" : "Inactive"}
+      <Badge variant='light' color={row.original.isActive ? 'green' : 'red'}>
+        {row.original.isActive ? 'Active' : 'Inactive'}
       </Badge>
     ),
   },
@@ -289,27 +303,28 @@ export function UsersTable({ filters }: UsersTableProps) {
   });
 
   if (isLoading) {
-    return <div className="text-gray-500 p-4 text-center">Loading users...</div>;
+    return (
+      <div className='text-gray-500 p-4 text-center'>Loading users...</div>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-4 text-center text-red-500">
-        Error: {error.message}
-      </div>
+      <div className='p-4 text-center text-red-500'>Error: {error.message}</div>
     );
   }
 
   if (!data?.users || data.users.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <RiUserLine className="text-gray-400 mx-auto size-12" />
-        <h3 className="text-sm text-gray-900 mt-2 font-medium">No users found</h3>
-        <p className="text-sm text-gray-500 mt-1">
+      <div className='p-8 text-center'>
+        <RiUserLine className='text-gray-400 mx-auto size-12' />
+        <h3 className='text-sm text-gray-900 mt-2 font-medium'>
+          No users found
+        </h3>
+        <p className='text-sm text-gray-500 mt-1'>
           {filters?.search || filters?.role || filters?.status
-            ? "No users match your current filters. Try adjusting your search criteria."
-            : "Get started by creating a new user account."
-          }
+            ? 'No users match your current filters. Try adjusting your search criteria.'
+            : 'Get started by creating a new user account.'}
         </p>
       </div>
     );
@@ -329,9 +344,9 @@ export function UsersTable({ filters }: UsersTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               );
             })}
@@ -351,10 +366,7 @@ export function UsersTable({ filters }: UsersTableProps) {
                       cell.column.columnDef.meta?.className,
                     )}
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Cell>
                 ))}
               </Table.Row>
@@ -364,4 +376,4 @@ export function UsersTable({ filters }: UsersTableProps) {
       </Table.Body>
     </Table.Root>
   );
-} 
+}

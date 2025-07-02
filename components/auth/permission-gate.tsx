@@ -1,6 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
+
 import { hasPermission, Permission } from '@/lib/permissions';
 
 interface PermissionGateProps {
@@ -12,7 +13,7 @@ interface PermissionGateProps {
 export function PermissionGate({
   children,
   permission,
-  fallback = null
+  fallback = null,
 }: PermissionGateProps) {
   const { data: session } = useSession();
 
@@ -33,11 +34,7 @@ interface RoleGateProps {
   fallback?: React.ReactNode;
 }
 
-export function RoleGate({
-  children,
-  role,
-  fallback = null
-}: RoleGateProps) {
+export function RoleGate({ children, role, fallback = null }: RoleGateProps) {
   const { data: session } = useSession();
 
   if (!session?.user) {
@@ -60,7 +57,7 @@ interface AnyPermissionGateProps {
 export function AnyPermissionGate({
   children,
   permissions,
-  fallback = null
+  fallback = null,
 }: AnyPermissionGateProps) {
   const { data: session } = useSession();
 
@@ -68,8 +65,8 @@ export function AnyPermissionGate({
     return fallback;
   }
 
-  const hasAny = permissions.some(permission =>
-    hasPermission(session.user.role, permission)
+  const hasAny = permissions.some((permission) =>
+    hasPermission(session.user.role, permission),
   );
 
   if (!hasAny) {
@@ -77,4 +74,4 @@ export function AnyPermissionGate({
   }
 
   return <>{children}</>;
-} 
+}

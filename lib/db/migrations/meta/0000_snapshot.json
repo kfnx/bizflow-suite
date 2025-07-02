@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "6705a94e-0695-49df-a60c-430e7481ad10",
+  "id": "247fa0c7-11d5-4c43-97fe-cafa52e7694b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -2554,9 +2554,8 @@
           "name": "join_date",
           "type": "date",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_DATE"
+          "notNull": true,
+          "autoincrement": false
         },
         "type": {
           "name": "type",

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { customers, quotations, users } from '@/lib/db/schema';
+import { customers, quotationItems, quotations, users } from '@/lib/db/schema';
+import { createQuotationSchema } from '@/lib/validations/quotation';
 
 export async function GET(request: NextRequest) {
   try {
@@ -110,6 +111,139 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching quotations:', error);
     return NextResponse.json(
       { error: 'Failed to fetch quotations' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    // Validate request body
+    const validatedData = createQuotationSchema.parse(body);
+
+    // Generate quotation number (QUO-YYYYMMDD-XXXX format)
+    const date = new Date();
+    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+
+    // Get count of quotations today to generate sequence number
+    const todayQuotations = await db
+      .select({ count: quotations.id })
+      .from(quotations)
+      .where(like(quotations.quotationNumber, `QUO-${dateStr}-%`));
+
+    const sequence = (todayQuotations.length + 1).toString().padStart(4, '0');
+    const quotationNumber = `QUO-${dateStr}-${sequence}`;
+
+    // Calculate totals from items
+    let subtotal = 0;
+    validatedData.items.forEach((item) => {
+      subtotal += item.quantity * item.unitPrice;
+    });
+
+    const taxAmount = validatedData.isIncludePPN ? subtotal * 0.11 : 0;
+    const total = subtotal + taxAmount;
+
+    // Create quotation and items in a transaction
+    const result = await db.transaction(async (tx) => {
+      // Get user ID from session (for now using a placeholder - you'll need to implement auth)
+      // TODO: Get actual user ID from session/auth
+      const createdBy = 'user-1'; // This should come from authentication
+
+      // Create quotation (ID will be auto-generated)
+      await tx.insert(quotations).values({
+        quotationNumber,
+        quotationDate: new Date(validatedData.quotationDate)
+          .toISOString()
+          .split('T')[0],
+        validUntil: new Date(validatedData.validUntil)
+          .toISOString()
+          .split('T')[0],
+        customerId: validatedData.customerId,
+        approverId: validatedData.approverId,
+        isIncludePPN: validatedData.isIncludePPN,
+        subtotal: subtotal.toString(),
+        tax: taxAmount.toString(),
+        total: total.toString(),
+        currency: validatedData.currency,
+        status: 'draft',
+        notes: validatedData.notes,
+        termsAndConditions: validatedData.termsAndConditions,
+        createdBy,
+      });
+
+      // Get the generated quotation ID
+      const createdQuotationResult = await tx
+        .select({ id: quotations.id })
+        .from(quotations)
+        .where(eq(quotations.quotationNumber, quotationNumber))
+        .limit(1);
+
+      const quotationId = createdQuotationResult[0].id;
+
+      // Create quotation items (IDs will be auto-generated)
+      const itemsToInsert = validatedData.items.map((item) => ({
+        quotationId,
+        productId: item.productId,
+        quantity: item.quantity.toString(),
+        unitPrice: item.unitPrice.toString(),
+        total: (item.quantity * item.unitPrice).toString(),
+        notes: item.notes,
+      }));
+
+      await tx.insert(quotationItems).values(itemsToInsert);
+
+      return { quotationId, quotationNumber };
+    });
+
+    // Fetch the created quotation with related data
+    const createdQuotation = await db
+      .select({
+        id: quotations.id,
+        quotationNumber: quotations.quotationNumber,
+        quotationDate: quotations.quotationDate,
+        validUntil: quotations.validUntil,
+        customerId: quotations.customerId,
+        customerName: customers.name,
+        customerCode: customers.code,
+        subtotal: quotations.subtotal,
+        tax: quotations.tax,
+        total: quotations.total,
+        currency: quotations.currency,
+        status: quotations.status,
+        notes: quotations.notes,
+        termsAndConditions: quotations.termsAndConditions,
+        createdBy: quotations.createdBy,
+        createdByUser: users.firstName,
+        createdAt: quotations.createdAt,
+        updatedAt: quotations.updatedAt,
+      })
+      .from(quotations)
+      .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(users, eq(quotations.createdBy, users.id))
+      .where(eq(quotations.id, result.quotationId))
+      .limit(1);
+
+    return NextResponse.json(
+      {
+        message: 'Quotation created successfully',
+        data: createdQuotation[0],
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error('Error creating quotation:', error);
+
+    if (error instanceof Error && error.name === 'ZodError') {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: (error as any).errors },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to create quotation' },
       { status: 500 },
     );
   }

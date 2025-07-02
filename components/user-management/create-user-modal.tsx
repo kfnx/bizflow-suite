@@ -3,11 +3,17 @@
 import { useState } from 'react';
 import { RiCloseLine, RiUserAddLine } from '@remixicon/react';
 
+import { usePermissions } from '@/hooks/use-permissions';
 import { Root as Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Root as Label } from '@/components/ui/label';
-import { Root as Modal, Content as ModalContent, Header as ModalHeader, Body as ModalBody, Footer as ModalFooter } from '@/components/ui/modal';
-import { usePermissions } from '@/hooks/use-permissions';
+import {
+  Root as Modal,
+  Body as ModalBody,
+  Content as ModalContent,
+  Footer as ModalFooter,
+  Header as ModalHeader,
+} from '@/components/ui/modal';
 
 interface CreateUserModalProps {
   isOpen: boolean;
@@ -24,7 +30,11 @@ interface CreateUserData {
   role: string;
 }
 
-export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalProps) {
+export function CreateUserModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CreateUserModalProps) {
   const { getAvailableRolesForCreation } = usePermissions();
   const [formData, setFormData] = useState<CreateUserData>({
     email: '',
@@ -79,53 +89,57 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
   };
 
   const handleInputChange = (field: keyof CreateUserData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent className="sm:max-w-md">
+      <ModalContent className='sm:max-w-md'>
         <ModalHeader>
-          <div className="flex items-center gap-2">
-            <RiUserAddLine className="size-5" />
-            <h2 className="text-lg font-semibold">Create New User</h2>
+          <div className='flex items-center gap-2'>
+            <RiUserAddLine className='size-5' />
+            <h2 className='text-lg font-semibold'>Create New User</h2>
           </div>
         </ModalHeader>
 
         <form onSubmit={handleSubmit}>
-          <ModalBody className="space-y-4">
+          <ModalBody className='space-y-4'>
             {error && (
-              <div className="text-sm rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+              <div className='text-sm rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700'>
                 {error}
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className='grid grid-cols-2 gap-4'>
               <div>
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor='firstName'>First Name *</Label>
                 <Input
-                  id="firstName"
+                  id='firstName'
                   value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('firstName', e.target.value)
+                  }
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor='lastName'>Last Name *</Label>
                 <Input
-                  id="lastName"
+                  id='lastName'
                   value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('lastName', e.target.value)
+                  }
                   required
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor='email'>Email Address *</Label>
               <Input
-                id="email"
-                type="email"
+                id='email'
+                type='email'
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 required
@@ -133,10 +147,10 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
             </div>
 
             <div>
-              <Label htmlFor="password">Password *</Label>
+              <Label htmlFor='password'>Password *</Label>
               <Input
-                id="password"
-                type="password"
+                id='password'
+                type='password'
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 minLength={8}
@@ -145,22 +159,22 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
             </div>
 
             <div>
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor='phone'>Phone Number</Label>
               <Input
-                id="phone"
-                type="tel"
+                id='phone'
+                type='tel'
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
               />
             </div>
 
             <div>
-              <Label htmlFor="role">Role *</Label>
+              <Label htmlFor='role'>Role *</Label>
               <select
-                id="role"
+                id='role'
                 value={formData.role}
                 onChange={(e) => handleInputChange('role', e.target.value)}
-                className="border-gray-300 text-sm w-full rounded-md border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className='border-gray-300 text-sm w-full rounded-md border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500'
                 required
               >
                 {availableRoles.map((role) => (
@@ -174,19 +188,15 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
 
           <ModalFooter>
             <Button
-              type="button"
-              variant="neutral"
-              mode="ghost"
+              type='button'
+              variant='neutral'
+              mode='ghost'
               onClick={onClose}
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isLoading}
-            >
+            <Button type='submit' variant='primary' disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create User'}
             </Button>
           </ModalFooter>
@@ -194,4 +204,4 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
       </ModalContent>
     </Modal>
   );
-} 
+}

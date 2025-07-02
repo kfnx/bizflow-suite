@@ -268,7 +268,7 @@ CREATE TABLE `users` (
 	`email` varchar(255) NOT NULL,
 	`password` varchar(255) NOT NULL,
 	`job_title` varchar(100),
-	`join_date` date DEFAULT CURRENT_DATE,
+	`join_date` date NOT NULL,
 	`type` varchar(50) DEFAULT 'full-time',
 	`phone` varchar(20),
 	`avatar` varchar(500),

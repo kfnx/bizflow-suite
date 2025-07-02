@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RiFilter3Fill, RiSearch2Line, RiSortDesc } from '@remixicon/react';
 
 import { cn } from '@/utils/cn';
@@ -13,8 +13,22 @@ import * as Select from '@/components/ui/select';
 import IconCmd from '~/icons/icon-cmd.svg';
 
 type ProductStatus = 'all' | 'in_stock' | 'out_of_stock' | 'discontinued';
-type ProductCategory = 'all' | 'excavator' | 'bulldozer' | 'wheel_loader' | 'backhoe_loader' | 'compactor' | 'forklift';
-type ProductBrand = 'all' | 'Shantui' | 'Caterpillar' | 'Komatsu' | 'Hitachi' | 'Volvo' | 'JCB';
+type ProductCategory =
+  | 'all'
+  | 'excavator'
+  | 'bulldozer'
+  | 'wheel_loader'
+  | 'backhoe_loader'
+  | 'compactor'
+  | 'forklift';
+type ProductBrand =
+  | 'all'
+  | 'Shantui'
+  | 'Caterpillar'
+  | 'Komatsu'
+  | 'Hitachi'
+  | 'Volvo'
+  | 'JCB';
 
 export interface ProductsFilters {
   search: string;
@@ -99,7 +113,14 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const filterActive = filters.search || filters.status !== 'all' || filters.category !== 'all' || filters.brand !== 'all' || filters.sortBy !== 'newest-first' || filters.page !== 1 || filters.limit !== 10;
+  const filterActive =
+    filters.search ||
+    filters.status !== 'all' ||
+    filters.category !== 'all' ||
+    filters.brand !== 'all' ||
+    filters.sortBy !== 'newest-first' ||
+    filters.page !== 1 ||
+    filters.limit !== 10;
 
   return (
     <div className='flex flex-col gap-4'>
@@ -116,8 +137,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               onChange={(e) => handleSearchChange(e.target.value)}
             />
             <Kbd.Root>
-              <IconCmd className='size-3' />
-              K
+              <IconCmd className='size-3' />K
             </Kbd.Root>
           </Input.Wrapper>
         </Input.Root>
@@ -134,10 +154,18 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             className='h-8'
           >
             <SegmentedControl.List>
-              <SegmentedControl.Trigger value='all'>All</SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='in_stock'>In Stock</SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='out_of_stock'>Out of Stock</SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='discontinued'>Discontinued</SegmentedControl.Trigger>
+              <SegmentedControl.Trigger value='all'>
+                All
+              </SegmentedControl.Trigger>
+              <SegmentedControl.Trigger value='in_stock'>
+                In Stock
+              </SegmentedControl.Trigger>
+              <SegmentedControl.Trigger value='out_of_stock'>
+                Out of Stock
+              </SegmentedControl.Trigger>
+              <SegmentedControl.Trigger value='discontinued'>
+                Discontinued
+              </SegmentedControl.Trigger>
             </SegmentedControl.List>
           </SegmentedControl.Root>
         </div>
@@ -145,7 +173,10 @@ export function Filters({ onFiltersChange }: FiltersProps) {
         {/* Category Filter */}
         <div className='flex items-center gap-2'>
           <span className='text-paragraph-sm text-text-sub-600'>Category:</span>
-          <Select.Root value={filters.category} onValueChange={handleCategoryChange}>
+          <Select.Root
+            value={filters.category}
+            onValueChange={handleCategoryChange}
+          >
             <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
               <Select.TriggerIcon as={RiSortDesc} />
               <Select.Value placeholder='Category' />
@@ -232,4 +263,4 @@ export function Filters({ onFiltersChange }: FiltersProps) {
       </div>
     </div>
   );
-} 
+}

@@ -17,9 +17,9 @@ import * as Divider from '@/components/ui/divider';
 import Header from '@/components/header';
 import { MoveMoneyButton } from '@/components/move-money-button';
 import {
+  transactions,
   TransactionsTable,
   TransactionTablePagination,
-  transactions,
 } from '@/components/transactions-table';
 
 import { Filters } from './filters';

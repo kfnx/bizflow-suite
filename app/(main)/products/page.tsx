@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { RiBox1Line } from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import { ProductsTable } from '@/components/products-table';
+
 import { Filters, type ProductsFilters } from './filters';
 
 export default function PageProducts() {
@@ -25,11 +26,11 @@ export default function PageProducts() {
   }, []);
 
   const handlePageChange = useCallback((page: number) => {
-    setFilters(prev => ({ ...prev, page }));
+    setFilters((prev) => ({ ...prev, page }));
   }, []);
 
   const handleLimitChange = useCallback((limit: number) => {
-    setFilters(prev => ({ ...prev, limit, page: 1 })); // Reset to first page when changing limit
+    setFilters((prev) => ({ ...prev, limit, page: 1 })); // Reset to first page when changing limit
   }, []);
 
   const HeaderComponent = () => {
@@ -43,7 +44,11 @@ export default function PageProducts() {
         title='Products'
         description='Manage your product catalog and inventory.'
       >
-        <ActionButton className='hidden lg:flex' label='New Product' href='/products/new' />
+        <ActionButton
+          className='hidden lg:flex'
+          label='New Product'
+          href='/products/new'
+        />
       </Header>
     );
   };
@@ -62,4 +67,4 @@ export default function PageProducts() {
       </div>
     </>
   );
-} 
+}

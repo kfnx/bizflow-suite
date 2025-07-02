@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
@@ -204,7 +205,9 @@ export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
 export const quotations = mysqlTable(
   'quotations',
   {
-    id: varchar('id', { length: 36 }).primaryKey(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     quotationNumber: varchar('quotation_number', { length: 50 })
       .notNull()
       .unique(),
@@ -251,7 +254,9 @@ export const quotations = mysqlTable(
 export const quotationItems = mysqlTable(
   'quotation_items',
   {
-    id: varchar('id', { length: 36 }).primaryKey(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     quotationId: varchar('quotation_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),

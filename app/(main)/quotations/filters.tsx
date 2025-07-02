@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RiFilter3Fill, RiSearch2Line, RiSortDesc } from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
@@ -66,9 +66,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           <SegmentedControl.Trigger value='draft'>
             Draft
           </SegmentedControl.Trigger>
-          <SegmentedControl.Trigger value='sent'>
-            Sent
-          </SegmentedControl.Trigger>
+          <SegmentedControl.Trigger value='sent'>Sent</SegmentedControl.Trigger>
           <SegmentedControl.Trigger value='accepted'>
             Accepted
           </SegmentedControl.Trigger>

@@ -3,11 +3,11 @@
 import * as React from 'react';
 import {
   RiArrowDownSFill,
-  RiArrowUpSFill,
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
+  RiArrowUpSFill,
   RiCalendarLine,
   RiExpandUpDownFill,
   RiFileTextLine,
@@ -25,13 +25,17 @@ import {
 
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/date-formatter';
+import {
+  useDeleteQuotation,
+  useQuotations,
+  type Quotation,
+} from '@/hooks/use-quotations';
+import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
-import * as Table from '@/components/ui/table';
-import * as Badge from '@/components/ui/badge';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
-import { useQuotations, useDeleteQuotation, type Quotation } from '@/hooks/use-quotations';
+import * as Table from '@/components/ui/table';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -76,7 +80,11 @@ function ActionCell({ row }: { row: any }) {
   const deleteQuotationMutation = useDeleteQuotation();
 
   const handleDeleteQuotation = async (quotationId: string) => {
-    if (!confirm('Are you sure you want to delete this quotation? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this quotation? This action cannot be undone.',
+      )
+    ) {
       return;
     }
 
@@ -91,25 +99,21 @@ function ActionCell({ row }: { row: any }) {
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
         <Button.Root
-          variant="neutral"
-          mode="ghost"
-          size="xsmall"
-          className="h-8 w-8 p-0"
+          variant='neutral'
+          mode='ghost'
+          size='xsmall'
+          className='h-8 w-8 p-0'
         >
-          <RiMoreLine className="size-4" />
+          <RiMoreLine className='size-4' />
         </Button.Root>
       </Dropdown.Trigger>
       <Dropdown.Content>
-        <Dropdown.Item>
-          View Details
-        </Dropdown.Item>
-        <Dropdown.Item>
-          Edit Quotation
-        </Dropdown.Item>
+        <Dropdown.Item>View Details</Dropdown.Item>
+        <Dropdown.Item>Edit Quotation</Dropdown.Item>
         <Dropdown.Separator />
         <Dropdown.Item
           onClick={() => handleDeleteQuotation(row.original.id)}
-          className="text-red-600"
+          className='text-red-600'
         >
           Delete
         </Dropdown.Item>
@@ -259,11 +263,7 @@ const columns: ColumnDef<Quotation>[] = [
     cell: ({ row }) => {
       const status = statusConfig[row.original.status];
       return (
-        <Badge.Root
-          variant={status.variant}
-          color={status.color}
-          size='medium'
-        >
+        <Badge.Root variant={status.variant} color={status.color} size='medium'>
           {status.label}
         </Badge.Root>
       );
@@ -339,27 +339,28 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
   });
 
   if (isLoading) {
-    return <div className="text-gray-500 p-4 text-center">Loading quotations...</div>;
+    return (
+      <div className='text-gray-500 p-4 text-center'>Loading quotations...</div>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-4 text-center text-red-500">
-        Error: {error.message}
-      </div>
+      <div className='p-4 text-center text-red-500'>Error: {error.message}</div>
     );
   }
 
   if (!data?.data || data.data.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <RiFileTextLine className="text-gray-400 mx-auto size-12" />
-        <h3 className="text-gray-900 mt-2 text-paragraph-sm font-medium">No quotations found</h3>
-        <p className="text-gray-500 mt-1 text-paragraph-sm">
+      <div className='p-8 text-center'>
+        <RiFileTextLine className='text-gray-400 mx-auto size-12' />
+        <h3 className='text-gray-900 mt-2 text-paragraph-sm font-medium'>
+          No quotations found
+        </h3>
+        <p className='text-gray-500 mt-1 text-paragraph-sm'>
           {filters?.search || filters?.status || filters?.customerId
-            ? "No quotations match your current filters. Try adjusting your search criteria."
-            : "Get started by creating a new quotation."
-          }
+            ? 'No quotations match your current filters. Try adjusting your search criteria.'
+            : 'Get started by creating a new quotation.'}
         </p>
       </div>
     );
@@ -379,9 +380,9 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               );
             })}
@@ -401,10 +402,7 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
                       cell.column.columnDef.meta?.className,
                     )}
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Cell>
                 ))}
               </Table.Row>

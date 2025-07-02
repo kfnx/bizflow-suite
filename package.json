@@ -8,13 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
+    "format": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx lib/db/seed.ts",
-    "db:truncate": "tsx lib/db/truncate.ts",
+    "db:seed": "dotenv -- tsx lib/db/seed.ts",
+    "db:truncate": "dotenv -- tsx lib/db/truncate.ts",
     "db:drop": "drizzle-kit drop"
   },
   "dependencies": {
@@ -61,6 +61,7 @@
     "react-hotkeys-hook": "^4.5.0",
     "react-otp-input": "^3.1.1",
     "recharts": "^2.12.7",
+    "sonner": "^2.0.5",
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1",
     "zod": "^3.25.67"
@@ -75,6 +76,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.5",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RiFilter3Fill, RiSearch2Line, RiSortDesc } from '@remixicon/react';
 import { atom, useAtom } from 'jotai';
 
@@ -52,9 +52,12 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     setSearchQuery(value);
   }, []);
 
-  const handleRoleChange = useCallback((value: string) => {
-    setFilteredUserStatus(value as UserStatus);
-  }, [setFilteredUserStatus]);
+  const handleRoleChange = useCallback(
+    (value: string) => {
+      setFilteredUserStatus(value as UserStatus);
+    },
+    [setFilteredUserStatus],
+  );
 
   const handleStatusChange = useCallback((value: string) => {
     setStatusFilter(value as UserActiveStatus);
@@ -114,7 +117,11 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           </Input.Wrapper>
         </Input.Root>
 
-        <Select.Root size='small' value={statusFilter} onValueChange={handleStatusChange}>
+        <Select.Root
+          size='small'
+          value={statusFilter}
+          onValueChange={handleStatusChange}
+        >
           <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
             <Select.TriggerIcon as={RiSortDesc} />
             <Select.Value placeholder='Status' />
@@ -126,7 +133,11 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           </Select.Content>
         </Select.Root>
 
-        <Select.Root size='small' value={sortBy} onValueChange={handleSortChange}>
+        <Select.Root
+          size='small'
+          value={sortBy}
+          onValueChange={handleSortChange}
+        >
           <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
             <Select.TriggerIcon as={RiSortDesc} />
             <Select.Value placeholder='Sort by' />

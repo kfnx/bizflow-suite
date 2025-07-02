@@ -33,9 +33,21 @@ export default function PageHome() {
         title='Documents Overview'
         description='Welcome back 👋🏻'
       >
-        <ActionButton className='hidden lg:flex' label='New Quotation' href='/quotations' />
-        <ActionButton className='hidden lg:flex' label='New Invoice' href='/invoices' />
-        <ActionButton className='hidden lg:flex' label='New Delivery Note' href='/delivery-notes' />
+        <ActionButton
+          className='hidden lg:flex'
+          label='New Quotation'
+          href='/quotations'
+        />
+        <ActionButton
+          className='hidden lg:flex'
+          label='New Invoice'
+          href='/invoices'
+        />
+        <ActionButton
+          className='hidden lg:flex'
+          label='New Delivery Note'
+          href='/delivery-notes'
+        />
         {/* <MoveMoneyButton className='hidden lg:flex' /> */}
       </Header>
 

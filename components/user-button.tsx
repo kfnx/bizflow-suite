@@ -9,6 +9,7 @@ import {
   RiLayoutGridLine,
   RiLogoutBoxRLine,
   RiMoonLine,
+  RiPaletteLine,
   RiPulseLine,
   RiSettings2Line,
 } from '@remixicon/react';
@@ -19,7 +20,7 @@ import { cn, cnExt } from '@/utils/cn';
 import * as Avatar from '@/components/ui/avatar';
 import * as Divider from '@/components/ui/divider';
 import * as Dropdown from '@/components/ui/dropdown';
-import * as Switch from '@/components/ui/switch';
+import * as ToggleGroup from '@/components/ui/toggle-group';
 
 import IconVerifiedFill from '~/icons/icon-verified-fill.svg';
 
@@ -94,16 +95,28 @@ export function UserButton({ className }: { className?: string }) {
         </div>
       </Dropdown.Trigger>
       <Dropdown.Content side='right' sideOffset={24} align='end'>
-        <Dropdown.Item
-          onSelect={(e) => {
-            e.preventDefault();
-            setTheme(() => (theme === 'dark' ? 'light' : 'dark'));
-          }}
-        >
-          <Dropdown.ItemIcon as={RiMoonLine} />
-          Dark Mode
+        <Dropdown.Item disabled className='cursor-default'>
+          <Dropdown.ItemIcon as={RiPaletteLine} />
+          <span className='text-text-strong-950'>Theme</span>
           <span className='flex-1' />
-          <Switch.Root checked={theme === 'dark'} />
+          <ToggleGroup.Root
+            type='single'
+            value={theme}
+            onValueChange={(value: string) => {
+              if (value) setTheme(value as 'light' | 'dark' | 'system');
+            }}
+            className='w-auto'
+          >
+            <ToggleGroup.Item value='light' className='text-xs px-2 py-1'>
+              Light
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value='dark' className='text-xs px-2 py-1'>
+              Dark
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value='system' className='text-xs px-2 py-1'>
+              Auto
+            </ToggleGroup.Item>
+          </ToggleGroup.Root>
         </Dropdown.Item>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
@@ -204,16 +217,28 @@ export function UserButtonMobile({ className }: { className?: string }) {
         </div>
       </Dropdown.Trigger>
       <Dropdown.Content side='top' align='end'>
-        <Dropdown.Item
-          onSelect={(e) => {
-            e.preventDefault();
-            setTheme(() => (theme === 'dark' ? 'light' : 'dark'));
-          }}
-        >
+        <Dropdown.Item disabled>
           <Dropdown.ItemIcon as={RiMoonLine} />
-          Dark Mode
+          Theme
           <span className='flex-1' />
-          <Switch.Root checked={theme === 'dark'} />
+          <ToggleGroup.Root
+            type='single'
+            value={theme}
+            onValueChange={(value: string) => {
+              if (value) setTheme(value as 'light' | 'dark' | 'system');
+            }}
+            className='w-auto'
+          >
+            <ToggleGroup.Item value='light' className='text-xs px-2 py-1'>
+              Light
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value='dark' className='text-xs px-2 py-1'>
+              Dark
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value='system' className='text-xs px-2 py-1'>
+              Auto
+            </ToggleGroup.Item>
+          </ToggleGroup.Root>
         </Dropdown.Item>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>

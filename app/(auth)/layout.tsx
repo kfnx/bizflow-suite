@@ -8,7 +8,7 @@ export default function Layout({
 }>) {
   return (
     <div className='items-cente flex min-h-screen flex-col '>
-      <AuthHeader />
+      {/* <AuthHeader /> */}
       <div className='relative isolate flex w-full flex-1 flex-col items-center justify-center'>
         <img
           src='/images/auth-pattern.svg'

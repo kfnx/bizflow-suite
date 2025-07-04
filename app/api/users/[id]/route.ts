@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
-import { z } from 'zod';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
+import { UpdateUserRequest } from '@/lib/validations/user';
 
-// Validation schemas
-const updateUserSchema = z.object({
-  firstName: z.string().min(1).optional(),
-  lastName: z.string().min(1).optional(),
-  phone: z.string().optional(),
-  avatar: z.string().url().optional(),
-  role: z.enum(['staff', 'manager', 'director']).optional(),
-});
+interface UpdateUserWithRoleRequest extends UpdateUserRequest {
+  role?: 'staff' | 'manager' | 'director';
+}
 
 // GET /api/users/[id] - Get a specific user
 export async function GET(
@@ -81,7 +76,7 @@ export async function PUT(
   try {
     const db = await getDB();
     const body = await request.json();
-    const validatedData = updateUserSchema.parse(body);
+    const validatedData = body as UpdateUserWithRoleRequest;
 
     // If role is being updated, check if user can assign that role
     if (
@@ -117,9 +112,9 @@ export async function PUT(
 
     return NextResponse.json({ message: 'User updated successfully' });
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.message },
         { status: 400 },
       );
     }

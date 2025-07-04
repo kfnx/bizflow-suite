@@ -51,6 +51,11 @@ const statusConfig = {
     variant: 'light' as const,
     color: 'gray' as const,
   },
+  submitted: {
+    label: 'Submitted',
+    variant: 'light' as const,
+    color: 'blue' as const,
+  },
   sent: {
     label: 'Sent',
     variant: 'light' as const,
@@ -294,33 +299,7 @@ const columns: ColumnDef<Quotation>[] = [
       </div>
     ),
   },
-  {
-    id: 'approver',
-    accessorKey: 'approverId',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Approver
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.approverName}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.approverRole}
-          </div>
-        </div>
-      );
-    },
-  },
+
   {
     id: 'actions',
     enableHiding: false,
@@ -407,9 +386,9 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
                 </Table.Head>
               );
             })}

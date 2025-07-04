@@ -2,17 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { products, suppliers } from '@/lib/db/schema';
+import { 
+  products, 
+  suppliers,
+  ProductQueryParams,
+  NewProduct,
+} from '@/lib/db/schema';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search');
-    const status = searchParams.get('status');
-    const category = searchParams.get('category');
-    const brand = searchParams.get('brand');
-    const supplierId = searchParams.get('supplierId');
-    const sortBy = searchParams.get('sortBy');
+
+    // Parse query parameters
+    const search = searchParams.get('search') || undefined;
+    const status = searchParams.get('status') || undefined;
+    const category = searchParams.get('category') || undefined;
+    const brand = searchParams.get('brand') || undefined;
+    const supplierId = searchParams.get('supplierId') || undefined;
+    const sortBy = searchParams.get('sortBy') as ProductQueryParams['sortBy'] || undefined;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
@@ -89,7 +96,7 @@ export async function GET(request: NextRequest) {
         year: products.year,
         condition: products.condition,
         status: products.status,
-        location: products.location,
+        warehouseId: products.warehouseId,
         unit: products.unit,
         price: products.price,
         currency: products.currency,
@@ -138,39 +145,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      code,
-      name,
-      description,
-      category,
-      brand,
-      model,
-      year,
-      condition,
-      status,
-      location,
-      unit,
-      price,
-      currency,
-      engineModel,
-      enginePower,
-      operatingWeight,
-      supplierId,
-    } = body;
-
-    // Validate required fields
-    if (!code || !name || !unit) {
-      return NextResponse.json(
-        { error: 'Code, name, and unit are required' },
-        { status: 400 },
-      );
-    }
+    const validatedData = body as NewProduct;
 
     // Check if product code already exists
     const existingProduct = await db
       .select({ id: products.id })
       .from(products)
-      .where(eq(products.code, code))
+      .where(eq(products.code, validatedData.code))
       .limit(1);
 
     if (existingProduct.length > 0) {
@@ -182,24 +163,8 @@ export async function POST(request: NextRequest) {
 
     // Create new product
     const newProduct = await db.insert(products).values({
+      ...validatedData,
       id: crypto.randomUUID(),
-      code,
-      name,
-      description,
-      category,
-      brand,
-      model,
-      year: year ? parseInt(year, 10) : null,
-      condition: condition || 'new',
-      status: status || 'in_stock',
-      location,
-      unit,
-      price: price ? price.toString() : '0.00',
-      currency: currency || 'IDR',
-      engineModel,
-      enginePower,
-      operatingWeight,
-      supplierId,
       isActive: true,
     });
 

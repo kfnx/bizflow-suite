@@ -11,15 +11,34 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { type CreateQuotationRequest } from '@/lib/validations/quotation';
+import { type NewQuotation, type NewQuotationItem } from '@/lib/db/schema';
+
+type CreateQuotationRequest = {
+  quotationDate: Date;
+  validUntil: Date;
+  customerId: string;
+  isIncludePPN: boolean;
+  currency: string;
+  notes?: string;
+  termsAndConditions?: string;
+  status: 'draft' | 'submitted';
+  items: Array<{
+    productId: string;
+    quantity: string;
+    unitPrice: string;
+    total: string;
+    notes?: string;
+  }>;
+};
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
-import { useApprovers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import Header from '@/components/header';
+import * as Textarea from '@/components/ui/textarea';
+import * as Label from '@/components/ui/label';
 
 interface QuotationItem {
   productId: string;
@@ -33,7 +52,6 @@ interface QuotationFormData {
   quotationDate: string;
   validUntil: string;
   customerId: string;
-  approverId: string;
   isIncludePPN: boolean;
   currency: string;
   notes?: string;
@@ -47,7 +65,6 @@ const initialFormData: QuotationFormData = {
     .toISOString()
     .split('T')[0], // 30 days from now
   customerId: '',
-  approverId: '',
   isIncludePPN: false,
   currency: 'IDR',
   items: [],
@@ -63,7 +80,6 @@ export default function NewQuotationPage() {
   // Fetch data for form options
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
-  const { data: approvers } = useApprovers();
 
   const handleInputChange = useCallback(
     (
@@ -126,48 +142,47 @@ export default function NewQuotationPage() {
     return calculateSubtotal() + calculateTax();
   }, [calculateSubtotal, calculateTax]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'submitted') => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Validate required fields
-      if (!formData.customerId) {
-        toast.error('Please select a customer');
-        return;
-      }
-      if (!formData.approverId) {
-        toast.error('Please select an approver');
-        return;
-      }
-      if (formData.items.length === 0) {
-        toast.error('Please add at least one item');
-        return;
-      }
-      if (
-        formData.items.some(
-          (item) =>
-            !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
-        )
-      ) {
-        toast.error('Please complete all item details');
-        return;
+      // Validate required fields for submitted status
+      if (status === 'submitted') {
+        if (!formData.customerId) {
+          toast.error('Please select a customer');
+          return;
+        }
+        if (formData.items.length === 0) {
+          toast.error('Please add at least one item');
+          return;
+        }
+        if (
+          formData.items.some(
+            (item) =>
+              !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
+          )
+        ) {
+          toast.error('Please complete all item details');
+          return;
+        }
       }
 
       // Transform data for API
       const requestData: CreateQuotationRequest = {
-        quotationDate: new Date(formData.quotationDate).toISOString(),
-        validUntil: new Date(formData.validUntil).toISOString(),
+        quotationDate: new Date(formData.quotationDate),
+        validUntil: new Date(formData.validUntil),
         customerId: formData.customerId,
-        approverId: formData.approverId,
         isIncludePPN: formData.isIncludePPN,
         currency: formData.currency,
         notes: formData.notes,
         termsAndConditions: formData.termsAndConditions,
+        status,
         items: formData.items.map((item) => ({
           productId: item.productId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
+          quantity: item.quantity.toString(),
+          unitPrice: item.unitPrice.toString(),
+          total: (item.quantity * item.unitPrice).toString(),
           notes: item.notes,
         })),
       };
@@ -185,7 +200,10 @@ export default function NewQuotationPage() {
       }
 
       // Success feedback and navigation
-      toast.success('Quotation created successfully!');
+      const successMessage = status === 'draft'
+        ? 'Quotation saved as draft successfully!'
+        : 'Quotation submitted successfully!';
+      toast.success(successMessage);
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       router.push('/quotations');
     } catch (err) {
@@ -222,7 +240,7 @@ export default function NewQuotationPage() {
       <HeaderComponent />
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => handleSubmit(e, 'submitted')}
           className='mx-auto w-full max-w-4xl space-y-8'
         >
           {/* Quotation Details */}
@@ -231,10 +249,10 @@ export default function NewQuotationPage() {
               Quotation Details
             </h3>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
-                  Quotation Date <span className='text-red-500'>*</span>
-                </label>
+              <div className='flex flex-col gap-1'>
+                <Label.Root htmlFor='quotationDate'>
+                  Quotation Date <Label.Asterisk />
+                </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Input
@@ -249,13 +267,14 @@ export default function NewQuotationPage() {
                 </Input.Root>
               </div>
 
-              <div>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
-                  Valid Until <span className='text-red-500'>*</span>
-                </label>
+              <div className='flex flex-col gap-1'>
+                <Label.Root htmlFor='validUntil'>
+                  Valid Until <Label.Asterisk />
+                </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Input
+                      id='validUntil'
                       type='date'
                       value={formData.validUntil}
                       onChange={(e) =>
@@ -268,17 +287,17 @@ export default function NewQuotationPage() {
                 </Input.Root>
               </div>
 
-              <div>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
-                  Customer <span className='text-red-500'>*</span>
-                </label>
+              <div className='flex flex-col gap-1'>
+                <Label.Root htmlFor='customer'>
+                  Customer <Label.Asterisk />
+                </Label.Root>
                 <Select.Root
                   value={formData.customerId}
                   onValueChange={(value) =>
                     handleInputChange('customerId', value)
                   }
                 >
-                  <Select.Trigger>
+                  <Select.Trigger id='customer'>
                     <Select.Value placeholder='Select a customer' />
                   </Select.Trigger>
                   <Select.Content>
@@ -291,58 +310,36 @@ export default function NewQuotationPage() {
                 </Select.Root>
               </div>
 
-              <div>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
-                  Approver <span className='text-red-500'>*</span>
-                </label>
-                <Select.Root
-                  value={formData.approverId}
-                  onValueChange={(value) =>
-                    handleInputChange('approverId', value)
-                  }
-                >
-                  <Select.Trigger>
-                    <Select.Value placeholder='Select an approver' />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {approvers?.map((approver) => (
-                      <Select.Item key={approver.id} value={approver.id}>
-                        {approver.firstName} {approver.lastName} (
-                        {approver.role})
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-              </div>
-
-              <div>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+              <div className='flex flex-col gap-1'>
+                <Label.Root htmlFor='currency'>
                   Currency
-                </label>
+                </Label.Root>
                 <Select.Root
                   value={formData.currency}
                   onValueChange={(value) =>
                     handleInputChange('currency', value)
                   }
                 >
-                  <Select.Trigger>
+                  <Select.Trigger id='currency'>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Item value='IDR'>IDR</Select.Item>
+                    <Select.Item value='RMB'>RMB</Select.Item>
                     <Select.Item value='USD'>USD</Select.Item>
                     <Select.Item value='EUR'>EUR</Select.Item>
                   </Select.Content>
                 </Select.Root>
               </div>
 
-              <div className='md:col-span-2'>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+              <div className='flex flex-col gap-1 md:col-span-2'>
+                <Label.Root htmlFor='notes'>
                   Notes
-                </label>
+                </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Input
+                      id='notes'
                       value={formData.notes || ''}
                       onChange={(e) =>
                         handleInputChange('notes', e.target.value)
@@ -353,12 +350,12 @@ export default function NewQuotationPage() {
                 </Input.Root>
               </div>
 
-              <div className='md:col-span-2'>
-                <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+              <div className='flex flex-col gap-1 md:col-span-2'>
+                <Label.Root htmlFor='termsAndConditions'>
                   Terms and Conditions
-                </label>
-                <textarea
-                  className='text-sm w-full rounded-md border border-stroke-soft-200 px-3 py-2'
+                </Label.Root>
+                <Textarea.Root
+                  id='termsAndConditions'
                   rows={3}
                   value={formData.termsAndConditions || ''}
                   onChange={(e) =>
@@ -380,7 +377,7 @@ export default function NewQuotationPage() {
                 />
                 <label
                   htmlFor='includePPN'
-                  className='text-sm font-medium text-text-strong-950'
+                  className='text-sm text-text-sub-600'
                 >
                   Include PPN (11% tax)
                 </label>
@@ -417,10 +414,10 @@ export default function NewQuotationPage() {
                     key={index}
                     className='grid grid-cols-12 items-end gap-2 border-b border-stroke-soft-200 pb-4'
                   >
-                    <div className='col-span-12 md:col-span-4'>
-                      <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+                    <div className='col-span-12 flex flex-col gap-1 md:col-span-4'>
+                      <Label.Root htmlFor={`product-${index}`}>
                         Product
-                      </label>
+                      </Label.Root>
                       <Select.Root
                         value={item.productId}
                         onValueChange={(value) => {
@@ -436,7 +433,7 @@ export default function NewQuotationPage() {
                           );
                         }}
                       >
-                        <Select.Trigger>
+                        <Select.Trigger id={`product-${index}`}>
                           <Select.Value placeholder='Select product' />
                         </Select.Trigger>
                         <Select.Content>
@@ -449,13 +446,14 @@ export default function NewQuotationPage() {
                       </Select.Root>
                     </div>
 
-                    <div className='col-span-6 md:col-span-2'>
-                      <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+                    <div className='col-span-6 flex flex-col gap-1 md:col-span-2'>
+                      <Label.Root htmlFor={`quantity-${index}`}>
                         Quantity
-                      </label>
+                      </Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
                           <Input.Input
+                            id={`quantity-${index}`}
                             type='number'
                             min='1'
                             step='1'
@@ -472,13 +470,14 @@ export default function NewQuotationPage() {
                       </Input.Root>
                     </div>
 
-                    <div className='col-span-6 md:col-span-3'>
-                      <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+                    <div className='col-span-6 flex flex-col gap-1 md:col-span-3'>
+                      <Label.Root htmlFor={`unitPrice-${index}`}>
                         Unit Price
-                      </label>
+                      </Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
                           <Input.Input
+                            id={`unitPrice-${index}`}
                             type='number'
                             min='0'
                             step='1'
@@ -495,10 +494,10 @@ export default function NewQuotationPage() {
                       </Input.Root>
                     </div>
 
-                    <div className='col-span-10 md:col-span-2'>
-                      <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+                    <div className='col-span-10 flex flex-col gap-1 md:col-span-2'>
+                      <Label.Root>
                         Total
-                      </label>
+                      </Label.Root>
                       <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
                         {(item.quantity * item.unitPrice).toLocaleString()}
                       </div>
@@ -517,13 +516,14 @@ export default function NewQuotationPage() {
                       </Button.Root>
                     </div>
 
-                    <div className='col-span-12'>
-                      <label className='text-sm mb-1 block font-medium text-text-strong-950'>
+                    <div className='col-span-12 flex flex-col gap-1'>
+                      <Label.Root htmlFor={`notes-${index}`}>
                         Notes
-                      </label>
+                      </Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
                           <Input.Input
+                            id={`notes-${index}`}
                             value={item.notes || ''}
                             onChange={(e) =>
                               updateItem(index, 'notes', e.target.value)
@@ -582,12 +582,21 @@ export default function NewQuotationPage() {
               Cancel
             </Button.Root>
             <Button.Root
+              variant='neutral'
+              mode='filled'
+              onClick={(e) => handleSubmit(e, 'draft')}
+              type='button'
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save as Draft'}
+            </Button.Root>
+            <Button.Root
               variant='primary'
               mode='filled'
               type='submit'
               disabled={isLoading || formData.items.length === 0}
             >
-              {isLoading ? 'Creating...' : 'Create Quotation'}
+              {isLoading ? 'Submitting...' : 'Submit Quotation'}
             </Button.Root>
           </div>
         </form>

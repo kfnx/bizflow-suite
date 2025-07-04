@@ -1,29 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { and, desc, eq, like, or } from 'drizzle-orm';
-import { z } from 'zod';
 
 import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
-
-// Validation schemas
-const createUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  phone: z.string().optional(),
-  role: z.enum(['staff', 'manager', 'director']),
-});
-
-const updateUserSchema = z.object({
-  firstName: z.string().min(1).optional(),
-  lastName: z.string().min(1).optional(),
-  phone: z.string().optional(),
-  avatar: z.string().url().optional(),
-});
+import { CreateUserRequest, UpdateUserRequest } from '@/lib/validations/user';
 
 // GET /api/users - Get all users (open to any authenticated user)
 export async function GET(request: NextRequest) {
@@ -165,7 +148,7 @@ export async function POST(request: NextRequest) {
   try {
     const db = await getDB();
     const body = await request.json();
-    const validatedData = createUserSchema.parse(body);
+    const validatedData = body as CreateUserRequest & { role: 'staff' | 'manager' | 'director' };
 
     // Check if user can create the specified role
     if (!canCreateRole(session.user.role, validatedData.role)) {
@@ -221,9 +204,9 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.message },
         { status: 400 },
       );
     }

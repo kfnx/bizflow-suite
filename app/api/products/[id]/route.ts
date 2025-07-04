@@ -9,7 +9,19 @@ export async function DELETE(
   { params }: { params: { id: string } },
 ) {
   try {
+    // Get product ID from params
     const { id } = params;
+
+    // Check if product exists before deleting
+    const existingProduct = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.id, id))
+      .limit(1);
+
+    if (existingProduct.length === 0) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
 
     // Delete the product
     await db.delete(products).where(eq(products.id, id));

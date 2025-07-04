@@ -170,7 +170,7 @@ export const products = mysqlTable(
     year: int('year'),
     condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
     status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
-    location: varchar('location', { length: 255 }),
+    warehouseId: varchar('warehouse_id', { length: 36 }),
     unit: varchar('unit', { length: 20 }).notNull(), // pcs, kg, m, etc.
     price: decimal('price', { precision: 15, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
@@ -199,7 +199,12 @@ export const products = mysqlTable(
 );
 
 // keep simple type for now but use mysql enum when system requirement is clearer
-export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
+export type QuotationStatus =
+  | 'draft'
+  | 'submitted'
+  | 'sent'
+  | 'accepted'
+  | 'rejected';
 
 // Quotations table
 export const quotations = mysqlTable(
@@ -214,7 +219,7 @@ export const quotations = mysqlTable(
     quotationDate: date('quotation_date').notNull(),
     validUntil: date('valid_until').notNull(),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
-    approverId: varchar('approver_id', { length: 36 }).notNull(),
+    approverId: varchar('approver_id', { length: 36 }),
     isIncludePPN: boolean('is_include_ppn').default(false),
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
@@ -886,3 +891,106 @@ export const stockMovementsRelations = relations(stockMovements, ({ one }) => ({
     references: [products.id],
   }),
 }));
+
+// Query interfaces for filtering and pagination
+export interface UserQueryParams {
+  search?: string;
+  role?: 'staff' | 'manager' | 'director';
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface CustomerQueryParams {
+  search?: string;
+  type?: 'individual' | 'company';
+  isPPN?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface SupplierQueryParams {
+  search?: string;
+  country?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface WarehouseQueryParams {
+  search?: string;
+  city?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface ProductQueryParams {
+  search?: string;
+  status?: string;
+  category?: string;
+  brand?: string;
+  condition?: string;
+  supplierId?: string;
+  warehouseId?: string;
+  sortBy?: 'name-asc' | 'name-desc' | 'code-asc' | 'code-desc' | 'price-asc' | 'price-desc' | 'category-asc' | 'category-desc' | 'year-asc' | 'year-desc' | 'created-asc' | 'created-desc';
+  page?: number;
+  limit?: number;
+}
+
+export interface QuotationQueryParams {
+  search?: string;
+  status?: 'draft' | 'submitted' | 'sent' | 'accepted' | 'rejected';
+  customerId?: string;
+  approverId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface InvoiceQueryParams {
+  search?: string;
+  status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'void';
+  customerId?: string;
+  quotationId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface DeliveryNoteQueryParams {
+  search?: string;
+  status?: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
+  customerId?: string;
+  invoiceId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}
+
+// Type exports
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Customer = typeof customers.$inferSelect;
+export type NewCustomer = typeof customers.$inferInsert;
+export type Supplier = typeof suppliers.$inferSelect;
+export type NewSupplier = typeof suppliers.$inferInsert;
+export type Warehouse = typeof warehouses.$inferSelect;
+export type NewWarehouse = typeof warehouses.$inferInsert;
+export type Product = typeof products.$inferSelect;
+export type NewProduct = typeof products.$inferInsert;
+export type Quotation = typeof quotations.$inferSelect;
+export type NewQuotation = typeof quotations.$inferInsert;
+export type QuotationItem = typeof quotationItems.$inferSelect;
+export type NewQuotationItem = typeof quotationItems.$inferInsert;
+export type Invoice = typeof invoices.$inferSelect;
+export type NewInvoice = typeof invoices.$inferInsert;
+export type InvoiceItem = typeof invoiceItems.$inferSelect;
+export type NewInvoiceItem = typeof invoiceItems.$inferInsert;
+export type DeliveryNote = typeof deliveryNotes.$inferSelect;
+export type NewDeliveryNote = typeof deliveryNotes.$inferInsert;
+export type DeliveryNoteItem = typeof deliveryNoteItems.$inferSelect;
+export type NewDeliveryNoteItem = typeof deliveryNoteItems.$inferInsert;

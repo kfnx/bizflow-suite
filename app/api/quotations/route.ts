@@ -3,8 +3,13 @@ import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { customers, quotationItems, quotations, users } from '@/lib/db/schema';
-import { createQuotationSchema } from '@/lib/validations/quotation';
+import { 
+  customers, 
+  quotationItems, 
+  quotations, 
+  users,
+} from '@/lib/db/schema';
+import { CreateQuotationRequest } from '@/lib/validations/quotation';
 
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'quotations:read');
@@ -87,7 +92,6 @@ export async function GET(request: NextRequest) {
         notes: quotations.notes,
         createdBy: quotations.createdBy,
         createdByUser: users.firstName,
-        approverId: quotations.approverId,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
       })
@@ -106,48 +110,8 @@ export async function GET(request: NextRequest) {
       .leftJoin(customers, eq(quotations.customerId, customers.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-    // Fetch approver names and roles for quotations that have approvers
-    const approverIds = quotationsData
-      .filter((q) => q.approverId)
-      .map((q) => q.approverId!)
-      .filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
-
-    let approverData: Record<string, { name: string; role: string }> = {};
-    if (approverIds.length > 0) {
-      const approvers = await db
-        .select({
-          id: users.id,
-          firstName: users.firstName,
-          role: users.role,
-        })
-        .from(users)
-        .where(inArray(users.id, approverIds));
-
-      approverData = approvers.reduce(
-        (acc, user) => {
-          acc[user.id] = {
-            name: user.firstName,
-            role: user.role,
-          };
-          return acc;
-        },
-        {} as Record<string, { name: string; role: string }>,
-      );
-    }
-
-    // Combine quotation data with approver names and roles
-    const quotationsWithApprovers = quotationsData.map((quotation) => ({
-      ...quotation,
-      approverName: quotation.approverId
-        ? approverData[quotation.approverId]?.name
-        : undefined,
-      approverRole: quotation.approverId
-        ? approverData[quotation.approverId]?.role
-        : undefined,
-    }));
-
     return NextResponse.json({
-      data: quotationsWithApprovers,
+      data: quotationsData,
       pagination: {
         page,
         limit,
@@ -174,8 +138,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate request body
-    const validatedData = createQuotationSchema.parse(body);
+    // Use request body as CreateQuotationRequest
+    const validatedData = body as CreateQuotationRequest;
 
     // Generate quotation number (QT/YYYY/MM/XXX format)
     const date = new Date();
@@ -211,13 +175,12 @@ export async function POST(request: NextRequest) {
         quotationDate: new Date(validatedData.quotationDate),
         validUntil: new Date(validatedData.validUntil),
         customerId: validatedData.customerId,
-        approverId: validatedData.approverId,
-        isIncludePPN: validatedData.isIncludePPN,
+        isIncludePPN: validatedData.isIncludePPN || false,
         subtotal: subtotal.toFixed(2),
         tax: taxAmount.toFixed(2),
         total: total.toFixed(2),
-        currency: validatedData.currency,
-        status: 'draft' as const,
+        currency: validatedData.currency || 'IDR',
+        status: 'draft',
         notes: validatedData.notes,
         termsAndConditions: validatedData.termsAndConditions,
         createdBy,
@@ -287,9 +250,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating quotation:', error);
 
-    if (error instanceof Error && error.name === 'ZodError') {
+    if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: (error as any).errors },
+        { error: 'Invalid request data', details: error.message },
         { status: 400 },
       );
     }

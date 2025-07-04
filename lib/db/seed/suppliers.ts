@@ -1,0 +1,47 @@
+export const supplierIds = {
+  supplier1: 'sup00001-0000-0000-0000-000000000001',
+  supplier2: 'sup00002-0000-0000-0000-000000000002',
+  supplier3: 'sup00003-0000-0000-0000-000000000003',
+};
+
+export const suppliers = [
+  {
+    id: supplierIds.supplier1,
+    code: 'SUP001',
+    name: 'PT Supplier Utama',
+    country: 'Indonesia',
+    address: 'Jl. Supplier No. 123, Jakarta Pusat, DKI Jakarta 10110',
+    transactionCurrency: 'IDR',
+    postalCode: '10110',
+    contactPersonName: 'John Doe',
+    contactPersonEmail: 'contact@supplierutama.com',
+    contactPersonPhone: '+6281234567893',
+    isActive: true,
+  },
+  {
+    id: supplierIds.supplier2,
+    code: 'SUP002',
+    name: 'CV Supplier Mitra',
+    country: 'Indonesia',
+    address: 'Jl. Mitra No. 456, Surabaya, Jawa Timur 60111',
+    transactionCurrency: 'IDR',
+    postalCode: '60111',
+    contactPersonName: 'Jane Smith',
+    contactPersonEmail: 'info@suppliermitra.com',
+    contactPersonPhone: '+6281234567894',
+    isActive: true,
+  },
+  {
+    id: supplierIds.supplier3,
+    code: 'SUP003',
+    name: 'PT Supplier Ketiga',
+    country: 'Indonesia',
+    address: 'Jl. Supplier No. 789, Bekasi, Jawa Barat 17111',
+    transactionCurrency: 'IDR',
+    postalCode: '17111',
+    contactPersonName: 'Ahmad Rizki',
+    contactPersonEmail: 'contact@supplierketiga.com',
+    contactPersonPhone: '+6281234567895',
+    isActive: true,
+  },
+];

@@ -205,10 +205,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const { data: session } = useSession();
   const userRole = session?.user?.role || 'guest';
 
-  // Debug logging
-  console.log('Sidebar - User role:', userRole);
-  console.log('Sidebar - Session:', session?.user);
-
   // Filter navigation links based on user permissions and roles
   const filteredNavigationLinks = navigationLinks
     .map((category) => ({
@@ -223,9 +219,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
         const requiredRoles = roleBasedRoutes[link.href];
         if (requiredRoles) {
           const hasAccess = requiredRoles.includes(userRole);
-          console.log(
-            `Sidebar - ${link.href}: ${hasAccess ? 'SHOW' : 'HIDE'} (role: ${userRole}, required: ${requiredRoles.join(', ')})`,
-          );
           return hasAccess;
         }
 

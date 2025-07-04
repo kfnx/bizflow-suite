@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
-import { z } from 'zod';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { quotations } from '@/lib/db/schema';
 
-const rejectQuotationSchema = z.object({
-  reason: z.string().min(1, 'Rejection reason is required'),
-});
+interface RejectQuotationRequest {
+  reason: string;
+}
 
 export async function POST(
   request: NextRequest,
@@ -31,8 +30,8 @@ export async function POST(
     const { id } = params;
     const body = await request.json();
 
-    // Validate request body
-    const validatedData = rejectQuotationSchema.parse(body);
+    // Use request body as RejectQuotationRequest
+    const validatedData = body as RejectQuotationRequest;
 
     // Check if quotation exists and is assigned to the current user as approver
     const existingQuotation = await db
@@ -92,9 +91,9 @@ export async function POST(
   } catch (error) {
     console.error('Error rejecting quotation:', error);
 
-    if (error instanceof z.ZodError) {
+    if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.message },
         { status: 400 },
       );
     }

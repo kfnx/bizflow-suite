@@ -312,6 +312,7 @@ export default function NewProductPage() {
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Item value='IDR'>IDR</Select.Item>
+                    <Select.Item value='RMB'>RMB</Select.Item>
                     <Select.Item value='USD'>USD</Select.Item>
                     <Select.Item value='EUR'>EUR</Select.Item>
                     <Select.Item value='SGD'>SGD</Select.Item>

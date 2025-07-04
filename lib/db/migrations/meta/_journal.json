@@ -15,6 +15,13 @@
       "when": 1751465096908,
       "tag": "0001_thin_sharon_ventura",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1751610993201,
+      "tag": "0002_safe_maverick",
+      "breakpoints": true
     }
   ]
 }

@@ -10,12 +10,13 @@ import * as SegmentedControl from '@/components/ui/segmented-control';
 import * as Select from '@/components/ui/select';
 
 import IconCmd from '~/icons/icon-cmd.svg';
+import { type QuotationStatus } from '@/lib/db/schema';
 
-type QuotationStatus = 'all' | 'draft' | 'sent' | 'accepted' | 'rejected';
+type QuotationStatusFilterOptions = 'all' | QuotationStatus;
 
 export interface QuotationsFilters {
   search: string;
-  status: QuotationStatus;
+  status: QuotationStatusFilterOptions;
   sortBy: string;
 }
 
@@ -25,7 +26,7 @@ interface FiltersProps {
 
 export function Filters({ onFiltersChange }: FiltersProps) {
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<QuotationStatus>('all');
+  const [status, setStatus] = useState<QuotationStatusFilterOptions>('all');
   const [sortBy, setSortBy] = useState('');
 
   const handleFiltersChange = useCallback(() => {
@@ -65,6 +66,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           <SegmentedControl.Trigger value='all'>All</SegmentedControl.Trigger>
           <SegmentedControl.Trigger value='draft'>
             Draft
+          </SegmentedControl.Trigger>
+          <SegmentedControl.Trigger value='submitted'>
+            Submitted
           </SegmentedControl.Trigger>
           <SegmentedControl.Trigger value='sent'>Sent</SegmentedControl.Trigger>
           <SegmentedControl.Trigger value='accepted'>

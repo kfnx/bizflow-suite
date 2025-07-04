@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { type QuotationStatus } from '@/lib/db/schema';
+
 export type Quotation = {
   id: string;
   quotationNumber: string;
@@ -14,13 +16,10 @@ export type Quotation = {
   tax: number;
   total: number;
   currency: string;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected';
+  status: QuotationStatus;
   notes?: string;
   createdBy: string;
   createdByUser: string;
-  approverId?: string;
-  approverName?: string;
-  approverRole?: string;
   createdAt: string;
   updatedAt: string;
 };

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { type QuotationStatus } from '@/lib/db/schema';
+import { UpdateQuotationRequest } from '@/lib/validations/quotation';
 
 export type Quotation = {
   id: string;
@@ -74,6 +75,23 @@ const deleteQuotation = async (quotationId: string): Promise<void> => {
   }
 };
 
+const updateQuotation = async (quotationId: string, data: UpdateQuotationRequest): Promise<any> => {
+  const response = await fetch(`/api/quotations/${quotationId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to update quotation');
+  }
+
+  return response.json();
+};
+
 export function useQuotations(filters: QuotationsFilters = {}) {
   return useQuery({
     queryKey: ['quotations', filters],
@@ -88,6 +106,19 @@ export function useDeleteQuotation() {
     mutationFn: deleteQuotation,
     onSuccess: () => {
       // Invalidate and refetch quotations after successful deletion
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+    },
+  });
+}
+
+export function useUpdateQuotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ quotationId, data }: { quotationId: string; data: UpdateQuotationRequest }) => 
+      updateQuotation(quotationId, data),
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful update
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
     },
   });

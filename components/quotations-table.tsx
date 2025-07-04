@@ -100,6 +100,14 @@ function ActionCell({ row }: { row: any }) {
     }
   };
 
+  const handleEditQuotation = () => {
+    if (row.original.status !== 'draft') {
+      alert('Only draft quotations can be edited');
+      return;
+    }
+    window.location.href = `/quotations/${row.original.id}/edit`;
+  };
+
   return (
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
@@ -114,7 +122,12 @@ function ActionCell({ row }: { row: any }) {
       </Dropdown.Trigger>
       <Dropdown.Content>
         <Dropdown.Item>View Details</Dropdown.Item>
-        <Dropdown.Item>Edit Quotation</Dropdown.Item>
+        <Dropdown.Item 
+          onClick={handleEditQuotation}
+          disabled={row.original.status !== 'draft'}
+        >
+          Edit Quotation
+        </Dropdown.Item>
         <Dropdown.Separator />
         <Dropdown.Item
           onClick={() => handleDeleteQuotation(row.original.id)}

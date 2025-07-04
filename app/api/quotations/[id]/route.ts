@@ -55,26 +55,6 @@ export async function GET(
       );
     }
 
-    // Fetch approver name and role if approver exists
-    let approverName: string | undefined;
-    let approverRole: string | undefined;
-
-    if (quotationData[0].approverId) {
-      const approver = await db
-        .select({
-          firstName: users.firstName,
-          role: users.role,
-        })
-        .from(users)
-        .where(eq(users.id, quotationData[0].approverId))
-        .limit(1);
-
-      if (approver.length > 0) {
-        approverName = approver[0].firstName;
-        approverRole = approver[0].role;
-      }
-    }
-
     // Fetch quotation items
     const items = await db
       .select({
@@ -94,8 +74,6 @@ export async function GET(
     return NextResponse.json({
       data: {
         ...quotationData[0],
-        approverName,
-        approverRole,
         items,
       },
     });
@@ -174,37 +152,36 @@ export async function PUT(
         updateData.termsAndConditions = validatedData.termsAndConditions;
       }
 
-      // If items are provided, recalculate totals
-      // Note: This endpoint would need to be restructured to handle items properly
-      // if ((validatedData as any).items) {
-      //   let subtotal = 0;
-      //   (validatedData as any).items.forEach((item) => {
-      //     subtotal += item.quantity * item.unitPrice;
-      //   });
+      // If items are provided, recalculate totals and update items
+      if (validatedData.items && validatedData.items.length > 0) {
+        let subtotal = 0;
+        validatedData.items.forEach((item) => {
+          subtotal += item.quantity * item.unitPrice;
+        });
 
-      //   const taxAmount = validatedData.isIncludePPN ? subtotal * 0.11 : 0;
-      //   const total = subtotal + taxAmount;
+        const taxAmount = validatedData.isIncludePPN ? subtotal * 0.11 : 0;
+        const total = subtotal + taxAmount;
 
-      //   updateData.subtotal = subtotal.toString();
-      //   updateData.tax = taxAmount.toString();
-      //   updateData.total = total.toString();
+        updateData.subtotal = subtotal.toString();
+        updateData.tax = taxAmount.toString();
+        updateData.total = total.toString();
 
-      //   // Delete existing items and create new ones
-      //   await tx
-      //     .delete(quotationItems)
-      //     .where(eq(quotationItems.quotationId, id));
+        // Delete existing items and create new ones
+        await tx
+          .delete(quotationItems)
+          .where(eq(quotationItems.quotationId, id));
 
-      //   const itemsToInsert = validatedData.items.map((item) => ({
-      //     quotationId: id,
-      //     productId: item.productId,
-      //     quantity: item.quantity.toString(),
-      //     unitPrice: item.unitPrice.toString(),
-      //     total: (item.quantity * item.unitPrice).toString(),
-      //     notes: item.notes,
-      //   }));
+        const itemsToInsert = validatedData.items.map((item) => ({
+          quotationId: id,
+          productId: item.productId,
+          quantity: item.quantity.toString(),
+          unitPrice: item.unitPrice.toString(),
+          total: (item.quantity * item.unitPrice).toString(),
+          notes: item.notes || null,
+        }));
 
-      //   await tx.insert(quotationItems).values(itemsToInsert);
-      // }
+        await tx.insert(quotationItems).values(itemsToInsert);
+      }
 
       // Update quotation if there's data to update
       if (Object.keys(updateData).length > 0) {
@@ -246,32 +223,27 @@ export async function PUT(
       .where(eq(quotations.id, id))
       .limit(1);
 
-    // Fetch approver name and role if approver exists
-    let approverName: string | undefined;
-    let approverRole: string | undefined;
-
-    if (updatedQuotation[0].approverId) {
-      const approver = await db
-        .select({
-          firstName: users.firstName,
-          role: users.role,
-        })
-        .from(users)
-        .where(eq(users.id, updatedQuotation[0].approverId))
-        .limit(1);
-
-      if (approver.length > 0) {
-        approverName = approver[0].firstName;
-        approverRole = approver[0].role;
-      }
-    }
+    // Fetch updated quotation items
+    const updatedItems = await db
+      .select({
+        id: quotationItems.id,
+        productId: quotationItems.productId,
+        productCode: products.code,
+        productName: products.name,
+        quantity: quotationItems.quantity,
+        unitPrice: quotationItems.unitPrice,
+        total: quotationItems.total,
+        notes: quotationItems.notes,
+      })
+      .from(quotationItems)
+      .leftJoin(products, eq(quotationItems.productId, products.id))
+      .where(eq(quotationItems.quotationId, id));
 
     return NextResponse.json({
       message: 'Quotation updated successfully',
       data: {
         ...updatedQuotation[0],
-        approverName,
-        approverRole,
+        items: updatedItems,
       },
     });
   } catch (error) {

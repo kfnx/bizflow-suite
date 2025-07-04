@@ -561,7 +561,6 @@ export default function EditQuotationPage() {
                       <Button.Root
                         variant='error'
                         mode='stroke'
-                        size='small'
                         onClick={() => removeItem(index)}
                         type='button'
                         className='w-full'

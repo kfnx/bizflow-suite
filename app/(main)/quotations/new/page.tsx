@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
@@ -73,6 +73,7 @@ const initialFormData: QuotationFormData = {
 export default function NewQuotationPage() {
   const [formData, setFormData] = useState<QuotationFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
+  const [quotationNumber, setQuotationNumber] = useState<string>('');
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -80,6 +81,23 @@ export default function NewQuotationPage() {
   // Fetch data for form options
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
+
+  // Fetch preview quotation number
+  useEffect(() => {
+    const fetchQuotationNumber = async () => {
+      try {
+        const response = await fetch('/api/quotations/preview-number');
+        const data = await response.json();
+        if (response.ok) {
+          setQuotationNumber(data.data.quotationNumber);
+        }
+      } catch (error) {
+        console.error('Error fetching quotation number:', error);
+      }
+    };
+
+    fetchQuotationNumber();
+  }, []);
 
   const handleInputChange = useCallback(
     (
@@ -245,9 +263,19 @@ export default function NewQuotationPage() {
         >
           {/* Quotation Details */}
           <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h3 className='text-lg mb-4 font-semibold text-text-strong-950'>
+            <h3 className='text-lg mb-6 font-semibold text-text-strong-950'>
               Quotation Details
             </h3>
+            {quotationNumber && (
+              <div className='mb-4 flex flex-col gap-1'>
+                <Label.Root htmlFor='quotationNumber'>
+                  Quotation Number
+                </Label.Root>
+                <div className='text-sm p-2 text-text-sub-600'>
+                  {quotationNumber}
+                </div>
+              </div>
+            )}
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               <div className='flex flex-col gap-1'>
                 <Label.Root htmlFor='quotationDate'>

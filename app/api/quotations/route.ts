@@ -3,13 +3,11 @@ import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { 
-  customers, 
-  quotationItems, 
-  quotations, 
-  users,
-} from '@/lib/db/schema';
-import { CreateQuotationRequest } from '@/lib/validations/quotation';
+import { customers, quotationItems, quotations, users } from '@/lib/db/schema';
+import {
+  CreateQuotationRequest,
+  createQuotationRequestSchema,
+} from '@/lib/validations/quotation';
 
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'quotations:read');
@@ -138,8 +136,20 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Use request body as CreateQuotationRequest
-    const validatedData = body as CreateQuotationRequest;
+    // Validate request body using Zod schema
+    const validationResult = createQuotationRequestSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: validationResult.error.errors,
+        },
+        { status: 400 },
+      );
+    }
+
+    const validatedData = validationResult.data;
 
     // Generate quotation number (QT/YYYY/MM/XXX format)
     const date = new Date();
@@ -157,9 +167,11 @@ export async function POST(request: NextRequest) {
 
     // Calculate totals from items
     let subtotal = 0;
-    validatedData.items.forEach((item) => {
-      subtotal += item.quantity * item.unitPrice;
-    });
+    validatedData.items.forEach(
+      (item: { quantity: number; unitPrice: number }) => {
+        subtotal += item.quantity * item.unitPrice;
+      },
+    );
 
     const taxAmount = validatedData.isIncludePPN ? subtotal * 0.11 : 0;
     const total = subtotal + taxAmount;
@@ -168,6 +180,7 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
+      console.log('🚀 ~ result ~ createdBy:', createdBy, session);
 
       // Create quotation (ID will be auto-generated)
       const quotationData = {
@@ -196,18 +209,27 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       const quotationId = createdQuotationResult[0].id;
+      // TODO: handle quotation items difference during draft vs submitted
+      if (validatedData.items.length > 0) {
+        // Create quotation items (IDs will be auto-generated)
+        const itemsToInsert = validatedData.items.map(
+          (item: {
+            productId: string;
+            quantity: number;
+            unitPrice: number;
+            notes?: string;
+          }) => ({
+            quotationId,
+            productId: item.productId,
+            quantity: item.quantity.toString(),
+            unitPrice: item.unitPrice.toString(),
+            total: (item.quantity * item.unitPrice).toString(),
+            notes: item.notes,
+          }),
+        );
 
-      // Create quotation items (IDs will be auto-generated)
-      const itemsToInsert = validatedData.items.map((item) => ({
-        quotationId,
-        productId: item.productId,
-        quantity: item.quantity.toString(),
-        unitPrice: item.unitPrice.toString(),
-        total: (item.quantity * item.unitPrice).toString(),
-        notes: item.notes,
-      }));
-
-      await tx.insert(quotationItems).values(itemsToInsert);
+        await tx.insert(quotationItems).values(itemsToInsert);
+      }
 
       return { quotationId, quotationNumber };
     });
@@ -249,13 +271,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error creating quotation:', error);
-
-    if (error instanceof Error && error.message.includes('validation')) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: error.message },
-        { status: 400 },
-      );
-    }
 
     return NextResponse.json(
       { error: 'Failed to create quotation' },

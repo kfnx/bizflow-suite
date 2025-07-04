@@ -219,7 +219,6 @@ export const quotations = mysqlTable(
     quotationDate: date('quotation_date').notNull(),
     validUntil: date('valid_until').notNull(),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
-    approverId: varchar('approver_id', { length: 36 }),
     isIncludePPN: boolean('is_include_ppn').default(false),
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
@@ -229,6 +228,7 @@ export const quotations = mysqlTable(
     notes: text('notes'),
     termsAndConditions: text('terms_and_conditions'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
+    approvedBy: varchar('approver_by', { length: 36 }),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
@@ -248,7 +248,7 @@ export const quotations = mysqlTable(
       name: 'fk_quotations_created_by',
     }),
     foreignKey({
-      columns: [table.approverId],
+      columns: [table.approvedBy],
       foreignColumns: [users.id],
       name: 'fk_quotations_approver',
     }),
@@ -933,7 +933,19 @@ export interface ProductQueryParams {
   condition?: string;
   supplierId?: string;
   warehouseId?: string;
-  sortBy?: 'name-asc' | 'name-desc' | 'code-asc' | 'code-desc' | 'price-asc' | 'price-desc' | 'category-asc' | 'category-desc' | 'year-asc' | 'year-desc' | 'created-asc' | 'created-desc';
+  sortBy?:
+    | 'name-asc'
+    | 'name-desc'
+    | 'code-asc'
+    | 'code-desc'
+    | 'price-asc'
+    | 'price-desc'
+    | 'category-asc'
+    | 'category-desc'
+    | 'year-asc'
+    | 'year-desc'
+    | 'created-asc'
+    | 'created-desc';
   page?: number;
   limit?: number;
 }

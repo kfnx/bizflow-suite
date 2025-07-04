@@ -122,7 +122,7 @@ function ActionCell({ row }: { row: any }) {
       </Dropdown.Trigger>
       <Dropdown.Content>
         <Dropdown.Item>View Details</Dropdown.Item>
-        <Dropdown.Item 
+        <Dropdown.Item
           onClick={handleEditQuotation}
           disabled={row.original.status !== 'draft'}
         >

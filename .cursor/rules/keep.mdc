@@ -1,7 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-keep the file line of code manageable
-keep the folder directory structured and maintainable

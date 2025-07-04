@@ -88,9 +88,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     filters.limit !== 10;
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex justify-between gap-4'>
       {/* Search Bar */}
-      <div className='relative'>
+      <div className='relative flex-1'>
         <Input.Root>
           <Input.Wrapper>
             <Input.Icon as={RiSearch2Line} />
@@ -112,7 +112,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
       <div className='flex flex-wrap items-center justify-between gap-4'>
         {/* Status Filter */}
         <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Status:</span>
           <Select.Root
             value={filters.status}
             onValueChange={handleStatusChange}
@@ -134,7 +133,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
         {/* Sort Filter */}
         <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Sort by:</span>
           <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
             <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
               <Select.TriggerIcon as={RiSortDesc} />

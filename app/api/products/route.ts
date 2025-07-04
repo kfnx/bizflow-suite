@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { 
-  products, 
-  suppliers,
-  ProductQueryParams,
+import {
   NewProduct,
+  ProductQueryParams,
+  products,
+  suppliers,
 } from '@/lib/db/schema';
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || undefined;
     const brand = searchParams.get('brand') || undefined;
     const supplierId = searchParams.get('supplierId') || undefined;
-    const sortBy = searchParams.get('sortBy') as ProductQueryParams['sortBy'] || undefined;
+    const sortBy =
+      (searchParams.get('sortBy') as ProductQueryParams['sortBy']) || undefined;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;

@@ -45,11 +45,11 @@ function PendingQuotationCard({
   };
 
   return (
-    <div className='shadow-sm rounded-lg border border-stroke-soft-200 bg-white p-6'>
+    <div className='shadow-sm rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
       <div className='mb-4 flex items-start justify-between'>
         <div className='flex-1'>
           <div className='mb-2 flex items-center gap-3'>
-            <h3 className='text-lg text-text-900 font-semibold'>
+            <h3 className='text-lg font-semibold text-text-strong-950'>
               {quotation.quotationNumber}
             </h3>
             <Badge.Root variant='light' color='blue' size='medium'>
@@ -67,7 +67,7 @@ function PendingQuotationCard({
           </p>
         </div>
         <div className='text-right'>
-          <p className='text-2xl text-text-900 font-bold'>
+          <p className='text-2xl font-bold text-text-strong-950'>
             {formatCurrency(quotation.total, quotation.currency)}
           </p>
           <p className='text-sm text-text-600'>
@@ -79,7 +79,7 @@ function PendingQuotationCard({
 
       {showDetails && (
         <div className='mb-4 rounded-lg bg-bg-weak-50 p-4'>
-          <h4 className='text-text-900 mb-3 font-medium'>Items</h4>
+          <h4 className='mb-3 font-medium text-text-strong-950'>Items</h4>
           <div className='space-y-2'>
             {quotation.items.map((item) => (
               <div
@@ -87,17 +87,17 @@ function PendingQuotationCard({
                 className='text-sm flex items-center justify-between'
               >
                 <div className='flex-1'>
-                  <p className='text-text-900 font-medium'>
+                  <p className='font-medium text-text-strong-950'>
                     {item.productName}
                   </p>
                   <p className='text-text-600'>{item.productCode}</p>
                 </div>
                 <div className='text-right'>
-                  <p className='text-text-900'>
+                  <p className='text-text-strong-950'>
                     {item.quantity} ×{' '}
                     {formatCurrency(item.unitPrice, quotation.currency)}
                   </p>
-                  <p className='text-text-900 font-medium'>
+                  <p className='font-medium text-text-strong-950'>
                     {formatCurrency(item.total, quotation.currency)}
                   </p>
                 </div>
@@ -107,7 +107,7 @@ function PendingQuotationCard({
 
           {quotation.notes && (
             <div className='mt-4 border-t border-stroke-soft-200 pt-4'>
-              <h4 className='text-text-900 mb-2 font-medium'>Notes</h4>
+              <h4 className='mb-2 font-medium text-text-strong-950'>Notes</h4>
               <p className='text-sm text-text-600'>{quotation.notes}</p>
             </div>
           )}
@@ -211,7 +211,7 @@ export function PendingQuotationApproval() {
   if (error) {
     return (
       <div className='flex items-center justify-center py-12'>
-        <div className='text-error-600'>
+        <div className='text-error-base'>
           Error loading pending quotations: {error.message}
         </div>
       </div>
@@ -223,7 +223,7 @@ export function PendingQuotationApproval() {
       <div className='flex items-center justify-center py-12'>
         <div className='text-center'>
           <div className='text-text-600 mb-2'>No pending quotations</div>
-          <div className='text-text-500 text-sm'>
+          <div className='text-sm text-text-soft-400'>
             All quotations have been processed or there are no pending
             approvals.
           </div>

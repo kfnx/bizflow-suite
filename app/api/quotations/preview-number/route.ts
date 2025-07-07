@@ -4,6 +4,8 @@ import { like } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { quotations } from '@/lib/db/schema';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Generate quotation number (QT/YYYY/MM/XXX format)

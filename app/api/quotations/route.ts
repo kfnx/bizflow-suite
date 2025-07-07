@@ -10,6 +10,8 @@ import {
   createQuotationRequestSchema,
 } from '@/lib/validations/quotation';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'quotations:read');
 
@@ -186,7 +188,6 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
-      console.log('🚀 ~ result ~ createdBy:', createdBy, session);
 
       // Create quotation (ID will be auto-generated)
       const quotationData = {

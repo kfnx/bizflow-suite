@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 
 import { getDB } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/health - Health check endpoint
 export async function GET() {
   try {

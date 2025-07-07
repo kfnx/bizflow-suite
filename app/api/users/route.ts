@@ -8,6 +8,8 @@ import { users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
 import { CreateUserRequest, UpdateUserRequest } from '@/lib/validations/user';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/users - Get all users (open to any authenticated user)
 export async function GET(request: NextRequest) {
   const session = await requireAuth(request);

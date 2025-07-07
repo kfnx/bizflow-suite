@@ -12,14 +12,14 @@ import {
   users,
 } from '@/lib/db/schema';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const session = await requireAuth(request);
 
   if (session instanceof NextResponse) {
     return session;
   }
-
-  console.log('🚀 ~ GET ~ session.user.id:', session.user.id);
 
   // Check if user has manager or director role
   const roleCheck = await requireAnyRole(request, ['manager', 'director']);

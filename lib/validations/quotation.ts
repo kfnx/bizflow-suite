@@ -31,14 +31,48 @@ export const createQuotationSchema = createInsertSchema(quotations).omit({
 
 // API request schemas
 export const createQuotationRequestSchema = z.object({
+  quotationNumber: z.string().min(1, 'Quotation number is required'),
   quotationDate: z.string().min(1, 'Quotation date is required'),
   validUntil: z.string().min(1, 'Valid until date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
-  approvedBy: z.string().min(1, 'Approver ID is required'),
   isIncludePPN: z.boolean().optional().default(false),
   currency: z.string().optional().default('IDR'),
   notes: z.string().optional(),
   termsAndConditions: z.string().optional(),
+  status: z.enum([QUOTATION_STATUS.DRAFT, QUOTATION_STATUS.SUBMITTED], {
+    errorMap: () => ({ message: 'Status must be either DRAFT or SUBMITTED' }),
+  }),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().min(1, 'Product ID is required'),
+        productName: z.string().min(1, 'Product name is required'),
+        quantity: z.number().positive('Quantity must be positive'),
+        unitPrice: z.number().nonnegative('Unit price must be non-negative'),
+        notes: z.string().optional(),
+      }),
+    )
+    .min(1, 'At least one item is required'),
+});
+
+export type QuotationFormData = z.infer<typeof createQuotationRequestSchema>;
+
+export const createQuotationDraftRequestSchema = z.object({
+  quotationNumber: z.string().min(1, 'Quotation number is required'),
+  quotationDate: z.string().min(1, 'Quotation date is required'),
+  validUntil: z
+    .string()
+    .min(1, 'Valid until date is required')
+    .optional()
+    .default(new Date().toISOString()),
+  customerId: z.string().min(1, 'Customer ID is required').optional(),
+  isIncludePPN: z.boolean().optional().default(false),
+  currency: z.string().optional().default('IDR'),
+  notes: z.string().optional(),
+  termsAndConditions: z.string().optional(),
+  status: z.enum([QUOTATION_STATUS.DRAFT], {
+    errorMap: () => ({ message: 'Status must be DRAFT' }),
+  }),
   items: z
     .array(
       z.object({
@@ -48,7 +82,8 @@ export const createQuotationRequestSchema = z.object({
         notes: z.string().optional(),
       }),
     )
-    .min(1, 'At least one item is required'),
+    .optional()
+    .default([]),
 });
 
 export const updateQuotationSchema = createQuotationRequestSchema.partial();
@@ -96,6 +131,7 @@ export interface CreateQuotationRequest {
 export interface UpdateQuotationRequest {
   quotationDate?: string;
   validUntil?: string;
+  status?: string;
   customerId?: string;
   approvedBy?: string;
   isIncludePPN?: boolean;

@@ -11,6 +11,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { UpdateQuotationRequest } from '@/lib/validations/quotation';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
@@ -79,10 +80,18 @@ export default function EditQuotationPage() {
 
         // Transform data for form
         const quotationData = data.data;
+
+        // Convert ISO date strings to YYYY-MM-DD format for date inputs
+        const formatDateForInput = (dateString: string) => {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          return date.toISOString().split('T')[0];
+        };
+
         setFormData({
           quotationNumber: quotationData.quotationNumber,
-          quotationDate: quotationData.quotationDate,
-          validUntil: quotationData.validUntil,
+          quotationDate: formatDateForInput(quotationData.quotationDate),
+          validUntil: formatDateForInput(quotationData.validUntil),
           customerId: quotationData.customerId,
           isIncludePPN: quotationData.isIncludePPN,
           currency: quotationData.currency,
@@ -186,7 +195,7 @@ export default function EditQuotationPage() {
 
   const handleSubmit = async (
     e: React.FormEvent,
-    status: 'draft' | 'submitted',
+    status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED,
   ) => {
     e.preventDefault();
     if (!formData) return;
@@ -215,10 +224,18 @@ export default function EditQuotationPage() {
         }
       }
 
+      if (
+        ![QUOTATION_STATUS.DRAFT, QUOTATION_STATUS.SUBMITTED].includes(status)
+      ) {
+        toast.error('Can only submit or save draft');
+        return;
+      }
+
       // Transform data for API
       const requestData: UpdateQuotationRequest = {
         quotationDate: formData.quotationDate,
         validUntil: formData.validUntil,
+        status,
         customerId: formData.customerId,
         isIncludePPN: formData.isIncludePPN,
         currency: formData.currency,
@@ -302,7 +319,7 @@ export default function EditQuotationPage() {
       <HeaderComponent />
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <form
-          onSubmit={(e) => handleSubmit(e, 'submitted')}
+          onSubmit={(e) => handleSubmit(e, QUOTATION_STATUS.SUBMITTED)}
           className='mx-auto w-full max-w-4xl space-y-8'
         >
           {/* Quotation Details */}
@@ -645,7 +662,7 @@ export default function EditQuotationPage() {
             <Button.Root
               variant='neutral'
               mode='filled'
-              onClick={(e) => handleSubmit(e, 'draft')}
+              onClick={(e) => handleSubmit(e, QUOTATION_STATUS.DRAFT)}
               type='button'
               disabled={isLoading}
             >

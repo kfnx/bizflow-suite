@@ -1,0 +1,1 @@
+ALTER TABLE `quotations` MODIFY COLUMN `customer_id` varchar(36);

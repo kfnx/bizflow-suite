@@ -54,19 +54,20 @@ export async function POST(
 
     const quotation = existingQuotation[0];
 
-    // Check if quotation is in 'draft' status
+    // Check if quotation is in 'submitted' status
     if (quotation.status !== QUOTATION_STATUS.SUBMITTED) {
       return NextResponse.json(
-        { error: 'Only draft quotations can be rejected' },
+        { error: 'Only submitted quotations can be rejected' },
         { status: 400 },
       );
     }
 
     // Update quotation status to 'rejected' and add rejection reason to notes
+    const status = QUOTATION_STATUS.REJECTED;
     await db
       .update(quotations)
       .set({
-        status: QUOTATION_STATUS.REJECTED,
+        status,
         notes: validatedData.reason,
       })
       .where(eq(quotations.id, id));
@@ -76,7 +77,7 @@ export async function POST(
       data: {
         id: quotation.id,
         quotationNumber: quotation.quotationNumber,
-        status: 'rejected',
+        status,
         reason: validatedData.reason,
       },
     });

@@ -146,6 +146,7 @@ export async function POST(request: NextRequest) {
 
     // Validate request body using Zod schema
     const validationResult = createQuotationRequestSchema.safeParse(body);
+    console.log('🚀 ~ POST ~ body:', body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -188,6 +189,7 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
+      console.log('createdBy', createdBy);
 
       // Create quotation (ID will be auto-generated)
       const quotationData = {
@@ -200,7 +202,7 @@ export async function POST(request: NextRequest) {
         tax: taxAmount.toFixed(2),
         total: total.toFixed(2),
         currency: validatedData.currency || 'IDR',
-        status: QUOTATION_STATUS.DRAFT,
+        status: validatedData.status,
         notes: validatedData.notes,
         termsAndConditions: validatedData.termsAndConditions,
         createdBy,

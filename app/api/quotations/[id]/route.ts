@@ -139,6 +139,9 @@ export async function PUT(
       if (validatedData.approvedBy !== undefined) {
         updateData.approvedBy = validatedData.approvedBy;
       }
+      if (validatedData.status !== undefined) {
+        updateData.status = validatedData.status;
+      }
       if (validatedData.isIncludePPN !== undefined) {
         updateData.isIncludePPN = validatedData.isIncludePPN;
       }

@@ -54,10 +54,11 @@ export async function POST(
       );
     }
 
-    // Update quotation approver. status is not changed
+    // Update quotation approver
+    const status = QUOTATION_STATUS.ACCEPTED;
     await db
       .update(quotations)
-      .set({ approvedBy: session.user.id })
+      .set({ approvedBy: session.user.id, status })
       .where(eq(quotations.id, id));
 
     return NextResponse.json({
@@ -66,6 +67,7 @@ export async function POST(
         id: quotation.id,
         quotationNumber: quotation.quotationNumber,
         approvedBy: session.user.id,
+        status,
       },
     });
   } catch (error) {

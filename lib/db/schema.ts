@@ -228,7 +228,7 @@ export const quotations = mysqlTable(
       .unique(),
     quotationDate: date('quotation_date').notNull(),
     validUntil: date('valid_until').notNull(),
-    customerId: varchar('customer_id', { length: 36 }).notNull(),
+    customerId: varchar('customer_id', { length: 36 }),
     isIncludePPN: boolean('is_include_ppn').default(false),
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),

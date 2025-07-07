@@ -36,6 +36,20 @@
       "when": 1751855669173,
       "tag": "0004_foamy_cardiac",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1751860865153,
+      "tag": "0005_narrow_secret_warriors",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1751862008548,
+      "tag": "0006_silly_phantom_reporter",
+      "breakpoints": true
     }
   ]
 }

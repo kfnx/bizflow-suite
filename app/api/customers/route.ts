@@ -130,7 +130,6 @@ export async function POST(request: NextRequest) {
 
     // Create new customer
     const newCustomer = await db.insert(customers).values({
-      id: crypto.randomUUID(),
       code,
       name,
       type: type || 'individual',

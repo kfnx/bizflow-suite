@@ -133,7 +133,6 @@ export async function POST(request: NextRequest) {
 
     // Create new supplier
     await db.insert(suppliers).values({
-      id: crypto.randomUUID(),
       code,
       name,
       country,

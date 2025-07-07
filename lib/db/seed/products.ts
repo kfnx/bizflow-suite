@@ -1,5 +1,5 @@
-import { warehouseIds } from './warehouses';
 import { supplierIds } from './suppliers';
+import { warehouseIds } from './warehouses';
 
 export const productIds = {
   product1: 'prd00001-0000-0000-0000-000000000001',

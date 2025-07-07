@@ -279,7 +279,8 @@ const columns: ColumnDef<Quotation>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const status = statusConfig[row.original.status];
+      const status =
+        statusConfig[row.original.status as keyof typeof statusConfig];
       return (
         <Badge.Root variant={status.variant} color={status.color} size='medium'>
           {status.label}
@@ -399,9 +400,9 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               );
             })}

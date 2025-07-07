@@ -24,7 +24,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <StateProvider>
         <QueryClientProvider client={queryClient}>
           {children}
-          <Toaster position="top-right" richColors />
+          <Toaster position='top-right' richColors />
         </QueryClientProvider>
       </StateProvider>
     </SessionProvider>

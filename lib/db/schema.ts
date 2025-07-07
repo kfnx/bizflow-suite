@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
   date,
@@ -20,7 +20,10 @@ import { QUOTATION_STATUS } from './enum';
 export const users = mysqlTable(
   'users',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     firstName: varchar('first_name', { length: 100 }).notNull(),
     lastName: varchar('last_name', { length: 100 }).notNull(),
@@ -88,7 +91,10 @@ export const verificationTokens = mysqlTable(
 export const customers = mysqlTable(
   'customers',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
     type: varchar('type', { length: 50 }).default('individual'), // individual, company
@@ -114,7 +120,10 @@ export const customers = mysqlTable(
 export const suppliers = mysqlTable(
   'suppliers',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
     country: varchar('country', { length: 50 }),
@@ -140,7 +149,10 @@ export const suppliers = mysqlTable(
 export const warehouses = mysqlTable(
   'warehouses',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
     address: text('address'),
@@ -162,7 +174,10 @@ export const warehouses = mysqlTable(
 export const products = mysqlTable(
   'products',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     code: varchar('code', { length: 100 }).notNull().unique(), // This serves as both code and serial number
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description'),
@@ -204,7 +219,10 @@ export const products = mysqlTable(
 export const quotations = mysqlTable(
   'quotations',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     quotationNumber: varchar('quotation_number', { length: 50 }) // QT/2025/04/001
       .notNull()
       .unique(),
@@ -253,7 +271,10 @@ export const quotations = mysqlTable(
 export const quotationItems = mysqlTable(
   'quotation_items',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     quotationId: varchar('quotation_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
@@ -285,7 +306,10 @@ export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'void';
 export const invoices = mysqlTable(
   'invoices',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
     quotationId: varchar('quotation_id', { length: 36 }),
     invoiceDate: date('invoice_date').notNull(),
@@ -330,7 +354,10 @@ export const invoices = mysqlTable(
 export const invoiceItems = mysqlTable(
   'invoice_items',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     invoiceId: varchar('invoice_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
@@ -364,7 +391,10 @@ export type DeliveryNoteStatus = 'pending' | 'delivered' | 'canceled';
 export const deliveryNotes = mysqlTable(
   'delivery_notes',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     deliveryNumber: varchar('delivery_number', { length: 50 })
       .notNull()
       .unique(),
@@ -420,7 +450,10 @@ export const deliveryNotes = mysqlTable(
 export const deliveryNoteItems = mysqlTable(
   'delivery_note_items',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     deliveryNoteId: varchar('delivery_note_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
@@ -451,7 +484,10 @@ export const deliveryNoteItems = mysqlTable(
 export const imports = mysqlTable(
   'imports',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     importNumber: varchar('import_number', { length: 50 }).notNull().unique(),
     supplierId: varchar('supplier_id', { length: 36 }).notNull(),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
@@ -495,7 +531,10 @@ export const imports = mysqlTable(
 export const importItems = mysqlTable(
   'import_items',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     importId: varchar('import_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
@@ -528,7 +567,10 @@ export const importItems = mysqlTable(
 export const transfers = mysqlTable(
   'transfers',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     transferNumber: varchar('transfer_number', { length: 50 })
       .notNull()
       .unique(),
@@ -570,7 +612,10 @@ export const transfers = mysqlTable(
 export const transferItems = mysqlTable(
   'transfer_items',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     transferId: varchar('transfer_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
@@ -601,7 +646,10 @@ export const transferItems = mysqlTable(
 export const warehouseStocks = mysqlTable(
   'warehouse_stocks',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     machineId: varchar('machine_id', { length: 36 }).notNull(), // FK to products.id
     lastCheck: timestamp('last_check'),
@@ -630,7 +678,10 @@ export const warehouseStocks = mysqlTable(
 export const stockMovements = mysqlTable(
   'stock_movements',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(),
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     warehouseStockId: varchar('warehouse_stock_id', { length: 36 }).notNull(),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     machineId: varchar('machine_id', { length: 36 }).notNull(),

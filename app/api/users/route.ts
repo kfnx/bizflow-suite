@@ -148,7 +148,9 @@ export async function POST(request: NextRequest) {
   try {
     const db = await getDB();
     const body = await request.json();
-    const validatedData = body as CreateUserRequest & { role: 'staff' | 'manager' | 'director' };
+    const validatedData = body as CreateUserRequest & {
+      role: 'staff' | 'manager' | 'director';
+    };
 
     // Check if user can create the specified role
     if (!canCreateRole(session.user.role, validatedData.role)) {
@@ -187,7 +189,6 @@ export async function POST(request: NextRequest) {
 
     // Create user
     await db.insert(users).values({
-      id: crypto.randomUUID(),
       code: userCode,
       email: validatedData.email,
       password: hashedPassword,

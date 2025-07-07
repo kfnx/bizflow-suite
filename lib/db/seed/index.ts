@@ -2,14 +2,14 @@ import { drizzle } from 'drizzle-orm/mysql2';
 
 import { createConnection } from '../index';
 import * as schema from '../schema';
-import { users } from './users';
 import { customers } from './customers';
-import { suppliers } from './suppliers';
-import { warehouses } from './warehouses';
+import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
+import { invoiceItems, invoices } from './invoices';
 import { products } from './products';
-import { quotations, quotationItems } from './quotations';
-import { invoices, invoiceItems } from './invoices';
-import { deliveryNotes, deliveryNoteItems } from './delivery-notes';
+import { quotationItems, quotations } from './quotations';
+import { suppliers } from './suppliers';
+import { users } from './users';
+import { warehouses } from './warehouses';
 
 async function main() {
   const connection = await createConnection();

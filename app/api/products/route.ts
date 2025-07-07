@@ -165,7 +165,6 @@ export async function POST(request: NextRequest) {
     // Create new product
     const newProduct = await db.insert(products).values({
       ...validatedData,
-      id: crypto.randomUUID(),
       isActive: true,
     });
 

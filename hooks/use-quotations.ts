@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { type QuotationStatus } from '@/lib/db/schema';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { UpdateQuotationRequest } from '@/lib/validations/quotation';
 
 export type Quotation = {
@@ -17,7 +17,7 @@ export type Quotation = {
   tax: number;
   total: number;
   currency: string;
-  status: QuotationStatus;
+  status: QUOTATION_STATUS;
   notes?: string;
   createdBy: string;
   createdByUser: string;
@@ -75,7 +75,10 @@ const deleteQuotation = async (quotationId: string): Promise<void> => {
   }
 };
 
-const updateQuotation = async (quotationId: string, data: UpdateQuotationRequest): Promise<any> => {
+const updateQuotation = async (
+  quotationId: string,
+  data: UpdateQuotationRequest,
+): Promise<any> => {
   const response = await fetch(`/api/quotations/${quotationId}`, {
     method: 'PUT',
     headers: {
@@ -115,8 +118,13 @@ export function useUpdateQuotation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ quotationId, data }: { quotationId: string; data: UpdateQuotationRequest }) => 
-      updateQuotation(quotationId, data),
+    mutationFn: ({
+      quotationId,
+      data,
+    }: {
+      quotationId: string;
+      data: UpdateQuotationRequest;
+    }) => updateQuotation(quotationId, data),
     onSuccess: () => {
       // Invalidate and refetch quotations after successful update
       queryClient.invalidateQueries({ queryKey: ['quotations'] });

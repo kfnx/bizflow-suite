@@ -1,6 +1,6 @@
 import { customerIds } from './customers';
-import { userIds } from './users';
 import { productIds } from './products';
+import { userIds } from './users';
 
 export const quotationIds = {
   quotation1: 'quo00001-0000-0000-0000-000000000001',
@@ -21,7 +21,7 @@ export const quotations = [
     quotationDate: new Date('2025-04-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer1,
-    approverId: userIds.user2, // Manager
+    approverBy: userIds.user2, // Manager
     createdBy: userIds.user1,
     isIncludePPN: true,
     subtotal: '15000000.00',
@@ -38,7 +38,7 @@ export const quotations = [
     quotationDate: new Date('2025-04-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer2,
-    approverId: userIds.user3, // Director
+    approverBy: userIds.user3, // Director
     createdBy: userIds.user2,
     isIncludePPN: false,
     subtotal: '25000000.00',
@@ -55,7 +55,7 @@ export const quotations = [
     quotationDate: new Date('2025-05-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer3,
-    approverId: userIds.user2, // Manager
+    approverBy: userIds.user2, // Manager
     createdBy: userIds.user1,
     isIncludePPN: true,
     subtotal: '35000000.00',
@@ -72,7 +72,7 @@ export const quotations = [
     quotationDate: new Date('2025-01-30'),
     validUntil: new Date('2025-02-28'),
     customerId: customerIds.customer4,
-    approverId: userIds.user3, // Director
+    approverBy: userIds.user3, // Director
     createdBy: userIds.user3,
     isIncludePPN: true,
     subtotal: '18000000.00',
@@ -89,7 +89,7 @@ export const quotations = [
     quotationDate: new Date('2025-06-15'),
     validUntil: new Date('2025-07-15'),
     customerId: customerIds.customer5,
-    approverId: userIds.user2, // Manager
+    approverBy: userIds.user2, // Manager
     createdBy: userIds.user4,
     isIncludePPN: true,
     subtotal: '42000000.00',
@@ -106,7 +106,7 @@ export const quotations = [
     quotationDate: new Date('2025-06-20'),
     validUntil: new Date('2025-07-20'),
     customerId: customerIds.customer1,
-    approverId: userIds.user3, // Director
+    approverBy: userIds.user3, // Director
     createdBy: userIds.user2,
     isIncludePPN: false,
     subtotal: '28000000.00',
@@ -123,7 +123,7 @@ export const quotations = [
     quotationDate: new Date('2025-09-10'),
     validUntil: new Date('2025-12-10'),
     customerId: customerIds.customer2,
-    approverId: userIds.user2, // Manager
+    approverBy: userIds.user2, // Manager
     createdBy: userIds.user1,
     isIncludePPN: true,
     subtotal: '32000000.00',
@@ -140,7 +140,7 @@ export const quotations = [
     quotationDate: new Date('2025-10-15'),
     validUntil: new Date('2025-11-15'),
     customerId: customerIds.customer3,
-    approverId: userIds.user2, // Manager
+    approverBy: userIds.user2, // Manager
     createdBy: userIds.user1,
     isIncludePPN: true,
     subtotal: '45000000.00',
@@ -157,7 +157,7 @@ export const quotations = [
     quotationDate: new Date('2025-10-20'),
     validUntil: new Date('2025-11-20'),
     customerId: customerIds.customer4,
-    approverId: userIds.user3, // Director
+    approverBy: userIds.user3, // Director
     createdBy: userIds.user2,
     isIncludePPN: false,
     subtotal: '22000000.00',

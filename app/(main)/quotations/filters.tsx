@@ -1,8 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { RiFilter3Fill, RiSearch2Line, RiSortDesc, RiFilterLine } from '@remixicon/react';
+import {
+  RiFilter3Fill,
+  RiFilterLine,
+  RiSearch2Line,
+  RiSortDesc,
+} from '@remixicon/react';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
+import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Kbd from '@/components/ui/kbd';
@@ -10,14 +17,14 @@ import * as SegmentedControl from '@/components/ui/segmented-control';
 import * as Select from '@/components/ui/select';
 
 import IconCmd from '~/icons/icon-cmd.svg';
-import { type QuotationStatus } from '@/lib/db/schema';
-import { cn } from '@/utils/cn';
 
-type QuotationStatusFilters = 'all' | QuotationStatus;
+type QuotationStatusFilters = 'all' | QUOTATION_STATUS;
+
+type QuotationStatus = 'all' | QUOTATION_STATUS;
 
 export interface QuotationsFilters {
   search: string;
-  status: QuotationStatusFilters;
+  status: QuotationStatus;
   sortBy: string;
   page?: number;
   limit?: number;

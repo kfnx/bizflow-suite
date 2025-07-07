@@ -28,7 +28,7 @@ export async function GET(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
-        approverId: quotations.approvedBy,
+        approvedBy: quotations.approvedBy,
         isIncludePPN: quotations.isIncludePPN,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
@@ -136,8 +136,8 @@ export async function PUT(
       if (validatedData.customerId) {
         updateData.customerId = validatedData.customerId;
       }
-      if (validatedData.approverId !== undefined) {
-        updateData.approverId = validatedData.approverId;
+      if (validatedData.approvedBy !== undefined) {
+        updateData.approvedBy = validatedData.approvedBy;
       }
       if (validatedData.isIncludePPN !== undefined) {
         updateData.isIncludePPN = validatedData.isIncludePPN;
@@ -204,7 +204,7 @@ export async function PUT(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
-        approverId: quotations.approvedBy,
+        approvedBy: quotations.approvedBy,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,

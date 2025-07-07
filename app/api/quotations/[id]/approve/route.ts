@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { quotations } from '@/lib/db/schema';
 
 export async function POST(
@@ -30,7 +31,6 @@ export async function POST(
       .select({
         id: quotations.id,
         status: quotations.status,
-        approverId: quotations.approverId,
         quotationNumber: quotations.quotationNumber,
       })
       .from(quotations)
@@ -46,26 +46,18 @@ export async function POST(
 
     const quotation = existingQuotation[0];
 
-    // Check if the current user is the assigned approver
-    if (quotation.approverId !== session.user.id) {
-      return NextResponse.json(
-        { error: 'You are not authorized to approve this quotation' },
-        { status: 403 },
-      );
-    }
-
     // Check if quotation is in 'sent' status
-    if (quotation.status !== 'draft') {
+    if (quotation.status !== QUOTATION_STATUS.SUBMITTED) {
       return NextResponse.json(
-        { error: 'Only draft quotations can be approved' },
+        { error: 'Only submmitted quotations can be approved' },
         { status: 400 },
       );
     }
 
-    // Update quotation status to 'accepted'
+    // Update quotation approver. status is not changed
     await db
       .update(quotations)
-      .set({ status: 'accepted' })
+      .set({ approvedBy: session.user.id })
       .where(eq(quotations.id, id));
 
     return NextResponse.json({
@@ -73,7 +65,7 @@ export async function POST(
       data: {
         id: quotation.id,
         quotationNumber: quotation.quotationNumber,
-        status: 'accepted',
+        approvedBy: session.user.id,
       },
     });
   } catch (error) {

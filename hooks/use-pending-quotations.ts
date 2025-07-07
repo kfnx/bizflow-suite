@@ -31,7 +31,7 @@ export type PendingQuotation = {
   termsAndConditions?: string;
   createdBy: string;
   createdByUser: string;
-  approverId: string;
+  approvedBy: string;
   createdAt: string;
   updatedAt: string;
   items: PendingQuotationItem[];

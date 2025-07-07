@@ -3,6 +3,7 @@ import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { customers, quotationItems, quotations, users } from '@/lib/db/schema';
 import {
   CreateQuotationRequest,
@@ -29,7 +30,12 @@ export async function GET(request: NextRequest) {
     // Build query conditions
     const conditions = [];
     if (status) {
-      conditions.push(eq(quotations.status, status));
+      conditions.push(
+        eq(
+          quotations.status,
+          QUOTATION_STATUS[status as keyof typeof QUOTATION_STATUS],
+        ),
+      );
     }
     if (customerId) {
       conditions.push(eq(quotations.customerId, customerId));
@@ -193,7 +199,7 @@ export async function POST(request: NextRequest) {
         tax: taxAmount.toFixed(2),
         total: total.toFixed(2),
         currency: validatedData.currency || 'IDR',
-        status: 'draft',
+        status: QUOTATION_STATUS.DRAFT,
         notes: validatedData.notes,
         termsAndConditions: validatedData.termsAndConditions,
         createdBy,

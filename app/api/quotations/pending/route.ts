@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import {
   customers,
   products,
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
         termsAndConditions: quotations.termsAndConditions,
         createdBy: quotations.createdBy,
         createdByUser: users.firstName,
-        approverId: quotations.approverId,
+        approvedBy: quotations.approvedBy,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
       })
@@ -61,8 +62,8 @@ export async function GET(request: NextRequest) {
       .leftJoin(users, eq(quotations.createdBy, users.id))
       .where(
         and(
-          eq(quotations.status, 'draft'),
-          eq(quotations.approverId, session.user.id),
+          eq(quotations.status, QUOTATION_STATUS.SUBMITTED),
+          isNull(quotations.approvedBy),
         ),
       )
       .orderBy(quotations.createdAt)
@@ -75,8 +76,8 @@ export async function GET(request: NextRequest) {
       .from(quotations)
       .where(
         and(
-          eq(quotations.status, 'draft'),
-          eq(quotations.approverId, session.user.id),
+          eq(quotations.status, QUOTATION_STATUS.SUBMITTED),
+          isNull(quotations.approvedBy),
         ),
       );
 

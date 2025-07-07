@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { quotations } from '@/lib/db/schema';
 
 interface RejectQuotationRequest {
@@ -38,7 +39,6 @@ export async function POST(
       .select({
         id: quotations.id,
         status: quotations.status,
-        approverId: quotations.approverId,
         quotationNumber: quotations.quotationNumber,
       })
       .from(quotations)
@@ -54,16 +54,8 @@ export async function POST(
 
     const quotation = existingQuotation[0];
 
-    // Check if the current user is the assigned approver
-    if (quotation.approverId !== session.user.id) {
-      return NextResponse.json(
-        { error: 'You are not authorized to reject this quotation' },
-        { status: 403 },
-      );
-    }
-
     // Check if quotation is in 'draft' status
-    if (quotation.status !== 'draft') {
+    if (quotation.status !== QUOTATION_STATUS.SUBMITTED) {
       return NextResponse.json(
         { error: 'Only draft quotations can be rejected' },
         { status: 400 },
@@ -74,7 +66,7 @@ export async function POST(
     await db
       .update(quotations)
       .set({
-        status: 'rejected',
+        status: QUOTATION_STATUS.REJECTED,
         notes: validatedData.reason,
       })
       .where(eq(quotations.id, id));

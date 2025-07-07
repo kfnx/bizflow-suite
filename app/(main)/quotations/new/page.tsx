@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
@@ -11,42 +11,20 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { type NewQuotation, type NewQuotationItem } from '@/lib/db/schema';
-
-type CreateQuotationRequest = {
-  quotationDate: Date;
-  validUntil: Date;
-  customerId: string;
-  isIncludePPN: boolean;
-  currency: string;
-  notes?: string;
-  termsAndConditions?: string;
-  status: 'draft' | 'submitted';
-  items: Array<{
-    productId: string;
-    quantity: string;
-    unitPrice: string;
-    total: string;
-    notes?: string;
-  }>;
-};
+import { QUOTATION_STATUS } from '@/lib/db/enum';
+import {
+  type CreateQuotationRequest,
+  type QuotationItem,
+} from '@/lib/validations/quotation';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
+import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
+import * as Textarea from '@/components/ui/textarea';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import Header from '@/components/header';
-import * as Textarea from '@/components/ui/textarea';
-import * as Label from '@/components/ui/label';
-
-interface QuotationItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  notes?: string;
-}
 
 interface QuotationFormData {
   quotationDate: string;
@@ -160,7 +138,10 @@ export default function NewQuotationPage() {
     return calculateSubtotal() + calculateTax();
   }, [calculateSubtotal, calculateTax]);
 
-  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'submitted') => {
+  const handleSubmit = async (
+    e: React.FormEvent,
+    status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED,
+  ) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -198,9 +179,10 @@ export default function NewQuotationPage() {
         status,
         items: formData.items.map((item) => ({
           productId: item.productId,
-          quantity: item.quantity.toString(),
-          unitPrice: item.unitPrice.toString(),
-          total: (item.quantity * item.unitPrice).toString(),
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          total: item.quantity * item.unitPrice,
           notes: item.notes,
         })),
       };
@@ -218,9 +200,10 @@ export default function NewQuotationPage() {
       }
 
       // Success feedback and navigation
-      const successMessage = status === 'draft'
-        ? 'Quotation saved as draft successfully!'
-        : 'Quotation submitted successfully!';
+      const successMessage =
+        status === 'draft'
+          ? 'Quotation saved as draft successfully!'
+          : 'Quotation submitted successfully!';
       toast.success(successMessage);
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       router.push('/quotations');
@@ -258,7 +241,7 @@ export default function NewQuotationPage() {
       <HeaderComponent />
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <form
-          onSubmit={(e) => handleSubmit(e, 'submitted')}
+          onSubmit={(e) => handleSubmit(e, QUOTATION_STATUS.SUBMITTED)}
           className='mx-auto w-full max-w-4xl space-y-8'
         >
           {/* Quotation Details */}
@@ -339,9 +322,7 @@ export default function NewQuotationPage() {
               </div>
 
               <div className='flex flex-col gap-1'>
-                <Label.Root htmlFor='currency'>
-                  Currency
-                </Label.Root>
+                <Label.Root htmlFor='currency'>Currency</Label.Root>
                 <Select.Root
                   value={formData.currency}
                   onValueChange={(value) =>
@@ -361,9 +342,7 @@ export default function NewQuotationPage() {
               </div>
 
               <div className='flex flex-col gap-1 md:col-span-2'>
-                <Label.Root htmlFor='notes'>
-                  Notes
-                </Label.Root>
+                <Label.Root htmlFor='notes'>Notes</Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Input
@@ -523,9 +502,7 @@ export default function NewQuotationPage() {
                     </div>
 
                     <div className='col-span-10 flex flex-col gap-1 md:col-span-2'>
-                      <Label.Root>
-                        Total
-                      </Label.Root>
+                      <Label.Root>Total</Label.Root>
                       <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
                         {(item.quantity * item.unitPrice).toLocaleString()}
                       </div>
@@ -545,9 +522,7 @@ export default function NewQuotationPage() {
                     </div>
 
                     <div className='col-span-12 flex flex-col gap-1'>
-                      <Label.Root htmlFor={`notes-${index}`}>
-                        Notes
-                      </Label.Root>
+                      <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
                           <Input.Input
@@ -612,7 +587,7 @@ export default function NewQuotationPage() {
             <Button.Root
               variant='neutral'
               mode='filled'
-              onClick={(e) => handleSubmit(e, 'draft')}
+              onClick={(e) => handleSubmit(e, QUOTATION_STATUS.DRAFT)}
               type='button'
               disabled={isLoading}
             >

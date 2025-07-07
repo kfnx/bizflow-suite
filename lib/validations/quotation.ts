@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 import { quotationItems, quotations } from '@/lib/db/schema';
 
+import { QUOTATION_STATUS } from '../db/enum';
+
 // Generate Zod schemas from Drizzle schema
 export const quotationItemSchema = createSelectSchema(quotationItems);
 export const quotationSchema = createSelectSchema(quotations);
@@ -32,7 +34,7 @@ export const createQuotationRequestSchema = z.object({
   quotationDate: z.string().min(1, 'Quotation date is required'),
   validUntil: z.string().min(1, 'Valid until date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
-  approverId: z.string().min(1, 'Approver ID is required'),
+  approvedBy: z.string().min(1, 'Approver ID is required'),
   isIncludePPN: z.boolean().optional().default(false),
   currency: z.string().optional().default('IDR'),
   notes: z.string().optional(),
@@ -59,23 +61,43 @@ export interface QuotationItem {
   notes?: string;
 }
 
+export interface QuotationItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  notes?: string;
+}
+
 export interface CreateQuotationRequest {
-  quotationDate: string;
-  validUntil: string;
+  quotationDate: Date;
+  validUntil: Date;
   customerId: string;
-  approverId: string;
-  isIncludePPN?: boolean;
-  currency?: string;
+  isIncludePPN: boolean;
+  currency: string;
   notes?: string;
   termsAndConditions?: string;
+  status: QUOTATION_STATUS;
   items: QuotationItem[];
 }
+
+// export interface CreateQuotationRequest {
+//   quotationDate: string;
+//   validUntil: string;
+//   customerId: string;
+//   approvedBy: string;
+//   isIncludePPN?: boolean;
+//   currency?: string;
+//   notes?: string;
+//   termsAndConditions?: string;
+//   items: QuotationItem[];
+// }
 
 export interface UpdateQuotationRequest {
   quotationDate?: string;
   validUntil?: string;
   customerId?: string;
-  approverId?: string;
+  approvedBy?: string;
   isIncludePPN?: boolean;
   currency?: string;
   notes?: string;

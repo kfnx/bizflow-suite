@@ -1,8 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   RiAddLine,
   RiArrowLeftLine,
@@ -17,11 +16,11 @@ import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
+import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
+import * as Textarea from '@/components/ui/textarea';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import Header from '@/components/header';
-import * as Textarea from '@/components/ui/textarea';
-import * as Label from '@/components/ui/label';
 
 interface QuotationItem {
   id?: string;
@@ -115,44 +114,56 @@ export default function EditQuotationPage() {
       field: keyof Omit<QuotationFormData, 'items'>,
       value: string | boolean,
     ) => {
-      setFormData((prev) => prev ? { ...prev, [field]: value } : null);
+      setFormData((prev) => (prev ? { ...prev, [field]: value } : null));
     },
     [],
   );
 
   const addItem = useCallback(() => {
-    setFormData((prev) => prev ? ({
-      ...prev,
-      items: [
-        ...prev.items,
-        {
-          productId: '',
-          productName: '',
-          quantity: 1,
-          unitPrice: 0,
-          notes: '',
-        },
-      ],
-    }) : null);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                productName: '',
+                quantity: 1,
+                unitPrice: 0,
+                notes: '',
+              },
+            ],
+          }
+        : null,
+    );
   }, []);
 
   const updateItem = useCallback(
     (index: number, field: keyof QuotationItem, value: string | number) => {
-      setFormData((prev) => prev ? ({
-        ...prev,
-        items: prev.items.map((item, i) =>
-          i === index ? { ...item, [field]: value } : item,
-        ),
-      }) : null);
+      setFormData((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
+          : null,
+      );
     },
     [],
   );
 
   const removeItem = useCallback((index: number) => {
-    setFormData((prev) => prev ? ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
-    }) : null);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index),
+          }
+        : null,
+    );
   }, []);
 
   const calculateSubtotal = useCallback(() => {
@@ -173,7 +184,10 @@ export default function EditQuotationPage() {
     return calculateSubtotal() + calculateTax();
   }, [calculateSubtotal, calculateTax]);
 
-  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'submitted') => {
+  const handleSubmit = async (
+    e: React.FormEvent,
+    status: 'draft' | 'submitted',
+  ) => {
     e.preventDefault();
     if (!formData) return;
 
@@ -212,6 +226,7 @@ export default function EditQuotationPage() {
         termsAndConditions: formData.termsAndConditions,
         items: formData.items.map((item) => ({
           productId: item.productId,
+          productName: item.productName,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           notes: item.notes,
@@ -231,9 +246,10 @@ export default function EditQuotationPage() {
       }
 
       // Success feedback and navigation
-      const successMessage = status === 'draft'
-        ? 'Quotation updated successfully!'
-        : 'Quotation updated and submitted successfully!';
+      const successMessage =
+        status === 'draft'
+          ? 'Quotation updated successfully!'
+          : 'Quotation updated and submitted successfully!';
       toast.success(successMessage);
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       router.push('/quotations');
@@ -365,9 +381,7 @@ export default function EditQuotationPage() {
               </div>
 
               <div className='flex flex-col gap-1'>
-                <Label.Root htmlFor='currency'>
-                  Currency
-                </Label.Root>
+                <Label.Root htmlFor='currency'>Currency</Label.Root>
                 <Select.Root
                   value={formData.currency}
                   onValueChange={(value) =>
@@ -387,9 +401,7 @@ export default function EditQuotationPage() {
               </div>
 
               <div className='flex flex-col gap-1 md:col-span-2'>
-                <Label.Root htmlFor='notes'>
-                  Notes
-                </Label.Root>
+                <Label.Root htmlFor='notes'>Notes</Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Input
@@ -549,9 +561,7 @@ export default function EditQuotationPage() {
                     </div>
 
                     <div className='col-span-10 flex flex-col gap-1 md:col-span-2'>
-                      <Label.Root>
-                        Total
-                      </Label.Root>
+                      <Label.Root>Total</Label.Root>
                       <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
                         {(item.quantity * item.unitPrice).toLocaleString()}
                       </div>
@@ -570,9 +580,7 @@ export default function EditQuotationPage() {
                     </div>
 
                     <div className='col-span-12 flex flex-col gap-1'>
-                      <Label.Root htmlFor={`notes-${index}`}>
-                        Notes
-                      </Label.Root>
+                      <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
                           <Input.Input

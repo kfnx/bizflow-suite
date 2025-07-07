@@ -2,6 +2,7 @@ import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
   date,
+  datetime,
   decimal,
   foreignKey,
   index,
@@ -488,23 +489,39 @@ export const imports = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    importNumber: varchar('import_number', { length: 50 }).notNull().unique(),
     supplierId: varchar('supplier_id', { length: 36 }).notNull(),
-    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     importDate: date('import_date').notNull(),
-    expectedDate: date('expected_date').notNull(),
-    subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
-    tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
-    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
-    currency: varchar('currency', { length: 3 }).default('IDR'),
-    status: varchar('status', { length: 50 }).default('pending'), // pending, received, cancelled
+    invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
+    invoiceDate: datetime('invoice_date').notNull(),
+    priceInRMB: decimal('price_in_rmb', { precision: 15, scale: 2 }).notNull(),
+    rmbToIdrRate: decimal('rmb_to_idr_rate', {
+      precision: 15,
+      scale: 2,
+    }).notNull(),
+    quantity: int('quantity').notNull(),
     notes: text('notes'),
+    productId: varchar('product_id', { length: 36 }),
+    productCategoryId: varchar('product_category_id', { length: 36 }),
+    machineTypeId: varchar('machine_type_id', { length: 36 }),
+    machineModelId: varchar('machine_model_id', { length: 36 }),
+    serialNumber: varchar('serial_number', { length: 36 }),
+    engineNumber: varchar('engine_number', { length: 36 }),
+    partNumber: varchar('part_number', { length: 36 }),
+    brand: varchar('brand', { length: 36 }),
+    UOM: varchar('uom', { length: 36 }),
+    productName: varchar('product_name', { length: 255 }),
+    batchNumber: varchar('batch_number', { length: 36 }),
+    itemDescription: text('item_description'),
+
+    // TBD
+    warehouseId: varchar('warehouse_id', { length: 36 }),
+    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    status: varchar('status', { length: 50 }).default('pending'), // pending, received, cancelled
     createdBy: varchar('created_by', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
   (table) => [
-    index('import_number_idx').on(table.importNumber),
     index('supplier_id_idx').on(table.supplierId),
     index('warehouse_id_idx').on(table.warehouseId),
     index('status_idx').on(table.status),
@@ -563,7 +580,7 @@ export const importItems = mysqlTable(
   ],
 );
 
-// Transfers table (warehouse transfers)
+// Transfers table (warehouse transfers) / stock_movements
 export const transfers = mysqlTable(
   'transfers',
   {

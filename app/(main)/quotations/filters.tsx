@@ -117,7 +117,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
       <div className='relative flex-1'>
         <Input.Root>
           <Input.Wrapper>
-            <Input.Icon as={RiSearch2Line} />
+            <RiSearch2Line className='size-4' />
             <Input.Input
               id='search-input'
               type='text'

@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQuotations } from '@/hooks/use-quotations';
+import { QuotationPreviewDrawer } from '@/components/quotation-preview-drawer';
 import {
   QuotationsTable,
   QuotationTablePagination,
@@ -19,6 +20,9 @@ export function QuotationsClient({ initialFilters }: QuotationsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<QuotationsFilters>(initialFilters);
+  const [previewQuotationId, setPreviewQuotationId] = useState<string | null>(
+    null,
+  );
   const { data } = useQuotations(filters);
 
   const handleFiltersChange = useCallback(
@@ -77,17 +81,31 @@ export function QuotationsClient({ initialFilters }: QuotationsClientProps) {
     [filters, handleFiltersChange],
   );
 
+  const handlePreview = useCallback((quotationId: string) => {
+    setPreviewQuotationId(quotationId);
+  }, []);
+
+  const handleClosePreview = useCallback(() => {
+    setPreviewQuotationId(null);
+  }, []);
+
   return (
     <>
       <Filters
         onFiltersChange={handleFiltersChange}
         initialFilters={initialFilters}
       />
-      <QuotationsTable filters={filters} />
+      <QuotationsTable filters={filters} onPreview={handlePreview} />
       <QuotationTablePagination
         pagination={data?.pagination}
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
+      />
+
+      <QuotationPreviewDrawer
+        quotationId={previewQuotationId}
+        open={!!previewQuotationId}
+        onClose={handleClosePreview}
       />
     </>
   );

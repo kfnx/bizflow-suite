@@ -35,6 +35,38 @@ export type QuotationsResponse = {
   };
 };
 
+export type QuotationItem = {
+  id: string;
+  productId: string;
+  productCode: string;
+  productName: string;
+  quantity: string;
+  unitPrice: string;
+  total: string;
+  notes?: string;
+};
+
+export type QuotationDetail = Omit<
+  Quotation,
+  'id' | 'subtotal' | 'tax' | 'total'
+> & {
+  id: string;
+  approvedBy?: string;
+  isIncludePPN: boolean;
+  subtotal: string;
+  tax: string;
+  total: string;
+  termsAndConditions?: string;
+  customerResponseDate?: string;
+  customerResponseNotes?: string;
+  customerAcceptanceInfo?: string;
+  rejectionReason?: string;
+  revisionReason?: string;
+  invoicedAt?: string;
+  invoiceId?: string;
+  items: QuotationItem[];
+};
+
 export type QuotationsFilters = {
   search?: string;
   status?: string;
@@ -42,6 +74,7 @@ export type QuotationsFilters = {
   sortBy?: string;
   page?: number;
   limit?: number;
+  ready_for_invoice?: string;
 };
 
 const fetchQuotations = async (
@@ -64,15 +97,17 @@ const fetchQuotations = async (
   return response.json();
 };
 
-const deleteQuotation = async (quotationId: string): Promise<void> => {
-  const response = await fetch(`/api/quotations/${quotationId}`, {
-    method: 'DELETE',
-  });
-
+const fetchQuotationDetail = async (
+  id: string,
+): Promise<{ data: QuotationDetail }> => {
+  const response = await fetch(`/api/quotations/${id}`);
   if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to delete quotation');
+    if (response.status === 404) {
+      throw new Error('Quotation not found');
+    }
+    throw new Error('Failed to fetch quotation details');
   }
+  return response.json();
 };
 
 const updateQuotation = async (
@@ -95,6 +130,28 @@ const updateQuotation = async (
   return response.json();
 };
 
+const sendQuotation = async (quotationId: string): Promise<void> => {
+  const response = await fetch(`/api/quotations/${quotationId}/send`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to send quotation');
+  }
+};
+
+const submitQuotation = async (quotationId: string): Promise<void> => {
+  const response = await fetch(`/api/quotations/${quotationId}/submit`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to submit quotation');
+  }
+};
+
 export function useQuotations(filters: QuotationsFilters = {}) {
   return useQuery({
     queryKey: ['quotations', filters],
@@ -102,15 +159,11 @@ export function useQuotations(filters: QuotationsFilters = {}) {
   });
 }
 
-export function useDeleteQuotation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deleteQuotation,
-    onSuccess: () => {
-      // Invalidate and refetch quotations after successful deletion
-      queryClient.invalidateQueries({ queryKey: ['quotations'] });
-    },
+export function useQuotationDetail(id: string) {
+  return useQuery({
+    queryKey: ['quotation', id],
+    queryFn: () => fetchQuotationDetail(id),
+    enabled: !!id,
   });
 }
 
@@ -129,5 +182,99 @@ export function useUpdateQuotation() {
       // Invalidate and refetch quotations after successful update
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
     },
+  });
+}
+
+export function useSendQuotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: sendQuotation,
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful send
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      queryClient.invalidateQueries({ queryKey: ['quotation'] });
+    },
+  });
+}
+
+export function useSubmitQuotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: submitQuotation,
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful submit
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      queryClient.invalidateQueries({ queryKey: ['quotation'] });
+    },
+  });
+}
+
+// Utility functions for invoice status
+export const isQuotationInvoiced = (
+  quotation: QuotationDetail | Quotation,
+): boolean => {
+  return 'invoicedAt' in quotation ? !!quotation.invoicedAt : false;
+};
+
+export const canCreateInvoice = (
+  quotation: QuotationDetail | Quotation,
+): boolean => {
+  return (
+    quotation.status === QUOTATION_STATUS.ACCEPTED &&
+    !isQuotationInvoiced(quotation)
+  );
+};
+
+// Mark quotation as invoiced
+const markQuotationAsInvoiced = async (
+  quotationId: string,
+  invoiceId: string,
+): Promise<void> => {
+  const response = await fetch(`/api/quotations/${quotationId}/mark-invoiced`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ invoiceId }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to mark quotation as invoiced');
+  }
+};
+
+export function useMarkQuotationAsInvoiced() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      quotationId,
+      invoiceId,
+    }: {
+      quotationId: string;
+      invoiceId: string;
+    }) => markQuotationAsInvoiced(quotationId, invoiceId),
+    onSuccess: () => {
+      // Invalidate and refetch quotations after marking as invoiced
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      queryClient.invalidateQueries({ queryKey: ['quotation'] });
+    },
+  });
+}
+
+// Get quotations ready for invoicing (accepted but not yet invoiced)
+export function useQuotationsReadyForInvoicing() {
+  return useQuery({
+    queryKey: ['quotations', 'ready-for-invoicing'],
+    queryFn: () =>
+      fetchQuotations({
+        status: QUOTATION_STATUS.ACCEPTED,
+        // Add a special parameter to filter non-invoiced quotations
+        ready_for_invoice: 'true',
+      }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

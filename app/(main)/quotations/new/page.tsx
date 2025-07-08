@@ -5,8 +5,8 @@ import { auth } from '@/lib/auth';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { hasPermission } from '@/lib/permissions';
 import { QuotationFormData } from '@/lib/validations/quotation';
-import * as Button from '@/components/ui/button';
 import { PermissionGate } from '@/components/auth/permission-gate';
+import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
 import QuotationForm from './quotation-form';
@@ -84,24 +84,7 @@ export default async function NewQuotationPage() {
       title='New Quotation'
       description='Create a new quotation for your customer.'
     >
-      <Button.Root variant='neutral' mode='stroke' className='hidden lg:flex'>
-        <Button.Icon>
-          <svg
-            className='size-4'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M10 19l-7-7m0 0l7-7m-7 7h18'
-            />
-          </svg>
-        </Button.Icon>
-        Back to Quotations
-      </Button.Root>
+      <BackButton href='/quotations' label='Back to Quotations' />
     </Header>
   );
 

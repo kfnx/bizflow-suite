@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 
-import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
+import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { quotations } from '@/lib/db/schema';
+
+const acceptQuotationSchema = z.object({
+  acceptanceInfo: z.string().min(1, 'Acceptance information is required'),
+  responseNotes: z.string().optional().nullable(),
+});
 
 export async function POST(
   request: NextRequest,
@@ -16,17 +22,15 @@ export async function POST(
     return session;
   }
 
-  // Check if user has manager or director role
-  const roleCheck = await requireAnyRole(request, ['manager', 'director']);
-  if (roleCheck instanceof NextResponse) {
-    return roleCheck;
-  }
-
   try {
     const db = await getDB();
     const { id } = params;
 
-    // Check if quotation exists and is assigned to the current user as approver
+    // Parse request body
+    const body = await request.json();
+    const validatedData = acceptQuotationSchema.parse(body);
+
+    // Check if quotation exists
     const existingQuotation = await db
       .select({
         id: quotations.id,
@@ -47,33 +51,49 @@ export async function POST(
     const quotation = existingQuotation[0];
 
     // Check if quotation is in 'sent' status
-    if (quotation.status !== QUOTATION_STATUS.SUBMITTED) {
+    if (quotation.status !== QUOTATION_STATUS.SENT) {
       return NextResponse.json(
-        { error: 'Only submmitted quotations can be approved' },
+        { error: 'Only sent quotations can be accepted' },
         { status: 400 },
       );
     }
 
-    // Update quotation approver
-    const status = QUOTATION_STATUS.APPROVED;
+    // Update quotation status to accepted with acceptance info
+    const status = QUOTATION_STATUS.ACCEPTED;
+    const now = new Date();
+
     await db
       .update(quotations)
-      .set({ approvedBy: session.user.id, status })
+      .set({
+        status,
+        customerResponseDate: now,
+        customerAcceptanceInfo: validatedData.acceptanceInfo,
+        customerResponseNotes: validatedData.responseNotes,
+      })
       .where(eq(quotations.id, id));
 
     return NextResponse.json({
-      message: 'Quotation approved successfully',
+      message: 'Quotation accepted successfully',
       data: {
         id: quotation.id,
         quotationNumber: quotation.quotationNumber,
-        approvedBy: session.user.id,
         status,
+        customerResponseDate: now,
+        customerAcceptanceInfo: validatedData.acceptanceInfo,
+        customerResponseNotes: validatedData.responseNotes,
       },
     });
   } catch (error) {
-    console.error('Error approving quotation:', error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 },
+      );
+    }
+
+    console.error('Error accepting quotation:', error);
     return NextResponse.json(
-      { error: 'Failed to approve quotation' },
+      { error: 'Failed to accept quotation' },
       { status: 500 },
     );
   }

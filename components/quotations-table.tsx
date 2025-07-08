@@ -9,8 +9,10 @@ import {
   RiArrowRightSLine,
   RiArrowUpSFill,
   RiCalendarLine,
+  RiEditLine,
   RiExpandUpDownFill,
   RiFileTextLine,
+  RiMailSendLine,
   RiMoreLine,
   RiUserLine,
 } from '@remixicon/react';
@@ -26,8 +28,8 @@ import {
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/date-formatter';
 import {
-  useDeleteQuotation,
   useQuotations,
+  useSendQuotation,
   type Quotation,
 } from '@/hooks/use-quotations';
 import * as Badge from '@/components/ui/badge';
@@ -81,24 +83,14 @@ const formatCurrency = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-function ActionCell({ row }: { row: any }) {
-  const deleteQuotationMutation = useDeleteQuotation();
-
-  const handleDeleteQuotation = async (quotationId: string) => {
-    if (
-      !confirm(
-        'Are you sure you want to delete this quotation? This action cannot be undone.',
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await deleteQuotationMutation.mutateAsync(quotationId);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
+function ActionCell({
+  row,
+  onPreview,
+}: {
+  row: any;
+  onPreview?: (id: string) => void;
+}) {
+  const sendQuotationMutation = useSendQuotation();
 
   const handleEditQuotation = () => {
     if (row.original.status !== 'draft') {
@@ -106,6 +98,34 @@ function ActionCell({ row }: { row: any }) {
       return;
     }
     window.location.href = `/quotations/${row.original.id}/edit`;
+  };
+
+  const handleViewDetails = () => {
+    window.location.href = `/quotations/${row.original.id}`;
+  };
+
+  const handleSend = async () => {
+    if (row.original.status !== 'approved') {
+      alert('Only approved quotations can be sent');
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to send quotation ${row.original.quotationNumber} to the customer?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await sendQuotationMutation.mutateAsync(row.original.id);
+      alert('Quotation sent successfully!');
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to send quotation',
+      );
+    }
   };
 
   return (
@@ -121,26 +141,34 @@ function ActionCell({ row }: { row: any }) {
         </Button.Root>
       </Dropdown.Trigger>
       <Dropdown.Content>
-        <Dropdown.Item>View Details</Dropdown.Item>
+        <Dropdown.Item onClick={handleViewDetails}>
+          <RiFileTextLine className='size-4' />
+          View Details
+        </Dropdown.Item>
+        {row.original.status === 'approved' && (
+          <Dropdown.Item
+            onClick={handleSend}
+            disabled={sendQuotationMutation.isPending}
+          >
+            <RiMailSendLine className='size-4' />
+            Send to Customer
+          </Dropdown.Item>
+        )}
         <Dropdown.Item
           onClick={handleEditQuotation}
           disabled={row.original.status !== 'draft'}
         >
+          <RiEditLine className='size-4' />
           Edit Quotation
-        </Dropdown.Item>
-        <Dropdown.Separator />
-        <Dropdown.Item
-          onClick={() => handleDeleteQuotation(row.original.id)}
-          className='text-red-600'
-        >
-          Delete
         </Dropdown.Item>
       </Dropdown.Content>
     </Dropdown.Root>
   );
 }
 
-const columns: ColumnDef<Quotation>[] = [
+const createColumns = (
+  onPreview?: (id: string) => void,
+): ColumnDef<Quotation>[] => [
   {
     id: 'quotation',
     accessorKey: 'quotationNumber',
@@ -317,7 +345,7 @@ const columns: ColumnDef<Quotation>[] = [
   {
     id: 'actions',
     enableHiding: false,
-    cell: ActionCell,
+    cell: ({ row }) => <ActionCell row={row} onPreview={onPreview} />,
     meta: {
       className: 'px-5 w-0',
     },
@@ -333,11 +361,23 @@ interface QuotationsTableProps {
     page?: number;
     limit?: number;
   };
+  onPreview?: (id: string) => void;
 }
 
-export function QuotationsTable({ filters }: QuotationsTableProps) {
+export function QuotationsTable({ filters, onPreview }: QuotationsTableProps) {
   const { data, isLoading, error } = useQuotations(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+
+  const columns = React.useMemo(() => createColumns(onPreview), [onPreview]);
+
+  const handleRowClick = React.useCallback(
+    (quotationId: string) => {
+      if (onPreview) {
+        onPreview(quotationId);
+      }
+    },
+    [onPreview],
+  );
 
   const table = useReactTable({
     data: data?.data || [],
@@ -413,14 +453,24 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
         {table.getRowModel().rows?.length > 0 &&
           table.getRowModel().rows.map((row, i, arr) => (
             <React.Fragment key={row.id}>
-              <Table.Row data-state={row.getIsSelected() && 'selected'}>
+              <Table.Row
+                data-state={row.getIsSelected() && 'selected'}
+                className='hover:bg-gray-50 cursor-pointer'
+                onClick={() => handleRowClick(row.original.id)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <Table.Cell
                     key={cell.id}
                     className={cn(
                       'h-12',
                       cell.column.columnDef.meta?.className,
+                      cell.column.id === 'actions' && 'cursor-default',
                     )}
+                    onClick={
+                      cell.column.id === 'actions'
+                        ? (e) => e.stopPropagation()
+                        : undefined
+                    }
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Cell>

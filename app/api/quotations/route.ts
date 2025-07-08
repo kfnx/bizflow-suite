@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const customerId = searchParams.get('customerId');
     const sortBy = searchParams.get('sortBy');
+    const readyForInvoice = searchParams.get('ready_for_invoice');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
@@ -51,6 +52,10 @@ export async function GET(request: NextRequest) {
           like(quotations.notes, `%${search}%`),
         ),
       );
+    }
+    if (readyForInvoice === 'true') {
+      // Filter for quotations that are accepted but not yet invoiced
+      conditions.push(isNull(quotations.invoicedAt));
     }
 
     // Build order by clause

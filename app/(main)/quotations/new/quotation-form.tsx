@@ -333,7 +333,7 @@ export default function QuotationForm({
             onClick={addItem}
             type='button'
           >
-            <Button.Icon as={RiAddLine} />
+            <RiAddLine className='size-4' />
             Add Item
           </Button.Root>
         </div>
@@ -435,7 +435,7 @@ export default function QuotationForm({
                     type='button'
                     className='w-full'
                   >
-                    <Button.Icon as={RiDeleteBinLine} />
+                    <RiDeleteBinLine className='size-4' />
                   </Button.Root>
                 </div>
 

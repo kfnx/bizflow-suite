@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import {
   RiAddLine,
@@ -302,15 +303,17 @@ export default function EditQuotationPage() {
       title='Edit Quotation'
       description='Edit your draft quotation.'
     >
-      <Button.Root
-        variant='neutral'
-        mode='stroke'
-        onClick={() => router.push('/quotations')}
-        className='hidden lg:flex'
-      >
-        <Button.Icon as={RiArrowLeftLine} />
-        Back to Quotations
-      </Button.Root>
+      <Link href='/quotations'>
+        <Button.Root
+          variant='neutral'
+          mode='stroke'
+          className='hidden lg:flex'
+          asChild
+        >
+          <RiArrowLeftLine className='size-4' />
+          Back to Quotations
+        </Button.Root>
+      </Link>
     </Header>
   );
 
@@ -481,7 +484,7 @@ export default function EditQuotationPage() {
                 onClick={addItem}
                 type='button'
               >
-                <Button.Icon as={RiAddLine} />
+                <RiAddLine className='size-4' />
                 Add Item
               </Button.Root>
             </div>
@@ -592,7 +595,7 @@ export default function EditQuotationPage() {
                         type='button'
                         className='w-full'
                       >
-                        <Button.Icon as={RiDeleteBinLine} />
+                        <RiDeleteBinLine className='size-4' />
                       </Button.Root>
                     </div>
 

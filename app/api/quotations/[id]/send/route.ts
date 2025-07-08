@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
-import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
+import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { quotations } from '@/lib/db/schema';
@@ -16,17 +16,11 @@ export async function POST(
     return session;
   }
 
-  // Check if user has manager or director role
-  const roleCheck = await requireAnyRole(request, ['manager', 'director']);
-  if (roleCheck instanceof NextResponse) {
-    return roleCheck;
-  }
-
   try {
     const db = await getDB();
     const { id } = params;
 
-    // Check if quotation exists and is assigned to the current user as approver
+    // Check if quotation exists
     const existingQuotation = await db
       .select({
         id: quotations.id,
@@ -46,34 +40,30 @@ export async function POST(
 
     const quotation = existingQuotation[0];
 
-    // Check if quotation is in 'sent' status
-    if (quotation.status !== QUOTATION_STATUS.SUBMITTED) {
+    // Check if quotation is in 'approved' status
+    if (quotation.status !== QUOTATION_STATUS.APPROVED) {
       return NextResponse.json(
-        { error: 'Only submmitted quotations can be approved' },
+        { error: 'Only approved quotations can be sent' },
         { status: 400 },
       );
     }
 
-    // Update quotation approver
-    const status = QUOTATION_STATUS.APPROVED;
-    await db
-      .update(quotations)
-      .set({ approvedBy: session.user.id, status })
-      .where(eq(quotations.id, id));
+    // Update quotation status to sent
+    const status = QUOTATION_STATUS.SENT;
+    await db.update(quotations).set({ status }).where(eq(quotations.id, id));
 
     return NextResponse.json({
-      message: 'Quotation approved successfully',
+      message: 'Quotation sent successfully',
       data: {
         id: quotation.id,
         quotationNumber: quotation.quotationNumber,
-        approvedBy: session.user.id,
         status,
       },
     });
   } catch (error) {
-    console.error('Error approving quotation:', error);
+    console.error('Error sending quotation:', error);
     return NextResponse.json(
-      { error: 'Failed to approve quotation' },
+      { error: 'Failed to send quotation' },
       { status: 500 },
     );
   }

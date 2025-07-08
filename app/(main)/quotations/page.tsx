@@ -1,27 +1,32 @@
-'use client';
-
-import { useCallback, useState } from 'react';
+import { Suspense } from 'react';
 import { RiHistoryLine } from '@remixicon/react';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
-import {
-  QuotationsTable,
-  QuotationTablePagination,
-} from '@/components/quotations-table';
 
-import { Filters, type QuotationsFilters } from './filters';
+import { QuotationsErrorBoundary } from './error-boundary';
+import { QuotationsClient } from './quotations-client';
+import { QuotationsTableSkeleton } from './quotations-skeleton';
 
-export default function PageQuotations() {
-  const [filters, setFilters] = useState<QuotationsFilters>({
-    search: '',
-    status: 'all',
-    sortBy: '',
-  });
+interface PageProps {
+  searchParams?: {
+    search?: string;
+    status?: string;
+    sortBy?: string;
+    page?: string;
+    limit?: string;
+  };
+}
 
-  const handleFiltersChange = useCallback((newFilters: QuotationsFilters) => {
-    setFilters(newFilters);
-  }, []);
+export default function PageQuotations({ searchParams }: PageProps) {
+  const initialFilters = {
+    search: searchParams?.search || '',
+    status: (searchParams?.status || 'all') as 'all' | QUOTATION_STATUS,
+    sortBy: searchParams?.sortBy || 'newest-first',
+    page: parseInt(searchParams?.page || '1'),
+    limit: parseInt(searchParams?.limit || '10'),
+  };
 
   return (
     <>
@@ -38,9 +43,11 @@ export default function PageQuotations() {
       </Header>
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
-        <Filters onFiltersChange={handleFiltersChange} />
-        <QuotationsTable filters={filters} />
-        <QuotationTablePagination />
+        <QuotationsErrorBoundary>
+          <Suspense fallback={<QuotationsTableSkeleton />}>
+            <QuotationsClient initialFilters={initialFilters} />
+          </Suspense>
+        </QuotationsErrorBoundary>
       </div>
     </>
   );

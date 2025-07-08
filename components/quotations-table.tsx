@@ -434,7 +434,91 @@ export function QuotationsTable({ filters }: QuotationsTableProps) {
   );
 }
 
-export function QuotationTablePagination() {
+interface QuotationTablePaginationProps {
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
+}
+
+export function QuotationTablePagination({
+  pagination,
+  onPageChange,
+  onLimitChange,
+}: QuotationTablePaginationProps) {
+  const handlePreviousPage = React.useCallback(() => {
+    if (pagination && pagination.page > 1) {
+      onPageChange?.(pagination.page - 1);
+    }
+  }, [pagination, onPageChange]);
+
+  const handleNextPage = React.useCallback(() => {
+    if (pagination && pagination.page < pagination.totalPages) {
+      onPageChange?.(pagination.page + 1);
+    }
+  }, [pagination, onPageChange]);
+
+  const handlePageSelect = React.useCallback(
+    (selectedPage: number) => {
+      onPageChange?.(selectedPage);
+    },
+    [onPageChange],
+  );
+
+  const handleLimitSelect = React.useCallback(
+    (value: string) => {
+      onLimitChange?.(parseInt(value));
+    },
+    [onLimitChange],
+  );
+
+  // Generate page numbers to display
+  const pageNumbers = React.useMemo(() => {
+    if (!pagination) return [];
+
+    const { page, totalPages } = pagination;
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (page <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (page >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = page - 1; i <= page + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  }, [pagination]);
+
+  if (!pagination) return null;
+
+  const { page, limit, total, totalPages } = pagination;
+
   return (
     <div className='mt-auto'>
       <div className='mt-4 flex items-center justify-between py-4 lg:hidden'>
@@ -443,58 +527,86 @@ export function QuotationTablePagination() {
           mode='stroke'
           size='xsmall'
           className='w-28'
+          onClick={handlePreviousPage}
+          disabled={page <= 1}
         >
           Previous
         </Button.Root>
         <span className='whitespace-nowrap text-center text-paragraph-sm text-text-sub-600'>
-          Page 2 of 16
+          Page {page} of {totalPages}
         </span>
         <Button.Root
           variant='neutral'
           mode='stroke'
           size='xsmall'
           className='w-28'
+          onClick={handleNextPage}
+          disabled={page >= totalPages}
         >
           Next
         </Button.Root>
       </div>
       <div className='mt-10 hidden items-center gap-3 lg:flex'>
         <span className='flex-1 whitespace-nowrap text-paragraph-sm text-text-sub-600'>
-          Page 2 of 16
+          Page {page} of {totalPages} ({total} total)
         </span>
 
         <Pagination.Root>
-          <Pagination.NavButton>
+          <Pagination.NavButton
+            onClick={() => handlePageSelect(1)}
+            disabled={page <= 1}
+          >
             <Pagination.NavIcon as={RiArrowLeftDoubleLine} />
           </Pagination.NavButton>
-          <Pagination.NavButton>
+          <Pagination.NavButton
+            onClick={handlePreviousPage}
+            disabled={page <= 1}
+          >
             <Pagination.NavIcon as={RiArrowLeftSLine} />
           </Pagination.NavButton>
-          <Pagination.Item>1</Pagination.Item>
-          <Pagination.Item>2</Pagination.Item>
-          <Pagination.Item>3</Pagination.Item>
-          <Pagination.Item current>4</Pagination.Item>
-          <Pagination.Item>5</Pagination.Item>
-          <Pagination.Item>...</Pagination.Item>
-          <Pagination.Item>16</Pagination.Item>
-          <Pagination.NavButton>
-            <Pagination.NavIcon as={RiArrowRightDoubleLine} />
-          </Pagination.NavButton>
-          <Pagination.NavButton>
+
+          {pageNumbers.map((pageNum, index) =>
+            pageNum === '...' ? (
+              <Pagination.Item key={`ellipsis-${index}`}>...</Pagination.Item>
+            ) : (
+              <Pagination.Item
+                key={pageNum}
+                current={pageNum === page}
+                onClick={() => handlePageSelect(pageNum as number)}
+              >
+                {pageNum}
+              </Pagination.Item>
+            ),
+          )}
+
+          <Pagination.NavButton
+            onClick={handleNextPage}
+            disabled={page >= totalPages}
+          >
             <Pagination.NavIcon as={RiArrowRightSLine} />
+          </Pagination.NavButton>
+          <Pagination.NavButton
+            onClick={() => handlePageSelect(totalPages)}
+            disabled={page >= totalPages}
+          >
+            <Pagination.NavIcon as={RiArrowRightDoubleLine} />
           </Pagination.NavButton>
         </Pagination.Root>
 
         <div className='flex flex-1 justify-end'>
-          <Select.Root size='xsmall' defaultValue='7'>
+          <Select.Root
+            size='xsmall'
+            value={limit.toString()}
+            onValueChange={handleLimitSelect}
+          >
             <Select.Trigger className='w-auto'>
               <Select.Value />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value={'7'}>7 / page</Select.Item>
-              <Select.Item value={'15'}>15 / page</Select.Item>
-              <Select.Item value={'50'}>50 / page</Select.Item>
-              <Select.Item value={'100'}>100 / page</Select.Item>
+              <Select.Item value='10'>10 / page</Select.Item>
+              <Select.Item value='25'>25 / page</Select.Item>
+              <Select.Item value='50'>50 / page</Select.Item>
+              <Select.Item value='100'>100 / page</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>

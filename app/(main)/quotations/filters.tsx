@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   RiFilter3Fill,
   RiFilterLine,
@@ -13,7 +13,6 @@ import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Kbd from '@/components/ui/kbd';
-import * as SegmentedControl from '@/components/ui/segmented-control';
 import * as Select from '@/components/ui/select';
 
 import IconCmd from '~/icons/icon-cmd.svg';
@@ -32,16 +31,19 @@ export interface QuotationsFilters {
 
 interface FiltersProps {
   onFiltersChange?: (filters: QuotationsFilters) => void;
+  initialFilters?: QuotationsFilters;
 }
 
-export function Filters({ onFiltersChange }: FiltersProps) {
-  const [filters, setFilters] = useState<QuotationsFilters>({
-    search: '',
-    status: 'all',
-    sortBy: 'newest-first',
-    page: 1,
-    limit: 10,
-  });
+export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
+  const [filters, setFilters] = useState<QuotationsFilters>(
+    initialFilters || {
+      search: '',
+      status: 'all',
+      sortBy: 'newest-first',
+      page: 1,
+      limit: 10,
+    },
+  );
 
   const handleFiltersChange = useCallback(
     (newFilters: Partial<QuotationsFilters>) => {
@@ -87,12 +89,27 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const filterActive =
-    filters.search ||
-    filters.status !== 'all' ||
-    filters.sortBy !== 'newest-first' ||
-    filters.page !== 1 ||
-    filters.limit !== 10;
+  const filterActive = useMemo(
+    () =>
+      filters.search ||
+      filters.status !== 'all' ||
+      filters.sortBy !== 'newest-first' ||
+      filters.page !== 1 ||
+      filters.limit !== 10,
+    [filters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    const clearedFilters = {
+      search: '',
+      status: 'all' as QuotationStatusFilters,
+      sortBy: 'newest-first',
+      page: 1,
+      limit: 10,
+    };
+    setFilters(clearedFilters);
+    onFiltersChange?.(clearedFilters);
+  }, [onFiltersChange]);
 
   return (
     <div className='flex justify-between gap-4'>
@@ -170,17 +187,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
         <Button.Root
           mode='ghost'
           size='xsmall'
-          onClick={() => {
-            const clearedFilters = {
-              search: '',
-              status: 'all' as QuotationStatusFilters,
-              sortBy: 'newest-first',
-              page: 1,
-              limit: 10,
-            };
-            setFilters(clearedFilters);
-            onFiltersChange?.(clearedFilters);
-          }}
+          onClick={handleClearFilters}
           className={cn(
             'transition-opacity',
             filterActive ? 'opacity-100' : 'pointer-events-none opacity-0',

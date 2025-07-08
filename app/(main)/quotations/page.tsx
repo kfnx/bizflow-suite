@@ -1,4 +1,7 @@
-import { Suspense } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { RiHistoryLine } from '@remixicon/react';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
@@ -7,26 +10,28 @@ import Header from '@/components/header';
 
 import { QuotationsErrorBoundary } from './error-boundary';
 import { QuotationsClient } from './quotations-client';
-import { QuotationsTableSkeleton } from './quotations-skeleton';
 
-interface PageProps {
-  searchParams?: {
-    search?: string;
-    status?: string;
-    sortBy?: string;
-    page?: string;
-    limit?: string;
-  };
-}
+export default function PageQuotations() {
+  const searchParams = useSearchParams();
+  const [initialFilters, setInitialFilters] = useState({
+    search: '',
+    status: 'all' as 'all' | QUOTATION_STATUS,
+    sortBy: 'newest-first',
+    page: 1,
+    limit: 10,
+  });
 
-export default function PageQuotations({ searchParams }: PageProps) {
-  const initialFilters = {
-    search: searchParams?.search || '',
-    status: (searchParams?.status || 'all') as 'all' | QUOTATION_STATUS,
-    sortBy: searchParams?.sortBy || 'newest-first',
-    page: parseInt(searchParams?.page || '1'),
-    limit: parseInt(searchParams?.limit || '10'),
-  };
+  useEffect(() => {
+    setInitialFilters({
+      search: searchParams?.get('search') || '',
+      status: (searchParams?.get('status') || 'all') as
+        | 'all'
+        | QUOTATION_STATUS,
+      sortBy: searchParams?.get('sortBy') || 'newest-first',
+      page: parseInt(searchParams?.get('page') || '1'),
+      limit: parseInt(searchParams?.get('limit') || '10'),
+    });
+  }, [searchParams]);
 
   return (
     <>
@@ -44,9 +49,7 @@ export default function PageQuotations({ searchParams }: PageProps) {
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
         <QuotationsErrorBoundary>
-          <Suspense fallback={<QuotationsTableSkeleton />}>
-            <QuotationsClient initialFilters={initialFilters} />
-          </Suspense>
+          <QuotationsClient initialFilters={initialFilters} />
         </QuotationsErrorBoundary>
       </div>
     </>

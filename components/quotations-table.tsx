@@ -32,12 +32,12 @@ import {
   useSendQuotation,
   type Quotation,
 } from '@/hooks/use-quotations';
-import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
+import { QuotationStatusBadge } from '@/components/quotation-status-badge';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -45,34 +45,6 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'desc')
     return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
-};
-
-const statusConfig = {
-  draft: {
-    label: 'Draft',
-    variant: 'light' as const,
-    color: 'gray' as const,
-  },
-  submitted: {
-    label: 'Submitted',
-    variant: 'light' as const,
-    color: 'blue' as const,
-  },
-  sent: {
-    label: 'Sent',
-    variant: 'light' as const,
-    color: 'blue' as const,
-  },
-  accepted: {
-    label: 'Accepted',
-    variant: 'light' as const,
-    color: 'green' as const,
-  },
-  rejected: {
-    label: 'Rejected',
-    variant: 'light' as const,
-    color: 'red' as const,
-  },
 };
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -307,12 +279,11 @@ const createColumns = (
       </div>
     ),
     cell: ({ row }) => {
-      const status =
-        statusConfig[row.original.status as keyof typeof statusConfig];
       return (
-        <Badge.Root variant={status.variant} color={status.color} size='medium'>
-          {status.label}
-        </Badge.Root>
+        <QuotationStatusBadge
+          status={row.original.status as any}
+          size='medium'
+        />
       );
     },
   },

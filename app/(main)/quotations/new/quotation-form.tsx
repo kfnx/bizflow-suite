@@ -15,6 +15,7 @@ import {
 } from '@/lib/validations/quotation';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
+import { useQuotationNumber } from '@/hooks/use-quotation-number';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -24,13 +25,9 @@ import QuotationNumberDisplay from '@/components/quotation-number-display';
 
 interface QuotationFormProps {
   initialFormData: QuotationFormData;
-  quotationNumber: string;
 }
 
-export default function QuotationForm({
-  initialFormData,
-  quotationNumber,
-}: QuotationFormProps) {
+export default function QuotationForm({ initialFormData }: QuotationFormProps) {
   const [formData, setFormData] = useState<QuotationFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,6 +37,8 @@ export default function QuotationForm({
   // Fetch data for form options
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
+  const { data: quotationNumber, isLoading: isLoadingQuotationNumber } =
+    useQuotationNumber();
 
   const handleInputChange = useCallback(
     (
@@ -184,6 +183,11 @@ export default function QuotationForm({
       setIsLoading(false);
     }
   };
+
+  // Show loading state while fetching quotation number
+  if (isLoadingQuotationNumber || !quotationNumber) {
+    return <div>Loading quotation number...</div>;
+  }
 
   return (
     <form

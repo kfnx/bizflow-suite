@@ -7,6 +7,7 @@ import {
   RiExternalLinkLine,
   RiLoader4Line,
   RiMailSendLine,
+  RiSendPlaneLine,
 } from '@remixicon/react';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
@@ -17,9 +18,9 @@ import {
   useSubmitQuotation,
   type QuotationDetail,
 } from '@/hooks/use-quotations';
-import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Drawer from '@/components/ui/drawer';
+import { QuotationStatusBadge } from '@/components/quotation-status-badge';
 
 import { Asterisk } from './ui/label';
 
@@ -28,34 +29,6 @@ interface QuotationPreviewDrawerProps {
   open: boolean;
   onClose: () => void;
 }
-
-const statusConfig = {
-  draft: {
-    label: 'Draft',
-    variant: 'light' as const,
-    color: 'gray' as const,
-  },
-  submitted: {
-    label: 'Submitted',
-    variant: 'light' as const,
-    color: 'blue' as const,
-  },
-  sent: {
-    label: 'Sent',
-    variant: 'light' as const,
-    color: 'blue' as const,
-  },
-  accepted: {
-    label: 'Accepted',
-    variant: 'light' as const,
-    color: 'green' as const,
-  },
-  rejected: {
-    label: 'Rejected',
-    variant: 'light' as const,
-    color: 'red' as const,
-  },
-};
 
 const formatCurrency = (amount: string, currency: string) => {
   const numAmount = parseFloat(amount);
@@ -71,14 +44,11 @@ function QuotationPreviewContent({
 }: {
   quotation: QuotationDetail;
 }) {
-  const status = statusConfig[quotation.status as keyof typeof statusConfig];
   const sendQuotationMutation = useSendQuotation();
   const submitQuotationMutation = useSubmitQuotation();
 
   const handleViewFull = () => {
-    const currentParams = new URLSearchParams(window.location.search);
-    const backUrl = `/quotations?${currentParams.toString()}`;
-    window.location.href = `/quotations/${quotation.id}?back=${encodeURIComponent(backUrl)}`;
+    window.location.href = `/quotations/${quotation.id}`;
   };
 
   const handleEdit = () => {
@@ -150,13 +120,10 @@ function QuotationPreviewContent({
               {quotation.customerName} • {formatDate(quotation.quotationDate)}
             </p>
           </div>
-          <Badge.Root
-            variant={status.variant}
-            color={status.color}
+          <QuotationStatusBadge
+            status={quotation.status as any}
             size='medium'
-          >
-            {status.label}
-          </Badge.Root>
+          />
         </div>
 
         {quotation.status === QUOTATION_STATUS.SUBMITTED && (
@@ -196,12 +163,12 @@ function QuotationPreviewContent({
                 Edit
               </Button.Root>
               <Button.Root
-                variant='neutral'
+                variant='primary'
                 mode='stroke'
                 size='small'
                 onClick={handleSubmit}
               >
-                <RiEditLine className='size-4' />
+                <RiSendPlaneLine className='size-4' />
                 Submit
               </Button.Root>
             </>
@@ -335,7 +302,9 @@ export function QuotationPreviewDrawer({
       <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
         {/* Header */}
         <Drawer.Header>
-          <h1 className='text-lg text-gray-900 font-semibold'>Quick Preview</h1>
+          <h1 className='text-lg text-gray-900 w-full font-semibold'>
+            Quick Preview
+          </h1>
         </Drawer.Header>
 
         {/* Content */}

@@ -22,6 +22,7 @@ import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { PermissionGate } from '@/components/auth/permission-gate';
+import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
 interface QuotationItem {
@@ -303,17 +304,7 @@ export default function EditQuotationPage() {
       title='Edit Quotation'
       description='Edit your draft quotation.'
     >
-      <Link href='/quotations'>
-        <Button.Root
-          variant='neutral'
-          mode='stroke'
-          className='hidden lg:flex'
-          asChild
-        >
-          <RiArrowLeftLine className='size-4' />
-          Back to Quotations
-        </Button.Root>
-      </Link>
+      <BackButton href='/quotations' label='Back to Quotations' />
     </Header>
   );
 

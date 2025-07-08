@@ -1,8 +1,6 @@
 'use client';
 
 import { cnExt } from '@/utils/cn';
-import NotificationButton from '@/components/notification-button';
-import { SearchMenuButton } from '@/components/search';
 
 export default function Header({
   children,

@@ -1,7 +1,9 @@
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
+'use client';
 
-import { auth } from '@/lib/auth';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { hasPermission } from '@/lib/permissions';
 import { QuotationFormData } from '@/lib/validations/quotation';
@@ -24,43 +26,32 @@ const initialFormData: QuotationFormData = {
   items: [],
 };
 
-async function getQuotationNumber(): Promise<string | null> {
-  try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/quotations/preview-number`, {
-      cache: 'no-store', // Disable caching to get fresh number
-    });
+export default function NewQuotationPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-    if (!response.ok) {
-      return null;
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (!session?.user) {
+      router.push('/login');
+      return;
     }
 
-    const data = await response.json();
-    return data.data.quotationNumber;
-  } catch (error) {
-    console.error('Error fetching quotation number:', error);
-    return null;
+    // Check permission
+    const userHasPermission = hasPermission(
+      session.user.role,
+      'quotations:create',
+    );
+    if (!userHasPermission) {
+      router.push('/unauthorized');
+      return;
+    }
+  }, [session, status, router]);
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
   }
-}
-
-export default async function NewQuotationPage() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect('/login');
-  }
-
-  // Check permission
-  const userHasPermission = hasPermission(
-    session.user.role,
-    'quotations:create',
-  );
-  if (!userHasPermission) {
-    redirect('/unauthorized');
-  }
-
-  // Fetch quotation number server-side
-  const quotationNumber = await getQuotationNumber();
 
   const HeaderComponent = () => (
     <Header
@@ -92,12 +83,7 @@ export default async function NewQuotationPage() {
     <PermissionGate permission='quotations:create'>
       <HeaderComponent />
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <Suspense fallback={<div>Loading...</div>}>
-          <QuotationForm
-            initialFormData={initialFormData}
-            quotationNumber={quotationNumber || ''}
-          />
-        </Suspense>
+        <QuotationForm initialFormData={initialFormData} />
       </div>
     </PermissionGate>
   );

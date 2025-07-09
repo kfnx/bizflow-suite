@@ -5,10 +5,13 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { quotations } from '@/lib/db/schema';
+import { invoices, quotations } from '@/lib/db/schema';
 
 const markInvoicedSchema = z.object({
-  invoiceId: z.string().min(1, 'Invoice ID is required'),
+  invoiceNumber: z.string().min(1, 'Invoice number is required'),
+  invoiceDate: z.string().min(1, 'Invoice date is required'),
+  dueDate: z.string().min(1, 'Due date is required'),
+  notes: z.string().optional().nullable(),
 });
 
 export async function POST(
@@ -29,12 +32,17 @@ export async function POST(
     const body = await request.json();
     const validatedData = markInvoicedSchema.parse(body);
 
-    // Check if quotation exists
+    // Check if quotation exists and get details for invoice creation
     const existingQuotation = await db
       .select({
         id: quotations.id,
         status: quotations.status,
         quotationNumber: quotations.quotationNumber,
+        customerId: quotations.customerId,
+        subtotal: quotations.subtotal,
+        tax: quotations.tax,
+        total: quotations.total,
+        currency: quotations.currency,
         invoicedAt: quotations.invoicedAt,
       })
       .from(quotations)
@@ -66,24 +74,58 @@ export async function POST(
       );
     }
 
-    // Mark quotation as invoiced
-    const now = new Date();
+    // Create invoice and mark quotation as invoiced in a transaction
+    const result = await db.transaction(async (tx) => {
+      const now = new Date();
 
-    await db
-      .update(quotations)
-      .set({
-        invoicedAt: now,
-        invoiceId: validatedData.invoiceId,
-      })
-      .where(eq(quotations.id, id));
+      // Create invoice record
+      const invoiceData = {
+        invoiceNumber: validatedData.invoiceNumber,
+        quotationId: quotation.id,
+        invoiceDate: new Date(validatedData.invoiceDate),
+        dueDate: new Date(validatedData.dueDate),
+        customerId: quotation.customerId!,
+        subtotal: quotation.subtotal || '0.00',
+        tax: quotation.tax || '0.00',
+        total: quotation.total || '0.00',
+        currency: quotation.currency || 'IDR',
+        status: 'draft' as const,
+        notes: validatedData.notes || `Generated from quotation ${quotation.quotationNumber}`,
+        createdBy: session.user.id,
+      };
+
+      await tx.insert(invoices).values(invoiceData);
+
+      // Get the created invoice
+      const createdInvoice = await tx
+        .select({ id: invoices.id })
+        .from(invoices)
+        .where(eq(invoices.invoiceNumber, validatedData.invoiceNumber))
+        .limit(1);
+
+      const invoiceId = createdInvoice[0].id;
+
+      // Update quotation with invoice reference
+      await tx
+        .update(quotations)
+        .set({
+          invoicedAt: now,
+          invoiceId: invoiceId,
+          notes: validatedData.notes || null,
+        })
+        .where(eq(quotations.id, id));
+
+      return { invoiceId, invoicedAt: now };
+    });
 
     return NextResponse.json({
-      message: 'Quotation marked as invoiced successfully',
+      message: 'Invoice created and quotation marked as invoiced successfully',
       data: {
         id: quotation.id,
         quotationNumber: quotation.quotationNumber,
-        invoicedAt: now,
-        invoiceId: validatedData.invoiceId,
+        invoicedAt: result.invoicedAt,
+        invoiceId: result.invoiceId,
+        invoiceNumber: validatedData.invoiceNumber,
       },
     });
   } catch (error) {

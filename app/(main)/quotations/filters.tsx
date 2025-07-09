@@ -148,6 +148,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
               <Select.Item value='all'>All Status</Select.Item>
               <Select.Item value='draft'>Draft</Select.Item>
               <Select.Item value='submitted'>Submitted</Select.Item>
+              <Select.Item value='approved'>Approved</Select.Item>
               <Select.Item value='sent'>Sent</Select.Item>
               <Select.Item value='accepted'>Accepted</Select.Item>
               <Select.Item value='rejected'>Rejected</Select.Item>

@@ -16,7 +16,7 @@ export function QuotationDetailClient({ id }: QuotationDetailClientProps) {
   if (isLoading) {
     return (
       <div className='w-full p-8 text-center'>
-        <p className='text-red-600'>Loading...</p>
+        <p className='text-text-sub-600'>Loading...</p>
       </div>
     );
   }
@@ -32,7 +32,7 @@ export function QuotationDetailClient({ id }: QuotationDetailClientProps) {
   if (!data?.data) {
     return (
       <div className='w-full p-8 text-center'>
-        <p className='text-gray-500'>Quotation not found</p>
+        <p className='text-text-sub-600'>Quotation not found</p>
       </div>
     );
   }

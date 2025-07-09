@@ -32,13 +32,14 @@ export async function GET(request: NextRequest) {
 
     // Build query conditions
     const conditions = [];
-    if (status) {
-      conditions.push(
-        eq(
-          quotations.status,
-          QUOTATION_STATUS[status as keyof typeof QUOTATION_STATUS],
-        ),
-      );
+    if (status && status !== 'all') {
+      const statusValue =
+        QUOTATION_STATUS[status.toUpperCase() as keyof typeof QUOTATION_STATUS];
+      if (statusValue) {
+        conditions.push(eq(quotations.status, statusValue));
+      } else {
+        console.warn('Invalid status value:', status);
+      }
     }
     if (customerId) {
       conditions.push(eq(quotations.customerId, customerId));
@@ -62,11 +63,25 @@ export async function GET(request: NextRequest) {
     let orderByClause = desc(quotations.createdAt);
     if (sortBy) {
       switch (sortBy) {
+        case 'newest-first':
+          orderByClause = desc(quotations.createdAt);
+          break;
+        case 'oldest-first':
+          orderByClause = asc(quotations.createdAt);
+          break;
         case 'date-asc':
+        case 'quotation-date-asc':
           orderByClause = asc(quotations.quotationDate);
           break;
         case 'date-desc':
+        case 'quotation-date-desc':
           orderByClause = desc(quotations.quotationDate);
+          break;
+        case 'valid-until-asc':
+          orderByClause = asc(quotations.validUntil);
+          break;
+        case 'valid-until-desc':
+          orderByClause = desc(quotations.validUntil);
           break;
         case 'number-asc':
           orderByClause = asc(quotations.quotationNumber);
@@ -151,7 +166,6 @@ export async function POST(request: NextRequest) {
 
     // Validate request body using Zod schema
     const validationResult = createQuotationRequestSchema.safeParse(body);
-    console.log('🚀 ~ POST ~ body:', body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -194,7 +208,6 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
-      console.log('createdBy', createdBy);
 
       // Create quotation (ID will be auto-generated)
       const quotationData = {

@@ -27,6 +27,7 @@ import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 
 import { AcceptQuotationModal } from '../../components/accept-quotation-modal';
+import { MarkAsInvoiceModal } from '../../components/mark-as-invoice-modal';
 import { RejectQuotationModal } from '../../components/reject-quotation-modal';
 import { ReviseQuotationModal } from '../../components/revise-quotation-modal';
 
@@ -88,6 +89,8 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isReviseModalOpen, setIsReviseModalOpen] = useState(false);
+  const [isMarkAsInvoiceModalOpen, setIsMarkAsInvoiceModalOpen] =
+    useState(false);
 
   const handleAccept = () => {
     setIsAcceptModalOpen(true);
@@ -99,6 +102,10 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
 
   const handleRevise = () => {
     setIsReviseModalOpen(true);
+  };
+
+  const handleMarkAsInvoice = () => {
+    setIsMarkAsInvoiceModalOpen(true);
   };
 
   const handleEdit = () => {
@@ -248,6 +255,18 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
             </Button.Root>
           )}
 
+          {quotation.status === 'accepted' &&
+            !isQuotationInvoiced(quotation) && (
+              <Button.Root
+                variant='primary'
+                size='small'
+                onClick={handleMarkAsInvoice}
+              >
+                <RiFileTextLine className='size-4' />
+                Mark as Invoice
+              </Button.Root>
+            )}
+
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
               <Button.Root variant='neutral' mode='ghost' size='small'>
@@ -294,6 +313,13 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
                   Edit Quotation
                 </Dropdown.Item>
               )}
+              {quotation.status === 'accepted' &&
+                !isQuotationInvoiced(quotation) && (
+                  <Dropdown.Item onClick={handleMarkAsInvoice}>
+                    <RiFileTextLine className='size-4' />
+                    Mark as Invoice
+                  </Dropdown.Item>
+                )}
             </Dropdown.Content>
           </Dropdown.Root>
         </div>
@@ -350,6 +376,13 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
         quotationNumber={quotation.quotationNumber}
         isOpen={isReviseModalOpen}
         onClose={() => setIsReviseModalOpen(false)}
+      />
+
+      <MarkAsInvoiceModal
+        quotationId={quotation.id}
+        quotationNumber={quotation.quotationNumber}
+        isOpen={isMarkAsInvoiceModalOpen}
+        onClose={() => setIsMarkAsInvoiceModalOpen(false)}
       />
     </div>
   );

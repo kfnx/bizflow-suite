@@ -64,6 +64,27 @@
       "when": 1751961972691,
       "tag": "0008_friendly_sharon_ventura",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1751993274231,
+      "tag": "0009_stiff_zaran",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1752025375108,
+      "tag": "0010_third_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1752030160085,
+      "tag": "0011_aberrant_wilson_fisk",
+      "breakpoints": true
     }
   ]
 }

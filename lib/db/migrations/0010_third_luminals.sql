@@ -1,0 +1,1 @@
+ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `invoices`(`id`) ON DELETE no action ON UPDATE no action;

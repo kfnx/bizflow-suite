@@ -302,9 +302,7 @@ export function QuotationPreviewDrawer({
       <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
         {/* Header */}
         <Drawer.Header>
-          <h1 className='text-lg text-gray-900 w-full font-semibold'>
-            Quick Preview
-          </h1>
+          <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
         {/* Content */}

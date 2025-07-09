@@ -112,7 +112,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   }, [onFiltersChange]);
 
   return (
-    <div className='flex justify-between gap-4'>
+    <div className='flex flex-col lg:flex-row lg:justify-between gap-4'>
       {/* Search Bar */}
       <div className='relative flex-1'>
         <Input.Root>

@@ -91,7 +91,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     filters.limit !== 10;
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col lg:flex-row lg:justify-between gap-4'>
       {/* Search Bar */}
       <div className='relative'>
         <Input.Root>

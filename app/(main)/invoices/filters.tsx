@@ -16,7 +16,7 @@ import * as Select from '@/components/ui/select';
 
 import IconCmd from '~/icons/icon-cmd.svg';
 
-type InvoiceStatus = 'all' | 'draft' | 'sent' | 'paid' | 'void';
+type InvoiceStatus = 'all' | 'draft' | 'sent' | 'paid' | 'void' | 'overdue';
 
 export interface InvoicesFilters {
   search: string;
@@ -28,16 +28,25 @@ export interface InvoicesFilters {
 
 interface FiltersProps {
   onFiltersChange?: (filters: InvoicesFilters) => void;
+  initialFilters?: InvoicesFilters;
 }
 
-export function Filters({ onFiltersChange }: FiltersProps) {
-  const [filters, setFilters] = useState<InvoicesFilters>({
-    search: '',
-    status: 'all',
-    sortBy: 'newest-first',
-    page: 1,
-    limit: 10,
-  });
+export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
+  const [filters, setFilters] = useState<InvoicesFilters>(
+    initialFilters || {
+      search: '',
+      status: 'all',
+      sortBy: 'newest-first',
+      page: 1,
+      limit: 10,
+    },
+  );
+
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(initialFilters);
+    }
+  }, [initialFilters]);
 
   const handleFiltersChange = useCallback(
     (newFilters: Partial<InvoicesFilters>) => {
@@ -91,9 +100,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     filters.limit !== 10;
 
   return (
-    <div className='flex flex-col lg:flex-row lg:justify-between gap-4'>
+    <div className='flex flex-col gap-4 lg:flex-row lg:justify-between'>
       {/* Search Bar */}
-      <div className='relative'>
+      <div className='relative flex-1'>
         <Input.Root>
           <Input.Wrapper>
             <Input.Icon as={RiSearch2Line} />

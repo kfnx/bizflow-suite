@@ -90,7 +90,9 @@ export async function POST(
         total: quotation.total || '0.00',
         currency: quotation.currency || 'IDR',
         status: 'draft' as const,
-        notes: validatedData.notes || `Generated from quotation ${quotation.quotationNumber}`,
+        notes:
+          validatedData.notes ||
+          `Generated from quotation ${quotation.quotationNumber}`,
         createdBy: session.user.id,
       };
 

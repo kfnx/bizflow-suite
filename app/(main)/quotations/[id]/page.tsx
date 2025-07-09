@@ -1,5 +1,5 @@
-import { QuotationsErrorBoundary } from '../error-boundary';
-import { QuotationDetailClient } from './quotation-detail-client';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { QuotationDetail } from './quotation-detail';
 
 interface PageProps {
   params: {
@@ -9,8 +9,8 @@ interface PageProps {
 
 export default function QuotationDetailPage({ params }: PageProps) {
   return (
-    <QuotationsErrorBoundary>
-      <QuotationDetailClient id={params.id} />
-    </QuotationsErrorBoundary>
+    <ErrorBoundary context='quotation detail'>
+      <QuotationDetail id={params.id} />
+    </ErrorBoundary>
   );
 }

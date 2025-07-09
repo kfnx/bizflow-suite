@@ -1,51 +1,75 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RiAddLine, RiArrowLeftLine, RiDeleteBinLine } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { QUOTATION_STATUS } from '@/lib/db/enum';
-import {
-  createQuotationRequestSchema,
-  QuotationFormData,
-  type CreateQuotationRequest,
-  type QuotationItem,
-} from '@/lib/validations/quotation';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
-import { useQuotationNumber } from '@/hooks/use-quotation-number';
+import { useInvoiceDetail } from '@/hooks/use-invoices';
+import { InvoiceFormData, type InvoiceItem } from '@/lib/validations/invoice';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customer-select-with-add';
-import QuotationNumberDisplay from '@/components/quotation-number-display';
 
-interface QuotationFormProps {
-  initialFormData: QuotationFormData;
+interface InvoiceEditFormProps {
+  id: string;
 }
 
-export default function QuotationForm({ initialFormData }: QuotationFormProps) {
-  const [formData, setFormData] = useState<QuotationFormData>(initialFormData);
+export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
+  const [formData, setFormData] = useState<InvoiceFormData>({
+    invoiceDate: '',
+    dueDate: '',
+    customerId: '',
+    currency: 'IDR',
+    status: 'draft',
+    paymentMethod: '',
+    notes: '',
+    items: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Fetch data for form options
+  // Fetch data
+  const { data: invoice, isLoading: isLoadingInvoice } = useInvoiceDetail(id);
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
-  const { data: quotationNumber, isLoading: isLoadingQuotationNumber } =
-    useQuotationNumber();
+
+  // Initialize form data from invoice
+  useEffect(() => {
+    if (invoice?.data && !isInitialized) {
+      const invoiceData = invoice.data;
+      setFormData({
+        invoiceDate: invoiceData.invoiceDate || '',
+        dueDate: invoiceData.dueDate || '',
+        customerId: invoiceData.customerId || '',
+        currency: invoiceData.currency || 'IDR',
+        status: invoiceData.status as 'draft' | 'sent' | 'paid' | 'void',
+        paymentMethod: invoiceData.paymentMethod || '',
+        notes: invoiceData.notes || '',
+        items: invoiceData.items?.map((item: any) => ({
+          productId: item.productId,
+          quantity: Number(item.quantity),
+          unitPrice: Number(item.unitPrice),
+          paymentTerms: item.paymentTerms || '',
+          termsAndConditions: item.termsAndConditions || '',
+          notes: item.notes || '',
+        })) || [],
+      });
+      setIsInitialized(true);
+    }
+  }, [invoice, isInitialized]);
 
   const handleInputChange = useCallback(
-    (
-      field: keyof Omit<QuotationFormData, 'items'>,
-      value: string | boolean,
-    ) => {
+    (field: keyof Omit<InvoiceFormData, 'items'>, value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
     },
     [],
@@ -58,9 +82,10 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
         ...prev.items,
         {
           productId: '',
-          productName: '',
           quantity: 1,
           unitPrice: 0,
+          paymentTerms: '',
+          termsAndConditions: '',
           notes: '',
         },
       ],
@@ -68,7 +93,7 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
   }, []);
 
   const updateItem = useCallback(
-    (index: number, field: keyof QuotationItem, value: string | number) => {
+    (index: number, field: keyof InvoiceItem, value: string | number) => {
       setFormData((prev) => ({
         ...prev,
         items: prev.items.map((item, i) =>
@@ -95,89 +120,53 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
 
   const calculateTax = useCallback(() => {
     const subtotal = calculateSubtotal();
-    return formData.isIncludePPN ? subtotal * 0.11 : 0;
-  }, [calculateSubtotal, formData.isIncludePPN]);
+    // For now, we'll use a simple 11% tax calculation
+    return subtotal * 0.11;
+  }, [calculateSubtotal]);
 
   const calculateTotal = useCallback(() => {
     return calculateSubtotal() + calculateTax();
   }, [calculateSubtotal, calculateTax]);
 
-  const handleSubmit = async (
-    e: React.FormEvent,
-    status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED,
-    quotationNumber: string,
-  ) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Validate required fields for submitted status
-      if (status === 'submitted') {
-        if (!formData.customerId) {
-          toast.error('Please select a customer');
-          return;
-        }
-        if (formData.items.length === 0) {
-          toast.error('Please add at least one item');
-          return;
-        }
-        if (
-          formData.items.some(
-            (item) =>
-              !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
-          )
-        ) {
-          toast.error('Please complete all item details');
-          return;
-        }
+      // Validate required fields
+      if (!formData.customerId) {
+        toast.error('Please select a customer');
+        return;
+      }
+      if (formData.items.length === 0) {
+        toast.error('Please add at least one item');
+        return;
+      }
+      if (
+        formData.items.some(
+          (item) => !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
+        )
+      ) {
+        toast.error('Please complete all item details');
+        return;
       }
 
-      // Transform data for API
-      const requestData: QuotationFormData = {
-        quotationNumber,
-        quotationDate: formData.quotationDate,
-        validUntil: formData.validUntil,
-        customerId: formData.customerId,
-        isIncludePPN: formData.isIncludePPN,
-        currency: formData.currency,
-        notes: formData.notes,
-        termsAndConditions: formData.termsAndConditions,
-        status,
-        items: formData.items.map((item) => ({
-          productId: item.productId,
-          productName: item.productName,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          total: item.quantity * item.unitPrice,
-          notes: item.notes,
-        })),
-      };
-
-      const endpoint =
-        status === QUOTATION_STATUS.DRAFT
-          ? '/api/quotations/save-draft'
-          : '/api/quotations';
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data.error || 'Failed to create quotation');
+        toast.error(data.error || 'Failed to update invoice');
         return;
       }
 
-      // Success feedback and navigation
-      const successMessage =
-        status === QUOTATION_STATUS.DRAFT
-          ? 'Quotation saved as draft successfully!'
-          : 'Quotation submitted successfully!';
-      toast.success(successMessage);
-      queryClient.invalidateQueries({ queryKey: ['quotations'] });
-      router.push('/quotations');
+      toast.success('Invoice updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice', id] });
+      router.push(`/invoices/${id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -185,36 +174,65 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
     }
   };
 
-  // Show loading state while fetching quotation number
-  if (isLoadingQuotationNumber || !quotationNumber) {
-    return <div>Loading quotation number...</div>;
+  if (isLoadingInvoice || !isInitialized) {
+    return (
+      <div className='w-full p-8 text-center'>
+        <p className='text-text-sub-600'>Loading invoice...</p>
+      </div>
+    );
+  }
+
+  if (!invoice?.data) {
+    return (
+      <div className='w-full p-8 text-center'>
+        <p className='text-text-sub-600'>Invoice not found</p>
+      </div>
+    );
   }
 
   return (
-    <form
-      onSubmit={(e) =>
-        handleSubmit(e, QUOTATION_STATUS.SUBMITTED, quotationNumber)
-      }
-      className='mx-auto w-full max-w-4xl space-y-8'
-    >
-      {/* Quotation Details */}
+    <form onSubmit={handleSubmit} className='mx-auto w-full max-w-4xl space-y-8'>
+      {/* Header */}
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center gap-3'>
+          <Button.Root
+            variant='neutral'
+            mode='ghost'
+            size='small'
+            onClick={() => router.push(`/invoices/${id}`)}
+            type='button'
+          >
+            <RiArrowLeftLine className='size-4' />
+          </Button.Root>
+          <div>
+            <h1 className='text-2xl font-bold text-text-strong-950'>
+              Edit Invoice
+            </h1>
+            <p className='text-text-sub-600'>
+              {invoice.data.invoiceNumber}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Invoice Details */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
         <h3 className='text-lg mb-6 font-semibold text-text-strong-950'>
-          Quotation Details
+          Invoice Details
         </h3>
-        <QuotationNumberDisplay quotationNumber={quotationNumber} />
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
           <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='quotationDate'>
-              Quotation Date <Label.Asterisk />
+            <Label.Root htmlFor='invoiceDate'>
+              Invoice Date <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id='invoiceDate'
                   type='date'
-                  value={formData.quotationDate}
+                  value={formData.invoiceDate}
                   onChange={(e) =>
-                    handleInputChange('quotationDate', e.target.value)
+                    handleInputChange('invoiceDate', e.target.value)
                   }
                   required
                 />
@@ -223,20 +241,18 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
           </div>
 
           <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='validUntil'>
-              Valid Until <Label.Asterisk />
+            <Label.Root htmlFor='dueDate'>
+              Due Date <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
-                  id='validUntil'
+                  id='dueDate'
                   type='date'
-                  value={formData.validUntil}
-                  onChange={(e) =>
-                    handleInputChange('validUntil', e.target.value)
-                  }
+                  value={formData.dueDate}
+                  onChange={(e) => handleInputChange('dueDate', e.target.value)}
                   required
-                  min={formData.quotationDate}
+                  min={formData.invoiceDate}
                 />
               </Input.Wrapper>
             </Input.Root>
@@ -272,53 +288,54 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
             </Select.Root>
           </div>
 
-          <div className='flex flex-col gap-1 md:col-span-2'>
-            <Label.Root htmlFor='notes'>Notes</Label.Root>
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='status'>Status</Label.Root>
+            <Select.Root
+              value={formData.status}
+              onValueChange={(value) => handleInputChange('status', value)}
+            >
+              <Select.Trigger id='status'>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value='draft'>Draft</Select.Item>
+                <Select.Item value='sent'>Sent</Select.Item>
+                <Select.Item value='paid'>Paid</Select.Item>
+                <Select.Item value='void'>Void</Select.Item>
+              </Select.Content>
+            </Select.Root>
+          </div>
+
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='paymentMethod'>Payment Method</Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
-                  id='notes'
-                  value={formData.notes || ''}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  placeholder='Additional notes...'
+                  id='paymentMethod'
+                  value={formData.paymentMethod || ''}
+                  onChange={(e) =>
+                    handleInputChange('paymentMethod', e.target.value)
+                  }
+                  placeholder='e.g., Bank Transfer, Cash, Credit Card'
                 />
               </Input.Wrapper>
             </Input.Root>
           </div>
 
           <div className='flex flex-col gap-1 md:col-span-2'>
-            <Label.Root htmlFor='termsAndConditions'>
-              Terms and Conditions
-            </Label.Root>
+            <Label.Root htmlFor='notes'>Notes</Label.Root>
             <Textarea.Root
-              id='termsAndConditions'
+              id='notes'
               rows={3}
-              value={formData.termsAndConditions || ''}
-              onChange={(e) =>
-                handleInputChange('termsAndConditions', e.target.value)
-              }
-              placeholder='Enter terms and conditions...'
+              value={formData.notes || ''}
+              onChange={(e) => handleInputChange('notes', e.target.value)}
+              placeholder='Additional notes...'
             />
-          </div>
-
-          <div className='flex items-center space-x-2'>
-            <input
-              type='checkbox'
-              id='includePPN'
-              checked={formData.isIncludePPN}
-              onChange={(e) =>
-                handleInputChange('isIncludePPN', e.target.checked)
-              }
-              className='rounded border-stroke-soft-200'
-            />
-            <label htmlFor='includePPN' className='text-sm text-text-sub-600'>
-              Include PPN (11% tax)
-            </label>
           </div>
         </div>
       </div>
 
-      {/* Quotation Items */}
+      {/* Invoice Items */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
         <div className='mb-4 flex items-center justify-between'>
           <h3 className='text-lg font-semibold text-text-strong-950'>Items</h3>
@@ -354,12 +371,9 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
                         (p) => p.id === value,
                       );
                       updateItem(index, 'productId', value);
-                      updateItem(index, 'productName', product?.name || '');
-                      updateItem(
-                        index,
-                        'unitPrice',
-                        Number(product?.price) || 0,
-                      );
+                      if (product) {
+                        updateItem(index, 'unitPrice', Number(product.price) || 0);
+                      }
                     }}
                   >
                     <Select.Trigger id={`product-${index}`}>
@@ -469,14 +483,12 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
                 {calculateSubtotal().toLocaleString()} {formData.currency}
               </span>
             </div>
-            {formData.isIncludePPN && (
-              <div className='flex justify-between'>
-                <span>PPN (11%):</span>
-                <span>
-                  {calculateTax().toLocaleString()} {formData.currency}
-                </span>
-              </div>
-            )}
+            <div className='flex justify-between'>
+              <span>Tax (11%):</span>
+              <span>
+                {calculateTax().toLocaleString()} {formData.currency}
+              </span>
+            </div>
             <div className='flex justify-between border-t border-stroke-soft-200 pt-2 font-semibold'>
               <span>Total:</span>
               <span>
@@ -492,22 +504,11 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
         <Button.Root
           variant='neutral'
           mode='stroke'
-          onClick={() => router.push('/quotations')}
+          onClick={() => router.push(`/invoices/${id}`)}
           type='button'
           disabled={isLoading}
         >
           Cancel
-        </Button.Root>
-        <Button.Root
-          variant='neutral'
-          mode='filled'
-          onClick={(e) =>
-            handleSubmit(e, QUOTATION_STATUS.DRAFT, quotationNumber)
-          }
-          type='button'
-          disabled={isLoading}
-        >
-          {isLoading ? 'Saving...' : 'Save as Draft'}
         </Button.Root>
         <Button.Root
           variant='primary'
@@ -515,7 +516,7 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
           type='submit'
           disabled={isLoading || formData.items.length === 0}
         >
-          {isLoading ? 'Submitting...' : 'Submit Quotation'}
+          {isLoading ? 'Saving...' : 'Save Changes'}
         </Button.Root>
       </div>
     </form>

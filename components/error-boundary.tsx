@@ -8,6 +8,7 @@ import * as Button from '@/components/ui/button';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  context?: string;
 }
 
 interface State {
@@ -15,7 +16,7 @@ interface State {
   error?: Error;
 }
 
-export class QuotationsErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
   };
@@ -25,7 +26,8 @@ export class QuotationsErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Quotations page error:', error, errorInfo);
+    const context = this.props.context || 'Application';
+    console.error(`${context} error:`, error, errorInfo);
   }
 
   public render() {
@@ -33,6 +35,8 @@ export class QuotationsErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) {
         return this.props.fallback;
       }
+
+      const context = this.props.context || 'page';
 
       return (
         <div className='flex flex-col items-center justify-center p-8 text-center'>
@@ -42,7 +46,7 @@ export class QuotationsErrorBoundary extends Component<Props, State> {
           </h3>
           <p className='text-gray-500 text-sm mb-6'>
             {this.state.error?.message ||
-              'An unexpected error occurred while loading the quotations.'}
+              `An unexpected error occurred while loading the ${context}.`}
           </p>
           <Button.Root
             variant='primary'

@@ -54,6 +54,37 @@ export type InvoicesFilters = {
   limit?: number;
 };
 
+export type InvoiceDetail = {
+  id: string;
+  invoiceNumber: string;
+  quotationId?: string;
+  invoiceDate: string;
+  dueDate: string;
+  customerId: string;
+  subtotal: string;
+  tax: string;
+  total: string;
+  currency: string;
+  status: string;
+  paymentMethod?: string;
+  notes?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  // Joined data
+  customerName?: string;
+  quotationNumber?: string;
+  createdByUser?: string;
+  items: {
+    id: string;
+    productName: string;
+    productCode: string;
+    quantity: string;
+    unitPrice: string;
+    total: string;
+  }[];
+};
+
 const fetchInvoices = async (
   filters?: InvoicesFilters,
 ): Promise<InvoicesResponse> => {
@@ -73,6 +104,16 @@ const fetchInvoices = async (
   return response.json();
 };
 
+const fetchInvoiceDetail = async (
+  invoiceId: string,
+): Promise<{ data: InvoiceDetail }> => {
+  const response = await fetch(`/api/invoices/${invoiceId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch invoice detail');
+  }
+  return response.json();
+};
+
 const deleteInvoice = async (invoiceId: string): Promise<void> => {
   const response = await fetch(`/api/invoices/${invoiceId}`, {
     method: 'DELETE',
@@ -86,6 +127,14 @@ export function useInvoices(filters?: InvoicesFilters) {
   return useQuery({
     queryKey: ['invoices', filters],
     queryFn: () => fetchInvoices(filters),
+  });
+}
+
+export function useInvoiceDetail(invoiceId: string) {
+  return useQuery({
+    queryKey: ['invoice', invoiceId],
+    queryFn: () => fetchInvoiceDetail(invoiceId),
+    enabled: !!invoiceId,
   });
 }
 

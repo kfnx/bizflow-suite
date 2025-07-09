@@ -1,38 +1,13 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { RiHistoryLine } from '@remixicon/react';
 
-import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { ActionButton } from '@/components/action-button';
+import { ErrorBoundary } from '@/components/error-boundary';
 import Header from '@/components/header';
 
-import { QuotationsErrorBoundary } from './error-boundary';
-import { QuotationsClient } from './quotations-client';
+import { QuotationsPageContent } from './content';
 
 export default function PageQuotations() {
-  const searchParams = useSearchParams();
-  const [initialFilters, setInitialFilters] = useState({
-    search: '',
-    status: 'all' as 'all' | QUOTATION_STATUS,
-    sortBy: 'newest-first',
-    page: 1,
-    limit: 10,
-  });
-
-  useEffect(() => {
-    setInitialFilters({
-      search: searchParams?.get('search') || '',
-      status: (searchParams?.get('status') || 'all') as
-        | 'all'
-        | QUOTATION_STATUS,
-      sortBy: searchParams?.get('sortBy') || 'newest-first',
-      page: parseInt(searchParams?.get('page') || '1'),
-      limit: parseInt(searchParams?.get('limit') || '10'),
-    });
-  }, [searchParams]);
-
   return (
     <>
       <Header
@@ -48,9 +23,11 @@ export default function PageQuotations() {
       </Header>
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
-        <QuotationsErrorBoundary>
-          <QuotationsClient initialFilters={initialFilters} />
-        </QuotationsErrorBoundary>
+        <ErrorBoundary context='quotations'>
+          <Suspense fallback={<div className='p-4 text-center text-text-sub-600'>Loading...</div>}>
+            <QuotationsPageContent />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </>
   );

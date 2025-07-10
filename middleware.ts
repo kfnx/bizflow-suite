@@ -7,7 +7,7 @@ import { hasPermission, Permission } from '@/lib/permissions';
 // Define protected FRONTEND routes with required permissions
 // Note: API routes are handled separately in their individual route files
 const PROTECTED_ROUTES: Record<string, Permission[]> = {
-  '/user-management': ['users:read'],
+  '/users': ['users:read'],
   '/quotations': ['quotations:read'],
   '/invoices': ['invoices:read'],
   '/products': ['products:read'],
@@ -19,7 +19,7 @@ const PROTECTED_ROUTES: Record<string, Permission[]> = {
 // Define role-based access for specific routes
 const ROLE_BASED_ROUTES: Record<string, string[]> = {
   '/pending-approvals': ['manager', 'director'],
-  '/user-management': ['manager', 'director'],
+  '/users': ['manager', 'director'],
 };
 
 export async function middleware(request: NextRequest) {

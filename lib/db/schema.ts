@@ -14,7 +14,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 
-import { QUOTATION_STATUS } from './enum';
+import { INVOICE_STATUS, QUOTATION_STATUS } from './enum';
 
 // Users table
 export const users = mysqlTable(
@@ -307,9 +307,6 @@ export const quotationItems = mysqlTable(
   ],
 );
 
-// keep simple type for now but use mysql enum when system requirement is clearer
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'void';
-
 // Invoices table
 export const invoices = mysqlTable(
   'invoices',
@@ -327,7 +324,7 @@ export const invoices = mysqlTable(
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
-    status: varchar('status', { length: 50 }).default('draft'), // draft, sent, paid, void
+    status: mysqlEnum('status', INVOICE_STATUS).default(INVOICE_STATUS.DRAFT),
     paymentMethod: varchar('payment_method', { length: 100 }),
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),

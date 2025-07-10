@@ -2,18 +2,15 @@
 
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiAddLine, RiArrowLeftLine, RiDeleteBinLine } from '@remixicon/react';
+import { RiAddLine, RiDeleteBinLine } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import {
-  createQuotationRequestSchema,
   QuotationFormData,
-  type CreateQuotationRequest,
   type QuotationItem,
 } from '@/lib/validations/quotation';
-import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
 import { useQuotationNumber } from '@/hooks/use-quotation-number';
 import * as Button from '@/components/ui/button';
@@ -28,15 +25,13 @@ interface QuotationFormProps {
   initialFormData: QuotationFormData;
 }
 
-export default function QuotationForm({ initialFormData }: QuotationFormProps) {
+export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
   const [formData, setFormData] = useState<QuotationFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Fetch data for form options
-  const { data: customers } = useCustomers();
   const { data: products } = useProducts();
   const { data: quotationNumber, isLoading: isLoadingQuotationNumber } =
     useQuotationNumber();
@@ -198,7 +193,7 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
       className='mx-auto w-full max-w-4xl space-y-8'
     >
       {/* Quotation Details */}
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
+      <div className='rounded-lg border border-stroke-soft-200 p-6'>
         <h3 className='text-lg mb-6 font-semibold text-text-strong-950'>
           Quotation Details
         </h3>
@@ -488,7 +483,7 @@ export default function QuotationForm({ initialFormData }: QuotationFormProps) {
       )}
 
       {/* Form Actions */}
-      <div className='flex justify-end space-x-3 border-t border-stroke-soft-200 pt-6'>
+      <div className='flex justify-end space-x-3'>
         <Button.Root
           variant='neutral'
           mode='stroke'

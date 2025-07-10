@@ -118,8 +118,8 @@ export const navigationLinks: NavigationCategory[] = [
     links: [
       {
         icon: RiUserSettingsLine,
-        label: 'User Management',
-        href: '/user-management',
+        label: 'Users',
+        href: '/users',
       },
     ],
   },
@@ -213,7 +213,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
         // Check role-based access for specific routes first
         const roleBasedRoutes: Record<string, string[]> = {
           '/pending-approvals': ['manager', 'director'],
-          '/user-management': ['manager', 'director'],
+          '/users': ['manager', 'director'],
         };
 
         const requiredRoles = roleBasedRoutes[link.href];

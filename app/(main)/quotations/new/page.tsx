@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { RiFileAddLine } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
@@ -10,8 +11,7 @@ import { QuotationFormData } from '@/lib/validations/quotation';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-
-import QuotationForm from './quotation-form';
+import { NewQuotationForm } from '@/components/quotations/new-quotation-form';
 
 const initialFormData: QuotationFormData = {
   quotationNumber: '', // Will be populated by the form component
@@ -57,19 +57,7 @@ export default function NewQuotationPage() {
     <Header
       icon={
         <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-          <svg
-            className='size-6 text-text-sub-600'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-            />
-          </svg>
+          <RiFileAddLine className='size-6' />
         </div>
       }
       title='New Quotation'
@@ -83,7 +71,7 @@ export default function NewQuotationPage() {
     <PermissionGate permission='quotations:create'>
       <HeaderComponent />
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <QuotationForm initialFormData={initialFormData} />
+        <NewQuotationForm initialFormData={initialFormData} />
       </div>
     </PermissionGate>
   );

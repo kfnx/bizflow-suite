@@ -4,6 +4,11 @@ export interface CreateUserRequest {
   firstName: string;
   lastName: string;
   phone?: string;
+  NIK: string;
+  jobTitle?: string;
+  joinDate: string;
+  type?: 'full-time' | 'contract' | 'resigned';
+  role: 'staff' | 'manager' | 'director';
 }
 
 export interface UpdateUserRequest {
@@ -11,6 +16,10 @@ export interface UpdateUserRequest {
   lastName?: string;
   phone?: string;
   avatar?: string;
+  NIK?: string;
+  jobTitle?: string;
+  joinDate?: string;
+  type?: 'full-time' | 'contract' | 'resigned';
 }
 
 export interface LoginRequest {

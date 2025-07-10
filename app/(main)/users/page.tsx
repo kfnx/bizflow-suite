@@ -1,26 +1,19 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { RiAddLine } from '@remixicon/react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import type { UsersFilters } from '@/hooks/use-users';
 import { Root as Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/auth/permission-gate';
-import { CreateUserModal } from '@/components/user-management/create-user-modal';
 
 import { Filters } from './filters';
 import { UsersTable } from './users-table';
 
 export default function UserManagementPage() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const router = useRouter();
   const [filters, setFilters] = useState<UsersFilters>({});
-  const queryClient = useQueryClient();
-
-  const handleCreateSuccess = () => {
-    // Invalidate and refetch users after successful creation
-    queryClient.invalidateQueries({ queryKey: ['users'] });
-  };
 
   const handleFiltersChange = useCallback(
     (newFilters: {
@@ -48,9 +41,7 @@ export default function UserManagementPage() {
       {/* Header */}
       <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <h1 className='text-2xl text-gray-900 font-semibold'>
-            User Management
-          </h1>
+          <h1 className='text-2xl text-gray-900 font-semibold'>Users</h1>
           <p className='text-sm text-gray-600'>
             Manage user accounts and permissions
           </p>
@@ -58,7 +49,7 @@ export default function UserManagementPage() {
         <PermissionGate permission='users:create'>
           <Button
             className='flex items-center gap-2'
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => router.push('/users/new')}
           >
             <RiAddLine className='size-4' />
             Add User
@@ -71,13 +62,6 @@ export default function UserManagementPage() {
         <Filters onFiltersChange={handleFiltersChange} />
         <UsersTable filters={filters} />
       </PermissionGate>
-
-      {/* Create User Modal */}
-      <CreateUserModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={handleCreateSuccess}
-      />
     </div>
   );
 }

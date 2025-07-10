@@ -3,7 +3,14 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { customers, invoices, invoiceItems, products, quotations, users } from '@/lib/db/schema';
+import {
+  customers,
+  invoiceItems,
+  invoices,
+  products,
+  quotations,
+  users,
+} from '@/lib/db/schema';
 import { updateInvoiceRequestSchema } from '@/lib/validations/invoice';
 
 export async function GET(
@@ -68,10 +75,7 @@ export async function GET(
       .limit(1);
 
     if (invoice.length === 0) {
-      return NextResponse.json(
-        { error: 'Invoice not found' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
     // Get invoice items
@@ -124,7 +128,7 @@ export async function PUT(
 
     const { id } = params;
     const body = await request.json();
-    
+
     // Validate request body
     const validatedData = updateInvoiceRequestSchema.parse(body);
 
@@ -136,10 +140,7 @@ export async function PUT(
       .limit(1);
 
     if (existingInvoice.length === 0) {
-      return NextResponse.json(
-        { error: 'Invoice not found' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
     // Calculate totals
@@ -169,9 +170,7 @@ export async function PUT(
       .where(eq(invoices.id, id));
 
     // Delete existing items
-    await db
-      .delete(invoiceItems)
-      .where(eq(invoiceItems.invoiceId, id));
+    await db.delete(invoiceItems).where(eq(invoiceItems.invoiceId, id));
 
     // Insert new items
     if (validatedData.items.length > 0) {

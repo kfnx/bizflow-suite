@@ -195,7 +195,11 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
 
       {/* Footer Info */}
       <div className='text-xs text-gray-500 border-t pt-4'>
-        Created by {invoice.createdByUser} on {formatDate(invoice.createdAt)}
+        Created by{' '}
+        {invoice.createdByUser
+          ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
+          : 'Unknown'}{' '}
+        on {formatDate(invoice.createdAt)}
       </div>
     </div>
   );

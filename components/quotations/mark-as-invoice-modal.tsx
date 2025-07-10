@@ -164,7 +164,9 @@ export function MarkAsInvoiceModal({
         <form onSubmit={handleSubmit}>
           <div className='space-y-4 p-6'>
             <div>
-              <Label.Root htmlFor='invoiceNumber'>Invoice Number <Label.Asterisk /></Label.Root>
+              <Label.Root htmlFor='invoiceNumber'>
+                Invoice Number <Label.Asterisk />
+              </Label.Root>
               <Input.Root>
                 <Input.Wrapper>
                   <Input.Input
@@ -179,7 +181,9 @@ export function MarkAsInvoiceModal({
             </div>
 
             <div>
-              <Label.Root htmlFor='invoiceDate'>Invoice Date <Label.Asterisk /></Label.Root>
+              <Label.Root htmlFor='invoiceDate'>
+                Invoice Date <Label.Asterisk />
+              </Label.Root>
               <Input.Root>
                 <Input.Wrapper>
                   <Input.Input
@@ -194,7 +198,9 @@ export function MarkAsInvoiceModal({
             </div>
 
             <div>
-              <Label.Root htmlFor='dueDate'>Due Date <Label.Asterisk /></Label.Root>
+              <Label.Root htmlFor='dueDate'>
+                Due Date <Label.Asterisk />
+              </Label.Root>
               <Input.Root>
                 <Input.Wrapper>
                   <Input.Input

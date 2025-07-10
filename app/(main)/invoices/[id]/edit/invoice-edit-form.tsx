@@ -1,15 +1,15 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RiAddLine, RiArrowLeftLine, RiDeleteBinLine } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { useCustomers } from '@/hooks/use-customers';
-import { useProducts } from '@/hooks/use-products';
-import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { InvoiceFormData, type InvoiceItem } from '@/lib/validations/invoice';
+import { useCustomers } from '@/hooks/use-customers';
+import { useInvoiceDetail } from '@/hooks/use-invoices';
+import { useProducts } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -55,14 +55,15 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
         status: invoiceData.status as 'draft' | 'sent' | 'paid' | 'void',
         paymentMethod: invoiceData.paymentMethod || '',
         notes: invoiceData.notes || '',
-        items: invoiceData.items?.map((item: any) => ({
-          productId: item.productId,
-          quantity: Number(item.quantity),
-          unitPrice: Number(item.unitPrice),
-          paymentTerms: item.paymentTerms || '',
-          termsAndConditions: item.termsAndConditions || '',
-          notes: item.notes || '',
-        })) || [],
+        items:
+          invoiceData.items?.map((item: any) => ({
+            productId: item.productId,
+            quantity: Number(item.quantity),
+            unitPrice: Number(item.unitPrice),
+            paymentTerms: item.paymentTerms || '',
+            termsAndConditions: item.termsAndConditions || '',
+            notes: item.notes || '',
+          })) || [],
       });
       setIsInitialized(true);
     }
@@ -144,7 +145,8 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
       }
       if (
         formData.items.some(
-          (item) => !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
+          (item) =>
+            !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
         )
       ) {
         toast.error('Please complete all item details');
@@ -191,7 +193,10 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='mx-auto w-full max-w-4xl space-y-8'>
+    <form
+      onSubmit={handleSubmit}
+      className='mx-auto w-full max-w-4xl space-y-8'
+    >
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
@@ -208,9 +213,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
             <h1 className='text-2xl font-bold text-text-strong-950'>
               Edit Invoice
             </h1>
-            <p className='text-text-sub-600'>
-              {invoice.data.invoiceNumber}
-            </p>
+            <p className='text-text-sub-600'>{invoice.data.invoiceNumber}</p>
           </div>
         </div>
       </div>
@@ -372,7 +375,11 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                       );
                       updateItem(index, 'productId', value);
                       if (product) {
-                        updateItem(index, 'unitPrice', Number(product.price) || 0);
+                        updateItem(
+                          index,
+                          'unitPrice',
+                          Number(product.price) || 0,
+                        );
                       }
                     }}
                   >

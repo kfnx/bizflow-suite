@@ -27,7 +27,13 @@ export default function PageInvoices() {
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
         <ErrorBoundary context='invoices'>
-          <Suspense fallback={<div className='p-4 text-center text-text-sub-600'>Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className='p-4 text-center text-text-sub-600'>
+                Loading...
+              </div>
+            }
+          >
             <InvoicesPageContent />
           </Suspense>
         </ErrorBoundary>

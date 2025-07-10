@@ -204,7 +204,9 @@ export default function NewSupplierPage() {
             </h2>
             <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
               <div className='space-y-2'>
-                <Label.Root htmlFor='code'>Supplier Code <Label.Asterisk /></Label.Root>
+                <Label.Root htmlFor='code'>
+                  Supplier Code <Label.Asterisk />
+                </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Icon as={RiBuildingLine} />
@@ -223,7 +225,9 @@ export default function NewSupplierPage() {
               </div>
 
               <div className='space-y-2'>
-                <Label.Root htmlFor='name'>Supplier Name <Label.Asterisk /></Label.Root>
+                <Label.Root htmlFor='name'>
+                  Supplier Name <Label.Asterisk />
+                </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Icon as={RiBuildingLine} />

@@ -25,7 +25,6 @@ import {
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
-
 import { AcceptQuotationModal } from '@/components/quotations/accept-quotation-modal';
 import { MarkAsInvoiceModal } from '@/components/quotations/mark-as-invoice-modal';
 import { RejectQuotationModal } from '@/components/quotations/reject-quotation-modal';

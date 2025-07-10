@@ -74,7 +74,11 @@ export type InvoiceDetail = {
   // Joined data
   customerName?: string;
   quotationNumber?: string;
-  createdByUser?: string;
+  createdByUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
   items: {
     id: string;
     productName: string;

@@ -246,6 +246,7 @@ export const quotations = mysqlTable(
     customerAcceptanceInfo: text('customer_acceptance_info'),
     rejectionReason: text('rejection_reason'),
     revisionReason: text('revision_reason'),
+    revisionVersion: int('revision_version').default(1),
     invoicedAt: timestamp('invoiced_at'),
     invoiceId: varchar('invoice_id', { length: 36 }),
     createdAt: timestamp('created_at').defaultNow(),

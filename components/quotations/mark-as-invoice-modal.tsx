@@ -28,9 +28,10 @@ export function MarkAsInvoiceModal({
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewNumber, setPreviewNumber] = useState('');
   const queryClient = useQueryClient();
 
-  // Set default dates when modal opens
+  // Set default dates and fetch preview number when modal opens
   useEffect(() => {
     if (isOpen && !invoiceDate && !dueDate) {
       const today = new Date();
@@ -46,6 +47,27 @@ export function MarkAsInvoiceModal({
       setDueDate(formatDate(twoWeeksFromNow));
     }
   }, [isOpen, invoiceDate, dueDate]);
+
+  // Fetch preview invoice number when modal opens and set as default value
+  useEffect(() => {
+    if (isOpen && !previewNumber) {
+      const fetchPreviewNumber = async () => {
+        try {
+          const response = await fetch('/api/invoices/preview-number');
+          if (response.ok) {
+            const data = await response.json();
+            setPreviewNumber(data.data.invoiceNumber);
+            // Set the preview number as the default value in the input field
+            setInvoiceNumber(data.data.invoiceNumber);
+          }
+        } catch (error) {
+          console.error('Error fetching preview invoice number:', error);
+        }
+      };
+
+      fetchPreviewNumber();
+    }
+  }, [isOpen, previewNumber]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +126,7 @@ export function MarkAsInvoiceModal({
       setInvoiceDate('');
       setDueDate('');
       setNotes('');
+      setPreviewNumber('');
       onClose();
     } catch (error) {
       alert(
@@ -122,6 +145,7 @@ export function MarkAsInvoiceModal({
       setInvoiceDate('');
       setDueDate('');
       setNotes('');
+      setPreviewNumber('');
       onClose();
     }
   };
@@ -140,7 +164,7 @@ export function MarkAsInvoiceModal({
         <form onSubmit={handleSubmit}>
           <div className='space-y-4 p-6'>
             <div>
-              <Label.Root htmlFor='invoiceNumber'>Invoice Number *</Label.Root>
+              <Label.Root htmlFor='invoiceNumber'>Invoice Number <Label.Asterisk /></Label.Root>
               <Input.Root>
                 <Input.Wrapper>
                   <Input.Input
@@ -155,7 +179,7 @@ export function MarkAsInvoiceModal({
             </div>
 
             <div>
-              <Label.Root htmlFor='invoiceDate'>Invoice Date *</Label.Root>
+              <Label.Root htmlFor='invoiceDate'>Invoice Date <Label.Asterisk /></Label.Root>
               <Input.Root>
                 <Input.Wrapper>
                   <Input.Input
@@ -170,7 +194,7 @@ export function MarkAsInvoiceModal({
             </div>
 
             <div>
-              <Label.Root htmlFor='dueDate'>Due Date *</Label.Root>
+              <Label.Root htmlFor='dueDate'>Due Date <Label.Asterisk /></Label.Root>
               <Input.Root>
                 <Input.Wrapper>
                   <Input.Input

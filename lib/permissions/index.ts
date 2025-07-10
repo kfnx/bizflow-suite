@@ -14,6 +14,10 @@ export type Permission =
   | 'invoices:create'
   | 'invoices:update'
   | 'invoices:delete'
+  | 'deliveries:read'
+  | 'deliveries:create'
+  | 'deliveries:update'
+  | 'deliveries:delete'
   | 'products:read'
   | 'products:create'
   | 'products:update'
@@ -22,7 +26,6 @@ export type Permission =
   | 'warehouses:create'
   | 'warehouses:update'
   | 'warehouses:delete'
-  | 'reports:view'
   | 'settings:manage';
 
 // Role hierarchy and permissions
@@ -32,6 +35,12 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'quotations:create',
     'quotations:update',
     'invoices:read',
+    'invoices:create',
+    'invoices:update',
+    'invoices:read',
+    'deliveries:read',
+    'deliveries:create',
+    'deliveries:update',
     'products:read',
     'warehouses:read',
   ],
@@ -47,13 +56,15 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'invoices:read',
     'invoices:create',
     'invoices:update',
+    'deliveries:read',
+    'deliveries:create',
+    'deliveries:update',
     'products:read',
     'products:create',
     'products:update',
     'warehouses:read',
     'warehouses:create',
     'warehouses:update',
-    'reports:view',
   ],
   director: [
     'users:read',
@@ -69,6 +80,10 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'invoices:create',
     'invoices:update',
     'invoices:delete',
+    'deliveries:read',
+    'deliveries:create',
+    'deliveries:update',
+    'deliveries:delete',
     'products:read',
     'products:create',
     'products:update',
@@ -77,7 +92,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'warehouses:create',
     'warehouses:update',
     'warehouses:delete',
-    'reports:view',
     'settings:manage',
   ],
 };

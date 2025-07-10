@@ -76,7 +76,10 @@ export function InvoiceDetails({ invoice }: InvoiceDetailsProps) {
               Created By
             </label>
             <p className='text-sm text-gray-900 mt-1'>
-              {invoice.createdByUser} • {formatDate(invoice.createdAt)}
+              {invoice.createdByUser
+                ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
+                : 'Unknown'
+              } • {formatDate(invoice.createdAt)}
             </p>
           </div>
         </div>

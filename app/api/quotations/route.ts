@@ -56,7 +56,14 @@ export async function GET(request: NextRequest) {
     }
     if (readyForInvoice === 'true') {
       // Filter for quotations that are accepted but not yet invoiced
-      conditions.push(isNull(quotations.invoicedAt));
+      conditions.push(isNull(quotations.invoiceId));
+    }
+
+    // By default, hide quotations that have been invoiced (have an invoiceId)
+    // This can be overridden with a query parameter if needed
+    const showInvoiced = searchParams.get('show_invoiced');
+    if (showInvoiced !== 'true') {
+      conditions.push(isNull(quotations.invoiceId));
     }
 
     // Build order by clause
@@ -118,6 +125,8 @@ export async function GET(request: NextRequest) {
         notes: quotations.notes,
         createdBy: quotations.createdBy,
         createdByUser: users.firstName,
+        invoiceId: quotations.invoiceId,
+        invoicedAt: quotations.invoicedAt,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
       })

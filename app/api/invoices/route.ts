@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
+import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { customers, invoices, quotations, users } from '@/lib/db/schema';
+import { hasPermission } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication and permissions
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'invoices:read')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const { searchParams } = request.nextUrl;
     const search = searchParams.get('search');
     const status = searchParams.get('status');

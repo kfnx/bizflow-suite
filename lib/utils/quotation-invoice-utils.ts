@@ -43,7 +43,7 @@ import { Quotation, QuotationDetail } from '@/hooks/use-quotations';
 export const isQuotationInvoiced = (
   quotation: QuotationDetail | Quotation,
 ): boolean => {
-  return 'invoicedAt' in quotation ? !!quotation.invoicedAt : false;
+  return 'invoiceId' in quotation ? !!quotation.invoiceId : false;
 };
 
 /**

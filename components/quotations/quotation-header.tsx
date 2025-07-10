@@ -26,10 +26,10 @@ import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 
-import { AcceptQuotationModal } from '../../app/(main)/quotations/components/accept-quotation-modal';
-import { MarkAsInvoiceModal } from '../../app/(main)/quotations/components/mark-as-invoice-modal';
-import { RejectQuotationModal } from '../../app/(main)/quotations/components/reject-quotation-modal';
-import { ReviseQuotationModal } from '../../app/(main)/quotations/components/revise-quotation-modal';
+import { AcceptQuotationModal } from '@/components/quotations/accept-quotation-modal';
+import { MarkAsInvoiceModal } from '@/components/quotations/mark-as-invoice-modal';
+import { RejectQuotationModal } from '@/components/quotations/reject-quotation-modal';
+import { ReviseQuotationModal } from '@/components/quotations/revise-quotation-modal';
 
 interface QuotationHeaderProps {
   quotation: QuotationDetail;
@@ -173,7 +173,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
       {/* Header Content */}
       <div className='mb-6 flex items-center justify-between'>
         <div>
-          <div className='mb-2 flex items-center gap-3'>
+          <div className='mb-8 flex items-center gap-3'>
             <Link
               href='/quotations'
               className='text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors'
@@ -337,9 +337,19 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
             {status.label}
           </Badge.Root>
           {isQuotationInvoiced(quotation) && (
-            <Badge.Root variant='light' color='blue' size='medium'>
-              Invoiced
-            </Badge.Root>
+            <div className='flex items-center gap-2'>
+              <Badge.Root variant='light' color='blue' size='medium'>
+                Invoiced
+              </Badge.Root>
+              {quotation.invoiceId && (
+                <Link
+                  href={`/invoices/${quotation.invoiceId}`}
+                  className='text-xs text-blue-600 underline hover:text-blue-800'
+                >
+                  View Invoice
+                </Link>
+              )}
+            </div>
           )}
         </div>
         <div className='flex items-center gap-2'>

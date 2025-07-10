@@ -12,7 +12,6 @@ const PROTECTED_ROUTES: Record<string, Permission[]> = {
   '/invoices': ['invoices:read'],
   '/products': ['products:read'],
   '/warehouses': ['warehouses:read'],
-  '/reports': ['reports:view'],
   '/settings': ['settings:manage'],
   '/pending-approvals': ['quotations:read'],
 };

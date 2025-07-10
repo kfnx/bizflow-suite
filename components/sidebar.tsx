@@ -228,7 +228,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           '/invoices': ['invoices:read'],
           '/products': ['products:read'],
           '/warehouses': ['warehouses:read'],
-          '/reports': ['reports:view'],
           '/settings': ['settings:manage'],
         };
 

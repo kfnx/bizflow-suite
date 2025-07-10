@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
         and(
           eq(quotations.status, QUOTATION_STATUS.SUBMITTED),
           isNull(quotations.approvedBy),
+          isNull(quotations.invoiceId), // Exclude quotations that have been invoiced
         ),
       )
       .orderBy(quotations.createdAt)
@@ -78,6 +79,7 @@ export async function GET(request: NextRequest) {
         and(
           eq(quotations.status, QUOTATION_STATUS.SUBMITTED),
           isNull(quotations.approvedBy),
+          isNull(quotations.invoiceId), // Exclude quotations that have been invoiced
         ),
       );
 

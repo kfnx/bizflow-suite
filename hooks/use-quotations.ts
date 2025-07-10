@@ -21,6 +21,8 @@ export type Quotation = {
   notes?: string;
   createdBy: string;
   createdByUser: string;
+  invoiceId?: string;
+  invoicedAt?: string;
   createdAt: string;
   updatedAt: string;
 };

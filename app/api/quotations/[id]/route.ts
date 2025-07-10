@@ -37,6 +37,8 @@ export async function GET(
         status: quotations.status,
         notes: quotations.notes,
         termsAndConditions: quotations.termsAndConditions,
+        invoiceId: quotations.invoiceId,
+        invoicedAt: quotations.invoicedAt,
         createdBy: quotations.createdBy,
         createdByUser: users.firstName,
         createdAt: quotations.createdAt,

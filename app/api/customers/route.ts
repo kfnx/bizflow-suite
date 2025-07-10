@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new customer
-    const newCustomer = await db.insert(customers).values({
+    await db.insert(customers).values({
       code,
       name,
       type: type || 'individual',
@@ -146,8 +146,18 @@ export async function POST(request: NextRequest) {
       isPPN: isPPN || false,
     });
 
+    // Fetch the newly created customer to get the ID
+    const [newCustomer] = await db
+      .select({ id: customers.id })
+      .from(customers)
+      .where(eq(customers.code, code))
+      .limit(1);
+
     return NextResponse.json(
-      { message: 'Customer created successfully' },
+      {
+        message: 'Customer created successfully',
+        data: { id: newCustomer.id },
+      },
       { status: 201 },
     );
   } catch (error) {

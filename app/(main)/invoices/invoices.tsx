@@ -3,30 +3,28 @@
 import { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { useQuotations } from '@/hooks/use-quotations';
-import { QuotationPreviewDrawer } from '@/components/quotation-preview-drawer';
+import { useInvoices } from '@/hooks/use-invoices';
+import { InvoicePreviewDrawer } from '@/components/invoice-preview-drawer';
 import {
-  QuotationsTable,
-  QuotationTablePagination,
-} from '@/components/quotations-table';
+  InvoicesTable,
+  InvoicesTablePagination,
+} from '@/components/invoices-table';
 
-import { Filters, type QuotationsFilters } from './filters';
+import { Filters, type InvoicesFilters } from './filters';
 
-interface QuotationsClientProps {
-  initialFilters: QuotationsFilters;
+interface InvoicesProps {
+  initialFilters: InvoicesFilters;
 }
 
-export function QuotationsClient({ initialFilters }: QuotationsClientProps) {
+export function Invoices({ initialFilters }: InvoicesProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<QuotationsFilters>(initialFilters);
-  const [previewQuotationId, setPreviewQuotationId] = useState<string | null>(
-    null,
-  );
-  const { data } = useQuotations(filters);
+  const [filters, setFilters] = useState<InvoicesFilters>(initialFilters);
+  const [previewInvoiceId, setPreviewInvoiceId] = useState<string | null>(null);
+  const { data } = useInvoices(filters);
 
   const handleFiltersChange = useCallback(
-    (newFilters: QuotationsFilters) => {
+    (newFilters: InvoicesFilters) => {
       setFilters(newFilters);
 
       // Update URL with new filters for better UX and shareable URLs
@@ -62,7 +60,7 @@ export function QuotationsClient({ initialFilters }: QuotationsClientProps) {
         params.delete('limit');
       }
 
-      router.replace(`/quotations?${params.toString()}`, { scroll: false });
+      router.replace(`/invoices?${params.toString()}`, { scroll: false });
     },
     [router, searchParams],
   );
@@ -81,12 +79,12 @@ export function QuotationsClient({ initialFilters }: QuotationsClientProps) {
     [filters, handleFiltersChange],
   );
 
-  const handlePreview = useCallback((quotationId: string) => {
-    setPreviewQuotationId(quotationId);
+  const handlePreview = useCallback((invoiceId: string) => {
+    setPreviewInvoiceId(invoiceId);
   }, []);
 
   const handleClosePreview = useCallback(() => {
-    setPreviewQuotationId(null);
+    setPreviewInvoiceId(null);
   }, []);
 
   return (
@@ -95,16 +93,16 @@ export function QuotationsClient({ initialFilters }: QuotationsClientProps) {
         onFiltersChange={handleFiltersChange}
         initialFilters={initialFilters}
       />
-      <QuotationsTable filters={filters} onPreview={handlePreview} />
-      <QuotationTablePagination
+      <InvoicesTable filters={filters} onPreview={handlePreview} />
+      <InvoicesTablePagination
         pagination={data?.pagination}
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
       />
 
-      <QuotationPreviewDrawer
-        quotationId={previewQuotationId}
-        open={!!previewQuotationId}
+      <InvoicePreviewDrawer
+        invoiceId={previewInvoiceId}
+        open={!!previewInvoiceId}
         onClose={handleClosePreview}
       />
     </>

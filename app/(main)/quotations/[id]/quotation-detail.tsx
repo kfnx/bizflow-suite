@@ -1,16 +1,15 @@
 'use client';
 
 import { useQuotationDetail } from '@/hooks/use-quotations';
+import { LineItemsTable } from '@/components/quotations/line-items-table';
+import { QuotationDetails } from '@/components/quotations/quotation-details';
+import { QuotationHeader } from '@/components/quotations/quotation-header';
 
-import { LineItemsTable } from './components/line-items-table';
-import { QuotationDetails } from './components/quotation-details';
-import { QuotationHeader } from './components/quotation-header';
-
-interface QuotationDetailClientProps {
+interface QuotationDetailProps {
   id: string;
 }
 
-export function QuotationDetailClient({ id }: QuotationDetailClientProps) {
+export function QuotationDetail({ id }: QuotationDetailProps) {
   const { data, isLoading, error } = useQuotationDetail(id);
 
   if (isLoading) {

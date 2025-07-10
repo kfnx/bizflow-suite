@@ -26,10 +26,10 @@ import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 
-import { AcceptQuotationModal } from '../../components/accept-quotation-modal';
-import { MarkAsInvoiceModal } from '../../components/mark-as-invoice-modal';
-import { RejectQuotationModal } from '../../components/reject-quotation-modal';
-import { ReviseQuotationModal } from '../../components/revise-quotation-modal';
+import { AcceptQuotationModal } from '../../app/(main)/quotations/components/accept-quotation-modal';
+import { MarkAsInvoiceModal } from '../../app/(main)/quotations/components/mark-as-invoice-modal';
+import { RejectQuotationModal } from '../../app/(main)/quotations/components/reject-quotation-modal';
+import { ReviseQuotationModal } from '../../app/(main)/quotations/components/revise-quotation-modal';
 
 interface QuotationHeaderProps {
   quotation: QuotationDetail;

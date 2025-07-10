@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   RiArrowDownSFill,
   RiArrowLeftDoubleLine,
@@ -10,8 +11,11 @@ import {
   RiArrowUpSFill,
   RiBillLine,
   RiCalendarLine,
+  RiEditLine,
   RiExpandUpDownFill,
+  RiEyeLine,
   RiFileTextLine,
+  RiMailSendLine,
   RiMoneyDollarCircleLine,
   RiMoreLine,
   RiUserLine,
@@ -88,15 +92,11 @@ interface InvoicesTableProps {
     page?: number;
     limit?: number;
   };
-  onPageChange?: (page: number) => void;
-  onLimitChange?: (limit: number) => void;
+  onPreview?: (invoiceId: string) => void;
 }
 
-export function InvoicesTable({
-  filters,
-  onPageChange,
-  onLimitChange,
-}: InvoicesTableProps) {
+export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
+  const router = useRouter();
   const { data, isLoading, error } = useInvoices(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const deleteInvoice = useDeleteInvoice();
@@ -107,6 +107,45 @@ export function InvoicesTable({
         await deleteInvoice.mutateAsync(invoiceId);
       } catch (error) {
         console.error('Error deleting invoice:', error);
+      }
+    }
+  };
+
+  const handleSendInvoice = async (invoiceId: string) => {
+    if (
+      confirm('Are you sure you want to send this invoice to the customer?')
+    ) {
+      try {
+        // TODO: Implement send invoice API call
+        alert('Invoice sent successfully!');
+      } catch (error) {
+        console.error('Error sending invoice:', error);
+      }
+    }
+  };
+
+  const handleMarkAsPaid = async (invoiceId: string) => {
+    if (confirm('Are you sure you want to mark this invoice as paid?')) {
+      try {
+        // TODO: Implement mark as paid API call
+        alert('Invoice marked as paid successfully!');
+      } catch (error) {
+        console.error('Error marking invoice as paid:', error);
+      }
+    }
+  };
+
+  const handleVoidInvoice = async (invoiceId: string) => {
+    if (
+      confirm(
+        'Are you sure you want to void this invoice? This action cannot be undone.',
+      )
+    ) {
+      try {
+        // TODO: Implement void invoice API call
+        alert('Invoice voided successfully!');
+      } catch (error) {
+        console.error('Error voiding invoice:', error);
       }
     }
   };
@@ -238,18 +277,48 @@ export function InvoicesTable({
             </Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align='end'>
-            <Dropdown.Item>
-              <RiFileTextLine className='size-4' />
+            <Dropdown.Item
+              onClick={() => router.push(`/invoices/${row.original.id}`)}
+            >
+              <RiEyeLine className='size-4' />
               View Details
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => onPreview?.(row.original.id)}>
+              <RiFileTextLine className='size-4' />
+              Quick View
+            </Dropdown.Item>
+            <Dropdown.Item
+              onClick={() => router.push(`/invoices/${row.original.id}/edit`)}
+            >
+              <RiEditLine className='size-4' />
+              Edit Invoice
             </Dropdown.Item>
             <Dropdown.Item>
               <RiBillLine className='size-4' />
               Download PDF
             </Dropdown.Item>
-            <Dropdown.Item>
-              <RiCalendarLine className='size-4' />
-              Mark as Paid
-            </Dropdown.Item>
+            {row.original.status === 'draft' && (
+              <Dropdown.Item onClick={() => handleSendInvoice(row.original.id)}>
+                <RiMailSendLine className='size-4' />
+                Send Invoice
+              </Dropdown.Item>
+            )}
+            {row.original.status === 'sent' && (
+              <Dropdown.Item onClick={() => handleMarkAsPaid(row.original.id)}>
+                <RiMoneyDollarCircleLine className='size-4' />
+                Mark as Paid
+              </Dropdown.Item>
+            )}
+            {(row.original.status === 'draft' ||
+              row.original.status === 'sent') && (
+              <Dropdown.Item
+                onClick={() => handleVoidInvoice(row.original.id)}
+                className='text-red-600'
+              >
+                <RiFileTextLine className='size-4' />
+                Void Invoice
+              </Dropdown.Item>
+            )}
             <Dropdown.Separator />
             <Dropdown.Item
               onClick={() => handleDelete(row.original.id)}
@@ -307,65 +376,52 @@ export function InvoicesTable({
 
   return (
     <div className='flex flex-col gap-4'>
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0'>
-        <Table.Root>
-          <Table.Header>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Table.Row key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Table.Head key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </Table.Head>
-                ))}
-              </Table.Row>
-            ))}
-          </Table.Header>
-          <Table.Body>
-            {table.getRowModel().rows.map((row) => (
-              <Table.Row key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <Table.Cell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Table.Cell>
-                ))}
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-      </div>
-
-      {/* Pagination */}
-      {data.pagination && (
-        <InvoicesTablePagination
-          data={data.pagination}
-          onPageChange={onPageChange}
-          onLimitChange={onLimitChange}
-        />
-      )}
+      <Table.Root>
+        <Table.Header>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Row key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.Head key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                </Table.Head>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Header>
+        <Table.Body>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <Table.Cell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Cell>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
     </div>
   );
 }
 
-interface PaginationData {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 interface InvoicesTablePaginationProps {
-  data: PaginationData;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
 }
 
 export function InvoicesTablePagination({
-  data,
+  pagination,
   onPageChange,
   onLimitChange,
 }: InvoicesTablePaginationProps) {
@@ -380,8 +436,8 @@ export function InvoicesTablePagination({
 
   const generatePageNumbers = () => {
     const pages = [];
-    const currentPage = data.page;
-    const totalPages = data.totalPages;
+    const currentPage = pagination!.page;
+    const totalPages = pagination!.totalPages;
 
     // Always show first page
     pages.push(1);
@@ -412,7 +468,7 @@ export function InvoicesTablePagination({
     return pages;
   };
 
-  if (data.totalPages <= 1) {
+  if (!pagination || pagination.totalPages <= 1) {
     return null;
   }
 
@@ -421,7 +477,7 @@ export function InvoicesTablePagination({
       <div className='flex items-center gap-2'>
         <span className='text-paragraph-sm text-text-sub-600'>Show:</span>
         <Select.Root
-          value={data.limit.toString()}
+          value={pagination.limit.toString()}
           onValueChange={handleLimitChange}
         >
           <Select.Trigger className='h-8 w-20'>
@@ -435,7 +491,7 @@ export function InvoicesTablePagination({
           </Select.Content>
         </Select.Root>
         <span className='text-paragraph-sm text-text-sub-600'>
-          of {data.total} invoices
+          of {pagination.total} invoices
         </span>
       </div>
 
@@ -444,7 +500,7 @@ export function InvoicesTablePagination({
           mode='ghost'
           size='xsmall'
           onClick={() => handlePageChange(1)}
-          disabled={data.page === 1}
+          disabled={pagination.page === 1}
           className='h-8 w-8 p-0'
         >
           <RiArrowLeftDoubleLine className='size-4' />
@@ -452,8 +508,8 @@ export function InvoicesTablePagination({
         <Button.Root
           mode='ghost'
           size='xsmall'
-          onClick={() => handlePageChange(data.page - 1)}
-          disabled={data.page === 1}
+          onClick={() => handlePageChange(pagination.page - 1)}
+          disabled={pagination.page === 1}
           className='h-8 w-8 p-0'
         >
           <RiArrowLeftSLine className='size-4' />
@@ -468,7 +524,7 @@ export function InvoicesTablePagination({
                 </span>
               ) : (
                 <Button.Root
-                  mode={data.page === page ? 'filled' : 'ghost'}
+                  mode={pagination.page === page ? 'filled' : 'ghost'}
                   size='xsmall'
                   onClick={() => handlePageChange(page as number)}
                   className='h-8 w-8 p-0'
@@ -483,8 +539,8 @@ export function InvoicesTablePagination({
         <Button.Root
           mode='ghost'
           size='xsmall'
-          onClick={() => handlePageChange(data.page + 1)}
-          disabled={data.page === data.totalPages}
+          onClick={() => handlePageChange(pagination.page + 1)}
+          disabled={pagination.page === pagination.totalPages}
           className='h-8 w-8 p-0'
         >
           <RiArrowRightSLine className='size-4' />
@@ -492,8 +548,8 @@ export function InvoicesTablePagination({
         <Button.Root
           mode='ghost'
           size='xsmall'
-          onClick={() => handlePageChange(data.totalPages)}
-          disabled={data.page === data.totalPages}
+          onClick={() => handlePageChange(pagination.totalPages)}
+          disabled={pagination.page === pagination.totalPages}
           className='h-8 w-8 p-0'
         >
           <RiArrowRightDoubleLine className='size-4' />

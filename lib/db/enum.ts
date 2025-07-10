@@ -7,3 +7,11 @@ export enum QUOTATION_STATUS {
   REJECTED = 'rejected',
   REVISED = 'revised',
 }
+
+export enum INVOICE_STATUS {
+  DRAFT = 'draft',
+  SENT = 'sent',
+  PAID = 'paid',
+  VOID = 'void',
+  OVERDUE = 'overdue',
+}

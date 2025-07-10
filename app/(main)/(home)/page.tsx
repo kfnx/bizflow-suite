@@ -19,17 +19,17 @@ export default function PageHome() {
       <ActionButton
         className='hidden lg:flex'
         label='New Quotation'
-        href='/quotations'
+        href='/quotations/new'
       />
       <ActionButton
         className='hidden lg:flex'
         label='New Invoice'
-        href='/invoices'
+        href='/invoices/new'
       />
       <ActionButton
         className='hidden lg:flex'
         label='New Delivery Note'
-        href='/delivery-notes'
+        href='/delivery-notes/new'
       />
       {/* <MoveMoneyButton className='hidden lg:flex' /> */}
     </Header>

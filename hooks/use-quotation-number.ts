@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 async function fetchQuotationNumber(): Promise<string> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_NEXTAUTH_URL || 'http://localhost:3000';
-  const response = await fetch(`${baseUrl}/api/quotations/preview-number`, {
+  const response = await fetch(`/api/quotations/preview-number`, {
     cache: 'no-store',
   });
 

@@ -11,7 +11,7 @@ export default function HeaderMobile() {
   return (
     <div className='flex h-[60px] w-full items-center justify-between border-b border-stroke-soft-200 px-4 lg:hidden'>
       <Link href='/' className='shrink-0'>
-        <img src='/images/placeholder/apex.svg' alt='' className='size-9' />
+        <div className='p-2 text-label-md'>BizDocGen</div>
       </Link>
 
       <div className='flex gap-3'>

@@ -50,7 +50,11 @@ export default function NewQuotationPage() {
   }, [session, status, router]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return (
+      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
+        Loading...
+      </div>
+    );
   }
 
   const HeaderComponent = () => (

@@ -14,8 +14,8 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
 
   if (isLoading) {
     return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading...</p>
+      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
+        Loading...
       </div>
     );
   }

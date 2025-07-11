@@ -7,6 +7,7 @@ import { RiAddLine } from '@remixicon/react';
 import type { UsersFilters } from '@/hooks/use-users';
 import { Root as Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/auth/permission-gate';
+import { UserDetailsDrawer } from '@/components/user-details-drawer';
 
 import { Filters } from './filters';
 import { UsersTable } from './users-table';
@@ -14,6 +15,7 @@ import { UsersTable } from './users-table';
 export default function UserManagementPage() {
   const router = useRouter();
   const [filters, setFilters] = useState<UsersFilters>({});
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const handleFiltersChange = useCallback(
     (newFilters: {
@@ -35,6 +37,14 @@ export default function UserManagementPage() {
     },
     [],
   );
+
+  const handleUserClick = useCallback((userId: string) => {
+    setSelectedUserId(userId);
+  }, []);
+
+  const handleCloseDrawer = useCallback(() => {
+    setSelectedUserId(null);
+  }, []);
 
   return (
     <div className='flex flex-col gap-6 p-6'>
@@ -60,8 +70,14 @@ export default function UserManagementPage() {
       {/* Users Table */}
       <PermissionGate permission='users:read'>
         <Filters onFiltersChange={handleFiltersChange} />
-        <UsersTable filters={filters} />
+        <UsersTable filters={filters} onUserClick={handleUserClick} />
       </PermissionGate>
+
+      <UserDetailsDrawer
+        userId={selectedUserId}
+        open={!!selectedUserId}
+        onClose={handleCloseDrawer}
+      />
     </div>
   );
 }

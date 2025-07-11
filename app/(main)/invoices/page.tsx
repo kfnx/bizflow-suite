@@ -29,7 +29,7 @@ export default function PageInvoices() {
         <ErrorBoundary context='invoices'>
           <Suspense
             fallback={
-              <div className='p-4 text-center text-text-sub-600'>
+              <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
                 Loading...
               </div>
             }

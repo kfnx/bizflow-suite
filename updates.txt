@@ -1,0 +1,7 @@
+11 jul
+- Penambahan user dibuatkan page khusus
+- Saat pembuatan user baru akan menggunakan default password SandiBaruSTI
+- Saat masuk menggunakan default password akan redirect ke halaman update-password
+- Hapus button delete user
+- Edit user sudah berfungsi
+- Reset password sudah berfungsi

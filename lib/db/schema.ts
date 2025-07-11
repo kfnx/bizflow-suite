@@ -14,6 +14,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 
+import { DEFAULT_PASSWORD } from './constants';
 import { INVOICE_STATUS, QUOTATION_STATUS } from './enum';
 
 // Users table
@@ -29,7 +30,9 @@ export const users = mysqlTable(
     lastName: varchar('last_name', { length: 100 }).notNull(),
     NIK: varchar('nik', { length: 50 }).notNull().unique(),
     email: varchar('email', { length: 255 }).notNull().unique(),
-    password: varchar('password', { length: 255 }).notNull(),
+    password: varchar('password', { length: 255 })
+      .notNull()
+      .default(DEFAULT_PASSWORD),
     jobTitle: varchar('job_title', { length: 100 }),
     joinDate: date('join_date').notNull(),
     type: varchar('type', { length: 50 }).default('full-time'), // full-time, resigned, contract

@@ -5,11 +5,7 @@ import { requirePermission } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
-import { UpdateUserRequest } from '@/lib/validations/user';
-
-interface UpdateUserWithRoleRequest extends UpdateUserRequest {
-  role?: 'staff' | 'manager' | 'director';
-}
+import { updateUserSchema } from '@/lib/validations/user';
 
 // GET /api/users/[id] - Get a specific user
 export async function GET(
@@ -76,13 +72,26 @@ export async function PUT(
   try {
     const db = await getDB();
     const body = await request.json();
-    const validatedData = body as UpdateUserWithRoleRequest;
 
-    // If role is being updated, check if user can assign that role
-    if (
-      validatedData.role &&
-      !canCreateRole(session.user.role, validatedData.role)
-    ) {
+    // Validate with Zod
+    const parsed = updateUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation error',
+          details: parsed.error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 },
+      );
+    }
+
+    const validatedData = parsed.data;
+
+    // Check if user can assign the specified role
+    if (!canCreateRole(session.user.role, validatedData.role)) {
       return NextResponse.json(
         { error: 'You can only assign roles equal to or lower than your own' },
         { status: 403 },
@@ -96,6 +105,38 @@ export async function PUT(
       .where(eq(users.id, params.id))
       .limit(1);
 
+    // Check if email already exists (if email is being updated)
+    if (validatedData.email !== existingUser[0].email) {
+      const emailExists = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, validatedData.email))
+        .limit(1);
+
+      if (emailExists.length > 0) {
+        return NextResponse.json(
+          { error: 'User with this email already exists' },
+          { status: 409 },
+        );
+      }
+    }
+
+    // Check if NIK already exists (if NIK is being updated)
+    if (validatedData.NIK !== existingUser[0].NIK) {
+      const nikExists = await db
+        .select()
+        .from(users)
+        .where(eq(users.NIK, validatedData.NIK))
+        .limit(1);
+
+      if (nikExists.length > 0) {
+        return NextResponse.json(
+          { error: 'User with this NIK already exists' },
+          { status: 409 },
+        );
+      }
+    }
+
     if (existingUser.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -108,7 +149,14 @@ export async function PUT(
       );
     }
 
-    await db.update(users).set(validatedData).where(eq(users.id, params.id));
+    await db
+      .update(users)
+      .set({
+        ...validatedData,
+        joinDate: new Date(validatedData.joinDate),
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, params.id));
 
     return NextResponse.json({ message: 'User updated successfully' });
   } catch (error) {
@@ -122,67 +170,6 @@ export async function PUT(
     console.error('Error updating user:', error);
     return NextResponse.json(
       { error: 'Failed to update user' },
-      { status: 500 },
-    );
-  }
-}
-
-// DELETE /api/users/[id] - Delete user (requires users:delete permission)
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  const session = await requirePermission(request, 'users:delete');
-
-  if (session instanceof NextResponse) {
-    return session;
-  }
-
-  try {
-    const db = await getDB();
-
-    // Check if user exists
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, params.id))
-      .limit(1);
-
-    if (existingUser.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Prevent users from deleting themselves
-    if (params.id === session.user.id) {
-      return NextResponse.json(
-        { error: 'You cannot delete your own account' },
-        { status: 403 },
-      );
-    }
-
-    // Check if user can delete the target user based on role hierarchy
-    const targetUser = existingUser[0];
-    if (!canCreateRole(session.user.role, targetUser.role)) {
-      return NextResponse.json(
-        {
-          error:
-            'You can only delete users with roles equal to or lower than your own',
-        },
-        { status: 403 },
-      );
-    }
-
-    // Soft delete by setting isActive to false
-    await db
-      .update(users)
-      .set({ isActive: false })
-      .where(eq(users.id, params.id));
-
-    return NextResponse.json({ message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete user' },
       { status: 500 },
     );
   }

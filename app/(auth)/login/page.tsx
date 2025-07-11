@@ -13,6 +13,7 @@ import {
 } from '@remixicon/react';
 import { signIn } from 'next-auth/react';
 
+import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { cn } from '@/utils/cn';
 import * as Checkbox from '@/components/ui/checkbox';
 import * as Divider from '@/components/ui/divider';
@@ -70,8 +71,16 @@ export default function PageLogin() {
         console.error('Sign in error:', result.error);
         setError('Invalid email or password');
       } else {
-        router.push('/');
-        router.refresh();
+        // Check if user is using default password
+        console.log(password, DEFAULT_PASSWORD, password === DEFAULT_PASSWORD);
+        if (password === DEFAULT_PASSWORD) {
+          console.log('KE RESET PAS');
+          router.push('/update-password');
+        } else {
+          router.push('/');
+          console.log('KE /');
+          router.refresh();
+        }
       }
     } catch (error) {
       console.error('Sign in exception:', error);

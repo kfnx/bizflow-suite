@@ -1,26 +1,59 @@
-export interface CreateUserRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  NIK: string;
-  jobTitle?: string;
-  joinDate: string;
-  type?: 'full-time' | 'contract' | 'resigned';
-  role: 'staff' | 'manager' | 'director';
-}
+import { z } from 'zod';
 
-export interface UpdateUserRequest {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  avatar?: string;
-  NIK?: string;
-  jobTitle?: string;
-  joinDate?: string;
-  type?: 'full-time' | 'contract' | 'resigned';
-}
+export const createUserSchema = z.object({
+  email: z.string().email({ message: 'Invalid email address' }),
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
+  phone: z.string().optional(),
+  NIK: z.string().min(1, { message: 'NIK is required' }),
+  jobTitle: z.string().optional(),
+  joinDate: z.string().min(1, { message: 'Join date is required' }),
+  type: z.enum(['full-time', 'contract', 'resigned']).optional(),
+  role: z.enum(['staff', 'manager', 'director']),
+});
+
+export const updatePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { message: 'Current password is required' }),
+    newPassword: z
+      .string()
+      .min(8, { message: 'Password must be at least 8 characters long' })
+      .regex(/(?=.*[a-z])/, {
+        message: 'Password must contain at least one lowercase letter',
+      })
+      .regex(/(?=.*[A-Z])/, {
+        message: 'Password must contain at least one uppercase letter',
+      }),
+    // .regex(/(?=.*\d)/, {
+    //   message: 'Password must contain at least one number',
+    // }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: 'Please confirm your password' }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export const updateUserSchema = z.object({
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
+  email: z.string().email({ message: 'Invalid email address' }),
+  phone: z.string().optional(),
+  NIK: z.string().min(1, { message: 'NIK is required' }),
+  jobTitle: z.string().optional(),
+  joinDate: z.string().min(1, { message: 'Join date is required' }),
+  type: z.enum(['full-time', 'contract', 'resigned']).optional(),
+  role: z.enum(['staff', 'manager', 'director']),
+  isActive: z.boolean().optional(),
+});
+
+export type CreateUserRequest = z.infer<typeof createUserSchema>;
+export type UpdatePasswordRequest = z.infer<typeof updatePasswordSchema>;
+export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
 
 export interface LoginRequest {
   email: string;

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiUserAddLine } from '@remixicon/react';
+import { RiEditLine } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 
-import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { hasPermission } from '@/lib/permissions';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useUpdateUser, useUser } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
+import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
@@ -16,39 +17,48 @@ import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
-interface CreateUserData {
-  email: string;
+interface EditUserData {
   firstName: string;
   lastName: string;
+  email: string;
   phone: string;
-  role: string;
   NIK: string;
   jobTitle: string;
   joinDate: string;
   type: string;
+  role: string;
+  isActive: boolean;
 }
 
-interface ValidationError {
-  field: string;
-  message: string;
+interface EditUserPageProps {
+  params: {
+    id: string;
+  };
 }
 
-export default function CreateUserPage() {
+export default function EditUserPage({ params }: EditUserPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { getAvailableRolesForCreation } = usePermissions();
-  const [formData, setFormData] = useState<CreateUserData>({
-    email: '',
+  const {
+    data: userData,
+    isLoading: userLoading,
+    error: userError,
+  } = useUser(params.id);
+  const updateUserMutation = useUpdateUser();
+
+  const [formData, setFormData] = useState<EditUserData>({
     firstName: '',
     lastName: '',
+    email: '',
     phone: '',
-    role: 'staff',
     NIK: '',
     jobTitle: '',
-    joinDate: new Date().toISOString().split('T')[0],
+    joinDate: '',
     type: 'full-time',
+    role: 'staff',
+    isActive: true,
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -65,14 +75,35 @@ export default function CreateUserPage() {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(session.user.role, 'users:create');
+    const userHasPermission = hasPermission(session.user.role, 'users:update');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;
     }
   }, [session, status, router]);
 
-  if (status === 'loading') {
+  // Populate form data when user data is loaded
+  useEffect(() => {
+    if (userData?.user) {
+      const user = userData.user;
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        NIK: user.NIK || '',
+        jobTitle: user.jobTitle || '',
+        joinDate: user.joinDate
+          ? new Date(user.joinDate).toISOString().split('T')[0]
+          : '',
+        type: user.type || 'full-time',
+        role: user.role || 'staff',
+        isActive: user.isActive ?? true,
+      });
+    }
+  }, [userData]);
+
+  if (status === 'loading' || userLoading) {
     return (
       <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
         Loading...
@@ -80,93 +111,83 @@ export default function CreateUserPage() {
     );
   }
 
-  const validateField = (
-    field: keyof CreateUserData,
-    value: string,
-  ): string | null => {
-    switch (field) {
-      case 'firstName':
-        return !value.trim() ? 'First name is required' : null;
-      case 'lastName':
-        return !value.trim() ? 'Last name is required' : null;
-      case 'email':
-        if (!value.trim()) return 'Email address is required';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          return 'Please enter a valid email address';
-        return null;
-      case 'NIK':
-        return !value.trim() ? 'NIK is required' : null;
-      case 'joinDate':
-        return !value ? 'Join date is required' : null;
-      default:
-        return null;
-    }
-  };
+  if (userError) {
+    return (
+      <div className='flex h-full w-full items-center justify-center text-red-600'>
+        Error: {userError.message}
+      </div>
+    );
+  }
 
-  const validateForm = (): Record<string, string> => {
-    const errors: Record<string, string> = {};
-
-    Object.keys(formData).forEach((key) => {
-      const field = key as keyof CreateUserData;
-      const error = validateField(field, formData[field]);
-      if (error) {
-        errors[field] = error;
-      }
-    });
-
-    return errors;
-  };
+  if (!userData?.user) {
+    return (
+      <div className='flex h-full w-full items-center justify-center text-red-600'>
+        User not found
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
     setValidationErrors({});
 
     // Client-side validation
-    const clientErrors = validateForm();
-    if (Object.keys(clientErrors).length > 0) {
-      setValidationErrors(clientErrors);
-      setIsLoading(false);
+    const errors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) {
+      errors.firstName = 'First name is required';
+    }
+    if (!formData.lastName.trim()) {
+      errors.lastName = 'Last name is required';
+    }
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    }
+    if (!formData.NIK.trim()) {
+      errors.NIK = 'NIK is required';
+    }
+    if (!formData.joinDate) {
+      errors.joinDate = 'Join date is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       return;
     }
 
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      await updateUserMutation.mutateAsync({
+        userId: params.id,
+        userData: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          NIK: formData.NIK,
+          jobTitle: formData.jobTitle || undefined,
+          joinDate: formData.joinDate,
+          type: formData.type as 'full-time' | 'contract' | 'resigned',
+          role: formData.role as 'staff' | 'manager' | 'director',
+          isActive: formData.isActive,
         },
-        body: JSON.stringify(formData),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.details && Array.isArray(data.details)) {
-          // Handle detailed validation errors from API
-          const serverErrors: Record<string, string> = {};
-          data.details.forEach((detail: ValidationError) => {
-            serverErrors[detail.field] = detail.message;
-          });
-          setValidationErrors(serverErrors);
-        } else {
-          // Handle general error
-          setError(data.error || 'Failed to create user');
-        }
-        return;
-      }
 
       // Navigate back to users list
       router.push('/users');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An error occurred while updating the user');
+      }
     }
   };
 
-  const handleInputChange = (field: keyof CreateUserData, value: string) => {
+  const handleInputChange = (
+    field: keyof EditUserData,
+    value: string | boolean,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear validation errors when user starts typing
@@ -182,25 +203,24 @@ export default function CreateUserPage() {
     <Header
       icon={
         <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-          <RiUserAddLine className='size-6' />
+          <RiEditLine className='size-6' />
         </div>
       }
-      title='New User'
-      description='Add a new user to the system.'
+      title='Edit User'
+      description={`Update ${userData.user.firstName} ${userData.user.lastName}'s information.`}
     >
       <BackButton href='/users' label='Back to Users' />
     </Header>
   );
 
   return (
-    <PermissionGate permission='users:create'>
+    <PermissionGate permission='users:update'>
       <HeaderComponent />
       <form
         onSubmit={handleSubmit}
         className='mx-auto w-full max-w-4xl space-y-8'
-        noValidate
       >
-        <div className='space-y-4 rounded-lg border border-stroke-soft-200 p-6'>
+        <div className='space-y-6 rounded-lg border border-stroke-soft-200 p-6'>
           {error && (
             <div className='text-sm rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700'>
               {error}
@@ -226,8 +246,8 @@ export default function CreateUserPage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange('firstName', e.target.value)
                       }
+                      required
                       className='px-3'
-                      placeholder='Enter first name'
                     />
                   </Input.Wrapper>
                 </Input.Root>
@@ -250,8 +270,8 @@ export default function CreateUserPage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange('lastName', e.target.value)
                       }
+                      required
                       className='px-3'
-                      placeholder='Enter last name'
                     />
                   </Input.Wrapper>
                 </Input.Root>
@@ -277,8 +297,8 @@ export default function CreateUserPage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange('email', e.target.value)
                       }
+                      required
                       className='px-3'
-                      placeholder='Enter email address'
                     />
                   </Input.Wrapper>
                 </Input.Root>
@@ -301,15 +321,9 @@ export default function CreateUserPage() {
                         handleInputChange('phone', e.target.value)
                       }
                       className='px-3'
-                      placeholder='Enter phone number'
                     />
                   </Input.Wrapper>
                 </Input.Root>
-                {validationErrors.phone && (
-                  <div className='text-xs text-red-600'>
-                    {validationErrors.phone}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -326,6 +340,7 @@ export default function CreateUserPage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange('NIK', e.target.value)
                       }
+                      required
                       className='px-3'
                       placeholder='Enter NIK'
                     />
@@ -349,39 +364,17 @@ export default function CreateUserPage() {
                         handleInputChange('jobTitle', e.target.value)
                       }
                       className='px-3'
-                      placeholder='Enter job title (optional)'
+                      placeholder='Enter job title'
                     />
                   </Input.Wrapper>
                 </Input.Root>
-                {validationErrors.jobTitle && (
-                  <div className='text-xs text-red-600'>
-                    {validationErrors.jobTitle}
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Password Information */}
-          <div className='pt-6'>
-            <h3 className='text-lg text-gray-900 mb-4 font-medium'>
-              Account Security
-            </h3>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Default Password</Label.Root>
-            <div className='px-4 py-2 text-paragraph-sm text-text-sub-600'>
-              {DEFAULT_PASSWORD}
-            </div>
-            <div className='mt-1 text-label-xs text-text-sub-600'>
-              * The user will be able to login with this default password and
-              can change it later.
-            </div>
-          </div>
-
+          <Divider.Root />
           {/* Work Information */}
-          <div className='pt-6'>
+          <div>
             <h3 className='text-lg text-gray-900 mb-4 font-medium'>
               Work Information
             </h3>
@@ -400,6 +393,7 @@ export default function CreateUserPage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange('joinDate', e.target.value)
                       }
+                      required
                       className='px-3'
                     />
                   </Input.Wrapper>
@@ -428,11 +422,6 @@ export default function CreateUserPage() {
                     <Select.Item value='resigned'>Resigned</Select.Item>
                   </Select.Content>
                 </Select.Root>
-                {validationErrors.type && (
-                  <div className='text-xs text-red-600'>
-                    {validationErrors.type}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -456,11 +445,24 @@ export default function CreateUserPage() {
                     ))}
                   </Select.Content>
                 </Select.Root>
-                {validationErrors.role && (
-                  <div className='text-xs text-red-600'>
-                    {validationErrors.role}
-                  </div>
-                )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='isActive'>Account Status</Label.Root>
+                <Select.Root
+                  value={formData.isActive ? 'active' : 'inactive'}
+                  onValueChange={(value) =>
+                    handleInputChange('isActive', value === 'active')
+                  }
+                >
+                  <Select.Trigger>
+                    <Select.Value placeholder='Select status' />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value='active'>Active</Select.Item>
+                    <Select.Item value='inactive'>Inactive</Select.Item>
+                  </Select.Content>
+                </Select.Root>
               </div>
             </div>
           </div>
@@ -472,12 +474,16 @@ export default function CreateUserPage() {
             variant='neutral'
             mode='ghost'
             onClick={() => router.push('/users')}
-            disabled={isLoading}
+            disabled={updateUserMutation.isPending}
           >
             Cancel
           </Button.Root>
-          <Button.Root type='submit' variant='primary' disabled={isLoading}>
-            {isLoading ? 'Creating...' : 'Create User'}
+          <Button.Root
+            type='submit'
+            variant='primary'
+            disabled={updateUserMutation.isPending}
+          >
+            {updateUserMutation.isPending ? 'Updating...' : 'Update User'}
           </Button.Root>
         </div>
       </form>

@@ -59,14 +59,70 @@ const fetchUsers = async (
   return response.json();
 };
 
-const deleteUser = async (userId: string): Promise<void> => {
-  const response = await fetch(`/api/users/${userId}`, {
-    method: 'DELETE',
+const fetchUser = async (userId: string): Promise<{ user: User }> => {
+  const response = await fetch(`/api/users/${userId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch user');
+  }
+  return response.json();
+};
+
+const resetUserPassword = async (userId: string): Promise<void> => {
+  const response = await fetch(`/api/users/${userId}/reset-password`, {
+    method: 'POST',
   });
 
   if (!response.ok) {
     const data = await response.json();
-    throw new Error(data.error || 'Failed to delete user');
+    throw new Error(data.error || 'Failed to reset password');
+  }
+};
+
+const updatePassword = async (passwordData: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<void> => {
+  const response = await fetch('/api/update-password', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(passwordData),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to update password');
+  }
+};
+
+const updateUser = async (
+  userId: string,
+  userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    NIK: string;
+    jobTitle?: string;
+    joinDate: string;
+    type?: 'full-time' | 'contract' | 'resigned';
+    role: 'staff' | 'manager' | 'director';
+    isActive?: boolean;
+  },
+): Promise<void> => {
+  const response = await fetch(`/api/users/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to update user');
   }
 };
 
@@ -77,14 +133,54 @@ export function useUsers(filters: UsersFilters = {}) {
   });
 }
 
-export function useDeleteUser() {
+export function useUser(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId),
+    enabled: !!userId,
+  });
+}
+
+export function useResetUserPassword() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteUser,
+    mutationFn: resetUserPassword,
     onSuccess: () => {
-      // Invalidate and refetch users after successful deletion
+      // Invalidate and refetch users after successful password reset
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+  });
+}
+
+export function useUpdatePassword() {
+  return useMutation({
+    mutationFn: updatePassword,
+    onError: (error) => {
+      console.error('Password update error:', error);
+    },
+  });
+}
+
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      userData,
+    }: {
+      userId: string;
+      userData: Parameters<typeof updateUser>[1];
+    }) => updateUser(userId, userData),
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch users after successful update
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user', userId] });
+    },
+    onError: (error) => {
+      console.error('User update error:', error);
     },
   });
 }

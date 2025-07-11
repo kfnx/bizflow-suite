@@ -4,9 +4,10 @@ import { and, desc, eq, like, or } from 'drizzle-orm';
 
 import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
+import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
-import { CreateUserRequest, UpdateUserRequest } from '@/lib/validations/user';
+import { createUserSchema } from '@/lib/validations/user';
 
 export const dynamic = 'force-dynamic';
 
@@ -150,9 +151,22 @@ export async function POST(request: NextRequest) {
   try {
     const db = await getDB();
     const body = await request.json();
-    const validatedData = body as CreateUserRequest & {
-      role: 'staff' | 'manager' | 'director';
-    };
+
+    // Validate with Zod
+    const parsed = createUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: parsed.error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 },
+      );
+    }
+    const validatedData = parsed.data;
 
     // Check if user can create the specified role
     if (!canCreateRole(session.user.role, validatedData.role)) {
@@ -165,7 +179,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
+    // Check if user already exists (email)
     const existingUser = await db
       .select()
       .from(users)
@@ -179,8 +193,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if NIK already exists
+    const existingNIK = await db
+      .select()
+      .from(users)
+      .where(eq(users.NIK, validatedData.NIK))
+      .limit(1);
+
+    if (existingNIK.length > 0) {
+      return NextResponse.json(
+        { error: 'User with this NIK already exists' },
+        { status: 409 },
+      );
+    }
+
     // Hash password
-    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+    const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 12);
 
     // Generate user code (USR-XXXX format)
     const userCount = await db.select({ count: users.id }).from(users);

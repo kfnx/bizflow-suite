@@ -4,9 +4,9 @@ import * as React from 'react';
 import {
   RiArrowDownSFill,
   RiArrowUpSFill,
-  RiDeleteBinLine,
   RiEditLine,
   RiExpandUpDownFill,
+  RiLockPasswordLine,
   RiMoreLine,
   RiUserLine,
 } from '@remixicon/react';
@@ -22,7 +22,7 @@ import {
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/date-formatter';
 import { usePermissions } from '@/hooks/use-permissions';
-import { useDeleteUser, useUsers, type User } from '@/hooks/use-users';
+import { useResetUserPassword, useUsers, type User } from '@/hooks/use-users';
 import { Root as Avatar, Image as AvatarImage } from '@/components/ui/avatar';
 import { Root as Badge } from '@/components/ui/badge';
 import { Root as Button } from '@/components/ui/button';
@@ -70,32 +70,22 @@ const getTypeColor = (type: string) => {
 };
 
 function ActionCell({ row }: { row: any }) {
-  const { can, role: currentUserRole } = usePermissions();
-  const deleteUserMutation = useDeleteUser();
+  const resetPasswordMutation = useResetUserPassword();
 
-  const canDeleteUser = (userRole: string) => {
-    // Check if current user has delete permission
-    if (!can('users:delete')) return false;
+  const handleResetPassword = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click
 
-    // Check role hierarchy - can only delete users with equal or lower roles
-    const roleOrder = ['staff', 'manager', 'director'];
-    const currentUserRoleIndex = roleOrder.indexOf(currentUserRole);
-    const targetUserRoleIndex = roleOrder.indexOf(userRole);
-
-    return currentUserRoleIndex >= targetUserRoleIndex;
-  };
-
-  const handleDeleteUser = async (userId: string) => {
     if (
       !confirm(
-        'Are you sure you want to delete this user? This action cannot be undone.',
+        `Are you sure you want to reset ${row.original.firstName} ${row.original.lastName}'s password? This will set their password to the default password.`,
       )
     ) {
       return;
     }
 
     try {
-      await deleteUserMutation.mutateAsync(userId);
+      await resetPasswordMutation.mutateAsync(row.original.id);
+      alert('Password reset successfully!');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'An error occurred');
     }
@@ -110,24 +100,30 @@ function ActionCell({ row }: { row: any }) {
             mode='ghost'
             size='xsmall'
             className='h-8 w-8 p-0'
+            onClick={(e) => e.stopPropagation()}
           >
             <RiMoreLine className='size-4' />
           </Button>
         </DropdownTrigger>
         <DropdownContent>
-          <DropdownItem>
+          <DropdownItem
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = `/users/${row.original.id}/edit`;
+            }}
+          >
             <RiEditLine className='size-4' />
             Edit User
           </DropdownItem>
-          {canDeleteUser(row.original.role) && (
-            <DropdownItem
-              onClick={() => handleDeleteUser(row.original.id)}
-              className='text-red-600'
-            >
-              <RiDeleteBinLine className='size-4' />
-              Delete User
-            </DropdownItem>
-          )}
+          <DropdownItem
+            onClick={handleResetPassword}
+            disabled={resetPasswordMutation.isPending}
+          >
+            <RiLockPasswordLine className='size-4' />
+            {resetPasswordMutation.isPending
+              ? 'Resetting...'
+              : 'Reset Password'}
+          </DropdownItem>
         </DropdownContent>
       </Dropdown>
     </PermissionGate>
@@ -338,9 +334,10 @@ interface UsersTableProps {
     page?: number;
     limit?: number;
   };
+  onUserClick?: (userId: string) => void;
 }
 
-export function UsersTable({ filters }: UsersTableProps) {
+export function UsersTable({ filters, onUserClick }: UsersTableProps) {
   const { data, isLoading, error } = useUsers(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -418,7 +415,11 @@ export function UsersTable({ filters }: UsersTableProps) {
         {table.getRowModel().rows?.length > 0 &&
           table.getRowModel().rows.map((row, i, arr) => (
             <React.Fragment key={row.id}>
-              <Table.Row data-state={row.getIsSelected() && 'selected'}>
+              <Table.Row
+                data-state={row.getIsSelected() && 'selected'}
+                className='hover:bg-gray-50 cursor-pointer'
+                onClick={() => onUserClick?.(row.original.id)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <Table.Cell
                     key={cell.id}

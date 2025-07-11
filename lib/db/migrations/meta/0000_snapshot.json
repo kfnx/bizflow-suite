@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "247fa0c7-11d5-4c43-97fe-cafa52e7694b",
+  "id": "8fd3ba11-a942-462f-bd49-dbc36fb73a32",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -107,6 +107,67 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "contact_persons": {
+      "name": "contact_persons",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(UUID())"
+        },
+        "entity": {
+          "name": "entity",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "contact_persons_id": {
+          "name": "contact_persons_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "customers": {
       "name": "customers",
       "columns": {
@@ -115,7 +176,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "code": {
           "name": "code",
@@ -167,22 +229,43 @@
           "notNull": false,
           "autoincrement": false
         },
-        "contact_person_name": {
-          "name": "contact_person_name",
+        "contact_person_id": {
+          "name": "contact_person_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "city": {
+          "name": "city",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "contact_person_email": {
-          "name": "contact_person_email",
-          "type": "varchar(255)",
+        "province": {
+          "name": "province",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "contact_person_phone": {
-          "name": "contact_person_phone",
+        "country": {
+          "name": "country",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "postal_code": {
+          "name": "postal_code",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false,
@@ -237,7 +320,21 @@
           "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "fk_customers_contact_person": {
+          "name": "fk_customers_contact_person",
+          "tableFrom": "customers",
+          "tableTo": "contact_persons",
+          "columnsFrom": [
+            "contact_person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "customers_id": {
           "name": "customers_id",
@@ -264,7 +361,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "delivery_note_id": {
           "name": "delivery_note_id",
@@ -374,7 +472,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "delivery_number": {
           "name": "delivery_number",
@@ -609,7 +708,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "import_id": {
           "name": "import_id",
@@ -733,7 +833,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "import_number": {
           "name": "import_number",
@@ -946,7 +1047,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "invoice_id": {
           "name": "invoice_id",
@@ -1076,7 +1178,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "invoice_number": {
           "name": "invoice_number",
@@ -1147,7 +1250,7 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "enum('draft','sent','paid','void','overdue')",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1296,7 +1399,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "code": {
           "name": "code",
@@ -1363,9 +1467,9 @@
           "autoincrement": false,
           "default": "'in_stock'"
         },
-        "location": {
-          "name": "location",
-          "type": "varchar(255)",
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1532,7 +1636,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "quotation_id": {
           "name": "quotation_id",
@@ -1648,7 +1753,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "quotation_number": {
           "name": "quotation_number",
@@ -1673,13 +1779,6 @@
         },
         "customer_id": {
           "name": "customer_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "approver_id": {
-          "name": "approver_id",
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": false,
@@ -1727,7 +1826,7 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "enum('draft','submitted','approved','sent','accepted','rejected','revised')",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1752,6 +1851,70 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "approver_by": {
+          "name": "approver_by",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "customer_response_date": {
+          "name": "customer_response_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "customer_response_notes": {
+          "name": "customer_response_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "customer_acceptance_info": {
+          "name": "customer_acceptance_info",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "rejection_reason": {
+          "name": "rejection_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revision_reason": {
+          "name": "revision_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revision_version": {
+          "name": "revision_version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "invoiced_at": {
+          "name": "invoiced_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "invoice_id": {
+          "name": "invoice_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -1834,7 +1997,7 @@
           "tableFrom": "quotations",
           "tableTo": "users",
           "columnsFrom": [
-            "approver_id"
+            "approver_by"
           ],
           "columnsTo": [
             "id"
@@ -1907,7 +2070,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "warehouse_stock_id": {
           "name": "warehouse_stock_id",
@@ -2073,7 +2237,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "code": {
           "name": "code",
@@ -2089,16 +2254,37 @@
           "notNull": true,
           "autoincrement": false
         },
-        "country": {
-          "name": "country",
-          "type": "varchar(50)",
+        "address": {
+          "name": "address",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "address": {
-          "name": "address",
-          "type": "text",
+        "city": {
+          "name": "city",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "province": {
+          "name": "province",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "country": {
+          "name": "country",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "postal_code": {
+          "name": "postal_code",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -2111,30 +2297,9 @@
           "autoincrement": false,
           "default": "'USD'"
         },
-        "postal_code": {
-          "name": "postal_code",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "contact_person_name": {
-          "name": "contact_person_name",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "contact_person_email": {
-          "name": "contact_person_email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "contact_person_phone": {
-          "name": "contact_person_phone",
-          "type": "varchar(20)",
+        "contact_person_id": {
+          "name": "contact_person_id",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -2181,7 +2346,21 @@
           "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "fk_suppliers_contact_person": {
+          "name": "fk_suppliers_contact_person",
+          "tableFrom": "suppliers",
+          "tableTo": "contact_persons",
+          "columnsFrom": [
+            "contact_person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "suppliers_id": {
           "name": "suppliers_id",
@@ -2208,7 +2387,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "transfer_id": {
           "name": "transfer_id",
@@ -2318,7 +2498,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "transfer_number": {
           "name": "transfer_number",
@@ -2499,7 +2680,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "code": {
           "name": "code",
@@ -2519,7 +2701,7 @@
           "name": "last_name",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "nik": {
@@ -2541,7 +2723,8 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'SandiRumitSTI'"
         },
         "job_title": {
           "name": "job_title",
@@ -2714,7 +2897,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "warehouse_id": {
           "name": "warehouse_id",
@@ -2832,7 +3016,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "code": {
           "name": "code",

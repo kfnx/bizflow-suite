@@ -4,6 +4,7 @@ export const userIds = {
   user2: 'usr00002-0000-0000-0000-000000000002',
   user3: 'usr00003-0000-0000-0000-000000000003',
   user4: 'usr00004-0000-0000-0000-000000000004',
+  user5: 'usr00005-0000-0000-0000-000000000005',
 };
 
 export const customerIds = {
@@ -23,6 +24,8 @@ export const supplierIds = {
 export const warehouseIds = {
   warehouse1: 'whs00001-0000-0000-0000-000000000001',
   warehouse2: 'whs00002-0000-0000-0000-000000000002',
+  warehouse3: 'whs00003-0000-0000-0000-000000000003',
+  warehouse4: 'whs00004-0000-0000-0000-000000000004',
 };
 
 export const productIds = {

@@ -1,1 +1,0 @@
-ALTER TABLE `quotations` MODIFY COLUMN `status` enum('draft','submitted','sent','accepted','rejected') DEFAULT 'draft';

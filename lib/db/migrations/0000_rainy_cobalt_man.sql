@@ -13,8 +13,18 @@ CREATE TABLE `accounts` (
 	CONSTRAINT `accounts_provider_providerAccountId_pk` PRIMARY KEY(`provider`,`providerAccountId`)
 );
 --> statement-breakpoint
+CREATE TABLE `contact_persons` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
+	`entity` varchar(50) NOT NULL,
+	`name` varchar(100) NOT NULL,
+	`email` varchar(255),
+	`phone` varchar(20),
+	`created_at` timestamp DEFAULT (now()),
+	CONSTRAINT `contact_persons_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `customers` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`code` varchar(50) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`type` varchar(50) DEFAULT 'individual',
@@ -22,9 +32,12 @@ CREATE TABLE `customers` (
 	`npwp16` varchar(50),
 	`billing_address` text,
 	`shipping_address` text,
-	`contact_person_name` varchar(100),
-	`contact_person_email` varchar(255),
-	`contact_person_phone` varchar(20),
+	`contact_person_id` varchar(36),
+	`address` text,
+	`city` varchar(100),
+	`province` varchar(100),
+	`country` varchar(100),
+	`postal_code` varchar(20),
 	`payment_terms` varchar(100),
 	`is_ppn` boolean DEFAULT false,
 	`created_at` timestamp DEFAULT (now()),
@@ -34,7 +47,7 @@ CREATE TABLE `customers` (
 );
 --> statement-breakpoint
 CREATE TABLE `delivery_note_items` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`delivery_note_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` decimal(10,2) NOT NULL,
@@ -45,7 +58,7 @@ CREATE TABLE `delivery_note_items` (
 );
 --> statement-breakpoint
 CREATE TABLE `delivery_notes` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`delivery_number` varchar(50) NOT NULL,
 	`invoice_id` varchar(36),
 	`customer_id` varchar(36) NOT NULL,
@@ -65,7 +78,7 @@ CREATE TABLE `delivery_notes` (
 );
 --> statement-breakpoint
 CREATE TABLE `import_items` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`import_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` decimal(10,2) NOT NULL,
@@ -78,7 +91,7 @@ CREATE TABLE `import_items` (
 );
 --> statement-breakpoint
 CREATE TABLE `imports` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`import_number` varchar(50) NOT NULL,
 	`supplier_id` varchar(36) NOT NULL,
 	`warehouse_id` varchar(36) NOT NULL,
@@ -98,7 +111,7 @@ CREATE TABLE `imports` (
 );
 --> statement-breakpoint
 CREATE TABLE `invoice_items` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`invoice_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` decimal(10,2) NOT NULL,
@@ -112,7 +125,7 @@ CREATE TABLE `invoice_items` (
 );
 --> statement-breakpoint
 CREATE TABLE `invoices` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`invoice_number` varchar(50) NOT NULL,
 	`quotation_id` varchar(36),
 	`invoice_date` date NOT NULL,
@@ -122,7 +135,7 @@ CREATE TABLE `invoices` (
 	`tax` decimal(15,2) DEFAULT '0.00',
 	`total` decimal(15,2) DEFAULT '0.00',
 	`currency` varchar(3) DEFAULT 'IDR',
-	`status` varchar(50) DEFAULT 'draft',
+	`status` enum('draft','sent','paid','void','overdue') DEFAULT 'draft',
 	`payment_method` varchar(100),
 	`notes` text,
 	`created_by` varchar(36) NOT NULL,
@@ -133,7 +146,7 @@ CREATE TABLE `invoices` (
 );
 --> statement-breakpoint
 CREATE TABLE `products` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`code` varchar(100) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`description` text,
@@ -143,7 +156,7 @@ CREATE TABLE `products` (
 	`year` int,
 	`condition` varchar(50) DEFAULT 'new',
 	`status` varchar(50) DEFAULT 'in_stock',
-	`location` varchar(255),
+	`warehouse_id` varchar(36),
 	`unit` varchar(20) NOT NULL,
 	`price` decimal(15,2) DEFAULT '0.00',
 	`currency` varchar(3) DEFAULT 'IDR',
@@ -159,7 +172,7 @@ CREATE TABLE `products` (
 );
 --> statement-breakpoint
 CREATE TABLE `quotation_items` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`quotation_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` decimal(10,2) NOT NULL,
@@ -171,21 +184,29 @@ CREATE TABLE `quotation_items` (
 );
 --> statement-breakpoint
 CREATE TABLE `quotations` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`quotation_number` varchar(50) NOT NULL,
 	`quotation_date` date NOT NULL,
 	`valid_until` date NOT NULL,
-	`customer_id` varchar(36) NOT NULL,
-	`approver_id` varchar(36),
+	`customer_id` varchar(36),
 	`is_include_ppn` boolean DEFAULT false,
 	`subtotal` decimal(15,2) DEFAULT '0.00',
 	`tax` decimal(15,2) DEFAULT '0.00',
 	`total` decimal(15,2) DEFAULT '0.00',
 	`currency` varchar(3) DEFAULT 'IDR',
-	`status` varchar(50) DEFAULT 'draft',
+	`status` enum('draft','submitted','approved','sent','accepted','rejected','revised') DEFAULT 'draft',
 	`notes` text,
 	`terms_and_conditions` text,
 	`created_by` varchar(36) NOT NULL,
+	`approver_by` varchar(36),
+	`customer_response_date` timestamp,
+	`customer_response_notes` text,
+	`customer_acceptance_info` text,
+	`rejection_reason` text,
+	`revision_reason` text,
+	`revision_version` int DEFAULT 1,
+	`invoiced_at` timestamp,
+	`invoice_id` varchar(36),
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `quotations_id` PRIMARY KEY(`id`),
@@ -200,7 +221,7 @@ CREATE TABLE `sessions` (
 );
 --> statement-breakpoint
 CREATE TABLE `stock_movements` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`warehouse_stock_id` varchar(36) NOT NULL,
 	`warehouse_id` varchar(36) NOT NULL,
 	`machine_id` varchar(36) NOT NULL,
@@ -215,16 +236,16 @@ CREATE TABLE `stock_movements` (
 );
 --> statement-breakpoint
 CREATE TABLE `suppliers` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`code` varchar(50) NOT NULL,
 	`name` varchar(255) NOT NULL,
-	`country` varchar(50),
 	`address` text,
-	`transaction_currency` varchar(3) DEFAULT 'USD',
+	`city` varchar(100),
+	`province` varchar(100),
+	`country` varchar(100),
 	`postal_code` varchar(20),
-	`contact_person_name` varchar(100),
-	`contact_person_email` varchar(255),
-	`contact_person_phone` varchar(20),
+	`transaction_currency` varchar(3) DEFAULT 'USD',
+	`contact_person_id` varchar(36),
 	`is_active` boolean DEFAULT true,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -233,7 +254,7 @@ CREATE TABLE `suppliers` (
 );
 --> statement-breakpoint
 CREATE TABLE `transfer_items` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`transfer_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` decimal(10,2) NOT NULL,
@@ -244,7 +265,7 @@ CREATE TABLE `transfer_items` (
 );
 --> statement-breakpoint
 CREATE TABLE `transfers` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`transfer_number` varchar(50) NOT NULL,
 	`from_warehouse_id` varchar(36) NOT NULL,
 	`to_warehouse_id` varchar(36) NOT NULL,
@@ -260,13 +281,13 @@ CREATE TABLE `transfers` (
 );
 --> statement-breakpoint
 CREATE TABLE `users` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`code` varchar(50) NOT NULL,
 	`first_name` varchar(100) NOT NULL,
-	`last_name` varchar(100) NOT NULL,
+	`last_name` varchar(100),
 	`nik` varchar(50) NOT NULL,
 	`email` varchar(255) NOT NULL,
-	`password` varchar(255) NOT NULL,
+	`password` varchar(255) NOT NULL DEFAULT 'SandiRumitSTI',
 	`job_title` varchar(100),
 	`join_date` date NOT NULL,
 	`type` varchar(50) DEFAULT 'full-time',
@@ -291,7 +312,7 @@ CREATE TABLE `verificationToken` (
 );
 --> statement-breakpoint
 CREATE TABLE `warehouse_stocks` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`warehouse_id` varchar(36) NOT NULL,
 	`machine_id` varchar(36) NOT NULL,
 	`last_check` timestamp,
@@ -302,7 +323,7 @@ CREATE TABLE `warehouse_stocks` (
 );
 --> statement-breakpoint
 CREATE TABLE `warehouses` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`code` varchar(50) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`address` text,
@@ -317,6 +338,7 @@ CREATE TABLE `warehouses` (
 	CONSTRAINT `warehouses_code_unique` UNIQUE(`code`)
 );
 --> statement-breakpoint
+ALTER TABLE `customers` ADD CONSTRAINT `fk_customers_contact_person` FOREIGN KEY (`contact_person_id`) REFERENCES `contact_persons`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_note_items` ADD CONSTRAINT `fk_delivery_note_items_delivery_note` FOREIGN KEY (`delivery_note_id`) REFERENCES `delivery_notes`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_note_items` ADD CONSTRAINT `fk_delivery_note_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `invoices`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -339,10 +361,11 @@ ALTER TABLE `quotation_items` ADD CONSTRAINT `fk_quotation_items_quotation` FORE
 ALTER TABLE `quotation_items` ADD CONSTRAINT `fk_quotation_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_approver` FOREIGN KEY (`approver_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_approver` FOREIGN KEY (`approver_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_warehouse_stock` FOREIGN KEY (`warehouse_stock_id`) REFERENCES `warehouse_stocks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_machine` FOREIGN KEY (`machine_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `suppliers` ADD CONSTRAINT `fk_suppliers_contact_person` FOREIGN KEY (`contact_person_id`) REFERENCES `contact_persons`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfer_items` ADD CONSTRAINT `fk_transfer_items_transfer` FOREIGN KEY (`transfer_id`) REFERENCES `transfers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfer_items` ADD CONSTRAINT `fk_transfer_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_from_warehouse` FOREIGN KEY (`from_warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint

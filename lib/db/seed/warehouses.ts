@@ -1,6 +1,8 @@
 export const warehouseIds = {
   warehouse1: 'whs00001-0000-0000-0000-000000000001',
   warehouse2: 'whs00002-0000-0000-0000-000000000002',
+  warehouse3: 'whs00003-0000-0000-0000-000000000003',
+  warehouse4: 'whs00004-0000-0000-0000-000000000004',
 };
 
 export const warehouses = [
@@ -24,6 +26,28 @@ export const warehouses = [
     country: 'Indonesia',
     manager: 'Warehouse Manager Surabaya',
     phone: '+6281234567896',
+    isActive: true,
+  },
+  {
+    id: warehouseIds.warehouse3,
+    code: 'WH003',
+    name: 'Warehouse Bandung',
+    address: 'Jl. Warehouse No. 3, Bandung',
+    city: 'Bandung',
+    country: 'Indonesia',
+    manager: 'Warehouse Manager Bandung',
+    phone: '+6281234567897',
+    isActive: true,
+  },
+  {
+    id: warehouseIds.warehouse4,
+    code: 'WH004',
+    name: 'Warehouse Medan',
+    address: 'Jl. Warehouse No. 4, Medan',
+    city: 'Medan',
+    country: 'Indonesia',
+    manager: 'Warehouse Manager Medan',
+    phone: '+6281234567898',
     isActive: true,
   },
 ];

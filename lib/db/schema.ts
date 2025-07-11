@@ -27,7 +27,7 @@ export const users = mysqlTable(
       .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     firstName: varchar('first_name', { length: 100 }).notNull(),
-    lastName: varchar('last_name', { length: 100 }).notNull(),
+    lastName: varchar('last_name', { length: 100 }),
     NIK: varchar('nik', { length: 50 }).notNull().unique(),
     email: varchar('email', { length: 255 }).notNull().unique(),
     password: varchar('password', { length: 255 })
@@ -105,9 +105,12 @@ export const customers = mysqlTable(
     npwp16: varchar('npwp16', { length: 50 }),
     billingAddress: text('billing_address'),
     shippingAddress: text('shipping_address'),
-    contactPersonName: varchar('contact_person_name', { length: 100 }),
-    contactPersonEmail: varchar('contact_person_email', { length: 255 }),
-    contactPersonPhone: varchar('contact_person_phone', { length: 20 }),
+    contactPersonId: varchar('contact_person_id', { length: 36 }),
+    address: text('address'),
+    city: varchar('city', { length: 100 }),
+    province: varchar('province', { length: 100 }),
+    country: varchar('country', { length: 100 }),
+    postalCode: varchar('postal_code', { length: 20 }),
     paymentTerms: varchar('payment_terms', { length: 100 }), // NET 30, NET 15
     isPPN: boolean('is_ppn').default(false),
     createdAt: timestamp('created_at').defaultNow(),
@@ -116,6 +119,11 @@ export const customers = mysqlTable(
   (table) => [
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
+    foreignKey({
+      columns: [table.contactPersonId],
+      foreignColumns: [contactPersons.id],
+      name: 'fk_customers_contact_person',
+    }),
   ],
 );
 
@@ -129,15 +137,15 @@ export const suppliers = mysqlTable(
       .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
-    country: varchar('country', { length: 50 }),
     address: text('address'),
+    city: varchar('city', { length: 100 }),
+    province: varchar('province', { length: 100 }),
+    country: varchar('country', { length: 100 }),
+    postalCode: varchar('postal_code', { length: 20 }),
     transactionCurrency: varchar('transaction_currency', { length: 3 }).default(
       'USD',
     ),
-    postalCode: varchar('postal_code', { length: 20 }),
-    contactPersonName: varchar('contact_person_name', { length: 100 }),
-    contactPersonEmail: varchar('contact_person_email', { length: 255 }),
-    contactPersonPhone: varchar('contact_person_phone', { length: 20 }),
+    contactPersonId: varchar('contact_person_id', { length: 36 }),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -145,8 +153,25 @@ export const suppliers = mysqlTable(
   (table) => [
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
+    foreignKey({
+      columns: [table.contactPersonId],
+      foreignColumns: [contactPersons.id],
+      name: 'fk_suppliers_contact_person',
+    }),
   ],
 );
+
+export const contactPersons = mysqlTable('contact_persons', {
+  id: varchar('id', { length: 36 })
+    .primaryKey()
+    .notNull()
+    .default(sql`(UUID())`),
+  entity: varchar('entity', { length: 50 }).notNull(), // supplier, customer
+  name: varchar('name', { length: 100 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  phone: varchar('phone', { length: 20 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
 
 // Warehouses table
 export const warehouses = mysqlTable(

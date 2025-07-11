@@ -2,12 +2,12 @@ import { drizzle } from 'drizzle-orm/mysql2';
 
 import { createConnection } from '../index';
 import * as schema from '../schema';
-import { customers } from './customers';
+import { customers, customerContactPersons } from './customers';
 import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
 import { invoiceItems, invoices } from './invoices';
 import { products } from './products';
 import { quotationItems, quotations } from './quotations';
-import { suppliers } from './suppliers';
+import { suppliers, supplierContactPersons } from './suppliers';
 import { users } from './users';
 import { warehouses } from './warehouses';
 
@@ -19,6 +19,11 @@ async function main() {
   console.log('🔄 Seeding users...');
   await db.insert(schema.users).values(users);
   console.log(`✅ Seeded ${users.length} users`);
+
+  console.log('🔄 Seeding contact persons...');
+  const allContactPersons = [...customerContactPersons, ...supplierContactPersons];
+  await db.insert(schema.contactPersons).values(allContactPersons);
+  console.log(`✅ Seeded ${allContactPersons.length} contact persons`);
 
   console.log('🔄 Seeding customers...');
   await db.insert(schema.customers).values(customers);

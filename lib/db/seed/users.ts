@@ -7,6 +7,7 @@ export const userIds = {
   user2: 'usr00002-0000-0000-0000-000000000002',
   user3: 'usr00003-0000-0000-0000-000000000003',
   user4: 'usr00004-0000-0000-0000-000000000004',
+  user5: 'usr00005-0000-0000-0000-000000000005',
 };
 
 export const users = [
@@ -75,6 +76,23 @@ export const users = [
     phone: '+6281234567893',
     avatar: null,
     role: 'staff',
+    signature: null,
+    isActive: true,
+  },
+  {
+    id: userIds.user5,
+    code: 'USR005',
+    firstName: 'Dani',
+    lastName: 'Import Manager',
+    NIK: '1234567890123460',
+    email: 'import@bizdocgen.com',
+    password: hashedPassword,
+    jobTitle: 'Import Manager',
+    joinDate: new Date('2023-09-15'),
+    type: 'full-time',
+    phone: '+6281234567894',
+    avatar: null,
+    role: 'import-manager',
     signature: null,
     isActive: true,
   },

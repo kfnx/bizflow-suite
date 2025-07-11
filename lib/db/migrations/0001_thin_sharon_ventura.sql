@@ -1,1 +1,0 @@
-ALTER TABLE `quotations` MODIFY COLUMN `approver_id` varchar(36) NOT NULL;

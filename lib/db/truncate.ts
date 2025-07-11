@@ -132,6 +132,21 @@ async function main() {
   }
 
   // 6. Delete parent tables (no foreign key dependencies)
+
+  try {
+    await db.delete(schema.contactPersons);
+    console.log('✅ Truncated contactPersons');
+  } catch (error) {
+    console.error('⚠️ Error truncating contactPersons:', error);
+  }
+
+  try {
+    await db.delete(schema.suppliers);
+    console.log('✅ Truncated suppliers');
+  } catch (error) {
+    console.error('⚠️ Error truncating suppliers:', error);
+  }
+
   try {
     await db.delete(schema.customers);
     console.log('✅ Truncated customers');
@@ -144,13 +159,6 @@ async function main() {
     console.log('✅ Truncated users');
   } catch (error) {
     console.error('⚠️ Error truncating users:', error);
-  }
-
-  try {
-    await db.delete(schema.suppliers);
-    console.log('✅ Truncated suppliers');
-  } catch (error) {
-    console.error('⚠️ Error truncating suppliers:', error);
   }
 
   try {

@@ -4,6 +4,36 @@ export const supplierIds = {
   supplier3: 'sup00003-0000-0000-0000-000000000003',
 };
 
+export const contactPersonIds = {
+  supplierContact1: 'scp00001-0000-0000-0000-000000000001',
+  supplierContact2: 'scp00002-0000-0000-0000-000000000002',
+  supplierContact3: 'scp00003-0000-0000-0000-000000000003',
+};
+
+export const supplierContactPersons = [
+  {
+    id: contactPersonIds.supplierContact1,
+    entity: 'supplier',
+    name: 'John Doe',
+    email: 'contact@supplierutama.com',
+    phone: '+6281234567893',
+  },
+  {
+    id: contactPersonIds.supplierContact2,
+    entity: 'supplier',
+    name: 'Jane Smith',
+    email: 'info@suppliermitra.com',
+    phone: '+6281234567894',
+  },
+  {
+    id: contactPersonIds.supplierContact3,
+    entity: 'supplier',
+    name: 'Ahmad Rizki',
+    email: 'contact@supplierketiga.com',
+    phone: '+6281234567895',
+  },
+];
+
 export const suppliers = [
   {
     id: supplierIds.supplier1,
@@ -11,11 +41,11 @@ export const suppliers = [
     name: 'PT Supplier Utama',
     country: 'Indonesia',
     address: 'Jl. Supplier No. 123, Jakarta Pusat, DKI Jakarta 10110',
-    transactionCurrency: 'IDR',
+    city: 'Jakarta',
+    province: 'DKI Jakarta',
     postalCode: '10110',
-    contactPersonName: 'John Doe',
-    contactPersonEmail: 'contact@supplierutama.com',
-    contactPersonPhone: '+6281234567893',
+    transactionCurrency: 'IDR',
+    contactPersonId: contactPersonIds.supplierContact1,
     isActive: true,
   },
   {
@@ -24,11 +54,11 @@ export const suppliers = [
     name: 'CV Supplier Mitra',
     country: 'Indonesia',
     address: 'Jl. Mitra No. 456, Surabaya, Jawa Timur 60111',
-    transactionCurrency: 'IDR',
+    city: 'Surabaya',
+    province: 'Jawa Timur',
     postalCode: '60111',
-    contactPersonName: 'Jane Smith',
-    contactPersonEmail: 'info@suppliermitra.com',
-    contactPersonPhone: '+6281234567894',
+    transactionCurrency: 'IDR',
+    contactPersonId: contactPersonIds.supplierContact2,
     isActive: true,
   },
   {
@@ -37,11 +67,11 @@ export const suppliers = [
     name: 'PT Supplier Ketiga',
     country: 'Indonesia',
     address: 'Jl. Supplier No. 789, Bekasi, Jawa Barat 17111',
-    transactionCurrency: 'IDR',
+    city: 'Bekasi',
+    province: 'Jawa Barat',
     postalCode: '17111',
-    contactPersonName: 'Ahmad Rizki',
-    contactPersonEmail: 'contact@supplierketiga.com',
-    contactPersonPhone: '+6281234567895',
+    transactionCurrency: 'IDR',
+    contactPersonId: contactPersonIds.supplierContact3,
     isActive: true,
   },
 ];

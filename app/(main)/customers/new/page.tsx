@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiArrowLeftLine, RiUserLine } from '@remixicon/react';
+import {
+  RiAddLine,
+  RiArrowLeftLine,
+  RiDeleteBin2Line,
+  RiUserLine,
+} from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -10,8 +15,8 @@ import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
 import * as Switch from '@/components/ui/switch';
 import { Root as TextareaRoot } from '@/components/ui/textarea';
-import Header from '@/components/header';
 import { BackButton } from '@/components/back-button';
+import Header from '@/components/header';
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -24,9 +29,7 @@ export default function NewCustomerPage() {
     npwp16: '',
     billingAddress: '',
     shippingAddress: '',
-    contactPersonName: '',
-    contactPersonEmail: '',
-    contactPersonPhone: '',
+    contactPersons: [{ name: '', email: '', phone: '' }],
     paymentTerms: 'NET 30',
     isPPN: false,
   });
@@ -62,6 +65,44 @@ export default function NewCustomerPage() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleContactPersonChange = (
+    index: number,
+    field: string,
+    value: string,
+  ) => {
+    const updatedContactPersons = [...formData.contactPersons];
+    updatedContactPersons[index] = {
+      ...updatedContactPersons[index],
+      [field]: value,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      contactPersons: updatedContactPersons,
+    }));
+  };
+
+  const addContactPerson = () => {
+    setFormData((prev) => ({
+      ...prev,
+      contactPersons: [
+        ...prev.contactPersons,
+        { name: '', email: '', phone: '' },
+      ],
+    }));
+  };
+
+  const removeContactPerson = (index: number) => {
+    if (formData.contactPersons.length > 1) {
+      const updatedContactPersons = formData.contactPersons.filter(
+        (_, i) => i !== index,
+      );
+      setFormData((prev) => ({
+        ...prev,
+        contactPersons: updatedContactPersons,
+      }));
+    }
   };
 
   return (
@@ -202,59 +243,107 @@ export default function NewCustomerPage() {
 
           {/* Contact Information */}
           <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-sm mb-4 font-semibold text-text-strong-950'>
-              Contact Information
-            </h2>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='contactPersonName'>
-                  Contact Person Name
-                </Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='contactPersonName'
-                    value={formData.contactPersonName}
-                    onChange={(e) =>
-                      handleInputChange('contactPersonName', e.target.value)
-                    }
-                    placeholder='John Doe'
-                    className='px-3'
-                  />
-                </Input.Root>
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='contactPersonEmail'>
-                  Contact Person Email
-                </Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='contactPersonEmail'
-                    type='email'
-                    value={formData.contactPersonEmail}
-                    onChange={(e) =>
-                      handleInputChange('contactPersonEmail', e.target.value)
-                    }
-                    placeholder='contact@company.com'
-                    className='px-3'
-                  />
-                </Input.Root>
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='contactPersonPhone'>
-                  Contact Person Phone
-                </Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='contactPersonPhone'
-                    value={formData.contactPersonPhone}
-                    onChange={(e) =>
-                      handleInputChange('contactPersonPhone', e.target.value)
-                    }
-                    placeholder='+6281234567890'
-                    className='px-3'
-                  />
-                </Input.Root>
-              </div>
+            <div className='mb-4 flex items-center justify-between'>
+              <h2 className='text-heading-sm font-semibold text-text-strong-950'>
+                Contact Information
+              </h2>
+              <Button.Root
+                type='button'
+                mode='ghost'
+                size='small'
+                onClick={addContactPerson}
+              >
+                <RiAddLine className='mr-2 size-4' />
+                Add Contact Person
+              </Button.Root>
+            </div>
+            <div className='space-y-4'>
+              {formData.contactPersons.map((contact, index) => (
+                <div
+                  key={index}
+                  className='rounded-lg border border-stroke-soft-200 p-4'
+                >
+                  <div className='mb-3 flex items-center justify-between'>
+                    <h3 className='text-sm font-medium text-text-strong-950'>
+                      Contact Person {index + 1}
+                    </h3>
+                    {formData.contactPersons.length > 1 && (
+                      <Button.Root
+                        type='button'
+                        mode='ghost'
+                        size='small'
+                        onClick={() => removeContactPerson(index)}
+                        className='text-red-600 hover:text-red-700'
+                      >
+                        <RiDeleteBin2Line className='size-4' />
+                      </Button.Root>
+                    )}
+                  </div>
+                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor={`contactPersonName-${index}`}>
+                        Name
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Input
+                          id={`contactPersonName-${index}`}
+                          value={contact.name}
+                          onChange={(e) =>
+                            handleContactPersonChange(
+                              index,
+                              'name',
+                              e.target.value,
+                            )
+                          }
+                          placeholder='John Doe'
+                          className='px-3'
+                        />
+                      </Input.Root>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor={`contactPersonEmail-${index}`}>
+                        Email
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Input
+                          id={`contactPersonEmail-${index}`}
+                          type='email'
+                          value={contact.email}
+                          onChange={(e) =>
+                            handleContactPersonChange(
+                              index,
+                              'email',
+                              e.target.value,
+                            )
+                          }
+                          placeholder='contact@company.com'
+                          className='px-3'
+                        />
+                      </Input.Root>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor={`contactPersonPhone-${index}`}>
+                        Phone
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Input
+                          id={`contactPersonPhone-${index}`}
+                          value={contact.phone}
+                          onChange={(e) =>
+                            handleContactPersonChange(
+                              index,
+                              'phone',
+                              e.target.value,
+                            )
+                          }
+                          placeholder='+6281234567890'
+                          className='px-3'
+                        />
+                      </Input.Root>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

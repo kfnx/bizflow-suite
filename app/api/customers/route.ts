@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
 
 import { db } from '@/lib/db';
-import { customers } from '@/lib/db/schema';
+import { customerContactPersons, customers } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
         or(
           like(customers.code, `%${search}%`),
           like(customers.name, `%${search}%`),
-          like(customers.contactPersonName, `%${search}%`),
-          like(customers.contactPersonEmail, `%${search}%`),
+          like(customers.city, `%${search}%`),
+          like(customers.country, `%${search}%`),
         ),
       );
     }
@@ -47,9 +48,8 @@ export async function GET(request: NextRequest) {
         code: customers.code,
         name: customers.name,
         type: customers.type,
-        contactPersonName: customers.contactPersonName,
-        contactPersonEmail: customers.contactPersonEmail,
-        contactPersonPhone: customers.contactPersonPhone,
+        city: customers.city,
+        country: customers.country,
         createdAt: customers.createdAt,
       })
       .from(customers)
@@ -101,9 +101,12 @@ export async function POST(request: NextRequest) {
       npwp16,
       billingAddress,
       shippingAddress,
-      contactPersonName,
-      contactPersonEmail,
-      contactPersonPhone,
+      address,
+      city,
+      province,
+      country,
+      postalCode,
+      contactPersons: contactPersonsData,
       paymentTerms,
       isPPN,
     } = body;
@@ -131,7 +134,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new customer
+    const newCustomerId = uuidv4();
     await db.insert(customers).values({
+      id: newCustomerId,
       code,
       name,
       type: type || 'individual',
@@ -139,24 +144,36 @@ export async function POST(request: NextRequest) {
       npwp16,
       billingAddress,
       shippingAddress,
-      contactPersonName,
-      contactPersonEmail,
-      contactPersonPhone,
+      address,
+      city,
+      province,
+      country,
+      postalCode,
       paymentTerms,
       isPPN: isPPN || false,
     });
 
-    // Fetch the newly created customer to get the ID
-    const [newCustomer] = await db
-      .select({ id: customers.id })
-      .from(customers)
-      .where(eq(customers.code, code))
-      .limit(1);
+    // Handle contact persons if provided
+    if (
+      contactPersonsData &&
+      Array.isArray(contactPersonsData) &&
+      contactPersonsData.length > 0
+    ) {
+      for (const contactPersonData of contactPersonsData) {
+        // Create contact person directly in customerContactPersons table
+        await db.insert(customerContactPersons).values({
+          customerId: newCustomerId,
+          name: contactPersonData.name,
+          email: contactPersonData.email,
+          phone: contactPersonData.phone,
+        });
+      }
+    }
 
     return NextResponse.json(
       {
         message: 'Customer created successfully',
-        data: { id: newCustomer.id },
+        data: { id: newCustomerId },
       },
       { status: 201 },
     );

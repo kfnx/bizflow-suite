@@ -7,10 +7,25 @@ export type Customer = {
   code: string;
   name: string;
   type: string;
-  contactPersonName?: string;
-  contactPersonEmail?: string;
-  contactPersonPhone?: string;
+  npwp?: string;
+  npwp16?: string;
+  billingAddress?: string;
+  shippingAddress?: string;
+  address?: string;
+  city?: string;
+  province?: string;
+  country?: string;
+  postalCode?: string;
+  paymentTerms?: string;
+  isPPN?: boolean;
+  contactPersons?: Array<{
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+  }>;
   createdAt: string;
+  updatedAt: string;
 };
 
 export type CustomersResponse = {
@@ -76,6 +91,58 @@ export function useDeleteCustomer() {
     onSuccess: () => {
       // Invalidate and refetch customers after successful deletion
       queryClient.invalidateQueries({ queryKey: ['customers'] });
+    },
+  });
+}
+
+const fetchCustomerDetail = async (customerId: string): Promise<Customer> => {
+  const response = await fetch(`/api/customers/${customerId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch customer details');
+  }
+  return response.json();
+};
+
+export function useCustomerDetail(customerId: string) {
+  return useQuery({
+    queryKey: ['customer', customerId],
+    queryFn: () => fetchCustomerDetail(customerId),
+    enabled: !!customerId,
+  });
+}
+
+const updateCustomer = async (
+  customerId: string,
+  customerData: any,
+): Promise<void> => {
+  const response = await fetch(`/api/customers/${customerId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(customerData),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to update customer');
+  }
+};
+
+export function useUpdateCustomer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      customerId,
+      customerData,
+    }: {
+      customerId: string;
+      customerData: any;
+    }) => updateCustomer(customerId, customerData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer'] });
     },
   });
 }

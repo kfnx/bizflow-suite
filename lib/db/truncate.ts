@@ -134,10 +134,17 @@ async function main() {
   // 6. Delete parent tables (no foreign key dependencies)
 
   try {
-    await db.delete(schema.contactPersons);
-    console.log('✅ Truncated contactPersons');
+    await db.delete(schema.customerContactPersons);
+    console.log('✅ Truncated customerContactPersons');
   } catch (error) {
-    console.error('⚠️ Error truncating contactPersons:', error);
+    console.error('⚠️ Error truncating customerContactPersons:', error);
+  }
+
+  try {
+    await db.delete(schema.supplierContactPersons);
+    console.log('✅ Truncated supplierContactPersons');
+  } catch (error) {
+    console.error('⚠️ Error truncating supplierContactPersons:', error);
   }
 
   try {

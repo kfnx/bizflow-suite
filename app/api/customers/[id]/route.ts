@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { customers } from '@/lib/db/schema';
+import { customerContactPersons, customers } from '@/lib/db/schema';
 
 export async function GET(
   request: NextRequest,
@@ -22,7 +22,21 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(customer[0]);
+    // Fetch contact persons for this customer
+    const contactPersonsData = await db
+      .select({
+        id: customerContactPersons.id,
+        name: customerContactPersons.name,
+        email: customerContactPersons.email,
+        phone: customerContactPersons.phone,
+      })
+      .from(customerContactPersons)
+      .where(eq(customerContactPersons.customerId, params.id));
+
+    return NextResponse.json({
+      ...customer[0],
+      contactPersons: contactPersonsData,
+    });
   } catch (error) {
     console.error('Error fetching customer:', error);
     return NextResponse.json(
@@ -46,9 +60,12 @@ export async function PUT(
       npwp16,
       billingAddress,
       shippingAddress,
-      contactPersonName,
-      contactPersonEmail,
-      contactPersonPhone,
+      address,
+      city,
+      province,
+      country,
+      postalCode,
+      contactPersons: contactPersonsData,
       paymentTerms,
       isPPN,
     } = body;
@@ -78,14 +95,34 @@ export async function PUT(
         npwp16,
         billingAddress,
         shippingAddress,
-        contactPersonName,
-        contactPersonEmail,
-        contactPersonPhone,
+        address,
+        city,
+        province,
+        country,
+        postalCode,
         paymentTerms,
         isPPN,
         updatedAt: new Date(),
       })
       .where(eq(customers.id, params.id));
+
+    // Handle contact persons update
+    if (contactPersonsData && Array.isArray(contactPersonsData)) {
+      // Delete existing contact persons
+      await db
+        .delete(customerContactPersons)
+        .where(eq(customerContactPersons.customerId, params.id));
+
+      // Add new contact persons
+      for (const contactPersonData of contactPersonsData) {
+        await db.insert(customerContactPersons).values({
+          customerId: params.id,
+          name: contactPersonData.name,
+          email: contactPersonData.email,
+          phone: contactPersonData.phone,
+        });
+      }
+    }
 
     return NextResponse.json({ message: 'Customer updated successfully' });
   } catch (error) {

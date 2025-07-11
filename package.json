@@ -9,9 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "format": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
-    "fix": "pnpm lint:fix && pnpm format:write",
+    "format:fix": "pnpm lint:fix && pnpm format:write",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -67,6 +66,7 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1",
+    "uuid": "^11.1.0",
     "zod": "^3.25.73"
   },
   "devDependencies": {
@@ -79,6 +79,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.2",
     "eslint": "^8.57.1",

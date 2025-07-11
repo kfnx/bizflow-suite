@@ -54,12 +54,14 @@ interface SuppliersTableProps {
   };
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
+  onSupplierClick?: (supplierId: string) => void;
 }
 
 export function SuppliersTable({
   filters,
   onPageChange,
   onLimitChange,
+  onSupplierClick,
 }: SuppliersTableProps) {
   const { data, isLoading, error } = useSuppliers(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -102,50 +104,20 @@ export function SuppliersTable({
       ),
     },
     {
-      id: 'country',
-      accessorKey: 'country',
-      header: ({ column }) => (
-        <div className='flex items-center gap-0.5'>
-          Country
-          <button
-            type='button'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {getSortingIcon(column.getIsSorted())}
-          </button>
-        </div>
-      ),
+      id: 'location',
+      accessorKey: 'city',
+      header: 'Location',
       cell: ({ row }) => (
         <div className='flex items-center gap-2'>
           <RiMapPinLine className='size-4 text-text-sub-600' />
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.country || '-'}
+          <div className='flex flex-col'>
+            <div className='text-paragraph-sm text-text-sub-600'>
+              {row.original.city || '-'}
+            </div>
+            <div className='text-paragraph-xs text-text-soft-400'>
+              {row.original.country || '-'}
+            </div>
           </div>
-        </div>
-      ),
-    },
-    {
-      id: 'contact',
-      accessorKey: 'contactPersonName',
-      header: 'Contact Person',
-      cell: ({ row }) => (
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.contactPersonName || '-'}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.contactPersonEmail || '-'}
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: 'phone',
-      accessorKey: 'contactPersonPhone',
-      header: 'Phone',
-      cell: ({ row }) => (
-        <div className='text-paragraph-sm text-text-sub-600'>
-          {row.original.contactPersonPhone || '-'}
         </div>
       ),
     },
@@ -157,6 +129,19 @@ export function SuppliersTable({
         <div className='text-paragraph-sm text-text-sub-600'>
           {row.original.transactionCurrency || '-'}
         </div>
+      ),
+    },
+    {
+      id: 'status',
+      accessorKey: 'isActive',
+      header: 'Status',
+      cell: ({ row }) => (
+        <Badge.Root
+          variant='light'
+          color={row.original.isActive ? 'green' : 'gray'}
+        >
+          {row.original.isActive ? 'Active' : 'Inactive'}
+        </Badge.Root>
       ),
     },
     {
@@ -185,22 +170,31 @@ export function SuppliersTable({
       cell: ({ row }) => (
         <Dropdown.Root>
           <Dropdown.Trigger asChild>
-            <Button.Root mode='ghost' size='xsmall' className='h-8 w-8 p-0'>
+            <Button.Root
+              mode='ghost'
+              size='xsmall'
+              className='h-8 w-8 p-0'
+              onClick={(e) => e.stopPropagation()}
+            >
               <RiMoreLine className='size-4' />
             </Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align='end'>
-            <Dropdown.Item>
+            <Dropdown.Item
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/suppliers/${row.original.id}/edit`;
+              }}
+            >
               <RiFileTextLine className='size-4' />
-              View Details
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <RiMapPinLine className='size-4' />
-              View Address
+              Edit Supplier
             </Dropdown.Item>
             <Dropdown.Separator />
             <Dropdown.Item
-              onClick={() => handleDelete(row.original.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(row.original.id);
+              }}
               className='text-red-600'
             >
               Delete Supplier
@@ -265,9 +259,9 @@ export function SuppliersTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </Table.Head>
                 ))}
               </Table.Row>
@@ -275,7 +269,11 @@ export function SuppliersTable({
           </Table.Header>
           <Table.Body>
             {table.getRowModel().rows.map((row) => (
-              <Table.Row key={row.id}>
+              <Table.Row
+                key={row.id}
+                className='hover:bg-gray-50 cursor-pointer'
+                onClick={() => onSupplierClick?.(row.original.id)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <Table.Cell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

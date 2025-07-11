@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 
     let userData: Record<
       string,
-      { id: string; firstName: string; lastName: string }
+      { id: string; firstName: string; lastName: string | null }
     > = {};
     if (userIds.size > 0) {
       const usersData = await db
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
         },
         {} as Record<
           string,
-          { id: string; firstName: string; lastName: string }
+          { id: string; firstName: string; lastName: string | null }
         >,
       );
     }

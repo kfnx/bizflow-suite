@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  RiAddLine,
   RiBuildingLine,
+  RiDeleteBin2Line,
   RiGlobalLine,
   RiMailLine,
   RiMapPinLine,
@@ -75,6 +77,12 @@ const currencies = [
   'SGD',
 ];
 
+interface ContactPerson {
+  name: string;
+  email: string;
+  phone: string;
+}
+
 interface SupplierFormData {
   code: string;
   name: string;
@@ -82,9 +90,7 @@ interface SupplierFormData {
   address: string;
   postalCode: string;
   transactionCurrency: string;
-  contactPersonName: string;
-  contactPersonEmail: string;
-  contactPersonPhone: string;
+  contactPersons: ContactPerson[];
 }
 
 export default function NewSupplierPage() {
@@ -97,13 +103,52 @@ export default function NewSupplierPage() {
     address: '',
     postalCode: '',
     transactionCurrency: 'USD',
-    contactPersonName: '',
-    contactPersonEmail: '',
-    contactPersonPhone: '',
+    contactPersons: [{ name: '', email: '', phone: '' }],
   });
 
-  const handleInputChange = (field: keyof SupplierFormData, value: string) => {
+  const handleInputChange = (
+    field: keyof Omit<SupplierFormData, 'contactPersons'>,
+    value: string,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleContactPersonChange = (
+    index: number,
+    field: keyof ContactPerson,
+    value: string,
+  ) => {
+    const updatedContactPersons = [...formData.contactPersons];
+    updatedContactPersons[index] = {
+      ...updatedContactPersons[index],
+      [field]: value,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      contactPersons: updatedContactPersons,
+    }));
+  };
+
+  const addContactPerson = () => {
+    setFormData((prev) => ({
+      ...prev,
+      contactPersons: [
+        ...prev.contactPersons,
+        { name: '', email: '', phone: '' },
+      ],
+    }));
+  };
+
+  const removeContactPerson = (index: number) => {
+    if (formData.contactPersons.length > 1) {
+      const updatedContactPersons = formData.contactPersons.filter(
+        (_, i) => i !== index,
+      );
+      setFormData((prev) => ({
+        ...prev,
+        contactPersons: updatedContactPersons,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -286,69 +331,117 @@ export default function NewSupplierPage() {
 
           {/* Contact Information */}
           <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-xs text-text-900 mb-4 font-semibold'>
-              Contact Information
-            </h2>
-            <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-              <div className='space-y-2'>
-                <Label.Root htmlFor='contactPersonName'>
-                  Contact Person Name
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiUserLine} />
-                    <Input.Input
-                      id='contactPersonName'
-                      type='text'
-                      placeholder='Enter contact person name'
-                      value={formData.contactPersonName}
-                      onChange={(e) =>
-                        handleInputChange('contactPersonName', e.target.value)
-                      }
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              </div>
+            <div className='mb-4 flex items-center justify-between'>
+              <h2 className='text-heading-xs text-text-900 font-semibold'>
+                Contact Information
+              </h2>
+              <Button.Root
+                type='button'
+                mode='ghost'
+                size='small'
+                onClick={addContactPerson}
+              >
+                <RiAddLine className='mr-2 size-4' />
+                Add Contact Person
+              </Button.Root>
+            </div>
+            <div className='space-y-4'>
+              {formData.contactPersons.map((contact, index) => (
+                <div
+                  key={index}
+                  className='rounded-lg border border-stroke-soft-200 p-4'
+                >
+                  <div className='mb-3 flex items-center justify-between'>
+                    <h3 className='text-sm font-medium text-text-strong-950'>
+                      Contact Person {index + 1}
+                    </h3>
+                    {formData.contactPersons.length > 1 && (
+                      <Button.Root
+                        type='button'
+                        mode='ghost'
+                        size='small'
+                        onClick={() => removeContactPerson(index)}
+                        className='text-red-600 hover:text-red-700'
+                      >
+                        <RiDeleteBin2Line className='size-4' />
+                      </Button.Root>
+                    )}
+                  </div>
+                  <div className='grid grid-cols-1 gap-4 lg:grid-cols-3'>
+                    <div className='space-y-2'>
+                      <Label.Root htmlFor={`contactPersonName-${index}`}>
+                        Name
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Icon as={RiUserLine} />
+                          <Input.Input
+                            id={`contactPersonName-${index}`}
+                            type='text'
+                            placeholder='Enter contact person name'
+                            value={contact.name}
+                            onChange={(e) =>
+                              handleContactPersonChange(
+                                index,
+                                'name',
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
 
-              <div className='space-y-2'>
-                <Label.Root htmlFor='contactPersonEmail'>
-                  Contact Person Email
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiMailLine} />
-                    <Input.Input
-                      id='contactPersonEmail'
-                      type='email'
-                      placeholder='Enter contact person email'
-                      value={formData.contactPersonEmail}
-                      onChange={(e) =>
-                        handleInputChange('contactPersonEmail', e.target.value)
-                      }
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              </div>
+                    <div className='space-y-2'>
+                      <Label.Root htmlFor={`contactPersonEmail-${index}`}>
+                        Email
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Icon as={RiMailLine} />
+                          <Input.Input
+                            id={`contactPersonEmail-${index}`}
+                            type='email'
+                            placeholder='Enter contact person email'
+                            value={contact.email}
+                            onChange={(e) =>
+                              handleContactPersonChange(
+                                index,
+                                'email',
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
 
-              <div className='space-y-2'>
-                <Label.Root htmlFor='contactPersonPhone'>
-                  Contact Person Phone
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiPhoneLine} />
-                    <Input.Input
-                      id='contactPersonPhone'
-                      type='tel'
-                      placeholder='Enter contact person phone'
-                      value={formData.contactPersonPhone}
-                      onChange={(e) =>
-                        handleInputChange('contactPersonPhone', e.target.value)
-                      }
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              </div>
+                    <div className='space-y-2'>
+                      <Label.Root htmlFor={`contactPersonPhone-${index}`}>
+                        Phone
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Icon as={RiPhoneLine} />
+                          <Input.Input
+                            id={`contactPersonPhone-${index}`}
+                            type='tel'
+                            placeholder='Enter contact person phone'
+                            value={contact.phone}
+                            onChange={(e) =>
+                              handleContactPersonChange(
+                                index,
+                                'phone',
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

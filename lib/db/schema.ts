@@ -105,7 +105,6 @@ export const customers = mysqlTable(
     npwp16: varchar('npwp16', { length: 50 }),
     billingAddress: text('billing_address'),
     shippingAddress: text('shipping_address'),
-    contactPersonId: varchar('contact_person_id', { length: 36 }),
     address: text('address'),
     city: varchar('city', { length: 100 }),
     province: varchar('province', { length: 100 }),
@@ -119,10 +118,29 @@ export const customers = mysqlTable(
   (table) => [
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
+  ],
+);
+
+// Customer contact persons table
+export const customerContactPersons = mysqlTable(
+  'customer_contact_persons',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    customerId: varchar('customer_id', { length: 36 }).notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
+    email: varchar('email', { length: 255 }),
+    phone: varchar('phone', { length: 20 }),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => [
+    index('customer_id_idx').on(table.customerId),
     foreignKey({
-      columns: [table.contactPersonId],
-      foreignColumns: [contactPersons.id],
-      name: 'fk_customers_contact_person',
+      columns: [table.customerId],
+      foreignColumns: [customers.id],
+      name: 'fk_customer_contact_persons_customer',
     }),
   ],
 );
@@ -145,7 +163,6 @@ export const suppliers = mysqlTable(
     transactionCurrency: varchar('transaction_currency', { length: 3 }).default(
       'USD',
     ),
-    contactPersonId: varchar('contact_person_id', { length: 36 }),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -153,25 +170,32 @@ export const suppliers = mysqlTable(
   (table) => [
     index('code_idx').on(table.code),
     index('name_idx').on(table.name),
-    foreignKey({
-      columns: [table.contactPersonId],
-      foreignColumns: [contactPersons.id],
-      name: 'fk_suppliers_contact_person',
-    }),
   ],
 );
 
-export const contactPersons = mysqlTable('contact_persons', {
-  id: varchar('id', { length: 36 })
-    .primaryKey()
-    .notNull()
-    .default(sql`(UUID())`),
-  entity: varchar('entity', { length: 50 }).notNull(), // supplier, customer
-  name: varchar('name', { length: 100 }).notNull(),
-  email: varchar('email', { length: 255 }),
-  phone: varchar('phone', { length: 20 }),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+// Supplier contact persons table
+export const supplierContactPersons = mysqlTable(
+  'supplier_contact_persons',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    supplierId: varchar('supplier_id', { length: 36 }).notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
+    email: varchar('email', { length: 255 }),
+    phone: varchar('phone', { length: 20 }),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => [
+    index('supplier_id_idx').on(table.supplierId),
+    foreignKey({
+      columns: [table.supplierId],
+      foreignColumns: [suppliers.id],
+      name: 'fk_supplier_contact_persons_supplier',
+    }),
+  ],
+);
 
 // Warehouses table
 export const warehouses = mysqlTable(
@@ -772,12 +796,34 @@ export const customersRelations = relations(customers, ({ many }) => ({
   quotations: many(quotations),
   invoices: many(invoices),
   deliveryNotes: many(deliveryNotes),
+  contactPersons: many(customerContactPersons),
 }));
 
 export const suppliersRelations = relations(suppliers, ({ one, many }) => ({
   products: many(products),
   imports: many(imports),
+  contactPersons: many(supplierContactPersons),
 }));
+
+export const customerContactPersonsRelations = relations(
+  customerContactPersons,
+  ({ one }) => ({
+    customer: one(customers, {
+      fields: [customerContactPersons.customerId],
+      references: [customers.id],
+    }),
+  }),
+);
+
+export const supplierContactPersonsRelations = relations(
+  supplierContactPersons,
+  ({ one }) => ({
+    supplier: one(suppliers, {
+      fields: [supplierContactPersons.supplierId],
+      references: [suppliers.id],
+    }),
+  }),
+);
 
 export const warehousesRelations = relations(warehouses, ({ many }) => ({
   imports: many(imports),
@@ -1082,3 +1128,9 @@ export type DeliveryNote = typeof deliveryNotes.$inferSelect;
 export type NewDeliveryNote = typeof deliveryNotes.$inferInsert;
 export type DeliveryNoteItem = typeof deliveryNoteItems.$inferSelect;
 export type NewDeliveryNoteItem = typeof deliveryNoteItems.$inferInsert;
+export type CustomerContactPerson = typeof customerContactPersons.$inferSelect;
+export type NewCustomerContactPerson =
+  typeof customerContactPersons.$inferInsert;
+export type SupplierContactPerson = typeof supplierContactPersons.$inferSelect;
+export type NewSupplierContactPerson =
+  typeof supplierContactPersons.$inferInsert;

@@ -6,14 +6,19 @@ export type Supplier = {
   id: string;
   code: string;
   name: string;
-  country?: string;
   address?: string;
-  transactionCurrency?: string;
+  city?: string;
+  province?: string;
+  country?: string;
   postalCode?: string;
-  contactPersonName?: string;
-  contactPersonEmail?: string;
-  contactPersonPhone?: string;
+  transactionCurrency?: string;
   isActive: boolean;
+  contactPersons?: Array<{
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+  }>;
   createdAt: string;
   updatedAt: string;
 };
@@ -78,6 +83,58 @@ export function useDeleteSupplier() {
     mutationFn: deleteSupplier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    },
+  });
+}
+
+const fetchSupplierDetail = async (supplierId: string): Promise<Supplier> => {
+  const response = await fetch(`/api/suppliers/${supplierId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch supplier details');
+  }
+  return response.json();
+};
+
+export function useSupplierDetail(supplierId: string) {
+  return useQuery({
+    queryKey: ['supplier', supplierId],
+    queryFn: () => fetchSupplierDetail(supplierId),
+    enabled: !!supplierId,
+  });
+}
+
+const updateSupplier = async (
+  supplierId: string,
+  supplierData: any,
+): Promise<void> => {
+  const response = await fetch(`/api/suppliers/${supplierId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(supplierData),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to update supplier');
+  }
+};
+
+export function useUpdateSupplier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      supplierId,
+      supplierData,
+    }: {
+      supplierId: string;
+      supplierData: any;
+    }) => updateSupplier(supplierId, supplierData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier'] });
     },
   });
 }

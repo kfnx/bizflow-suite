@@ -1,0 +1,668 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { RiEditLine } from '@remixicon/react';
+
+import { useCustomerDetail, useUpdateCustomer } from '@/hooks/use-customers';
+import * as Button from '@/components/ui/button';
+import * as Checkbox from '@/components/ui/checkbox';
+import * as Divider from '@/components/ui/divider';
+import * as Input from '@/components/ui/input';
+import * as Label from '@/components/ui/label';
+import * as Select from '@/components/ui/select';
+import * as TextArea from '@/components/ui/textarea';
+import { BackButton } from '@/components/back-button';
+import Header from '@/components/header';
+
+interface EditCustomerData {
+  code: string;
+  name: string;
+  type: string;
+  npwp: string;
+  npwp16: string;
+  billingAddress: string;
+  shippingAddress: string;
+  address: string;
+  city: string;
+  province: string;
+  country: string;
+  postalCode: string;
+  paymentTerms: string;
+  isPPN: boolean;
+  contactPersons: Array<{
+    id?: string;
+    name: string;
+    email: string;
+    phone: string;
+  }>;
+}
+
+interface EditCustomerPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditCustomerPage({ params }: EditCustomerPageProps) {
+  const router = useRouter();
+  const {
+    data: customerData,
+    isLoading: customerLoading,
+    error: customerError,
+  } = useCustomerDetail(params.id);
+  const updateCustomerMutation = useUpdateCustomer();
+
+  const [formData, setFormData] = useState<EditCustomerData>({
+    code: '',
+    name: '',
+    type: 'individual',
+    npwp: '',
+    npwp16: '',
+    billingAddress: '',
+    shippingAddress: '',
+    address: '',
+    city: '',
+    province: '',
+    country: '',
+    postalCode: '',
+    paymentTerms: '',
+    isPPN: false,
+    contactPersons: [{ name: '', email: '', phone: '' }],
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
+
+  // Populate form data when customer data is loaded
+  useEffect(() => {
+    if (customerData) {
+      setFormData({
+        code: customerData.code || '',
+        name: customerData.name || '',
+        type: customerData.type || 'individual',
+        npwp: customerData.npwp || '',
+        npwp16: customerData.npwp16 || '',
+        billingAddress: customerData.billingAddress || '',
+        shippingAddress: customerData.shippingAddress || '',
+        address: customerData.address || '',
+        city: customerData.city || '',
+        province: customerData.province || '',
+        country: customerData.country || '',
+        postalCode: customerData.postalCode || '',
+        paymentTerms: customerData.paymentTerms || '',
+        isPPN: customerData.isPPN || false,
+        contactPersons:
+          customerData.contactPersons && customerData.contactPersons.length > 0
+            ? customerData.contactPersons.map((cp) => ({
+                id: cp.id,
+                name: cp.name,
+                email: cp.email || '',
+                phone: cp.phone || '',
+              }))
+            : [{ name: '', email: '', phone: '' }],
+      });
+    }
+  }, [customerData]);
+
+  if (customerLoading) {
+    return (
+      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
+        Loading...
+      </div>
+    );
+  }
+
+  if (customerError) {
+    return (
+      <div className='flex h-full w-full items-center justify-center text-red-600'>
+        Error: {customerError.message}
+      </div>
+    );
+  }
+
+  if (!customerData) {
+    return (
+      <div className='flex h-full w-full items-center justify-center text-red-600'>
+        Customer not found
+      </div>
+    );
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setValidationErrors({});
+
+    // Client-side validation
+    const errors: Record<string, string> = {};
+
+    if (!formData.code.trim()) {
+      errors.code = 'Customer code is required';
+    }
+    if (!formData.name.trim()) {
+      errors.name = 'Customer name is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    try {
+      await updateCustomerMutation.mutateAsync({
+        customerId: params.id,
+        customerData: formData,
+      });
+
+      // Navigate back to customers list
+      router.push('/customers');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An error occurred while updating the customer');
+      }
+    }
+  };
+
+  const handleInputChange = (
+    field: keyof EditCustomerData,
+    value: string | boolean | Array<any>,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear validation errors when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+    }
+    if (error) {
+      setError(null);
+    }
+  };
+
+  const handleContactPersonChange = (
+    index: number,
+    field: string,
+    value: string,
+  ) => {
+    const updatedContacts = [...formData.contactPersons];
+    updatedContacts[index] = { ...updatedContacts[index], [field]: value };
+    handleInputChange('contactPersons', updatedContacts);
+  };
+
+  const addContactPerson = () => {
+    handleInputChange('contactPersons', [
+      ...formData.contactPersons,
+      { name: '', email: '', phone: '' },
+    ]);
+  };
+
+  const removeContactPerson = (index: number) => {
+    if (formData.contactPersons.length > 1) {
+      const updatedContacts = formData.contactPersons.filter(
+        (_, i) => i !== index,
+      );
+      handleInputChange('contactPersons', updatedContacts);
+    }
+  };
+
+  const HeaderComponent = () => (
+    <Header
+      icon={
+        <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+          <RiEditLine className='size-6' />
+        </div>
+      }
+      title='Edit Customer'
+      description={`Update ${customerData.name}'s information.`}
+    >
+      <BackButton href='/customers' label='Back to Customers' />
+    </Header>
+  );
+
+  return (
+    <>
+      <HeaderComponent />
+      <form
+        onSubmit={handleSubmit}
+        className='mx-auto w-full max-w-4xl space-y-8'
+      >
+        <div className='space-y-6 rounded-lg border border-stroke-soft-200 p-6'>
+          {error && (
+            <div className='text-sm rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700'>
+              {error}
+            </div>
+          )}
+
+          {/* Basic Information */}
+          <div>
+            <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+              Basic Information
+            </h3>
+
+            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='code'>
+                  Customer Code <Label.Asterisk />
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id='code'
+                      value={formData.code}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('code', e.target.value)
+                      }
+                      required
+                      className='px-3'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+                {validationErrors.code && (
+                  <div className='text-xs text-red-600'>
+                    {validationErrors.code}
+                  </div>
+                )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='name'>
+                  Customer Name <Label.Asterisk />
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id='name'
+                      value={formData.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('name', e.target.value)
+                      }
+                      required
+                      className='px-3'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+                {validationErrors.name && (
+                  <div className='text-xs text-red-600'>
+                    {validationErrors.name}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='type'>
+                  Customer Type <Label.Asterisk />
+                </Label.Root>
+                <Select.Root
+                  value={formData.type}
+                  onValueChange={(value) => handleInputChange('type', value)}
+                >
+                  <Select.Trigger>
+                    <Select.Value placeholder='Select customer type' />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value='individual'>Individual</Select.Item>
+                    <Select.Item value='company'>Company</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='paymentTerms'>Payment Terms</Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id='paymentTerms'
+                      value={formData.paymentTerms}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('paymentTerms', e.target.value)
+                      }
+                      className='px-3'
+                      placeholder='e.g., NET 30, NET 15'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+            </div>
+
+            <div className='mt-6'>
+              <div className='flex items-center gap-2'>
+                <Checkbox.Root
+                  id='isPPN'
+                  checked={formData.isPPN}
+                  onCheckedChange={(checked) =>
+                    handleInputChange('isPPN', Boolean(checked))
+                  }
+                />
+                <Label.Root htmlFor='isPPN'>PPN Customer</Label.Root>
+              </div>
+            </div>
+          </div>
+
+          <Divider.Root />
+
+          {/* Tax Information */}
+          <div>
+            <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+              Tax Information
+            </h3>
+
+            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='npwp'>NPWP</Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id='npwp'
+                      value={formData.npwp}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('npwp', e.target.value)
+                      }
+                      className='px-3'
+                      placeholder='Enter NPWP number'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='npwp16'>NPWP 16</Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id='npwp16'
+                      value={formData.npwp16}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('npwp16', e.target.value)
+                      }
+                      className='px-3'
+                      placeholder='Enter NPWP 16 number'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+            </div>
+          </div>
+
+          <Divider.Root />
+
+          {/* Address Information */}
+          <div>
+            <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+              Address Information
+            </h3>
+
+            <div className='space-y-4'>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='address'>Primary Address</Label.Root>
+                <TextArea.Root
+                  id='address'
+                  value={formData.address}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange('address', e.target.value)
+                  }
+                  rows={3}
+                  placeholder='Enter primary address'
+                  simple
+                />
+              </div>
+
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='city'>City</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Input
+                        id='city'
+                        value={formData.city}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('city', e.target.value)
+                        }
+                        className='px-3'
+                        placeholder='Enter city'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='province'>Province</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Input
+                        id='province'
+                        value={formData.province}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('province', e.target.value)
+                        }
+                        className='px-3'
+                        placeholder='Enter province'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='country'>Country</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Input
+                        id='country'
+                        value={formData.country}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('country', e.target.value)
+                        }
+                        className='px-3'
+                        placeholder='Enter country'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
+              </div>
+
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='postalCode'>Postal Code</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Input
+                        id='postalCode'
+                        value={formData.postalCode}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('postalCode', e.target.value)
+                        }
+                        className='px-3'
+                        placeholder='Enter postal code'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='billingAddress'>
+                  Billing Address
+                </Label.Root>
+                <TextArea.Root
+                  id='billingAddress'
+                  value={formData.billingAddress}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange('billingAddress', e.target.value)
+                  }
+                  rows={3}
+                  placeholder='Enter billing address (if different from primary)'
+                  simple
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='shippingAddress'>
+                  Shipping Address
+                </Label.Root>
+                <TextArea.Root
+                  id='shippingAddress'
+                  value={formData.shippingAddress}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange('shippingAddress', e.target.value)
+                  }
+                  rows={3}
+                  placeholder='Enter shipping address (if different from primary)'
+                  simple
+                />
+              </div>
+            </div>
+          </div>
+
+          <Divider.Root />
+
+          {/* Contact Persons */}
+          <div>
+            <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+              Contact Persons
+            </h3>
+
+            <div className='space-y-4'>
+              {formData.contactPersons.map((contact, index) => (
+                <div
+                  key={index}
+                  className='border-gray-200 rounded-lg border p-4'
+                >
+                  <div className='mb-4 flex items-center justify-between'>
+                    <h4 className='text-sm text-gray-900 font-medium'>
+                      Contact Person {index + 1}
+                    </h4>
+                    {formData.contactPersons.length > 1 && (
+                      <Button.Root
+                        type='button'
+                        variant='neutral'
+                        mode='ghost'
+                        size='small'
+                        onClick={() => removeContactPerson(index)}
+                      >
+                        Remove
+                      </Button.Root>
+                    )}
+                  </div>
+
+                  <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor={`contact-name-${index}`}>
+                        Name
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Input
+                            id={`contact-name-${index}`}
+                            value={contact.name}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>,
+                            ) =>
+                              handleContactPersonChange(
+                                index,
+                                'name',
+                                e.target.value,
+                              )
+                            }
+                            className='px-3'
+                            placeholder='Enter name'
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
+
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor={`contact-email-${index}`}>
+                        Email
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Input
+                            id={`contact-email-${index}`}
+                            type='email'
+                            value={contact.email}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>,
+                            ) =>
+                              handleContactPersonChange(
+                                index,
+                                'email',
+                                e.target.value,
+                              )
+                            }
+                            className='px-3'
+                            placeholder='Enter email'
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
+
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor={`contact-phone-${index}`}>
+                        Phone
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Input
+                            id={`contact-phone-${index}`}
+                            type='tel'
+                            value={contact.phone}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>,
+                            ) =>
+                              handleContactPersonChange(
+                                index,
+                                'phone',
+                                e.target.value,
+                              )
+                            }
+                            className='px-3'
+                            placeholder='Enter phone'
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <Button.Root
+                type='button'
+                variant='neutral'
+                mode='stroke'
+                size='small'
+                onClick={addContactPerson}
+              >
+                Add Contact Person
+              </Button.Root>
+            </div>
+          </div>
+        </div>
+
+        <div className='flex flex-col gap-4 pb-4 sm:flex-row sm:justify-end'>
+          <Button.Root
+            type='button'
+            variant='neutral'
+            mode='ghost'
+            onClick={() => router.push('/customers')}
+            disabled={updateCustomerMutation.isPending}
+          >
+            Cancel
+          </Button.Root>
+          <Button.Root
+            type='submit'
+            variant='primary'
+            disabled={updateCustomerMutation.isPending}
+          >
+            {updateCustomerMutation.isPending
+              ? 'Updating...'
+              : 'Update Customer'}
+          </Button.Root>
+        </div>
+      </form>
+    </>
+  );
+}

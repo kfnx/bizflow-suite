@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { RiUserLine } from '@remixicon/react';
 
 import { ActionButton } from '@/components/action-button';
+import { CustomerPreviewDrawer } from '@/components/customer-preview-drawer';
 import { CustomersTable } from '@/components/customers-table';
 import Header from '@/components/header';
 
@@ -17,6 +18,9 @@ export default function PageCustomers() {
     page: 1,
     limit: 10,
   });
+  const [previewCustomerId, setPreviewCustomerId] = useState<string | null>(
+    null,
+  );
 
   const handleFiltersChange = useCallback((newFilters: CustomersFilters) => {
     setFilters(newFilters);
@@ -28,6 +32,14 @@ export default function PageCustomers() {
 
   const handleLimitChange = useCallback((limit: number) => {
     setFilters((prev) => ({ ...prev, limit, page: 1 })); // Reset to first page when changing limit
+  }, []);
+
+  const handleCustomerClick = useCallback((customerId: string) => {
+    setPreviewCustomerId(customerId);
+  }, []);
+
+  const handleClosePreview = useCallback(() => {
+    setPreviewCustomerId(null);
   }, []);
 
   const HeaderComponent = () => {
@@ -60,8 +72,15 @@ export default function PageCustomers() {
           filters={filters}
           onPageChange={handlePageChange}
           onLimitChange={handleLimitChange}
+          onCustomerClick={handleCustomerClick}
         />
       </div>
+
+      <CustomerPreviewDrawer
+        customerId={previewCustomerId}
+        open={!!previewCustomerId}
+        onClose={handleClosePreview}
+      />
     </>
   );
 }

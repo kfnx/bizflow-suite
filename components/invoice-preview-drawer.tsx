@@ -195,7 +195,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
 
       {/* Footer Info */}
       <div className='text-xs text-gray-500 border-t pt-4'>
-        Created by{' '}
+        Created by
         {invoice.createdByUser
           ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
           : 'Unknown'}{' '}

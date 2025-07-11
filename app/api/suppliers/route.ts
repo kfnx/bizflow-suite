@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
 
 import { db } from '@/lib/db';
-import { suppliers } from '@/lib/db/schema';
+import { supplierContactPersons, suppliers } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
         or(
           like(suppliers.code, `%${search}%`),
           like(suppliers.name, `%${search}%`),
-          like(suppliers.contactPersonName, `%${search}%`),
-          like(suppliers.contactPersonEmail, `%${search}%`),
+          like(suppliers.city, `%${search}%`),
+          like(suppliers.country, `%${search}%`),
         ),
       );
     }
@@ -104,11 +105,11 @@ export async function POST(request: NextRequest) {
       name,
       country,
       address,
+      city,
+      province,
       transactionCurrency,
       postalCode,
-      contactPersonName,
-      contactPersonEmail,
-      contactPersonPhone,
+      contactPersons: contactPersonsData,
     } = body;
 
     // Validate required fields
@@ -134,18 +135,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new supplier
+    const newSupplierId = uuidv4();
     await db.insert(suppliers).values({
+      id: newSupplierId,
       code,
       name,
       country,
       address,
+      city,
+      province,
       transactionCurrency: transactionCurrency || 'USD',
       postalCode,
-      contactPersonName,
-      contactPersonEmail,
-      contactPersonPhone,
       isActive: true,
     });
+
+    // Handle contact persons if provided
+    if (
+      contactPersonsData &&
+      Array.isArray(contactPersonsData) &&
+      contactPersonsData.length > 0
+    ) {
+      for (const contactPersonData of contactPersonsData) {
+        // Create contact person directly in supplierContactPersons table
+        await db.insert(supplierContactPersons).values({
+          supplierId: newSupplierId,
+          name: contactPersonData.name,
+          email: contactPersonData.email,
+          phone: contactPersonData.phone,
+        });
+      }
+    }
 
     return NextResponse.json(
       { message: 'Supplier created successfully' },

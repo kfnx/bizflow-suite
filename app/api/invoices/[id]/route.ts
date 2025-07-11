@@ -50,11 +50,10 @@ export async function GET(
           id: customers.id,
           code: customers.code,
           name: customers.name,
-          contactPersonName: customers.contactPersonName,
-          contactPersonEmail: customers.contactPersonEmail,
-          contactPersonPhone: customers.contactPersonPhone,
           billingAddress: customers.billingAddress,
           shippingAddress: customers.shippingAddress,
+          city: customers.city,
+          country: customers.country,
         },
         // Quotation data
         quotation: {

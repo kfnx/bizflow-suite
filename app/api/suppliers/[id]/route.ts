@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { suppliers } from '@/lib/db/schema';
+import { supplierContactPersons, suppliers } from '@/lib/db/schema';
 
 export async function GET(
   request: NextRequest,
@@ -22,7 +22,21 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(supplier[0]);
+    // Fetch contact persons for this supplier
+    const contactPersonsData = await db
+      .select({
+        id: supplierContactPersons.id,
+        name: supplierContactPersons.name,
+        email: supplierContactPersons.email,
+        phone: supplierContactPersons.phone,
+      })
+      .from(supplierContactPersons)
+      .where(eq(supplierContactPersons.supplierId, params.id));
+
+    return NextResponse.json({
+      ...supplier[0],
+      contactPersons: contactPersonsData,
+    });
   } catch (error) {
     console.error('Error fetching supplier:', error);
     return NextResponse.json(
@@ -44,11 +58,11 @@ export async function PUT(
       name,
       country,
       address,
+      city,
+      province,
       transactionCurrency,
       postalCode,
-      contactPersonName,
-      contactPersonEmail,
-      contactPersonPhone,
+      contactPersons: contactPersonsData,
       isActive,
     } = body;
 
@@ -98,15 +112,32 @@ export async function PUT(
         name,
         country,
         address,
+        city,
+        province,
         transactionCurrency,
         postalCode,
-        contactPersonName,
-        contactPersonEmail,
-        contactPersonPhone,
         isActive:
           isActive !== undefined ? isActive : existingSupplier[0].isActive,
       })
       .where(eq(suppliers.id, params.id));
+
+    // Handle contact persons update
+    if (contactPersonsData && Array.isArray(contactPersonsData)) {
+      // Delete existing contact persons
+      await db
+        .delete(supplierContactPersons)
+        .where(eq(supplierContactPersons.supplierId, params.id));
+
+      // Add new contact persons
+      for (const contactPersonData of contactPersonsData) {
+        await db.insert(supplierContactPersons).values({
+          supplierId: params.id,
+          name: contactPersonData.name,
+          email: contactPersonData.email,
+          phone: contactPersonData.phone,
+        });
+      }
+    }
 
     return NextResponse.json(
       { message: 'Supplier updated successfully' },

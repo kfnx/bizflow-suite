@@ -13,21 +13,21 @@ export const contactPersonIds = {
 export const supplierContactPersons = [
   {
     id: contactPersonIds.supplierContact1,
-    entity: 'supplier',
+    supplierId: supplierIds.supplier1,
     name: 'John Doe',
     email: 'contact@supplierutama.com',
     phone: '+6281234567893',
   },
   {
     id: contactPersonIds.supplierContact2,
-    entity: 'supplier',
+    supplierId: supplierIds.supplier2,
     name: 'Jane Smith',
     email: 'info@suppliermitra.com',
     phone: '+6281234567894',
   },
   {
     id: contactPersonIds.supplierContact3,
-    entity: 'supplier',
+    supplierId: supplierIds.supplier3,
     name: 'Ahmad Rizki',
     email: 'contact@supplierketiga.com',
     phone: '+6281234567895',
@@ -45,7 +45,6 @@ export const suppliers = [
     province: 'DKI Jakarta',
     postalCode: '10110',
     transactionCurrency: 'IDR',
-    contactPersonId: contactPersonIds.supplierContact1,
     isActive: true,
   },
   {
@@ -58,7 +57,6 @@ export const suppliers = [
     province: 'Jawa Timur',
     postalCode: '60111',
     transactionCurrency: 'IDR',
-    contactPersonId: contactPersonIds.supplierContact2,
     isActive: true,
   },
   {
@@ -71,7 +69,6 @@ export const suppliers = [
     province: 'Jawa Barat',
     postalCode: '17111',
     transactionCurrency: 'IDR',
-    contactPersonId: contactPersonIds.supplierContact3,
     isActive: true,
   },
 ];

@@ -68,12 +68,14 @@ interface CustomersTableProps {
   };
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
+  onCustomerClick?: (customerId: string) => void;
 }
 
 export function CustomersTable({
   filters,
   onPageChange,
   onLimitChange,
+  onCustomerClick,
 }: CustomersTableProps) {
   const { data, isLoading, error } = useCustomers(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -146,28 +148,34 @@ export function CustomersTable({
       },
     },
     {
-      id: 'contact',
-      accessorKey: 'contactPersonName',
-      header: 'Contact Person',
+      id: 'location',
+      accessorKey: 'city',
+      header: 'Location',
       cell: ({ row }) => (
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.contactPersonName || '-'}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.contactPersonEmail || '-'}
+        <div className='flex items-center gap-2'>
+          <RiMapPinLine className='size-4 text-text-sub-600' />
+          <div className='flex flex-col'>
+            <div className='text-paragraph-sm text-text-sub-600'>
+              {row.original.city || '-'}
+            </div>
+            <div className='text-paragraph-xs text-text-soft-400'>
+              {row.original.country || '-'}
+            </div>
           </div>
         </div>
       ),
     },
     {
-      id: 'phone',
-      accessorKey: 'contactPersonPhone',
-      header: 'Phone',
+      id: 'ppn',
+      accessorKey: 'isPPN',
+      header: 'PPN',
       cell: ({ row }) => (
-        <div className='text-paragraph-sm text-text-sub-600'>
-          {row.original.contactPersonPhone || '-'}
-        </div>
+        <Badge.Root
+          variant='light'
+          color={row.original.isPPN ? 'green' : 'gray'}
+        >
+          {row.original.isPPN ? 'Yes' : 'No'}
+        </Badge.Root>
       ),
     },
     {
@@ -196,22 +204,31 @@ export function CustomersTable({
       cell: ({ row }) => (
         <Dropdown.Root>
           <Dropdown.Trigger asChild>
-            <Button.Root mode='ghost' size='xsmall' className='h-8 w-8 p-0'>
+            <Button.Root
+              mode='ghost'
+              size='xsmall'
+              className='h-8 w-8 p-0'
+              onClick={(e) => e.stopPropagation()}
+            >
               <RiMoreLine className='size-4' />
             </Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align='end'>
-            <Dropdown.Item>
+            <Dropdown.Item
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/customers/${row.original.id}/edit`;
+              }}
+            >
               <RiFileTextLine className='size-4' />
-              View Details
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <RiMapPinLine className='size-4' />
-              View Address
+              Edit Customer
             </Dropdown.Item>
             <Dropdown.Separator />
             <Dropdown.Item
-              onClick={() => handleDelete(row.original.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(row.original.id);
+              }}
               className='text-red-600'
             >
               Delete Customer
@@ -276,9 +293,9 @@ export function CustomersTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </Table.Head>
                 ))}
               </Table.Row>
@@ -286,7 +303,11 @@ export function CustomersTable({
           </Table.Header>
           <Table.Body>
             {table.getRowModel().rows.map((row) => (
-              <Table.Row key={row.id}>
+              <Table.Row
+                key={row.id}
+                className='hover:bg-gray-50 cursor-pointer'
+                onClick={() => onCustomerClick?.(row.original.id)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <Table.Cell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

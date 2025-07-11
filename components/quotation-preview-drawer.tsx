@@ -19,6 +19,7 @@ import {
   type QuotationDetail,
 } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
+import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { QuotationStatusBadge } from '@/components/quotation-status-badge';
 
@@ -110,7 +111,7 @@ function QuotationPreviewContent({
   return (
     <div className='space-y-6'>
       {/* Header */}
-      <div className='border-b pb-4'>
+      <div className='pb-4'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
             <h2 className='text-xl text-gray-900 font-semibold'>
@@ -175,6 +176,8 @@ function QuotationPreviewContent({
           )}
         </div>
       </div>
+
+      <Divider.Root />
 
       {/* Quick Info */}
       <div className='grid grid-cols-2 gap-4'>

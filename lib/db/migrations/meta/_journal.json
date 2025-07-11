@@ -8,6 +8,13 @@
       "when": 1752227966581,
       "tag": "0000_glamorous_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1752247799106,
+      "tag": "0001_bouncy_wendigo",
+      "breakpoints": true
     }
   ]
 }

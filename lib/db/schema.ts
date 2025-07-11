@@ -545,26 +545,29 @@ export const imports = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    importNumber: varchar('import_number', { length: 50 }).notNull().unique(),
     supplierId: varchar('supplier_id', { length: 36 }).notNull(),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     importDate: date('import_date').notNull(),
-    expectedDate: date('expected_date').notNull(),
-    subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
-    tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
+    invoiceNumber: varchar('invoice_number', { length: 50 }),
+    invoiceDate: date('invoice_date').notNull(),
+    productId: varchar('product_id', { length: 36 }).notNull(),
+    exchangeRateRMB: decimal('exchange_rate_rmb', {
+      precision: 15,
+      scale: 2,
+    }).default('0.00'),
+    priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).default('0.00'), // only chinese suppliers (RMB) for now
+    quantity: int('quantity').notNull(),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
-    currency: varchar('currency', { length: 3 }).default('IDR'),
-    status: varchar('status', { length: 50 }).default('pending'), // pending, received, cancelled
     notes: text('notes'),
-    createdBy: varchar('created_by', { length: 36 }).notNull(),
+    createdBy: varchar('created_by', { length: 36 }).notNull(), // import manager
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
   (table) => [
-    index('import_number_idx').on(table.importNumber),
+    index('invoice_number_idx').on(table.invoiceNumber),
     index('supplier_id_idx').on(table.supplierId),
     index('warehouse_id_idx').on(table.warehouseId),
-    index('status_idx').on(table.status),
+    index('product_id_idx').on(table.productId),
     index('created_by_idx').on(table.createdBy),
     foreignKey({
       columns: [table.supplierId],
@@ -577,45 +580,14 @@ export const imports = mysqlTable(
       name: 'fk_imports_warehouse',
     }),
     foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_imports_product',
+    }),
+    foreignKey({
       columns: [table.createdBy],
       foreignColumns: [users.id],
       name: 'fk_imports_created_by',
-    }),
-  ],
-);
-
-// Import Items table
-export const importItems = mysqlTable(
-  'import_items',
-  {
-    id: varchar('id', { length: 36 })
-      .primaryKey()
-      .notNull()
-      .default(sql`(UUID())`),
-    importId: varchar('import_id', { length: 36 }).notNull(),
-    productId: varchar('product_id', { length: 36 }).notNull(),
-    quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
-    receivedQuantity: decimal('received_quantity', {
-      precision: 10,
-      scale: 2,
-    }).default('0.00'),
-    unitPrice: decimal('unit_price', { precision: 15, scale: 2 }).notNull(),
-    total: decimal('total', { precision: 15, scale: 2 }).notNull(),
-    notes: text('notes'),
-    createdAt: timestamp('created_at').defaultNow(),
-  },
-  (table) => [
-    index('import_id_idx').on(table.importId),
-    index('product_id_idx').on(table.productId),
-    foreignKey({
-      columns: [table.importId],
-      foreignColumns: [imports.id],
-      name: 'fk_import_items_import',
-    }),
-    foreignKey({
-      columns: [table.productId],
-      foreignColumns: [products.id],
-      name: 'fk_import_items_product',
     }),
   ],
 );
@@ -839,7 +811,6 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   quotationItems: many(quotationItems),
   invoiceItems: many(invoiceItems),
   deliveryNoteItems: many(deliveryNoteItems),
-  importItems: many(importItems),
   transferItems: many(transferItems),
 }));
 
@@ -937,21 +908,13 @@ export const importsRelations = relations(imports, ({ one, many }) => ({
     fields: [imports.warehouseId],
     references: [warehouses.id],
   }),
+  product: one(products, {
+    fields: [imports.productId],
+    references: [products.id],
+  }),
   createdBy: one(users, {
     fields: [imports.createdBy],
     references: [users.id],
-  }),
-  importItems: many(importItems),
-}));
-
-export const importItemsRelations = relations(importItems, ({ one }) => ({
-  import: one(imports, {
-    fields: [importItems.importId],
-    references: [imports.id],
-  }),
-  product: one(products, {
-    fields: [importItems.productId],
-    references: [products.id],
   }),
 }));
 

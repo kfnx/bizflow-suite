@@ -37,13 +37,6 @@ async function main() {
   }
 
   try {
-    await db.delete(schema.importItems);
-    console.log('✅ Truncated importItems');
-  } catch (error) {
-    console.error('⚠️ Error truncating importItems:', error);
-  }
-
-  try {
     await db.delete(schema.transferItems);
     console.log('✅ Truncated transferItems');
   } catch (error) {

@@ -266,7 +266,7 @@ export function CustomersTable({
 
   return (
     <div className='flex flex-col gap-4'>
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0'>
+      <div className='rounded-lg'>
         <Table.Root>
           <Table.Header>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -276,9 +276,9 @@ export function CustomersTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                   </Table.Head>
                 ))}
               </Table.Row>

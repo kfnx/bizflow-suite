@@ -11,6 +11,7 @@ import * as Select from '@/components/ui/select';
 import * as Switch from '@/components/ui/switch';
 import { Root as TextareaRoot } from '@/components/ui/textarea';
 import Header from '@/components/header';
+import { BackButton } from '@/components/back-button';
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -74,15 +75,7 @@ export default function NewCustomerPage() {
         title='New Customer'
         description='Add a new customer to your database.'
       >
-        <Button.Root
-          mode='ghost'
-          size='small'
-          onClick={() => router.back()}
-          className='hidden lg:flex'
-        >
-          <RiArrowLeftLine className='size-4' />
-          Back
-        </Button.Root>
+        <BackButton href='/customers' label='Back to Customers' />
       </Header>
 
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>

@@ -102,9 +102,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     filters.limit !== 10;
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col gap-4 lg:flex-row lg:justify-between'>
       {/* Search Bar */}
-      <div className='relative'>
+      <div className='relative flex-1'>
         <Input.Root>
           <Input.Wrapper>
             <Input.Icon as={RiSearch2Line} />

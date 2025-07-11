@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  RiArrowLeftLine,
   RiBuildingLine,
   RiGlobalLine,
   RiMailLine,
@@ -17,6 +16,8 @@ import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
+import { BackButton } from '@/components/back-button';
+import Header from '@/components/header';
 
 const countries = [
   'Indonesia',
@@ -68,42 +69,10 @@ const countries = [
 ];
 
 const currencies = [
+  'RMB', // chinese yuan
   'USD',
-  'EUR',
-  'GBP',
-  'JPY',
-  'CNY',
   'IDR',
   'SGD',
-  'MYR',
-  'THB',
-  'VND',
-  'PHP',
-  'KRW',
-  'INR',
-  'AUD',
-  'CAD',
-  'CHF',
-  'SEK',
-  'NOK',
-  'DKK',
-  'PLN',
-  'CZK',
-  'HUF',
-  'RON',
-  'BGN',
-  'HRK',
-  'RUB',
-  'TRY',
-  'BRL',
-  'ARS',
-  'CLP',
-  'COP',
-  'PEN',
-  'UYU',
-  'PYG',
-  'BOB',
-  'ECU',
 ];
 
 interface SupplierFormData {
@@ -167,35 +136,20 @@ export default function NewSupplierPage() {
   };
 
   return (
-    <div className='flex flex-1 flex-col'>
-      {/* Header */}
-      <div className='flex items-center gap-4 border-b border-stroke-soft-200 bg-bg-white-0 px-4 py-4 lg:px-8'>
-        <Button.Root
-          mode='ghost'
-          size='small'
-          onClick={() => router.back()}
-          className='-ml-2'
-        >
-          <RiArrowLeftLine className='size-4' />
-          Back
-        </Button.Root>
-        <div className='flex items-center gap-3'>
-          <div className='flex size-10 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-            <RiBuildingLine className='size-5 text-text-sub-600' />
+    <>
+      <Header
+        icon={
+          <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+            <RiBuildingLine className='size-6' />
           </div>
-          <div>
-            <h1 className='text-heading-sm text-text-900 font-semibold'>
-              New Supplier
-            </h1>
-            <p className='text-paragraph-sm text-text-sub-600'>
-              Add a new supplier to your database
-            </p>
-          </div>
-        </div>
-      </div>
+        }
+        title='New Supplier'
+        description='Add a new supplier to your database.'
+      >
+        <BackButton href='/suppliers' label='Back to Suppliers' />
+      </Header>
 
-      {/* Form */}
-      <div className='flex flex-1 flex-col gap-6 p-4 lg:p-8'>
+      <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
           {/* Basic Information */}
           <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
@@ -414,6 +368,6 @@ export default function NewSupplierPage() {
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }

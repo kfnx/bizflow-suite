@@ -7,7 +7,7 @@ import { RiAddLine } from '@remixicon/react';
 import type { UsersFilters } from '@/hooks/use-users';
 import { Root as Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/auth/permission-gate';
-import { UserDetailsDrawer } from '@/components/user-details-drawer';
+import { UserPreviewDrawer } from '@/components/user-preview-drawer';
 
 import { Filters } from './filters';
 import { UsersTable } from './users-table';
@@ -73,7 +73,7 @@ export default function UserManagementPage() {
         <UsersTable filters={filters} onUserClick={handleUserClick} />
       </PermissionGate>
 
-      <UserDetailsDrawer
+      <UserPreviewDrawer
         userId={selectedUserId}
         open={!!selectedUserId}
         onClose={handleCloseDrawer}

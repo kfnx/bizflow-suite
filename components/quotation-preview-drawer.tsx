@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
+  RiBillLine,
   RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
@@ -25,6 +26,7 @@ import * as Drawer from '@/components/ui/drawer';
 import { QuotationStatusBadge } from '@/components/quotation-status-badge';
 
 import { Asterisk } from './ui/label';
+import router from 'next/router';
 
 interface QuotationPreviewDrawerProps {
   quotationId: string | null;
@@ -46,7 +48,6 @@ function QuotationPreviewContent({
 }: {
   quotation: QuotationDetail;
 }) {
-
   return (
     <>
       <Divider.Root variant='solid-text'>Quotation Info</Divider.Root>
@@ -148,7 +149,10 @@ function QuotationPreviewContent({
           <div className='p-5'>
             <div className='space-y-3'>
               {quotation.items.slice(0, 3).map((item) => (
-                <div key={item.id} className='flex items-center justify-between'>
+                <div
+                  key={item.id}
+                  className='flex items-center justify-between'
+                >
                   <div className='min-w-0 flex-1'>
                     <div className='truncate text-label-sm text-text-strong-950'>
                       {item.productName}
@@ -159,7 +163,8 @@ function QuotationPreviewContent({
                   </div>
                   <div className='ml-4 text-right'>
                     <div className='text-label-sm text-text-strong-950'>
-                      {parseFloat(item.quantity)} × {formatCurrency(item.unitPrice, quotation.currency)}
+                      {parseFloat(item.quantity)} ×{' '}
+                      {formatCurrency(item.unitPrice, quotation.currency)}
                     </div>
                     <div className='text-paragraph-sm text-text-sub-600'>
                       {formatCurrency(item.total, quotation.currency)}
@@ -181,11 +186,7 @@ function QuotationPreviewContent({
   );
 }
 
-function QuotationPreviewFooter({
-  quotation,
-}: {
-  quotation: QuotationDetail;
-}) {
+function QuotationPreviewFooter({ quotation }: { quotation: QuotationDetail }) {
   const sendQuotationMutation = useSendQuotation();
   const submitQuotationMutation = useSubmitQuotation();
   const markAsInvoiceMutation = useMarkQuotationAsInvoiced();
@@ -265,11 +266,16 @@ function QuotationPreviewFooter({
     }
 
     try {
-      await markAsInvoiceMutation.mutateAsync(quotation.id);
+      await markAsInvoiceMutation.mutateAsync({
+        quotationId: quotation.id,
+      });
       alert('Quotation marked as invoice successfully!');
+      // router.push(`/invoices/${invoiceId}`);
     } catch (error) {
       alert(
-        error instanceof Error ? error.message : 'Failed to mark quotation as invoice',
+        error instanceof Error
+          ? error.message
+          : 'Failed to mark quotation as invoice',
       );
     }
   };
@@ -330,11 +336,11 @@ function QuotationPreviewFooter({
           variant='primary'
           size='medium'
           className='w-full'
-          onClick={handleSend}
-          disabled={sendQuotationMutation.isPending}
+          onClick={handleMarkAsInvoice}
+          disabled={markAsInvoiceMutation.isPending}
         >
-          <Button.Icon as={RiMailSendLine} />
-          {sendQuotationMutation.isPending ? 'Sending...' : 'Send'}
+          <Button.Icon as={RiBillLine} />
+          {markAsInvoiceMutation.isPending ? 'Marking...' : 'Mark as Invoice'}
         </Button.Root>
       )}
     </Drawer.Footer>

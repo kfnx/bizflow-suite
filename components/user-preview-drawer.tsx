@@ -2,12 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-  RiCloseLine,
   RiEditLine,
-  RiKeyLine,
   RiLoader4Line,
   RiLockPasswordLine,
-  RiUserLine,
 } from '@remixicon/react';
 
 import { formatDate } from '@/utils/date-formatter';
@@ -19,7 +16,7 @@ import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
-interface UserDetailsDrawerProps {
+interface UserPreviewDrawerProps {
   userId: string | null;
   open: boolean;
   onClose: () => void;
@@ -51,14 +48,13 @@ const getTypeColor = (type: string) => {
   }
 };
 
-function UserDetailsContent({ user }: { user: any }) {
-
+function UserPreviewContent({ user }: { user: any }) {
   return (
     <>
       <Divider.Root variant='solid-text'>User Info</Divider.Root>
-      
+
       <div className='p-5'>
-        <div className='flex items-center justify-between mb-3'>
+        <div className='mb-3 flex items-center justify-between'>
           <div>
             <div className='text-title-h4 text-text-strong-950'>
               {user.firstName} {user.lastName}
@@ -91,7 +87,7 @@ function UserDetailsContent({ user }: { user: any }) {
         </div>
       </div>
 
-      <Divider.Root variant='solid-text'>Details</Divider.Root>
+      <Divider.Root variant='solid-text'>Preview</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
         <div>
@@ -148,7 +144,7 @@ function UserDetailsContent({ user }: { user: any }) {
           <div className='text-subheading-xs uppercase text-text-soft-400'>
             Employee Code
           </div>
-          <div className='mt-1 text-label-sm text-text-strong-950 font-mono'>
+          <div className='mt-1 font-mono text-label-sm text-text-strong-950'>
             {user.code}
           </div>
         </div>
@@ -216,7 +212,7 @@ function UserDetailsContent({ user }: { user: any }) {
   );
 }
 
-function UserDetailsFooter({ user }: { user: any }) {
+function UserPreviewFooter({ user }: { user: any }) {
   const { can } = usePermissions();
   const resetPasswordMutation = useResetUserPassword();
 
@@ -273,11 +269,11 @@ function UserDetailsFooter({ user }: { user: any }) {
   );
 }
 
-export function UserDetailsDrawer({
+export function UserPreviewDrawer({
   userId,
   open,
   onClose,
-}: UserDetailsDrawerProps) {
+}: UserPreviewDrawerProps) {
   const [isMobile, setIsMobile] = useState(false);
   const { data, isLoading, error } = useUser(userId || '');
 
@@ -315,7 +311,7 @@ export function UserDetailsDrawer({
       <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
         {/* Header */}
         <Drawer.Header>
-          <Drawer.Title>User Details</Drawer.Title>
+          <Drawer.Title>User Preview</Drawer.Title>
         </Drawer.Header>
 
         <Drawer.Body>
@@ -333,12 +329,12 @@ export function UserDetailsDrawer({
           )}
 
           {data?.user && !isLoading && !error && (
-            <UserDetailsContent user={data.user} />
+            <UserPreviewContent user={data.user} />
           )}
         </Drawer.Body>
 
         {data?.user && !isLoading && !error && (
-          <UserDetailsFooter user={data.user} />
+          <UserPreviewFooter user={data.user} />
         )}
       </Drawer.Content>
     </Drawer.Root>

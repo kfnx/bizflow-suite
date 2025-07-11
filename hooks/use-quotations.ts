@@ -232,7 +232,7 @@ export const canCreateInvoice = (
 // Mark quotation as invoiced
 const markQuotationAsInvoiced = async (
   quotationId: string,
-  invoiceId: string,
+  invoiceId?: string,
 ): Promise<void> => {
   const response = await fetch(`/api/quotations/${quotationId}/mark-invoiced`, {
     method: 'POST',
@@ -257,7 +257,7 @@ export function useMarkQuotationAsInvoiced() {
       invoiceId,
     }: {
       quotationId: string;
-      invoiceId: string;
+      invoiceId?: string;
     }) => markQuotationAsInvoiced(quotationId, invoiceId),
     onSuccess: () => {
       // Invalidate and refetch quotations after marking as invoiced

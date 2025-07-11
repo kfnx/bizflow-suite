@@ -27,13 +27,12 @@ interface SupplierPreviewDrawerProps {
 }
 
 function SupplierPreviewContent({ supplier }: { supplier: any }) {
-
   return (
     <>
       <Divider.Root variant='solid-text'>Supplier Info</Divider.Root>
-      
+
       <div className='p-5'>
-        <div className='flex items-center justify-between mb-3'>
+        <div className='mb-3 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
             <RiBuildingLine className='size-5 text-text-sub-600' />
             <div>
@@ -125,9 +124,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
               </div>
               {(supplier.city || supplier.country) && (
                 <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-                  {[supplier.city, supplier.country]
-                    .filter(Boolean)
-                    .join(', ')}
+                  {[supplier.city, supplier.country].filter(Boolean).join(', ')}
                 </div>
               )}
             </div>

@@ -34,13 +34,12 @@ const formatCurrency = (amount: string, currency: string) => {
 };
 
 function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
-
   return (
     <>
       <Divider.Root variant='solid-text'>Invoice Info</Divider.Root>
-      
+
       <div className='p-5'>
-        <div className='flex items-center justify-between mb-3'>
+        <div className='mb-3 flex items-center justify-between'>
           <div>
             <div className='text-title-h4 text-text-strong-950'>
               {invoice.invoiceNumber}
@@ -128,9 +127,12 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
           <div className='p-5'>
             <div className='space-y-3'>
               {invoice.items.slice(0, 3).map((item) => (
-                <div key={item.id} className='flex items-center justify-between'>
+                <div
+                  key={item.id}
+                  className='flex items-center justify-between'
+                >
                   <div className='min-w-0 flex-1'>
-                    <div className='text-label-sm text-text-strong-950 truncate'>
+                    <div className='truncate text-label-sm text-text-strong-950'>
                       {item.productName}
                     </div>
                     <div className='text-paragraph-sm text-text-sub-600'>
@@ -139,7 +141,8 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
                   </div>
                   <div className='ml-4 text-right'>
                     <div className='text-label-sm text-text-strong-950'>
-                      {parseFloat(item.quantity)} × {formatCurrency(item.unitPrice, invoice.currency)}
+                      {parseFloat(item.quantity)} ×{' '}
+                      {formatCurrency(item.unitPrice, invoice.currency)}
                     </div>
                     <div className='text-paragraph-sm text-text-sub-600'>
                       {formatCurrency(item.total, invoice.currency)}

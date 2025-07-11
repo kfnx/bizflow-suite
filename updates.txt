@@ -1,7 +1,13 @@
 11 jul
+users
 - Penambahan user dibuatkan page khusus
 - Saat pembuatan user baru akan menggunakan default password SandiBaruSTI
 - Saat masuk menggunakan default password akan redirect ke halaman update-password
 - Hapus button delete user
 - Edit user sudah berfungsi
 - Reset password sudah berfungsi
+
+customers & suppliers
+- multiple contact person
+- create, update, delete (set inactive)
+- Tambah informasi: Address, City, Province, Country, Postal Code

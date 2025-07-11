@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  RiAddLine,
   RiBuildingLine,
-  RiDeleteBin2Line,
   RiGlobalLine,
   RiMailLine,
   RiMapPinLine,
@@ -14,68 +12,14 @@ import {
 } from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
+import * as Checkbox from '@/components/ui/checkbox';
+import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
-import * as Textarea from '@/components/ui/textarea';
+import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-
-const countries = [
-  'Indonesia',
-  'China',
-  'Japan',
-  'Singapore',
-  'Malaysia',
-  'Thailand',
-  'Vietnam',
-  'Philippines',
-  'South Korea',
-  'India',
-  'Australia',
-  'United States',
-  'Germany',
-  'United Kingdom',
-  'France',
-  'Italy',
-  'Spain',
-  'Netherlands',
-  'Belgium',
-  'Switzerland',
-  'Austria',
-  'Sweden',
-  'Norway',
-  'Denmark',
-  'Finland',
-  'Poland',
-  'Czech Republic',
-  'Hungary',
-  'Romania',
-  'Bulgaria',
-  'Greece',
-  'Portugal',
-  'Ireland',
-  'Canada',
-  'Mexico',
-  'Brazil',
-  'Argentina',
-  'Chile',
-  'Colombia',
-  'Peru',
-  'Venezuela',
-  'Uruguay',
-  'Paraguay',
-  'Ecuador',
-  'Bolivia',
-  'Other',
-];
-
-const currencies = [
-  'RMB', // chinese yuan
-  'USD',
-  'IDR',
-  'SGD',
-];
 
 interface ContactPerson {
   name: string;
@@ -86,10 +30,13 @@ interface ContactPerson {
 interface SupplierFormData {
   code: string;
   name: string;
-  country: string;
   address: string;
+  city: string;
+  province: string;
+  country: string;
   postalCode: string;
   transactionCurrency: string;
+  isActive: boolean;
   contactPersons: ContactPerson[];
 }
 
@@ -99,18 +46,29 @@ export default function NewSupplierPage() {
   const [formData, setFormData] = useState<SupplierFormData>({
     code: '',
     name: '',
-    country: '',
     address: '',
+    city: '',
+    province: '',
+    country: '',
     postalCode: '',
     transactionCurrency: 'USD',
+    isActive: true,
     contactPersons: [{ name: '', email: '', phone: '' }],
   });
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const handleInputChange = (
-    field: keyof Omit<SupplierFormData, 'contactPersons'>,
-    value: string,
+    field: keyof SupplierFormData,
+    value: string | boolean | ContactPerson[],
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear validation errors when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+    }
   };
 
   const handleContactPersonChange = (
@@ -130,13 +88,10 @@ export default function NewSupplierPage() {
   };
 
   const addContactPerson = () => {
-    setFormData((prev) => ({
-      ...prev,
-      contactPersons: [
-        ...prev.contactPersons,
-        { name: '', email: '', phone: '' },
-      ],
-    }));
+    handleInputChange('contactPersons', [
+      ...formData.contactPersons,
+      { name: '', email: '', phone: '' },
+    ]);
   };
 
   const removeContactPerson = (index: number) => {
@@ -144,16 +99,30 @@ export default function NewSupplierPage() {
       const updatedContactPersons = formData.contactPersons.filter(
         (_, i) => i !== index,
       );
-      setFormData((prev) => ({
-        ...prev,
-        contactPersons: updatedContactPersons,
-      }));
+      handleInputChange('contactPersons', updatedContactPersons);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setValidationErrors({});
+
+    // Client-side validation
+    const errors: Record<string, string> = {};
+
+    if (!formData.code.trim()) {
+      errors.code = 'Supplier code is required';
+    }
+    if (!formData.name.trim()) {
+      errors.name = 'Supplier name is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/suppliers', {
@@ -195,267 +164,340 @@ export default function NewSupplierPage() {
       </Header>
 
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
-          {/* Basic Information */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-xs text-text-900 mb-4 font-semibold'>
-              Basic Information
-            </h2>
-            <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-              <div className='space-y-2'>
-                <Label.Root htmlFor='code'>
-                  Supplier Code <Label.Asterisk />
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiBuildingLine} />
-                    <Input.Input
-                      id='code'
-                      type='text'
-                      placeholder='Enter supplier code'
-                      value={formData.code}
-                      onChange={(e) =>
-                        handleInputChange('code', e.target.value)
-                      }
-                      required
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
+        <form onSubmit={handleSubmit} className='space-y-6'>
+          <div className='space-y-6 rounded-lg border border-stroke-soft-200 p-6'>
+            {/* Basic Information */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Basic Information
+              </h3>
+
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='code'>
+                    Supplier Code <Label.Asterisk />
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiBuildingLine} />
+                      <Input.Input
+                        id='code'
+                        value={formData.code}
+                        onChange={(e) =>
+                          handleInputChange('code', e.target.value)
+                        }
+                        required
+                        placeholder='Enter supplier code'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.code && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.code}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='name'>
+                    Supplier Name <Label.Asterisk />
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiBuildingLine} />
+                      <Input.Input
+                        id='name'
+                        value={formData.name}
+                        onChange={(e) =>
+                          handleInputChange('name', e.target.value)
+                        }
+                        required
+                        placeholder='Enter supplier name'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.name && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.name}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className='space-y-2'>
-                <Label.Root htmlFor='name'>
-                  Supplier Name <Label.Asterisk />
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiBuildingLine} />
-                    <Input.Input
-                      id='name'
-                      type='text'
-                      placeholder='Enter supplier name'
-                      value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange('name', e.target.value)
-                      }
-                      required
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              </div>
+              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='transactionCurrency'>
+                    Transaction Currency <Label.Asterisk />
+                  </Label.Root>
+                  <Select.Root
+                    value={formData.transactionCurrency}
+                    onValueChange={(value) =>
+                      handleInputChange('transactionCurrency', value)
+                    }
+                  >
+                    <Select.Trigger>
+                      <Select.TriggerIcon as={RiGlobalLine} />
+                      <Select.Value placeholder='Select currency' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value='USD'>USD</Select.Item>
+                      <Select.Item value='EUR'>EUR</Select.Item>
+                      <Select.Item value='IDR'>IDR</Select.Item>
+                      <Select.Item value='JPY'>JPY</Select.Item>
+                      <Select.Item value='CNY'>CNY</Select.Item>
+                      <Select.Item value='KRW'>KRW</Select.Item>
+                      <Select.Item value='SGD'>SGD</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                </div>
 
-              <div className='space-y-2'>
-                <Label.Root htmlFor='country'>Country</Label.Root>
-                <Select.Root
-                  value={formData.country}
-                  onValueChange={(value) => handleInputChange('country', value)}
-                >
-                  <Select.Trigger>
-                    <Select.TriggerIcon as={RiMapPinLine} />
-                    <Select.Value placeholder='Select country' />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {countries.map((country) => (
-                      <Select.Item key={country} value={country}>
-                        {country}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-              </div>
-
-              <div className='space-y-2'>
-                <Label.Root htmlFor='transactionCurrency'>
-                  Transaction Currency
-                </Label.Root>
-                <Select.Root
-                  value={formData.transactionCurrency}
-                  onValueChange={(value) =>
-                    handleInputChange('transactionCurrency', value)
-                  }
-                >
-                  <Select.Trigger>
-                    <Select.TriggerIcon as={RiGlobalLine} />
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {currencies.map((currency) => (
-                      <Select.Item key={currency} value={currency}>
-                        {currency}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-              </div>
-            </div>
-          </div>
-
-          {/* Address Information */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-xs text-text-900 mb-4 font-semibold'>
-              Address Information
-            </h2>
-            <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-              <div className='space-y-2 lg:col-span-2'>
-                <Label.Root htmlFor='address'>Address</Label.Root>
-                <Textarea.Root
-                  id='address'
-                  placeholder='Enter complete address'
-                  value={formData.address}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    handleInputChange('address', e.target.value)
-                  }
-                  rows={3}
-                />
-              </div>
-
-              <div className='space-y-2'>
-                <Label.Root htmlFor='postalCode'>Postal Code</Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiMapPinLine} />
-                    <Input.Input
-                      id='postalCode'
-                      type='text'
-                      placeholder='Enter postal code'
-                      value={formData.postalCode}
-                      onChange={(e) =>
-                        handleInputChange('postalCode', e.target.value)
-                      }
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='isActive'>Status</Label.Root>
+                  <Select.Root
+                    value={formData.isActive ? 'active' : 'inactive'}
+                    onValueChange={(value) =>
+                      handleInputChange('isActive', value === 'active')
+                    }
+                  >
+                    <Select.Trigger>
+                      <Select.Value placeholder='Select status' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value='active'>Active</Select.Item>
+                      <Select.Item value='inactive'>Inactive</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Contact Information */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <div className='mb-4 flex items-center justify-between'>
-              <h2 className='text-heading-xs text-text-900 font-semibold'>
-                Contact Information
-              </h2>
-              <Button.Root
-                type='button'
-                mode='ghost'
-                size='small'
-                onClick={addContactPerson}
-              >
-                <RiAddLine className='mr-2 size-4' />
-                Add Contact Person
-              </Button.Root>
-            </div>
-            <div className='space-y-4'>
-              {formData.contactPersons.map((contact, index) => (
-                <div
-                  key={index}
-                  className='rounded-lg border border-stroke-soft-200 p-4'
-                >
-                  <div className='mb-3 flex items-center justify-between'>
-                    <h3 className='text-sm font-medium text-text-strong-950'>
-                      Contact Person {index + 1}
-                    </h3>
-                    {formData.contactPersons.length > 1 && (
-                      <Button.Root
-                        type='button'
-                        mode='ghost'
-                        size='small'
-                        onClick={() => removeContactPerson(index)}
-                        className='text-red-600 hover:text-red-700'
-                      >
-                        <RiDeleteBin2Line className='size-4' />
-                      </Button.Root>
-                    )}
+            <Divider.Root />
+
+            {/* Address Information */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Address Information
+              </h3>
+
+              <div className='space-y-4'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='address'>Business Address</Label.Root>
+                  <TextArea.Root
+                    id='address'
+                    value={formData.address}
+                    onChange={(e) =>
+                      handleInputChange('address', e.target.value)
+                    }
+                    rows={3}
+                    placeholder='Enter business address'
+                    simple
+                  />
+                </div>
+
+                <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='city'>City</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='city'
+                          value={formData.city}
+                          onChange={(e) =>
+                            handleInputChange('city', e.target.value)
+                          }
+                          placeholder='Enter city'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
                   </div>
-                  <div className='grid grid-cols-1 gap-4 lg:grid-cols-3'>
-                    <div className='space-y-2'>
-                      <Label.Root htmlFor={`contactPersonName-${index}`}>
-                        Name
-                      </Label.Root>
-                      <Input.Root>
-                        <Input.Wrapper>
-                          <Input.Icon as={RiUserLine} />
-                          <Input.Input
-                            id={`contactPersonName-${index}`}
-                            type='text'
-                            placeholder='Enter contact person name'
-                            value={contact.name}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                'name',
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </Input.Wrapper>
-                      </Input.Root>
-                    </div>
 
-                    <div className='space-y-2'>
-                      <Label.Root htmlFor={`contactPersonEmail-${index}`}>
-                        Email
-                      </Label.Root>
-                      <Input.Root>
-                        <Input.Wrapper>
-                          <Input.Icon as={RiMailLine} />
-                          <Input.Input
-                            id={`contactPersonEmail-${index}`}
-                            type='email'
-                            placeholder='Enter contact person email'
-                            value={contact.email}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                'email',
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </Input.Wrapper>
-                      </Input.Root>
-                    </div>
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='province'>Province/State</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='province'
+                          value={formData.province}
+                          onChange={(e) =>
+                            handleInputChange('province', e.target.value)
+                          }
+                          placeholder='Enter province or state'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
 
-                    <div className='space-y-2'>
-                      <Label.Root htmlFor={`contactPersonPhone-${index}`}>
-                        Phone
-                      </Label.Root>
-                      <Input.Root>
-                        <Input.Wrapper>
-                          <Input.Icon as={RiPhoneLine} />
-                          <Input.Input
-                            id={`contactPersonPhone-${index}`}
-                            type='tel'
-                            placeholder='Enter contact person phone'
-                            value={contact.phone}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                'phone',
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </Input.Wrapper>
-                      </Input.Root>
-                    </div>
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='country'>Country</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='country'
+                          value={formData.country}
+                          onChange={(e) =>
+                            handleInputChange('country', e.target.value)
+                          }
+                          placeholder='Enter country'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
                   </div>
                 </div>
-              ))}
+
+                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='postalCode'>Postal Code</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='postalCode'
+                          value={formData.postalCode}
+                          onChange={(e) =>
+                            handleInputChange('postalCode', e.target.value)
+                          }
+                          placeholder='Enter postal code'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Divider.Root />
+
+            {/* Contact Persons */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Contact Persons
+              </h3>
+
+              <div className='space-y-4'>
+                {formData.contactPersons.map((contact, index) => (
+                  <div
+                    key={index}
+                    className='rounded-lg border border-stroke-soft-200 p-4'
+                  >
+                    <div className='mb-4 flex items-center justify-between'>
+                      <h4 className='text-sm text-gray-900 font-medium'>
+                        Contact Person {index + 1}
+                      </h4>
+                      {formData.contactPersons.length > 1 && (
+                        <Button.Root
+                          type='button'
+                          variant='neutral'
+                          mode='ghost'
+                          size='small'
+                          onClick={() => removeContactPerson(index)}
+                        >
+                          Remove
+                        </Button.Root>
+                      )}
+                    </div>
+
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-name-${index}`}>
+                          Name
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiUserLine} />
+                            <Input.Input
+                              id={`contact-name-${index}`}
+                              value={contact.name}
+                              onChange={(e) =>
+                                handleContactPersonChange(
+                                  index,
+                                  'name',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter name'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-email-${index}`}>
+                          Email
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiMailLine} />
+                            <Input.Input
+                              id={`contact-email-${index}`}
+                              type='email'
+                              value={contact.email}
+                              onChange={(e) =>
+                                handleContactPersonChange(
+                                  index,
+                                  'email',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter email'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-phone-${index}`}>
+                          Phone
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiPhoneLine} />
+                            <Input.Input
+                              id={`contact-phone-${index}`}
+                              type='tel'
+                              value={contact.phone}
+                              onChange={(e) =>
+                                handleContactPersonChange(
+                                  index,
+                                  'phone',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter phone'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <Button.Root
+                  type='button'
+                  variant='neutral'
+                  mode='stroke'
+                  size='small'
+                  onClick={addContactPerson}
+                >
+                  Add Contact Person
+                </Button.Root>
+              </div>
             </div>
           </div>
 
-          {/* Form Actions */}
-          <div className='flex items-center justify-end gap-3'>
+          <div className='flex flex-col gap-4 pb-4 sm:flex-row sm:justify-end'>
             <Button.Root
               type='button'
+              variant='neutral'
               mode='ghost'
-              onClick={() => router.back()}
+              onClick={() => router.push('/suppliers')}
               disabled={isLoading}
             >
               Cancel
             </Button.Root>
-            <Button.Root type='submit' disabled={isLoading}>
+            <Button.Root type='submit' variant='primary' disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create Supplier'}
             </Button.Root>
           </div>

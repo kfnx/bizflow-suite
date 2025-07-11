@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiAddLine, RiArrowLeftLine, RiDeleteBinLine } from '@remixicon/react';
+import {
+  RiAddLine,
+  RiArrowLeftLine,
+  RiCalendarLine,
+  RiDeleteBinLine,
+  RiGlobalLine,
+  RiHashtag,
+  RiMoneyDollarCircleLine,
+  RiShoppingCartLine,
+} from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -230,6 +239,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
+                <Input.Icon as={RiCalendarLine} />
                 <Input.Input
                   id='invoiceDate'
                   type='date'
@@ -249,6 +259,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
+                <Input.Icon as={RiCalendarLine} />
                 <Input.Input
                   id='dueDate'
                   type='date'
@@ -280,6 +291,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
               onValueChange={(value) => handleInputChange('currency', value)}
             >
               <Select.Trigger id='currency'>
+                <Select.TriggerIcon as={RiGlobalLine} />
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
@@ -298,6 +310,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
               onValueChange={(value) => handleInputChange('status', value)}
             >
               <Select.Trigger id='status'>
+                <Select.TriggerIcon as={RiHashtag} />
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
@@ -313,6 +326,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
             <Label.Root htmlFor='paymentMethod'>Payment Method</Label.Root>
             <Input.Root>
               <Input.Wrapper>
+                <Input.Icon as={RiMoneyDollarCircleLine} />
                 <Input.Input
                   id='paymentMethod'
                   value={formData.paymentMethod || ''}
@@ -384,6 +398,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                     }}
                   >
                     <Select.Trigger id={`product-${index}`}>
+                      <Select.TriggerIcon as={RiShoppingCartLine} />
                       <Select.Value placeholder='Select product' />
                     </Select.Trigger>
                     <Select.Content>
@@ -402,6 +417,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                   </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
+                      <Input.Icon as={RiHashtag} />
                       <Input.Input
                         id={`quantity-${index}`}
                         type='number'
@@ -422,6 +438,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                   </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
+                      <Input.Icon as={RiMoneyDollarCircleLine} />
                       <Input.Input
                         id={`unitPrice-${index}`}
                         type='number'
@@ -460,6 +477,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                   <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
+                      <Input.Icon as={RiHashtag} />
                       <Input.Input
                         id={`notes-${index}`}
                         value={item.notes || ''}

@@ -2,7 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiArrowLeftLine, RiBox1Line } from '@remixicon/react';
+import {
+  RiArrowLeftLine,
+  RiBox1Line,
+  RiBuildingLine,
+  RiCalendarLine,
+  RiGlobalLine,
+  RiHashtag,
+  RiMapPinLine,
+  RiMoneyDollarCircleLine,
+  RiShoppingCartLine,
+  RiStoreLine,
+} from '@remixicon/react';
 
 import { useSuppliers } from '@/hooks/use-suppliers';
 import * as Button from '@/components/ui/button';
@@ -104,14 +115,18 @@ export default function NewProductPage() {
                   Product Code <span className='text-red-500'>*</span>
                 </Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='code'
-                    value={formData.code}
-                    onChange={(e) => handleInputChange('code', e.target.value)}
-                    placeholder='PROD001'
-                    required
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiShoppingCartLine} />
+                    <Input.Input
+                      id='code'
+                      value={formData.code}
+                      onChange={(e) =>
+                        handleInputChange('code', e.target.value)
+                      }
+                      placeholder='PROD001'
+                      required
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
@@ -119,14 +134,18 @@ export default function NewProductPage() {
                   Product Name <span className='text-red-500'>*</span>
                 </Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='name'
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder='Excavator Shantui SE200'
-                    required
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiShoppingCartLine} />
+                    <Input.Input
+                      id='name'
+                      value={formData.name}
+                      onChange={(e) =>
+                        handleInputChange('name', e.target.value)
+                      }
+                      placeholder='Excavator Shantui SE200'
+                      required
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
@@ -138,6 +157,7 @@ export default function NewProductPage() {
                   }
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiShoppingCartLine} />
                     <Select.Value placeholder='Select category' />
                   </Select.Trigger>
                   <Select.Content>
@@ -159,6 +179,7 @@ export default function NewProductPage() {
                   onValueChange={(value) => handleInputChange('brand', value)}
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiBuildingLine} />
                     <Select.Value placeholder='Select brand' />
                   </Select.Trigger>
                   <Select.Content>
@@ -174,28 +195,36 @@ export default function NewProductPage() {
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='model'>Model</Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='model'
-                    value={formData.model}
-                    onChange={(e) => handleInputChange('model', e.target.value)}
-                    placeholder='SE200'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiHashtag} />
+                    <Input.Input
+                      id='model'
+                      value={formData.model}
+                      onChange={(e) =>
+                        handleInputChange('model', e.target.value)
+                      }
+                      placeholder='SE200'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='year'>Year</Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='year'
-                    type='number'
-                    value={formData.year}
-                    onChange={(e) => handleInputChange('year', e.target.value)}
-                    placeholder='2024'
-                    min='1900'
-                    max='2030'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiCalendarLine} />
+                    <Input.Input
+                      id='year'
+                      type='number'
+                      value={formData.year}
+                      onChange={(e) =>
+                        handleInputChange('year', e.target.value)
+                      }
+                      placeholder='2024'
+                      min='1900'
+                      max='2030'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
             </div>
@@ -216,6 +245,7 @@ export default function NewProductPage() {
                   }
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiShoppingCartLine} />
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -232,6 +262,7 @@ export default function NewProductPage() {
                   onValueChange={(value) => handleInputChange('status', value)}
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiStoreLine} />
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -244,15 +275,17 @@ export default function NewProductPage() {
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='location'>Location</Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='location'
-                    value={formData.location}
-                    onChange={(e) =>
-                      handleInputChange('location', e.target.value)
-                    }
-                    placeholder='Warehouse A, Section 1'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiMapPinLine} />
+                    <Input.Input
+                      id='location'
+                      value={formData.location}
+                      onChange={(e) =>
+                        handleInputChange('location', e.target.value)
+                      }
+                      placeholder='Warehouse A, Section 1'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
@@ -264,6 +297,7 @@ export default function NewProductPage() {
                   onValueChange={(value) => handleInputChange('unit', value)}
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiHashtag} />
                     <Select.Value placeholder='Select unit' />
                   </Select.Trigger>
                   <Select.Content>
@@ -287,16 +321,20 @@ export default function NewProductPage() {
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='price'>Price</Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='price'
-                    type='number'
-                    step='0.01'
-                    value={formData.price}
-                    onChange={(e) => handleInputChange('price', e.target.value)}
-                    placeholder='0.00'
-                    min='0'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiMoneyDollarCircleLine} />
+                    <Input.Input
+                      id='price'
+                      type='number'
+                      step='0.01'
+                      value={formData.price}
+                      onChange={(e) =>
+                        handleInputChange('price', e.target.value)
+                      }
+                      placeholder='0.00'
+                      min='0'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
@@ -308,6 +346,7 @@ export default function NewProductPage() {
                   }
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiGlobalLine} />
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -328,6 +367,7 @@ export default function NewProductPage() {
                   }
                 >
                   <Select.Trigger>
+                    <Select.TriggerIcon as={RiBuildingLine} />
                     <Select.Value placeholder='Select supplier' />
                   </Select.Trigger>
                   <Select.Content>
@@ -351,29 +391,33 @@ export default function NewProductPage() {
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='engineModel'>Engine Model</Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='engineModel'
-                    value={formData.engineModel}
-                    onChange={(e) =>
-                      handleInputChange('engineModel', e.target.value)
-                    }
-                    placeholder='Cummins QSB6.7'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiHashtag} />
+                    <Input.Input
+                      id='engineModel'
+                      value={formData.engineModel}
+                      onChange={(e) =>
+                        handleInputChange('engineModel', e.target.value)
+                      }
+                      placeholder='Cummins QSB6.7'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='enginePower'>Engine Power</Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='enginePower'
-                    value={formData.enginePower}
-                    onChange={(e) =>
-                      handleInputChange('enginePower', e.target.value)
-                    }
-                    placeholder='378 hp'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiHashtag} />
+                    <Input.Input
+                      id='enginePower'
+                      value={formData.enginePower}
+                      onChange={(e) =>
+                        handleInputChange('enginePower', e.target.value)
+                      }
+                      placeholder='378 hp'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
               <div className='flex flex-col gap-2'>
@@ -381,15 +425,17 @@ export default function NewProductPage() {
                   Operating Weight
                 </Label.Root>
                 <Input.Root>
-                  <Input.Input
-                    id='operatingWeight'
-                    value={formData.operatingWeight}
-                    onChange={(e) =>
-                      handleInputChange('operatingWeight', e.target.value)
-                    }
-                    placeholder='47,250 kg'
-                    className='px-3'
-                  />
+                  <Input.Wrapper>
+                    <Input.Icon as={RiHashtag} />
+                    <Input.Input
+                      id='operatingWeight'
+                      value={formData.operatingWeight}
+                      onChange={(e) =>
+                        handleInputChange('operatingWeight', e.target.value)
+                      }
+                      placeholder='47,250 kg'
+                    />
+                  </Input.Wrapper>
                 </Input.Root>
               </div>
             </div>

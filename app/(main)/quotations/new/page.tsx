@@ -57,23 +57,19 @@ export default function NewQuotationPage() {
     );
   }
 
-  const HeaderComponent = () => (
-    <Header
-      icon={
-        <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-          <RiFileAddLine className='size-6' />
-        </div>
-      }
-      title='New Quotation'
-      description='Create a new quotation for your customer.'
-    >
-      <BackButton href='/quotations' label='Back to Quotations' />
-    </Header>
-  );
-
   return (
     <PermissionGate permission='quotations:create'>
-      <HeaderComponent />
+      <Header
+        icon={
+          <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+            <RiFileAddLine className='size-6' />
+          </div>
+        }
+        title='New Quotation'
+        description='Create a new quotation for your customer.'
+      >
+        <BackButton href='/quotations' label='Back to Quotations' />
+      </Header>
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <NewQuotationForm initialFormData={initialFormData} />
       </div>

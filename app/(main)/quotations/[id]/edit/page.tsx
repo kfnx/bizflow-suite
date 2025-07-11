@@ -6,8 +6,14 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   RiAddLine,
   RiArrowLeftLine,
+  RiCalendarLine,
   RiDeleteBinLine,
   RiEditLine,
+  RiGlobalLine,
+  RiHashtag,
+  RiMoneyDollarCircleLine,
+  RiShoppingCartLine,
+  RiUserLine,
 } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -294,27 +300,23 @@ export default function EditQuotationPage() {
     return null;
   }
 
-  const HeaderComponent = () => (
-    <Header
-      icon={
-        <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-          <RiEditLine className='size-6 text-text-sub-600' />
-        </div>
-      }
-      title='Edit Quotation'
-      description='Edit your draft quotation.'
-    >
-      <BackButton href='/quotations' label='Back to Quotations' />
-    </Header>
-  );
-
   return (
     <PermissionGate permission='quotations:update'>
-      <HeaderComponent />
+      <Header
+        icon={
+          <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+            <RiEditLine className='size-6 text-text-sub-600' />
+          </div>
+        }
+        title='Edit Quotation'
+        description='Edit your draft quotation.'
+      >
+        <BackButton href='/quotations' label='Back to Quotations' />
+      </Header>
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <form
           onSubmit={(e) => handleSubmit(e, QUOTATION_STATUS.SUBMITTED)}
-          className='mx-auto w-full max-w-4xl space-y-8'
+          className='space-y-6'
         >
           {/* Quotation Details */}
           <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
@@ -336,6 +338,7 @@ export default function EditQuotationPage() {
                 </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
+                    <Input.Icon as={RiCalendarLine} />
                     <Input.Input
                       type='date'
                       value={formData.quotationDate}
@@ -354,6 +357,7 @@ export default function EditQuotationPage() {
                 </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
+                    <Input.Icon as={RiCalendarLine} />
                     <Input.Input
                       id='validUntil'
                       type='date'
@@ -379,6 +383,7 @@ export default function EditQuotationPage() {
                   }
                 >
                   <Select.Trigger id='customer'>
+                    <Select.TriggerIcon as={RiUserLine} />
                     <Select.Value placeholder='Select a customer' />
                   </Select.Trigger>
                   <Select.Content>
@@ -400,6 +405,7 @@ export default function EditQuotationPage() {
                   }
                 >
                   <Select.Trigger id='currency'>
+                    <Select.TriggerIcon as={RiGlobalLine} />
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -415,6 +421,7 @@ export default function EditQuotationPage() {
                 <Label.Root htmlFor='notes'>Notes</Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
+                    <Input.Icon as={RiHashtag} />
                     <Input.Input
                       id='notes'
                       value={formData.notes || ''}
@@ -511,6 +518,7 @@ export default function EditQuotationPage() {
                         }}
                       >
                         <Select.Trigger id={`product-${index}`}>
+                          <Select.TriggerIcon as={RiShoppingCartLine} />
                           <Select.Value placeholder='Select product' />
                         </Select.Trigger>
                         <Select.Content>
@@ -529,6 +537,7 @@ export default function EditQuotationPage() {
                       </Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
+                          <Input.Icon as={RiHashtag} />
                           <Input.Input
                             id={`quantity-${index}`}
                             type='number'
@@ -553,6 +562,7 @@ export default function EditQuotationPage() {
                       </Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
+                          <Input.Icon as={RiMoneyDollarCircleLine} />
                           <Input.Input
                             id={`unitPrice-${index}`}
                             type='number'
@@ -594,6 +604,7 @@ export default function EditQuotationPage() {
                       <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
                       <Input.Root>
                         <Input.Wrapper>
+                          <Input.Icon as={RiHashtag} />
                           <Input.Input
                             id={`notes-${index}`}
                             value={item.notes || ''}

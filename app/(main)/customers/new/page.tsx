@@ -3,18 +3,21 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  RiAddLine,
-  RiArrowLeftLine,
-  RiDeleteBin2Line,
+  RiBuildingLine,
+  RiGlobalLine,
+  RiMailLine,
+  RiMapPinLine,
+  RiPhoneLine,
   RiUserLine,
 } from '@remixicon/react';
 
 import * as Button from '@/components/ui/button';
+import * as Checkbox from '@/components/ui/checkbox';
+import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
-import * as Switch from '@/components/ui/switch';
-import { Root as TextareaRoot } from '@/components/ui/textarea';
+import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
@@ -29,14 +32,39 @@ export default function NewCustomerPage() {
     npwp16: '',
     billingAddress: '',
     shippingAddress: '',
+    address: '',
+    city: '',
+    province: '',
+    country: '',
+    postalCode: '',
     contactPersons: [{ name: '', email: '', phone: '' }],
     paymentTerms: 'NET 30',
     isPPN: false,
   });
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setValidationErrors({});
+
+    // Client-side validation
+    const errors: Record<string, string> = {};
+
+    if (!formData.code.trim()) {
+      errors.code = 'Customer code is required';
+    }
+    if (!formData.name.trim()) {
+      errors.name = 'Customer name is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/customers', {
@@ -60,11 +88,19 @@ export default function NewCustomerPage() {
     }
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (
+    field: string,
+    value: string | boolean | Array<any>,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    // Clear validation errors when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+    }
   };
 
   const handleContactPersonChange = (
@@ -84,13 +120,10 @@ export default function NewCustomerPage() {
   };
 
   const addContactPerson = () => {
-    setFormData((prev) => ({
-      ...prev,
-      contactPersons: [
-        ...prev.contactPersons,
-        { name: '', email: '', phone: '' },
-      ],
-    }));
+    handleInputChange('contactPersons', [
+      ...formData.contactPersons,
+      { name: '', email: '', phone: '' },
+    ]);
   };
 
   const removeContactPerson = (index: number) => {
@@ -98,10 +131,7 @@ export default function NewCustomerPage() {
       const updatedContactPersons = formData.contactPersons.filter(
         (_, i) => i !== index,
       );
-      setFormData((prev) => ({
-        ...prev,
-        contactPersons: updatedContactPersons,
-      }));
+      handleInputChange('contactPersons', updatedContactPersons);
     }
   };
 
@@ -121,280 +151,421 @@ export default function NewCustomerPage() {
 
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Basic Information */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-sm mb-4 font-semibold text-text-strong-950'>
-              Basic Information
-            </h2>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='code'>
-                  Customer Code <span className='text-red-500'>*</span>
-                </Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='code'
-                    value={formData.code}
-                    onChange={(e) => handleInputChange('code', e.target.value)}
-                    placeholder='CUST001'
-                    required
-                    className='px-3'
-                  />
-                </Input.Root>
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='name'>
-                  Customer Name <span className='text-red-500'>*</span>
-                </Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='name'
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder='PT Customer Pertama'
-                    required
-                    className='px-3'
-                  />
-                </Input.Root>
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='type'>Customer Type</Label.Root>
-                <Select.Root
-                  value={formData.type}
-                  onValueChange={(value) => handleInputChange('type', value)}
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value='individual'>Individual</Select.Item>
-                    <Select.Item value='company'>Company</Select.Item>
-                  </Select.Content>
-                </Select.Root>
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='paymentTerms'>Payment Terms</Label.Root>
-                <Select.Root
-                  value={formData.paymentTerms}
-                  onValueChange={(value) =>
-                    handleInputChange('paymentTerms', value)
-                  }
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value='NET 15'>NET 15</Select.Item>
-                    <Select.Item value='NET 30'>NET 30</Select.Item>
-                    <Select.Item value='NET 45'>NET 45</Select.Item>
-                    <Select.Item value='NET 60'>NET 60</Select.Item>
-                  </Select.Content>
-                </Select.Root>
-              </div>
-            </div>
-          </div>
+          <div className='space-y-6 rounded-lg border border-stroke-soft-200 p-6'>
+            {/* Basic Information */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Basic Information
+              </h3>
 
-          {/* Tax Information */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-sm mb-4 font-semibold text-text-strong-950'>
-              Tax Information
-            </h2>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='npwp'>NPWP</Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='npwp'
-                    value={formData.npwp}
-                    onChange={(e) => handleInputChange('npwp', e.target.value)}
-                    placeholder='12.345.678.9-123.456'
-                    className='px-3'
-                  />
-                </Input.Root>
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='code'>
+                    Customer Code <Label.Asterisk />
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiBuildingLine} />
+                      <Input.Input
+                        id='code'
+                        value={formData.code}
+                        onChange={(e) =>
+                          handleInputChange('code', e.target.value)
+                        }
+                        placeholder='CUST001'
+                        required
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.code && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.code}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='name'>
+                    Customer Name <Label.Asterisk />
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiBuildingLine} />
+                      <Input.Input
+                        id='name'
+                        value={formData.name}
+                        onChange={(e) =>
+                          handleInputChange('name', e.target.value)
+                        }
+                        placeholder='PT Customer Pertama'
+                        required
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.name && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.name}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='npwp16'>NPWP 16 Digit</Label.Root>
-                <Input.Root>
-                  <Input.Input
-                    id='npwp16'
-                    value={formData.npwp16}
-                    onChange={(e) =>
-                      handleInputChange('npwp16', e.target.value)
-                    }
-                    placeholder='12.345.678.9-123.456'
-                    className='px-3'
-                  />
-                </Input.Root>
+
+              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='type'>
+                    Customer Type <Label.Asterisk />
+                  </Label.Root>
+                  <Select.Root
+                    value={formData.type}
+                    onValueChange={(value) => handleInputChange('type', value)}
+                  >
+                    <Select.Trigger>
+                      <Select.TriggerIcon as={RiUserLine} />
+                      <Select.Value placeholder='Select customer type' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value='individual'>Individual</Select.Item>
+                      <Select.Item value='company'>Company</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='paymentTerms'>Payment Terms</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiGlobalLine} />
+                      <Input.Input
+                        id='paymentTerms'
+                        value={formData.paymentTerms}
+                        onChange={(e) =>
+                          handleInputChange('paymentTerms', e.target.value)
+                        }
+                        placeholder='e.g., NET 30, NET 15'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
               </div>
-              <div className='md:col-span-2'>
+
+              <div className='mt-6'>
                 <div className='flex items-center gap-2'>
-                  <Switch.Root
+                  <Checkbox.Root
                     id='isPPN'
                     checked={formData.isPPN}
                     onCheckedChange={(checked) =>
-                      handleInputChange('isPPN', checked)
+                      handleInputChange('isPPN', Boolean(checked))
                     }
                   />
-                  <Label.Root htmlFor='isPPN'>Include PPN</Label.Root>
+                  <Label.Root htmlFor='isPPN'>PPN Customer</Label.Root>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Contact Information */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <div className='mb-4 flex items-center justify-between'>
-              <h2 className='text-heading-sm font-semibold text-text-strong-950'>
-                Contact Information
-              </h2>
-              <Button.Root
-                type='button'
-                mode='ghost'
-                size='small'
-                onClick={addContactPerson}
-              >
-                <RiAddLine className='mr-2 size-4' />
-                Add Contact Person
-              </Button.Root>
+            <Divider.Root />
+
+            {/* Tax Information */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Tax Information
+              </h3>
+
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='npwp'>NPWP</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiGlobalLine} />
+                      <Input.Input
+                        id='npwp'
+                        value={formData.npwp}
+                        onChange={(e) =>
+                          handleInputChange('npwp', e.target.value)
+                        }
+                        placeholder='Enter NPWP number'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='npwp16'>NPWP 16</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiGlobalLine} />
+                      <Input.Input
+                        id='npwp16'
+                        value={formData.npwp16}
+                        onChange={(e) =>
+                          handleInputChange('npwp16', e.target.value)
+                        }
+                        placeholder='Enter NPWP 16 number'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </div>
+              </div>
             </div>
-            <div className='space-y-4'>
-              {formData.contactPersons.map((contact, index) => (
-                <div
-                  key={index}
-                  className='rounded-lg border border-stroke-soft-200 p-4'
+
+            <Divider.Root />
+
+            {/* Address Information */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Address Information
+              </h3>
+
+              <div className='space-y-4'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='address'>Primary Address</Label.Root>
+                  <TextArea.Root
+                    id='address'
+                    value={formData.address}
+                    onChange={(e) =>
+                      handleInputChange('address', e.target.value)
+                    }
+                    rows={3}
+                    placeholder='Enter primary address'
+                    simple
+                  />
+                </div>
+
+                <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='city'>City</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='city'
+                          value={formData.city}
+                          onChange={(e) =>
+                            handleInputChange('city', e.target.value)
+                          }
+                          placeholder='Enter city'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
+
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='province'>Province</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='province'
+                          value={formData.province}
+                          onChange={(e) =>
+                            handleInputChange('province', e.target.value)
+                          }
+                          placeholder='Enter province'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
+
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='country'>Country</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='country'
+                          value={formData.country}
+                          onChange={(e) =>
+                            handleInputChange('country', e.target.value)
+                          }
+                          placeholder='Enter country'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                  <div className='flex flex-col gap-2'>
+                    <Label.Root htmlFor='postalCode'>Postal Code</Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMapPinLine} />
+                        <Input.Input
+                          id='postalCode'
+                          value={formData.postalCode}
+                          onChange={(e) =>
+                            handleInputChange('postalCode', e.target.value)
+                          }
+                          placeholder='Enter postal code'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='billingAddress'>
+                    Billing Address
+                  </Label.Root>
+                  <TextArea.Root
+                    id='billingAddress'
+                    value={formData.billingAddress}
+                    onChange={(e) =>
+                      handleInputChange('billingAddress', e.target.value)
+                    }
+                    rows={3}
+                    placeholder='Enter billing address (if different from primary)'
+                    simple
+                  />
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='shippingAddress'>
+                    Shipping Address
+                  </Label.Root>
+                  <TextArea.Root
+                    id='shippingAddress'
+                    value={formData.shippingAddress}
+                    onChange={(e) =>
+                      handleInputChange('shippingAddress', e.target.value)
+                    }
+                    rows={3}
+                    placeholder='Enter shipping address (if different from primary)'
+                    simple
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Divider.Root />
+
+            {/* Contact Persons */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Contact Persons
+              </h3>
+
+              <div className='space-y-4'>
+                {formData.contactPersons.map((contact, index) => (
+                  <div
+                    key={index}
+                    className='rounded-lg border border-stroke-soft-200 p-4'
+                  >
+                    <div className='mb-4 flex items-center justify-between'>
+                      <h4 className='text-sm text-gray-900 font-medium'>
+                        Contact Person {index + 1}
+                      </h4>
+                      {formData.contactPersons.length > 1 && (
+                        <Button.Root
+                          type='button'
+                          variant='neutral'
+                          mode='ghost'
+                          size='small'
+                          onClick={() => removeContactPerson(index)}
+                        >
+                          Remove
+                        </Button.Root>
+                      )}
+                    </div>
+
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-name-${index}`}>
+                          Name
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiUserLine} />
+                            <Input.Input
+                              id={`contact-name-${index}`}
+                              value={contact.name}
+                              onChange={(e) =>
+                                handleContactPersonChange(
+                                  index,
+                                  'name',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter name'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-email-${index}`}>
+                          Email
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiMailLine} />
+                            <Input.Input
+                              id={`contact-email-${index}`}
+                              type='email'
+                              value={contact.email}
+                              onChange={(e) =>
+                                handleContactPersonChange(
+                                  index,
+                                  'email',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter email'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-phone-${index}`}>
+                          Phone
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiPhoneLine} />
+                            <Input.Input
+                              id={`contact-phone-${index}`}
+                              type='tel'
+                              value={contact.phone}
+                              onChange={(e) =>
+                                handleContactPersonChange(
+                                  index,
+                                  'phone',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter phone'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <Button.Root
+                  type='button'
+                  variant='neutral'
+                  mode='stroke'
+                  size='small'
+                  onClick={addContactPerson}
                 >
-                  <div className='mb-3 flex items-center justify-between'>
-                    <h3 className='text-sm font-medium text-text-strong-950'>
-                      Contact Person {index + 1}
-                    </h3>
-                    {formData.contactPersons.length > 1 && (
-                      <Button.Root
-                        type='button'
-                        mode='ghost'
-                        size='small'
-                        onClick={() => removeContactPerson(index)}
-                        className='text-red-600 hover:text-red-700'
-                      >
-                        <RiDeleteBin2Line className='size-4' />
-                      </Button.Root>
-                    )}
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <div className='flex flex-col gap-2'>
-                      <Label.Root htmlFor={`contactPersonName-${index}`}>
-                        Name
-                      </Label.Root>
-                      <Input.Root>
-                        <Input.Input
-                          id={`contactPersonName-${index}`}
-                          value={contact.name}
-                          onChange={(e) =>
-                            handleContactPersonChange(
-                              index,
-                              'name',
-                              e.target.value,
-                            )
-                          }
-                          placeholder='John Doe'
-                          className='px-3'
-                        />
-                      </Input.Root>
-                    </div>
-                    <div className='flex flex-col gap-2'>
-                      <Label.Root htmlFor={`contactPersonEmail-${index}`}>
-                        Email
-                      </Label.Root>
-                      <Input.Root>
-                        <Input.Input
-                          id={`contactPersonEmail-${index}`}
-                          type='email'
-                          value={contact.email}
-                          onChange={(e) =>
-                            handleContactPersonChange(
-                              index,
-                              'email',
-                              e.target.value,
-                            )
-                          }
-                          placeholder='contact@company.com'
-                          className='px-3'
-                        />
-                      </Input.Root>
-                    </div>
-                    <div className='flex flex-col gap-2'>
-                      <Label.Root htmlFor={`contactPersonPhone-${index}`}>
-                        Phone
-                      </Label.Root>
-                      <Input.Root>
-                        <Input.Input
-                          id={`contactPersonPhone-${index}`}
-                          value={contact.phone}
-                          onChange={(e) =>
-                            handleContactPersonChange(
-                              index,
-                              'phone',
-                              e.target.value,
-                            )
-                          }
-                          placeholder='+6281234567890'
-                          className='px-3'
-                        />
-                      </Input.Root>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Addresses */}
-          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-            <h2 className='text-heading-sm mb-4 font-semibold text-text-strong-950'>
-              Addresses
-            </h2>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='billingAddress'>
-                  Billing Address
-                </Label.Root>
-                <TextareaRoot
-                  id='billingAddress'
-                  value={formData.billingAddress}
-                  onChange={(e) =>
-                    handleInputChange('billingAddress', e.target.value)
-                  }
-                  placeholder='Enter billing address...'
-                  rows={3}
-                />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='shippingAddress'>
-                  Shipping Address
-                </Label.Root>
-                <TextareaRoot
-                  id='shippingAddress'
-                  value={formData.shippingAddress}
-                  onChange={(e) =>
-                    handleInputChange('shippingAddress', e.target.value)
-                  }
-                  placeholder='Enter shipping address...'
-                  rows={3}
-                />
+                  Add Contact Person
+                </Button.Root>
               </div>
             </div>
           </div>
 
-          {/* Form Actions */}
-          <div className='flex justify-end gap-3'>
+          <div className='flex flex-col gap-4 pb-4 sm:flex-row sm:justify-end'>
             <Button.Root
               type='button'
+              variant='neutral'
               mode='ghost'
-              onClick={() => router.back()}
+              onClick={() => router.push('/customers')}
               disabled={isLoading}
             >
               Cancel
             </Button.Root>
-            <Button.Root type='submit' mode='filled' disabled={isLoading}>
+            <Button.Root type='submit' variant='primary' disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create Customer'}
             </Button.Root>
           </div>

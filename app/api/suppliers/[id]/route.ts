@@ -178,13 +178,13 @@ export async function DELETE(
       .where(eq(suppliers.id, params.id));
 
     return NextResponse.json(
-      { message: 'Supplier deleted successfully' },
+      { message: 'Successfully set supplier to inactive' },
       { status: 200 },
     );
   } catch (error) {
-    console.error('Error deleting supplier:', error);
+    console.error('Error setting supplier to inactive:', error);
     return NextResponse.json(
-      { error: 'Failed to delete supplier' },
+      { error: 'Failed to set supplier to inactive' },
       { status: 500 },
     );
   }

@@ -2,7 +2,16 @@
 
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiAddLine, RiDeleteBinLine } from '@remixicon/react';
+import {
+  RiAddLine,
+  RiCalendarLine,
+  RiDeleteBinLine,
+  RiGlobalLine,
+  RiHashtag,
+  RiMoneyDollarCircleLine,
+  RiShoppingCartLine,
+  RiUserLine,
+} from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -190,7 +199,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
       onSubmit={(e) =>
         handleSubmit(e, QUOTATION_STATUS.SUBMITTED, quotationNumber)
       }
-      className='mx-auto w-full max-w-4xl space-y-8'
+      className='space-y-6'
     >
       {/* Quotation Details */}
       <div className='rounded-lg border border-stroke-soft-200 p-6'>
@@ -205,6 +214,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
+                <Input.Icon as={RiCalendarLine} />
                 <Input.Input
                   type='date'
                   value={formData.quotationDate}
@@ -223,6 +233,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
+                <Input.Icon as={RiCalendarLine} />
                 <Input.Input
                   id='validUntil'
                   type='date'
@@ -256,6 +267,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
               onValueChange={(value) => handleInputChange('currency', value)}
             >
               <Select.Trigger id='currency'>
+                <Select.TriggerIcon as={RiGlobalLine} />
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
@@ -271,6 +283,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
             <Label.Root htmlFor='notes'>Notes</Label.Root>
             <Input.Root>
               <Input.Wrapper>
+                <Input.Icon as={RiHashtag} />
                 <Input.Input
                   id='notes'
                   value={formData.notes || ''}
@@ -358,6 +371,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                     }}
                   >
                     <Select.Trigger id={`product-${index}`}>
+                      <Select.TriggerIcon as={RiShoppingCartLine} />
                       <Select.Value placeholder='Select product' />
                     </Select.Trigger>
                     <Select.Content>
@@ -376,6 +390,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                   </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
+                      <Input.Icon as={RiHashtag} />
                       <Input.Input
                         id={`quantity-${index}`}
                         type='number'
@@ -396,6 +411,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                   </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
+                      <Input.Icon as={RiMoneyDollarCircleLine} />
                       <Input.Input
                         id={`unitPrice-${index}`}
                         type='number'
@@ -434,6 +450,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                   <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
+                      <Input.Icon as={RiHashtag} />
                       <Input.Input
                         id={`notes-${index}`}
                         value={item.notes || ''}

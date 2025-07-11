@@ -197,76 +197,6 @@ export const supplierContactPersons = mysqlTable(
   ],
 );
 
-// Warehouses table
-export const warehouses = mysqlTable(
-  'warehouses',
-  {
-    id: varchar('id', { length: 36 })
-      .primaryKey()
-      .notNull()
-      .default(sql`(UUID())`),
-    code: varchar('code', { length: 50 }).notNull().unique(),
-    name: varchar('name', { length: 255 }).notNull(),
-    address: text('address'),
-    city: varchar('city', { length: 100 }),
-    country: varchar('country', { length: 100 }),
-    manager: varchar('manager', { length: 100 }),
-    phone: varchar('phone', { length: 20 }),
-    isActive: boolean('is_active').default(true),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
-  },
-  (table) => [
-    index('code_idx').on(table.code),
-    index('name_idx').on(table.name),
-  ],
-);
-
-// Products table
-export const products = mysqlTable(
-  'products',
-  {
-    id: varchar('id', { length: 36 })
-      .primaryKey()
-      .notNull()
-      .default(sql`(UUID())`),
-    code: varchar('code', { length: 100 }).notNull().unique(), // This serves as both code and serial number
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    category: varchar('category', { length: 100 }),
-    brand: varchar('brand', { length: 100 }),
-    model: varchar('model', { length: 100 }),
-    year: int('year'),
-    condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
-    status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
-    warehouseId: varchar('warehouse_id', { length: 36 }),
-    unit: varchar('unit', { length: 20 }).notNull(), // pcs, kg, m, etc.
-    price: decimal('price', { precision: 15, scale: 2 }).default('0.00'),
-    currency: varchar('currency', { length: 3 }).default('IDR'),
-    // Product Specifications
-    engineModel: varchar('engine_model', { length: 100 }),
-    enginePower: varchar('engine_power', { length: 50 }), // e.g., "378 hp"
-    operatingWeight: varchar('operating_weight', { length: 50 }), // e.g., "47,250 kg"
-    supplierId: varchar('supplier_id', { length: 36 }),
-    isActive: boolean('is_active').default(true),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
-  },
-  (table) => [
-    index('code_idx').on(table.code),
-    index('name_idx').on(table.name),
-    index('brand_idx').on(table.brand),
-    index('category_idx').on(table.category),
-    index('status_idx').on(table.status),
-    index('supplier_id_idx').on(table.supplierId),
-    foreignKey({
-      columns: [table.supplierId],
-      foreignColumns: [suppliers.id],
-      name: 'fk_products_supplier',
-    }),
-  ],
-);
-
 // Quotations table
 export const quotations = mysqlTable(
   'quotations',
@@ -537,6 +467,101 @@ export const deliveryNoteItems = mysqlTable(
   ],
 );
 
+// Products table
+export const products = mysqlTable(
+  'products',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    code: varchar('code', { length: 100 }).notNull().unique(), // This serves as both code and serial number
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    category: varchar('category', { length: 100 }).notNull(), // serialized, non_serialized, bulk
+    machineTypeId: varchar('machine_type_id', { length: 36 }),
+    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }),
+    brandId: varchar('brand_id', { length: 36 }),
+
+    // dynamic / union properties based on category
+    modelOrPartNumber: varchar('model_number', { length: 100 }),
+    machineNumber: varchar('machine_number', { length: 100 }),
+    engineNumber: varchar('engine_number', { length: 100 }),
+    itemName: varchar('item_name', { length: 100 }),
+    batchNumber: varchar('batch_number', { length: 100 }),
+    itemDescription: varchar('item_description', { length: 255 }),
+
+    // product details (based on old prototype)
+    serialNumber: varchar('serial_number', { length: 100 }),
+    model: varchar('model', { length: 100 }),
+    year: int('year'),
+    condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
+    status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
+    price: decimal('price', { precision: 15, scale: 2 }).default('0.00'),
+
+    // Product Specifications (based on old prototype)
+    engineModel: varchar('engine_model', { length: 100 }),
+    enginePower: varchar('engine_power', { length: 50 }), // e.g., "378 hp"
+    operatingWeight: varchar('operating_weight', { length: 50 }), // e.g., "47,250 kg"
+
+    warehouseId: varchar('warehouse_id', { length: 36 }),
+    supplierId: varchar('supplier_id', { length: 36 }),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index('code_idx').on(table.code),
+    index('name_idx').on(table.name),
+    index('brand_id_idx').on(table.brandId),
+    index('category_idx').on(table.category),
+    index('status_idx').on(table.status),
+    index('supplier_id_idx').on(table.supplierId),
+    index('warehouse_id_idx').on(table.warehouseId),
+    foreignKey({
+      columns: [table.supplierId],
+      foreignColumns: [suppliers.id],
+      name: 'fk_products_supplier',
+    }),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_products_warehouse',
+    }),
+    foreignKey({
+      columns: [table.brandId],
+      foreignColumns: [brands.id],
+      name: 'fk_products_brand',
+    }),
+    foreignKey({
+      columns: [table.machineTypeId],
+      foreignColumns: [machineTypes.id],
+      name: 'fk_products_machine_type',
+    }),
+    foreignKey({
+      columns: [table.unitOfMeasureId],
+      foreignColumns: [unitOfMeasures.id],
+      name: 'fk_products_unit_of_measure',
+    }),
+  ],
+);
+
+export const brands = mysqlTable('brands', {
+  id: varchar('id', { length: 36 }).primaryKey().notNull(), // shantui
+  name: varchar('name', { length: 100 }).notNull(),
+});
+
+export const machineTypes = mysqlTable('machine_types', {
+  id: varchar('id', { length: 36 }).primaryKey().notNull(), // 'excavator', 'bulldozer', 'loader', 'motor_grader', 'roller'
+  name: varchar('name', { length: 100 }).notNull(),
+});
+
+export const unitOfMeasures = mysqlTable('unit_of_measures', {
+  id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  abbreviation: varchar('abbreviation', { length: 10 }).notNull(), // kg, pcs
+  name: varchar('name', { length: 100 }).notNull(), // Kilogram, Pieces
+});
+
 // Imports table
 export const imports = mysqlTable(
   'imports',
@@ -558,6 +583,7 @@ export const imports = mysqlTable(
     priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).default('0.00'), // only chinese suppliers (RMB) for now
     quantity: int('quantity').notNull(),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    status: varchar('status', { length: 50 }).default('pending'), // pending, verified, completed
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(), // import manager
     createdAt: timestamp('created_at').defaultNow(),
@@ -588,6 +614,63 @@ export const imports = mysqlTable(
       columns: [table.createdBy],
       foreignColumns: [users.id],
       name: 'fk_imports_created_by',
+    }),
+  ],
+);
+
+// Warehouses table
+export const warehouses = mysqlTable(
+  'warehouses',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    name: varchar('name', { length: 255 }).notNull(),
+    address: text('address'),
+    managerId: varchar('manager_id', { length: 36 }),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index('name_idx').on(table.name),
+    index('manager_id_idx').on(table.managerId),
+    foreignKey({
+      columns: [table.managerId],
+      foreignColumns: [users.id],
+      name: 'fk_warehouses_manager',
+    }),
+  ],
+);
+
+// Warehouse Stocks table
+export const warehouseStocks = mysqlTable(
+  'warehouse_stocks',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
+    productId: varchar('product_id', { length: 36 }).notNull(),
+    condition: varchar('condition', { length: 20 }).notNull(), // good, damaged, repair
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index('warehouse_id_idx').on(table.warehouseId),
+    index('product_id_idx').on(table.productId),
+    index('condition_idx').on(table.condition),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_warehouse_stocks_warehouse',
+    }),
+    foreignKey({
+      columns: [table.productId],
+      foreignColumns: [products.id],
+      name: 'fk_warehouse_stocks_product',
     }),
   ],
 );
@@ -637,73 +720,7 @@ export const transfers = mysqlTable(
   ],
 );
 
-// Transfer Items table
-export const transferItems = mysqlTable(
-  'transfer_items',
-  {
-    id: varchar('id', { length: 36 })
-      .primaryKey()
-      .notNull()
-      .default(sql`(UUID())`),
-    transferId: varchar('transfer_id', { length: 36 }).notNull(),
-    productId: varchar('product_id', { length: 36 }).notNull(),
-    quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
-    transferredQuantity: decimal('transferred_quantity', {
-      precision: 10,
-      scale: 2,
-    }).default('0.00'),
-    notes: text('notes'),
-    createdAt: timestamp('created_at').defaultNow(),
-  },
-  (table) => [
-    index('transfer_id_idx').on(table.transferId),
-    index('product_id_idx').on(table.productId),
-    foreignKey({
-      columns: [table.transferId],
-      foreignColumns: [transfers.id],
-      name: 'fk_transfer_items_transfer',
-    }),
-    foreignKey({
-      columns: [table.productId],
-      foreignColumns: [products.id],
-      name: 'fk_transfer_items_product',
-    }),
-  ],
-);
-
-// Warehouse Stocks table
-export const warehouseStocks = mysqlTable(
-  'warehouse_stocks',
-  {
-    id: varchar('id', { length: 36 })
-      .primaryKey()
-      .notNull()
-      .default(sql`(UUID())`),
-    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
-    machineId: varchar('machine_id', { length: 36 }).notNull(), // FK to products.id
-    lastCheck: timestamp('last_check'),
-    condition: varchar('condition', { length: 20 }).notNull(), // good, damaged, repair
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
-  },
-  (table) => [
-    index('warehouse_id_idx').on(table.warehouseId),
-    index('machine_id_idx').on(table.machineId),
-    index('condition_idx').on(table.condition),
-    foreignKey({
-      columns: [table.warehouseId],
-      foreignColumns: [warehouses.id],
-      name: 'fk_warehouse_stocks_warehouse',
-    }),
-    foreignKey({
-      columns: [table.machineId],
-      foreignColumns: [products.id],
-      name: 'fk_warehouse_stocks_machine',
-    }),
-  ],
-);
-
-// Stock Movements table
+// Stock Movements table aka transfer
 export const stockMovements = mysqlTable(
   'stock_movements',
   {
@@ -713,7 +730,7 @@ export const stockMovements = mysqlTable(
       .default(sql`(UUID())`),
     warehouseStockId: varchar('warehouse_stock_id', { length: 36 }).notNull(),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
-    machineId: varchar('machine_id', { length: 36 }).notNull(),
+    productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
     movementType: varchar('movement_type', { length: 20 }).notNull(), // in, out, transfer, adjustment
     invoiceId: varchar('invoice_id', { length: 50 }),
@@ -725,7 +742,7 @@ export const stockMovements = mysqlTable(
   (table) => [
     index('warehouse_stock_id_idx').on(table.warehouseStockId),
     index('warehouse_id_idx').on(table.warehouseId),
-    index('machine_id_idx').on(table.machineId),
+    index('product_id_idx').on(table.productId),
     index('movement_type_idx').on(table.movementType),
     foreignKey({
       columns: [table.warehouseStockId],
@@ -738,9 +755,9 @@ export const stockMovements = mysqlTable(
       name: 'fk_stock_movements_warehouse',
     }),
     foreignKey({
-      columns: [table.machineId],
+      columns: [table.productId],
       foreignColumns: [products.id],
-      name: 'fk_stock_movements_machine',
+      name: 'fk_stock_movements_product',
     }),
   ],
 );
@@ -754,6 +771,10 @@ export const usersRelations = relations(users, ({ many }) => ({
   transfers: many(transfers),
   accounts: many(accounts),
   sessions: many(sessions),
+  approvedQuotations: many(quotations, { relationName: 'approver' }),
+  deliveredNotes: many(deliveryNotes, { relationName: 'deliveredBy' }),
+  receivedNotes: many(deliveryNotes, { relationName: 'receivedBy' }),
+  managedWarehouses: many(warehouses),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -797,10 +818,22 @@ export const supplierContactPersonsRelations = relations(
   }),
 );
 
-export const warehousesRelations = relations(warehouses, ({ many }) => ({
+// Add brands relations
+export const brandsRelations = relations(brands, ({ many }) => ({
+  products: many(products),
+}));
+
+export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
+  manager: one(users, {
+    fields: [warehouses.managerId],
+    references: [users.id],
+  }),
   imports: many(imports),
   fromTransfers: many(transfers, { relationName: 'fromWarehouse' }),
   toTransfers: many(transfers, { relationName: 'toWarehouse' }),
+  warehouseStocks: many(warehouseStocks),
+  stockMovements: many(stockMovements),
+  products: many(products),
 }));
 
 export const productsRelations = relations(products, ({ one, many }) => ({
@@ -808,10 +841,20 @@ export const productsRelations = relations(products, ({ one, many }) => ({
     fields: [products.supplierId],
     references: [suppliers.id],
   }),
+  brand: one(brands, {
+    fields: [products.brandId],
+    references: [brands.id],
+  }),
+  warehouse: one(warehouses, {
+    fields: [products.warehouseId],
+    references: [warehouses.id],
+  }),
   quotationItems: many(quotationItems),
   invoiceItems: many(invoiceItems),
   deliveryNoteItems: many(deliveryNoteItems),
-  transferItems: many(transferItems),
+  imports: many(imports),
+  warehouseStocks: many(warehouseStocks),
+  stockMovements: many(stockMovements),
 }));
 
 export const quotationsRelations = relations(quotations, ({ one, many }) => ({
@@ -822,6 +865,11 @@ export const quotationsRelations = relations(quotations, ({ one, many }) => ({
   createdBy: one(users, {
     fields: [quotations.createdBy],
     references: [users.id],
+  }),
+  approvedBy: one(users, {
+    fields: [quotations.approvedBy],
+    references: [users.id],
+    relationName: 'approver',
   }),
   quotationItems: many(quotationItems),
   invoices: many(invoices),
@@ -881,6 +929,16 @@ export const deliveryNotesRelations = relations(
       fields: [deliveryNotes.createdBy],
       references: [users.id],
     }),
+    deliveredBy: one(users, {
+      fields: [deliveryNotes.deliveredBy],
+      references: [users.id],
+      relationName: 'deliveredBy',
+    }),
+    receivedBy: one(users, {
+      fields: [deliveryNotes.receivedBy],
+      references: [users.id],
+      relationName: 'receivedBy',
+    }),
     deliveryNoteItems: many(deliveryNoteItems),
   }),
 );
@@ -933,18 +991,6 @@ export const transfersRelations = relations(transfers, ({ one, many }) => ({
     fields: [transfers.createdBy],
     references: [users.id],
   }),
-  transferItems: many(transferItems),
-}));
-
-export const transferItemsRelations = relations(transferItems, ({ one }) => ({
-  transfer: one(transfers, {
-    fields: [transferItems.transferId],
-    references: [transfers.id],
-  }),
-  product: one(products, {
-    fields: [transferItems.productId],
-    references: [products.id],
-  }),
 }));
 
 export const warehouseStocksRelations = relations(
@@ -954,8 +1000,8 @@ export const warehouseStocksRelations = relations(
       fields: [warehouseStocks.warehouseId],
       references: [warehouses.id],
     }),
-    machine: one(products, {
-      fields: [warehouseStocks.machineId],
+    product: one(products, {
+      fields: [warehouseStocks.productId],
       references: [products.id],
     }),
     stockMovements: many(stockMovements),
@@ -971,8 +1017,8 @@ export const stockMovementsRelations = relations(stockMovements, ({ one }) => ({
     fields: [stockMovements.warehouseId],
     references: [warehouses.id],
   }),
-  machine: one(products, {
-    fields: [stockMovements.machineId],
+  product: one(products, {
+    fields: [stockMovements.productId],
     references: [products.id],
   }),
 }));
@@ -1068,6 +1114,53 @@ export interface DeliveryNoteQueryParams {
   limit?: number;
 }
 
+export interface ImportQueryParams {
+  search?: string;
+  status?: 'pending' | 'verified' | 'completed';
+  supplierId?: string;
+  warehouseId?: string;
+  productId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface TransferQueryParams {
+  search?: string;
+  status?: 'pending' | 'in_transit' | 'completed' | 'cancelled';
+  fromWarehouseId?: string;
+  toWarehouseId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface WarehouseStockQueryParams {
+  warehouseId?: string;
+  productId?: string;
+  condition?: 'good' | 'damaged' | 'repair';
+  page?: number;
+  limit?: number;
+}
+
+export interface StockMovementQueryParams {
+  warehouseId?: string;
+  productId?: string;
+  movementType?: 'in' | 'out' | 'transfer' | 'adjustment';
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface BrandQueryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -1097,3 +1190,13 @@ export type NewCustomerContactPerson =
 export type SupplierContactPerson = typeof supplierContactPersons.$inferSelect;
 export type NewSupplierContactPerson =
   typeof supplierContactPersons.$inferInsert;
+export type Brand = typeof brands.$inferSelect;
+export type NewBrand = typeof brands.$inferInsert;
+export type Import = typeof imports.$inferSelect;
+export type NewImport = typeof imports.$inferInsert;
+export type Transfer = typeof transfers.$inferSelect;
+export type NewTransfer = typeof transfers.$inferInsert;
+export type WarehouseStock = typeof warehouseStocks.$inferSelect;
+export type NewWarehouseStock = typeof warehouseStocks.$inferInsert;
+export type StockMovement = typeof stockMovements.$inferSelect;
+export type NewStockMovement = typeof stockMovements.$inferInsert;

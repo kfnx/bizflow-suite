@@ -80,7 +80,6 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiImportLine,
         label: 'Imports',
         href: '/imports',
-        disabled: true,
       },
       {
         icon: RiStoreLine,

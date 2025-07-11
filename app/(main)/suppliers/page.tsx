@@ -42,8 +42,8 @@ export default function PageSuppliers() {
     setPreviewSupplierId(null);
   }, []);
 
-  const HeaderComponent = () => {
-    return (
+  return (
+    <>
       <Header
         icon={
           <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
@@ -59,12 +59,6 @@ export default function PageSuppliers() {
           href='/suppliers/new'
         />
       </Header>
-    );
-  };
-
-  return (
-    <>
-      <HeaderComponent />
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
         <Filters onFiltersChange={handleFiltersChange} />

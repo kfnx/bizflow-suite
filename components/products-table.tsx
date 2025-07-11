@@ -24,7 +24,6 @@ import {
 } from '@tanstack/react-table';
 
 import {
-  useDeleteProduct,
   useProducts,
   type Product,
   type ProductsResponse,
@@ -109,17 +108,6 @@ export function ProductsTable({
 }: ProductsTableProps) {
   const { data, isLoading, error } = useProducts(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const deleteProduct = useDeleteProduct();
-
-  const handleDelete = async (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteProduct.mutateAsync(productId);
-      } catch (error) {
-        console.error('Error deleting product:', error);
-      }
-    }
-  };
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -278,14 +266,6 @@ export function ProductsTable({
               }
             >
               Edit
-            </Dropdown.Item>
-            <Dropdown.Separator />
-            <Dropdown.Item
-              onClick={() => handleDelete(row.original.id)}
-              className='text-red-600'
-              disabled={deleteProduct.isPending}
-            >
-              {deleteProduct.isPending ? 'Deleting...' : 'Delete'}
             </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Root>

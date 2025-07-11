@@ -1,3 +1,4 @@
+import { INVOICE_STATUS } from '../enum';
 import { customerIds } from './customers';
 import { productIds } from './products';
 import { quotationIds } from './quotations';
@@ -24,7 +25,7 @@ export const invoices = [
     tax: '3500000.00',
     total: '38500000.00',
     currency: 'IDR',
-    status: 'paid',
+    status: INVOICE_STATUS.PAID,
     paymentMethod: 'Bank Transfer',
     notes: 'Invoice for premium equipment package - payment received',
     createdBy: userIds.user1,
@@ -40,7 +41,7 @@ export const invoices = [
     tax: '3200000.00',
     total: '35200000.00',
     currency: 'IDR',
-    status: 'sent',
+    status: INVOICE_STATUS.SENT,
     paymentMethod: 'Bank Transfer',
     notes: 'Invoice for JCB backhoe loader - pending payment',
     createdBy: userIds.user2,
@@ -56,7 +57,7 @@ export const invoices = [
     tax: '1850000.00',
     total: '20350000.00',
     currency: 'IDR',
-    status: 'draft',
+    status: INVOICE_STATUS.DRAFT,
     paymentMethod: 'Bank Transfer',
     notes: 'Direct invoice for Shantui wheel loader',
     createdBy: userIds.user1,
@@ -72,7 +73,7 @@ export const invoices = [
     tax: '0.00',
     total: '22000000.00',
     currency: 'IDR',
-    status: 'sent',
+    status: INVOICE_STATUS.SENT,
     paymentMethod: 'Cash',
     notes: 'Direct invoice for bulldozer - no PPN',
     createdBy: userIds.user4,
@@ -88,7 +89,7 @@ export const invoices = [
     tax: '4200000.00',
     total: '46200000.00',
     currency: 'IDR',
-    status: 'paid',
+    status: INVOICE_STATUS.PAID,
     paymentMethod: 'Bank Transfer',
     notes: 'Direct invoice for Caterpillar excavator - payment received',
     createdBy: userIds.user2,
@@ -104,7 +105,7 @@ export const invoices = [
     tax: '1350000.00',
     total: '14850000.00',
     currency: 'IDR',
-    status: 'void',
+    status: INVOICE_STATUS.VOID,
     paymentMethod: 'Bank Transfer',
     notes: 'Voided invoice due to customer cancellation',
     createdBy: userIds.user1,

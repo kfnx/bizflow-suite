@@ -38,7 +38,7 @@ export const users = mysqlTable(
     type: varchar('type', { length: 50 }).default('full-time'), // full-time, resigned, contract
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
-    role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, director
+    role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, import-manager director
     signature: varchar('signature', { length: 500 }),
     isActive: boolean('is_active').default(true), // for soft delete
     createdAt: timestamp('created_at').defaultNow(),

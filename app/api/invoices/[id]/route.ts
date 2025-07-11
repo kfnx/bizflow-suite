@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
+import { INVOICE_STATUS } from '@/lib/db/enum';
 import {
   customers,
   invoiceItems,
@@ -162,7 +163,7 @@ export async function PUT(
         tax: tax.toString(),
         total: total.toString(),
         currency: validatedData.currency,
-        status: validatedData.status,
+        status: validatedData.status as INVOICE_STATUS,
         paymentMethod: validatedData.paymentMethod,
         notes: validatedData.notes,
         updatedAt: new Date(),

@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
-import { QUOTATION_STATUS } from '@/lib/db/enum';
+import { INVOICE_STATUS, QUOTATION_STATUS } from '@/lib/db/enum';
 import { invoices, quotations } from '@/lib/db/schema';
 
 const markInvoicedSchema = z.object({
@@ -89,7 +89,7 @@ export async function POST(
         tax: quotation.tax || '0.00',
         total: quotation.total || '0.00',
         currency: quotation.currency || 'IDR',
-        status: 'draft' as const,
+        status: INVOICE_STATUS.DRAFT,
         notes:
           validatedData.notes ||
           `Generated from quotation ${quotation.quotationNumber}`,

@@ -3,6 +3,7 @@ import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { INVOICE_STATUS } from '@/lib/db/enum';
 import { customers, invoices, quotations, users } from '@/lib/db/schema';
 import { hasPermission } from '@/lib/permissions';
 
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (status && status !== 'all') {
-      whereConditions.push(eq(invoices.status, status));
+      whereConditions.push(eq(invoices.status, status as INVOICE_STATUS));
     }
 
     // Build order by

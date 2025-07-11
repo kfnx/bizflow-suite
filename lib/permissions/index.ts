@@ -21,6 +21,14 @@ export type Permission =
   | 'products:create'
   | 'products:update'
   | 'products:delete'
+  | 'suppliers:read'
+  | 'suppliers:create'
+  | 'suppliers:update'
+  | 'suppliers:delete'
+  | 'customers:read'
+  | 'customers:create'
+  | 'customers:update'
+  | 'customers:delete'
   | 'warehouses:read'
   | 'warehouses:create'
   | 'warehouses:update'
@@ -41,6 +49,14 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'deliveries:create',
     'deliveries:update',
     'products:read',
+    'suppliers:read',
+    'suppliers:create',
+    'suppliers:update',
+    'suppliers:delete',
+    'customers:read',
+    'customers:create',
+    'customers:update',
+    'customers:delete',
     'warehouses:read',
   ],
   manager: [
@@ -60,6 +76,14 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'products:read',
     'products:create',
     'products:update',
+    'suppliers:read',
+    'suppliers:create',
+    'suppliers:update',
+    'suppliers:delete',
+    'customers:read',
+    'customers:create',
+    'customers:update',
+    'customers:delete',
     'warehouses:read',
     'warehouses:create',
     'warehouses:update',
@@ -85,6 +109,14 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'products:create',
     'products:update',
     'products:delete',
+    'suppliers:read',
+    'suppliers:create',
+    'suppliers:update',
+    'suppliers:delete',
+    'customers:read',
+    'customers:create',
+    'customers:update',
+    'customers:delete',
     'warehouses:read',
     'warehouses:create',
     'warehouses:update',

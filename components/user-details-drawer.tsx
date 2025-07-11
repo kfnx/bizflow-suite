@@ -15,6 +15,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUser } from '@/hooks/use-users';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
+import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
@@ -51,6 +52,171 @@ const getTypeColor = (type: string) => {
 };
 
 function UserDetailsContent({ user }: { user: any }) {
+
+  return (
+    <>
+      <Divider.Root variant='solid-text'>User Info</Divider.Root>
+      
+      <div className='p-5'>
+        <div className='flex items-center justify-between mb-3'>
+          <div>
+            <div className='text-title-h4 text-text-strong-950'>
+              {user.firstName} {user.lastName}
+            </div>
+            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+              {user.code} • {user.email}
+            </div>
+            {user.jobTitle && (
+              <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                {user.jobTitle}
+              </div>
+            )}
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Badge.Root
+              variant='light'
+              color={getRoleColor(user.role)}
+              size='medium'
+            >
+              {user.role}
+            </Badge.Root>
+            <Badge.Root
+              variant='light'
+              color={getTypeColor(user.type || 'full-time')}
+              size='medium'
+            >
+              {user.type || 'full-time'}
+            </Badge.Root>
+          </div>
+        </div>
+      </div>
+
+      <Divider.Root variant='solid-text'>Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            NIK
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {user.NIK || '—'}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Phone
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {user.phone || '—'}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Join Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {user.joinDate ? formatDate(user.joinDate) : '—'}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Status
+          </div>
+          <div className='mt-1'>
+            <Badge.Root
+              variant='light'
+              color={user.isActive ? 'green' : 'red'}
+              size='small'
+            >
+              {user.isActive ? 'Active' : 'Inactive'}
+            </Badge.Root>
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Employee Code
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950 font-mono'>
+            {user.code}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Department Role
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(user.createdAt)}
+          </div>
+        </div>
+
+        {user.updatedAt !== user.createdAt && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Last Updated
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {formatDate(user.updatedAt)}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {user.avatar && (
+        <>
+          <Divider.Root variant='solid-text'>Avatar</Divider.Root>
+          <div className='p-5'>
+            <div className='flex items-center gap-3'>
+              <img
+                src={user.avatar}
+                alt={`${user.firstName} ${user.lastName}`}
+                className='ring-gray-200 size-16 rounded-full object-cover ring-1'
+              />
+              <div>
+                <div className='text-label-sm text-text-strong-950'>
+                  Profile Picture
+                </div>
+                <div className='text-paragraph-sm text-text-sub-600'>
+                  Last updated {formatDate(user.updatedAt)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function UserDetailsFooter({ user }: { user: any }) {
   const { can } = usePermissions();
   const resetPasswordMutation = useResetUserPassword();
 
@@ -80,174 +246,30 @@ function UserDetailsContent({ user }: { user: any }) {
   };
 
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div className='border-b pb-4'>
-        <div className='mb-3 flex items-center justify-between'>
-          <div>
-            <h2 className='text-xl text-gray-900 font-semibold'>
-              {user.firstName} {user.lastName}
-            </h2>
-            <p className='text-sm text-gray-600'>
-              {user.code} • {user.email}
-            </p>
-            {user.jobTitle && (
-              <p className='text-sm text-gray-500'>{user.jobTitle}</p>
-            )}
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Badge.Root
-              variant='light'
-              color={getRoleColor(user.role)}
-              size='medium'
-            >
-              {user.role}
-            </Badge.Root>
-            <Badge.Root
-              variant='light'
-              color={getTypeColor(user.type || 'full-time')}
-              size='medium'
-            >
-              {user.type || 'full-time'}
-            </Badge.Root>
-          </div>
-        </div>
-
-        <div className='flex items-center gap-2'>
-          <PermissionGate permission='users:update'>
-            <Button.Root
-              variant='neutral'
-              mode='stroke'
-              size='small'
-              onClick={handleEdit}
-            >
-              <RiEditLine className='size-4' />
-              Edit User
-            </Button.Root>
-            <Button.Root
-              variant='neutral'
-              mode='stroke'
-              size='small'
-              onClick={handleResetPassword}
-              disabled={resetPasswordMutation.isPending}
-            >
-              <RiLockPasswordLine className='size-4' />
-              {resetPasswordMutation.isPending
-                ? 'Resetting...'
-                : 'Reset Password'}
-            </Button.Root>
-          </PermissionGate>
-        </div>
-      </div>
-
-      {/* Personal Information */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-          Personal Information
-        </h3>
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              NIK
-            </label>
-            <p className='text-sm text-gray-900 mt-1 font-medium'>
-              {user.NIK || '—'}
-            </p>
-          </div>
-          <div>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              Phone
-            </label>
-            <p className='text-sm text-gray-900 mt-1 font-medium'>
-              {user.phone || '—'}
-            </p>
-          </div>
-          <div>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              Join Date
-            </label>
-            <p className='text-sm text-gray-900 mt-1 font-medium'>
-              {user.joinDate ? formatDate(user.joinDate) : '—'}
-            </p>
-          </div>
-          <div>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              Status
-            </label>
-            <Badge.Root
-              variant='light'
-              color={user.isActive ? 'green' : 'red'}
-              size='small'
-            >
-              {user.isActive ? 'Active' : 'Inactive'}
-            </Badge.Root>
-          </div>
-        </div>
-      </div>
-
-      {/* Work Information */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-          Work Information
-        </h3>
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              Employee Code
-            </label>
-            <p className='text-sm text-gray-900 mt-1 font-mono font-medium'>
-              {user.code}
-            </p>
-          </div>
-          <div>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              Department Role
-            </label>
-            <p className='text-sm text-gray-900 mt-1 font-medium'>
-              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-            </p>
-          </div>
-          <div className='col-span-2'>
-            <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-              Job Title
-            </label>
-            <p className='text-sm text-gray-900 mt-1 font-medium'>
-              {user.jobTitle || '—'}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Avatar Section */}
-      {user.avatar && (
-        <div>
-          <h3 className='text-sm text-gray-900 mb-3 font-medium'>Avatar</h3>
-          <div className='flex items-center gap-3'>
-            <img
-              src={user.avatar}
-              alt={`${user.firstName} ${user.lastName}`}
-              className='ring-gray-200 size-16 rounded-full object-cover ring-1'
-            />
-            <div>
-              <p className='text-sm text-gray-900 font-medium'>
-                Profile Picture
-              </p>
-              <p className='text-xs text-gray-500'>
-                Last updated {formatDate(user.updatedAt)}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer Info */}
-      <div className='text-xs text-gray-500 border-t pt-4'>
-        Account created on {formatDate(user.createdAt)}
-        {user.updatedAt !== user.createdAt && (
-          <span> • Last updated {formatDate(user.updatedAt)}</span>
-        )}
-      </div>
-    </div>
+    <Drawer.Footer className='border-t'>
+      <PermissionGate permission='users:update'>
+        <Button.Root
+          variant='neutral'
+          mode='stroke'
+          size='medium'
+          className='w-full'
+          onClick={handleEdit}
+        >
+          <Button.Icon as={RiEditLine} />
+          Edit User
+        </Button.Root>
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={handleResetPassword}
+          disabled={resetPasswordMutation.isPending}
+        >
+          <Button.Icon as={RiLockPasswordLine} />
+          {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
+        </Button.Root>
+      </PermissionGate>
+    </Drawer.Footer>
   );
 }
 
@@ -296,8 +318,7 @@ export function UserDetailsDrawer({
           <Drawer.Title>User Details</Drawer.Title>
         </Drawer.Header>
 
-        {/* Content */}
-        <div className='flex-1 overflow-y-auto px-6 py-6'>
+        <Drawer.Body>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
@@ -314,7 +335,11 @@ export function UserDetailsDrawer({
           {data?.user && !isLoading && !error && (
             <UserDetailsContent user={data.user} />
           )}
-        </div>
+        </Drawer.Body>
+
+        {data?.user && !isLoading && !error && (
+          <UserDetailsFooter user={data.user} />
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );

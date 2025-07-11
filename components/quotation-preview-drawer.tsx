@@ -13,6 +13,7 @@ import {
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
 import {
+  useMarkQuotationAsInvoiced,
   useQuotationDetail,
   useSendQuotation,
   useSubmitQuotation,
@@ -45,15 +46,156 @@ function QuotationPreviewContent({
 }: {
   quotation: QuotationDetail;
 }) {
+
+  return (
+    <>
+      <Divider.Root variant='solid-text'>Quotation Info</Divider.Root>
+
+      <div className='p-5'>
+        <div className='mb-3 flex items-center justify-between'>
+          <div>
+            <div className='text-title-h4 text-text-strong-950'>
+              {quotation.quotationNumber}
+            </div>
+            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+              {quotation.customerName} • {formatDate(quotation.quotationDate)}
+            </div>
+          </div>
+          <QuotationStatusBadge
+            status={quotation.status as any}
+            size='medium'
+          />
+        </div>
+
+        {quotation.status === QUOTATION_STATUS.SUBMITTED && (
+          <div className='mb-4 text-paragraph-sm italic text-text-sub-600'>
+            <Asterisk />
+            pending approval
+          </div>
+        )}
+
+        <div className='text-title-h4 text-text-strong-950'>
+          {formatCurrency(quotation.total, quotation.currency)}
+        </div>
+        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+          Total Amount
+        </div>
+      </div>
+
+      <Divider.Root variant='solid-text'>Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Valid Until
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(quotation.validUntil)}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Items
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {quotation.items.length} items
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created By
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {quotation.createdByUser}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(quotation.createdAt)}
+          </div>
+        </div>
+
+        {quotation.notes && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Notes
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {quotation.notes}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {quotation.items.length > 0 && (
+        <>
+          <Divider.Root variant='solid-text'>Items</Divider.Root>
+          <div className='p-5'>
+            <div className='space-y-3'>
+              {quotation.items.slice(0, 3).map((item) => (
+                <div key={item.id} className='flex items-center justify-between'>
+                  <div className='min-w-0 flex-1'>
+                    <div className='truncate text-label-sm text-text-strong-950'>
+                      {item.productName}
+                    </div>
+                    <div className='text-paragraph-sm text-text-sub-600'>
+                      {item.productCode}
+                    </div>
+                  </div>
+                  <div className='ml-4 text-right'>
+                    <div className='text-label-sm text-text-strong-950'>
+                      {parseFloat(item.quantity)} × {formatCurrency(item.unitPrice, quotation.currency)}
+                    </div>
+                    <div className='text-paragraph-sm text-text-sub-600'>
+                      {formatCurrency(item.total, quotation.currency)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {quotation.items.length > 3 && (
+                <div className='text-center text-paragraph-sm text-text-sub-600'>
+                  +{quotation.items.length - 3} more items
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function QuotationPreviewFooter({
+  quotation,
+}: {
+  quotation: QuotationDetail;
+}) {
   const sendQuotationMutation = useSendQuotation();
   const submitQuotationMutation = useSubmitQuotation();
+  const markAsInvoiceMutation = useMarkQuotationAsInvoiced();
 
   const handleViewFull = () => {
     window.location.href = `/quotations/${quotation.id}`;
   };
 
   const handleEdit = () => {
-    if (quotation.status !== 'draft') {
+    if (quotation.status !== QUOTATION_STATUS.DRAFT) {
       alert('Only draft quotations can be edited');
       return;
     }
@@ -61,7 +203,7 @@ function QuotationPreviewContent({
   };
 
   const handleSubmit = async () => {
-    if (quotation.status !== 'draft') {
+    if (quotation.status !== QUOTATION_STATUS.DRAFT) {
       alert('Only draft quotations can be submitted');
       return;
     }
@@ -85,7 +227,7 @@ function QuotationPreviewContent({
   };
 
   const handleSend = async () => {
-    if (quotation.status !== 'approved') {
+    if (quotation.status !== QUOTATION_STATUS.APPROVED) {
       alert('Only approved quotations can be sent');
       return;
     }
@@ -108,158 +250,94 @@ function QuotationPreviewContent({
     }
   };
 
+  const handleMarkAsInvoice = async () => {
+    if (quotation.status !== QUOTATION_STATUS.ACCEPTED) {
+      alert('Only accepted quotations can be marked as invoice');
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to mark quotation ${quotation.quotationNumber} as invoice?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await markAsInvoiceMutation.mutateAsync(quotation.id);
+      alert('Quotation marked as invoice successfully!');
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to mark quotation as invoice',
+      );
+    }
+  };
+
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div className='pb-4'>
-        <div className='mb-3 flex items-center justify-between'>
-          <div>
-            <h2 className='text-xl text-gray-900 font-semibold'>
-              {quotation.quotationNumber}
-            </h2>
-            <p className='text-sm text-gray-600'>
-              {quotation.customerName} • {formatDate(quotation.quotationDate)}
-            </p>
-          </div>
-          <QuotationStatusBadge
-            status={quotation.status as any}
+    <Drawer.Footer className='border-t'>
+      <Button.Root
+        variant='neutral'
+        mode='stroke'
+        size='medium'
+        className='w-full'
+        onClick={handleViewFull}
+      >
+        <Button.Icon as={RiExternalLinkLine} />
+        View Full
+      </Button.Root>
+
+      {quotation.status === QUOTATION_STATUS.DRAFT && (
+        <>
+          <Button.Root
+            variant='neutral'
+            mode='stroke'
             size='medium'
-          />
-        </div>
-
-        {quotation.status === QUOTATION_STATUS.SUBMITTED && (
-          <p className='text-sm text-gray-500 mb-4 italic'>
-            <Asterisk />
-            pending approval
-          </p>
-        )}
-
-        <div className='flex items-center gap-2'>
-          <Button.Root variant='primary' size='small' onClick={handleViewFull}>
-            <RiExternalLinkLine className='size-4' />
-            View Full Details
+            className='w-full'
+            onClick={handleEdit}
+          >
+            <Button.Icon as={RiEditLine} />
+            Edit
           </Button.Root>
-
-          {quotation.status === 'approved' && (
-            <Button.Root
-              variant='primary'
-              size='small'
-              onClick={handleSend}
-              disabled={sendQuotationMutation.isPending}
-            >
-              <RiMailSendLine className='size-4' />
-              {sendQuotationMutation.isPending ? 'Sending...' : 'Send'}
-            </Button.Root>
-          )}
-
-          {quotation.status === 'draft' && (
-            <>
-              <Button.Root
-                variant='neutral'
-                mode='stroke'
-                size='small'
-                onClick={handleEdit}
-              >
-                <RiEditLine className='size-4' />
-                Edit
-              </Button.Root>
-              <Button.Root
-                variant='primary'
-                mode='stroke'
-                size='small'
-                onClick={handleSubmit}
-              >
-                <RiSendPlaneLine className='size-4' />
-                Submit
-              </Button.Root>
-            </>
-          )}
-        </div>
-      </div>
-
-      <Divider.Root />
-
-      {/* Quick Info */}
-      <div className='grid grid-cols-2 gap-4'>
-        <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-            Valid Until
-          </label>
-          <p className='text-sm text-gray-900 mt-1 font-medium'>
-            {formatDate(quotation.validUntil)}
-          </p>
-        </div>
-        <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-            Total Amount
-          </label>
-          <p className='text-lg text-gray-900 mt-1 font-semibold'>
-            {formatCurrency(quotation.total, quotation.currency)}
-          </p>
-        </div>
-      </div>
-
-      {/* Line Items Summary */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-          Items ({quotation.items.length})
-        </h3>
-        {quotation.items.length === 0 ? (
-          <p className='text-sm text-gray-500'>No items in this quotation</p>
-        ) : (
-          <div className='space-y-2'>
-            {quotation.items.slice(0, 3).map((item) => (
-              <div
-                key={item.id}
-                className='border-gray-200 flex items-center justify-between rounded-lg border p-3'
-              >
-                <div className='min-w-0 flex-1'>
-                  <p className='text-sm text-gray-900 truncate font-medium'>
-                    {item.productName}
-                  </p>
-                  <p className='text-xs text-gray-500'>{item.productCode}</p>
-                </div>
-                <div className='ml-4 text-right'>
-                  <p className='text-sm text-gray-900 font-medium'>
-                    {parseFloat(item.quantity)} ×{' '}
-                    {formatCurrency(item.unitPrice, quotation.currency)}
-                  </p>
-                  <p className='text-xs text-gray-500'>
-                    {formatCurrency(item.total, quotation.currency)}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {quotation.items.length > 3 && (
-              <div className='text-center'>
-                <p className='text-sm text-gray-500'>
-                  +{quotation.items.length - 3} more items
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Notes */}
-      {quotation.notes && (
-        <div>
-          <h3 className='text-sm text-gray-900 mb-2 font-medium'>Notes</h3>
-          <div className='bg-gray-50 rounded-lg p-3'>
-            <p className='text-sm text-gray-700 line-clamp-3'>
-              {quotation.notes}
-            </p>
-          </div>
-        </div>
+          <Button.Root
+            variant='primary'
+            size='medium'
+            className='w-full'
+            onClick={handleSubmit}
+            disabled={submitQuotationMutation.isPending}
+          >
+            <Button.Icon as={RiSendPlaneLine} />
+            {submitQuotationMutation.isPending ? 'Submitting...' : 'Submit'}
+          </Button.Root>
+        </>
       )}
 
-      {/* Footer Info */}
-      <div className='text-xs text-gray-500 border-t pt-4'>
-        Created by {quotation.createdByUser} on{' '}
-        {formatDate(quotation.createdAt)}
-      </div>
-    </div>
+      {quotation.status === QUOTATION_STATUS.APPROVED && (
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={handleSend}
+          disabled={sendQuotationMutation.isPending}
+        >
+          <Button.Icon as={RiMailSendLine} />
+          {sendQuotationMutation.isPending ? 'Sending...' : 'Send'}
+        </Button.Root>
+      )}
+
+      {quotation.status === QUOTATION_STATUS.ACCEPTED && (
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={handleSend}
+          disabled={sendQuotationMutation.isPending}
+        >
+          <Button.Icon as={RiMailSendLine} />
+          {sendQuotationMutation.isPending ? 'Sending...' : 'Send'}
+        </Button.Root>
+      )}
+    </Drawer.Footer>
   );
 }
 
@@ -308,8 +386,7 @@ export function QuotationPreviewDrawer({
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        {/* Content */}
-        <div className='flex-1 overflow-y-auto px-6 py-6'>
+        <Drawer.Body>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
@@ -326,7 +403,11 @@ export function QuotationPreviewDrawer({
           {data?.data && !isLoading && !error && (
             <QuotationPreviewContent quotation={data.data} />
           )}
-        </div>
+        </Drawer.Body>
+
+        {data?.data && !isLoading && !error && (
+          <QuotationPreviewFooter quotation={data.data} />
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );

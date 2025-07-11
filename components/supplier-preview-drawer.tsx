@@ -17,6 +17,7 @@ import { formatDate } from '@/utils/date-formatter';
 import { useSupplierDetail } from '@/hooks/use-suppliers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
+import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 
 interface SupplierPreviewDrawerProps {
@@ -26,27 +27,21 @@ interface SupplierPreviewDrawerProps {
 }
 
 function SupplierPreviewContent({ supplier }: { supplier: any }) {
-  const handleEdit = () => {
-    window.location.href = `/suppliers/${supplier.id}/edit`;
-  };
-
-  const handleViewFull = () => {
-    window.location.href = `/suppliers/${supplier.id}`;
-  };
 
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div className='border-b pb-4'>
-        <div className='mb-3 flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <div className='flex items-center gap-2'>
-              <RiBuildingLine className='size-5 text-text-sub-600' />
-              <div>
-                <h2 className='text-xl text-gray-900 font-semibold'>
-                  {supplier.name}
-                </h2>
-                <p className='text-sm text-gray-600'>{supplier.code}</p>
+    <>
+      <Divider.Root variant='solid-text'>Supplier Info</Divider.Root>
+      
+      <div className='p-5'>
+        <div className='flex items-center justify-between mb-3'>
+          <div className='flex items-center gap-2'>
+            <RiBuildingLine className='size-5 text-text-sub-600' />
+            <div>
+              <div className='text-title-h4 text-text-strong-950'>
+                {supplier.name}
+              </div>
+              <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                {supplier.code}
               </div>
             </div>
           </div>
@@ -64,129 +59,141 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
             )}
           </div>
         </div>
-
-        <div className='flex items-center gap-2'>
-          <Button.Root variant='primary' size='small' onClick={handleViewFull}>
-            <RiExternalLinkLine className='size-4' />
-            View Full Details
-          </Button.Root>
-          <Button.Root
-            variant='neutral'
-            mode='stroke'
-            size='small'
-            onClick={handleEdit}
-          >
-            <RiEditLine className='size-4' />
-            Edit
-          </Button.Root>
-        </div>
       </div>
 
-      {/* Quick Info */}
-      <div className='grid grid-cols-2 gap-4'>
+      <Divider.Root variant='solid-text'>Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
         <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
             Status
-          </label>
-          <p className='text-sm text-gray-900 mt-1 font-medium'>
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
             {supplier.isActive ? 'Active Supplier' : 'Inactive Supplier'}
-          </p>
+          </div>
         </div>
-        <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-            Currency
-          </label>
-          <p className='text-sm text-gray-900 mt-1 font-medium'>
-            {supplier.transactionCurrency || 'Not specified'}
-          </p>
-        </div>
-      </div>
 
-      {/* Primary Contact */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-          Primary Contact
-        </h3>
-        {supplier.contactPersons?.length > 0 ? (
-          <div className='rounded-lg border p-3'>
-            <div className='mb-2 flex items-center justify-between'>
-              <h4 className='text-sm text-gray-900 font-medium'>
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Currency
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {supplier.transactionCurrency || 'Not specified'}
+          </div>
+        </div>
+
+        {supplier.contactPersons?.length > 0 && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Primary Contact
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
                 {supplier.contactPersons[0].name}
-              </h4>
-              <Badge.Root variant='light' color='blue' size='small'>
-                Primary
-              </Badge.Root>
-            </div>
-            <div className='space-y-1'>
+              </div>
               {supplier.contactPersons[0].email && (
-                <div className='flex items-center gap-2'>
-                  <RiMailLine className='text-gray-400 size-4' />
-                  <span className='text-sm text-gray-600'>
-                    {supplier.contactPersons[0].email}
-                  </span>
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  {supplier.contactPersons[0].email}
                 </div>
               )}
               {supplier.contactPersons[0].phone && (
-                <div className='flex items-center gap-2'>
-                  <RiPhoneLine className='text-gray-400 size-4' />
-                  <span className='text-sm text-gray-600'>
-                    {supplier.contactPersons[0].phone}
-                  </span>
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  {supplier.contactPersons[0].phone}
+                </div>
+              )}
+              {supplier.contactPersons.length > 1 && (
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  +{supplier.contactPersons.length - 1} more contacts
                 </div>
               )}
             </div>
-            {supplier.contactPersons.length > 1 && (
-              <div className='mt-2 text-center'>
-                <p className='text-sm text-gray-500'>
-                  +{supplier.contactPersons.length - 1} more contacts
-                </p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <p className='text-sm text-gray-500'>No contact persons available</p>
+          </>
         )}
-      </div>
 
-      {/* Address Preview */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>Address</h3>
-        {supplier.address ? (
-          <div className='rounded-lg border p-3'>
-            <div className='flex items-start gap-2'>
-              <RiMapPinLine className='text-gray-400 mt-0.5 size-4' />
-              <div>
-                <p className='text-sm text-gray-900 font-medium'>
-                  Business Address
-                </p>
-                <p className='text-sm text-gray-600 line-clamp-2'>
-                  {supplier.address}
-                </p>
-                {(supplier.city || supplier.country) && (
-                  <p className='text-sm text-gray-600'>
-                    {[supplier.city, supplier.country]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </p>
-                )}
+        {supplier.address && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Address
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {supplier.address}
+              </div>
+              {(supplier.city || supplier.country) && (
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  {[supplier.city, supplier.country]
+                    .filter(Boolean)
+                    .join(', ')}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(supplier.createdAt)}
+          </div>
+        </div>
+
+        {supplier.updatedAt && supplier.updatedAt !== supplier.createdAt && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Last Updated
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {formatDate(supplier.updatedAt)}
               </div>
             </div>
-          </div>
-        ) : (
-          <p className='text-sm text-gray-500'>
-            No address information available
-          </p>
+          </>
         )}
       </div>
+    </>
+  );
+}
 
-      {/* Footer Info */}
-      <div className='text-xs text-gray-500 border-t pt-4'>
-        Created on {formatDate(supplier.createdAt)}
-        {supplier.updatedAt && supplier.updatedAt !== supplier.createdAt && (
-          <span> • Updated on {formatDate(supplier.updatedAt)}</span>
-        )}
-      </div>
-    </div>
+function SupplierPreviewFooter({ supplier }: { supplier: any }) {
+  const handleEdit = () => {
+    window.location.href = `/suppliers/${supplier.id}/edit`;
+  };
+
+  const handleViewFull = () => {
+    window.location.href = `/suppliers/${supplier.id}`;
+  };
+
+  return (
+    <Drawer.Footer className='border-t'>
+      <Button.Root
+        variant='neutral'
+        mode='stroke'
+        size='medium'
+        className='w-full'
+        onClick={handleViewFull}
+      >
+        <Button.Icon as={RiExternalLinkLine} />
+        View Full
+      </Button.Root>
+      <Button.Root
+        variant='primary'
+        size='medium'
+        className='w-full'
+        onClick={handleEdit}
+      >
+        <Button.Icon as={RiEditLine} />
+        Edit
+      </Button.Root>
+    </Drawer.Footer>
   );
 }
 
@@ -235,8 +242,7 @@ export function SupplierPreviewDrawer({
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        {/* Content */}
-        <div className='flex-1 overflow-y-auto px-6 py-6'>
+        <Drawer.Body>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
@@ -253,7 +259,11 @@ export function SupplierPreviewDrawer({
           {data && !isLoading && !error && (
             <SupplierPreviewContent supplier={data} />
           )}
-        </div>
+        </Drawer.Body>
+
+        {data && !isLoading && !error && (
+          <SupplierPreviewFooter supplier={data} />
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );

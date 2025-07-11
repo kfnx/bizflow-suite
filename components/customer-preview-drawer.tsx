@@ -17,6 +17,7 @@ import { formatDate } from '@/utils/date-formatter';
 import { useCustomerDetail } from '@/hooks/use-customers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
+import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 
 interface CustomerPreviewDrawerProps {
@@ -26,13 +27,6 @@ interface CustomerPreviewDrawerProps {
 }
 
 function CustomerPreviewContent({ customer }: { customer: any }) {
-  const handleEdit = () => {
-    window.location.href = `/customers/${customer.id}/edit`;
-  };
-
-  const handleViewFull = () => {
-    window.location.href = `/customers/${customer.id}`;
-  };
 
   const typeConfig = {
     individual: {
@@ -51,18 +45,19 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
   const Icon = config?.icon || RiUserLine;
 
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div className='border-b pb-4'>
-        <div className='mb-3 flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <div className='flex items-center gap-2'>
-              <Icon className='size-5 text-text-sub-600' />
-              <div>
-                <h2 className='text-xl text-gray-900 font-semibold'>
-                  {customer.name}
-                </h2>
-                <p className='text-sm text-gray-600'>{customer.code}</p>
+    <>
+      <Divider.Root variant='solid-text'>Customer Info</Divider.Root>
+      
+      <div className='p-5'>
+        <div className='flex items-center justify-between mb-3'>
+          <div className='flex items-center gap-2'>
+            <Icon className='size-5 text-text-sub-600' />
+            <div>
+              <div className='text-title-h4 text-text-strong-950'>
+                {customer.name}
+              </div>
+              <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                {customer.code}
               </div>
             </div>
           </div>
@@ -77,160 +72,169 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
             )}
           </div>
         </div>
-
-        <div className='flex items-center gap-2'>
-          <Button.Root variant='primary' size='small' onClick={handleViewFull}>
-            <RiExternalLinkLine className='size-4' />
-            View Full Details
-          </Button.Root>
-          <Button.Root
-            variant='neutral'
-            mode='stroke'
-            size='small'
-            onClick={handleEdit}
-          >
-            <RiEditLine className='size-4' />
-            Edit
-          </Button.Root>
-        </div>
       </div>
 
-      {/* Quick Info */}
-      <div className='grid grid-cols-2 gap-4'>
+      <Divider.Root variant='solid-text'>Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
         <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
             Customer Type
-          </label>
-          <p className='text-sm text-gray-900 mt-1 font-medium'>
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
             {config?.label || customer.type}
-          </p>
+          </div>
         </div>
-        <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-            PPN Status
-          </label>
-          <p className='text-sm text-gray-900 mt-1 font-medium'>
-            {customer.isPPN ? 'PPN Customer' : 'Non-PPN Customer'}
-          </p>
-        </div>
-      </div>
 
-      {/* Primary Contact */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-          Primary Contact
-        </h3>
-        {customer.contactPersons?.length > 0 ? (
-          <div className='rounded-lg border p-3'>
-            <div className='mb-2 flex items-center justify-between'>
-              <h4 className='text-sm text-gray-900 font-medium'>
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            PPN Status
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {customer.isPPN ? 'PPN Customer' : 'Non-PPN Customer'}
+          </div>
+        </div>
+
+        {customer.contactPersons?.length > 0 && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Primary Contact
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
                 {customer.contactPersons[0].name}
-              </h4>
-              <Badge.Root variant='light' color='blue' size='small'>
-                Primary
-              </Badge.Root>
-            </div>
-            <div className='space-y-1'>
+              </div>
               {customer.contactPersons[0].email && (
-                <div className='flex items-center gap-2'>
-                  <RiMailLine className='text-gray-400 size-4' />
-                  <span className='text-sm text-gray-600'>
-                    {customer.contactPersons[0].email}
-                  </span>
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  {customer.contactPersons[0].email}
                 </div>
               )}
               {customer.contactPersons[0].phone && (
-                <div className='flex items-center gap-2'>
-                  <RiPhoneLine className='text-gray-400 size-4' />
-                  <span className='text-sm text-gray-600'>
-                    {customer.contactPersons[0].phone}
-                  </span>
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  {customer.contactPersons[0].phone}
+                </div>
+              )}
+              {customer.contactPersons.length > 1 && (
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  +{customer.contactPersons.length - 1} more contacts
                 </div>
               )}
             </div>
-            {customer.contactPersons.length > 1 && (
-              <div className='mt-2 text-center'>
-                <p className='text-sm text-gray-500'>
-                  +{customer.contactPersons.length - 1} more contacts
-                </p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <p className='text-sm text-gray-500'>No contact persons available</p>
+          </>
         )}
-      </div>
 
-      {/* Address Preview */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>Address</h3>
-        {customer.address ? (
-          <div className='rounded-lg border p-3'>
-            <div className='flex items-start gap-2'>
-              <RiMapPinLine className='text-gray-400 mt-0.5 size-4' />
-              <div>
-                <p className='text-sm text-gray-900 font-medium'>
-                  Primary Address
-                </p>
-                <p className='text-sm text-gray-600 line-clamp-2'>
-                  {customer.address}
-                </p>
-                {(customer.city || customer.country) && (
-                  <p className='text-sm text-gray-600'>
-                    {[customer.city, customer.country]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </p>
-                )}
+        {customer.address && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Address
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {customer.address}
+              </div>
+              {(customer.city || customer.country) && (
+                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                  {[customer.city, customer.country]
+                    .filter(Boolean)
+                    .join(', ')}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {customer.npwp && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                NPWP
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {customer.npwp}
               </div>
             </div>
-          </div>
-        ) : (
-          <p className='text-sm text-gray-500'>
-            No address information available
-          </p>
+          </>
         )}
-      </div>
 
-      {/* Business Information */}
-      {(customer.npwp || customer.paymentTerms) && (
+        {customer.paymentTerms && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Payment Terms
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {customer.paymentTerms}
+              </div>
+            </div>
+          </>
+        )}
+
+        <Divider.Root variant='line-spacing' />
+
         <div>
-          <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-            Business Information
-          </h3>
-          <div className='grid grid-cols-2 gap-4'>
-            {customer.npwp && (
-              <div>
-                <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-                  NPWP
-                </label>
-                <p className='text-sm text-gray-900 mt-1 font-medium'>
-                  {customer.npwp}
-                </p>
-              </div>
-            )}
-            {customer.paymentTerms && (
-              <div>
-                <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-                  Payment Terms
-                </label>
-                <p className='text-sm text-gray-900 mt-1 font-medium'>
-                  {customer.paymentTerms}
-                </p>
-              </div>
-            )}
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(customer.createdAt)}
           </div>
         </div>
-      )}
 
-      {/* Footer Info */}
-      <div className='text-xs text-gray-500 border-t pt-4'>
-        Created on {formatDate(customer.createdAt)}
         {customer.updatedAt && customer.updatedAt !== customer.createdAt && (
-          <span> • Updated on {formatDate(customer.updatedAt)}</span>
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Last Updated
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {formatDate(customer.updatedAt)}
+              </div>
+            </div>
+          </>
         )}
       </div>
-    </div>
+    </>
+  );
+}
+
+function CustomerPreviewFooter({ customer }: { customer: any }) {
+  const handleEdit = () => {
+    window.location.href = `/customers/${customer.id}/edit`;
+  };
+
+  const handleViewFull = () => {
+    window.location.href = `/customers/${customer.id}`;
+  };
+
+  return (
+    <Drawer.Footer className='border-t'>
+      <Button.Root
+        variant='neutral'
+        mode='stroke'
+        size='medium'
+        className='w-full'
+        onClick={handleViewFull}
+      >
+        <Button.Icon as={RiExternalLinkLine} />
+        View Full
+      </Button.Root>
+      <Button.Root
+        variant='primary'
+        size='medium'
+        className='w-full'
+        onClick={handleEdit}
+      >
+        <Button.Icon as={RiEditLine} />
+        Edit
+      </Button.Root>
+    </Drawer.Footer>
   );
 }
 
@@ -279,8 +283,7 @@ export function CustomerPreviewDrawer({
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        {/* Content */}
-        <div className='flex-1 overflow-y-auto px-6 py-6'>
+        <Drawer.Body>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
@@ -297,7 +300,11 @@ export function CustomerPreviewDrawer({
           {data && !isLoading && !error && (
             <CustomerPreviewContent customer={data} />
           )}
-        </div>
+        </Drawer.Body>
+
+        {data && !isLoading && !error && (
+          <CustomerPreviewFooter customer={data} />
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );

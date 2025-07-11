@@ -14,6 +14,7 @@ import { INVOICE_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
 import { useInvoiceDetail, type InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
+import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { InvoiceStatusBadge } from '@/components/invoice-status-badge';
 
@@ -33,6 +34,134 @@ const formatCurrency = (amount: string, currency: string) => {
 };
 
 function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
+
+  return (
+    <>
+      <Divider.Root variant='solid-text'>Invoice Info</Divider.Root>
+      
+      <div className='p-5'>
+        <div className='flex items-center justify-between mb-3'>
+          <div>
+            <div className='text-title-h4 text-text-strong-950'>
+              {invoice.invoiceNumber}
+            </div>
+            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+              {invoice.customerName} • {formatDate(invoice.invoiceDate)}
+            </div>
+          </div>
+          <InvoiceStatusBadge status={invoice.status as any} size='medium' />
+        </div>
+
+        <div className='text-title-h4 text-text-strong-950'>
+          {formatCurrency(invoice.total, invoice.currency)}
+        </div>
+        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+          Total Amount
+        </div>
+      </div>
+
+      <Divider.Root variant='solid-text'>Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Due Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(invoice.dueDate)}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Items
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {invoice.items.length} items
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created By
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {invoice.createdByUser
+              ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
+              : 'Unknown'}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatDate(invoice.createdAt)}
+          </div>
+        </div>
+
+        {invoice.notes && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Notes
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {invoice.notes}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {invoice.items.length > 0 && (
+        <>
+          <Divider.Root variant='solid-text'>Items Preview</Divider.Root>
+          <div className='p-5'>
+            <div className='space-y-3'>
+              {invoice.items.slice(0, 3).map((item) => (
+                <div key={item.id} className='flex items-center justify-between'>
+                  <div className='min-w-0 flex-1'>
+                    <div className='text-label-sm text-text-strong-950 truncate'>
+                      {item.productName}
+                    </div>
+                    <div className='text-paragraph-sm text-text-sub-600'>
+                      {item.productCode}
+                    </div>
+                  </div>
+                  <div className='ml-4 text-right'>
+                    <div className='text-label-sm text-text-strong-950'>
+                      {parseFloat(item.quantity)} × {formatCurrency(item.unitPrice, invoice.currency)}
+                    </div>
+                    <div className='text-paragraph-sm text-text-sub-600'>
+                      {formatCurrency(item.total, invoice.currency)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {invoice.items.length > 3 && (
+                <div className='text-center text-paragraph-sm text-text-sub-600'>
+                  +{invoice.items.length - 3} more items
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function InvoicePreviewFooter({ invoice }: { invoice: InvoiceDetail }) {
   const handleViewFull = () => {
     window.location.href = `/invoices/${invoice.id}`;
   };
@@ -72,136 +201,42 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
   };
 
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div className='border-b pb-4'>
-        <div className='mb-3 flex items-center justify-between'>
-          <div>
-            <h2 className='text-xl text-gray-900 font-semibold'>
-              {invoice.invoiceNumber}
-            </h2>
-            <p className='text-sm text-gray-600'>
-              {invoice.customerName} • {formatDate(invoice.invoiceDate)}
-            </p>
-          </div>
-          <InvoiceStatusBadge status={invoice.status as any} size='medium' />
-        </div>
+    <Drawer.Footer className='border-t'>
+      <Button.Root
+        variant='neutral'
+        mode='stroke'
+        size='medium'
+        className='w-full'
+        onClick={handleViewFull}
+      >
+        <Button.Icon as={RiExternalLinkLine} />
+        View Full
+      </Button.Root>
 
-        <div className='flex items-center gap-2'>
-          <Button.Root variant='primary' size='small' onClick={handleViewFull}>
-            <RiExternalLinkLine className='size-4' />
-            View Full Details
-          </Button.Root>
-
-          {invoice.status === 'sent' && (
-            <Button.Root
-              variant='primary'
-              size='small'
-              onClick={handleMarkAsPaid}
-            >
-              <RiMoneyDollarCircleLine className='size-4' />
-              Mark as Paid
-            </Button.Root>
-          )}
-
-          {invoice.status === 'draft' && (
-            <Button.Root
-              variant='neutral'
-              mode='stroke'
-              size='small'
-              onClick={handleEdit}
-            >
-              <RiEditLine className='size-4' />
-              Edit
-            </Button.Root>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Info */}
-      <div className='grid grid-cols-2 gap-4'>
-        <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-            Due Date
-          </label>
-          <p className='text-sm text-gray-900 mt-1 font-medium'>
-            {formatDate(invoice.dueDate)}
-          </p>
-        </div>
-        <div>
-          <label className='text-xs text-gray-500 block font-medium uppercase tracking-wide'>
-            Total Amount
-          </label>
-          <p className='text-lg text-gray-900 mt-1 font-semibold'>
-            {formatCurrency(invoice.total, invoice.currency)}
-          </p>
-        </div>
-      </div>
-
-      {/* Line Items Summary */}
-      <div>
-        <h3 className='text-sm text-gray-900 mb-3 font-medium'>
-          Items ({invoice.items.length})
-        </h3>
-        {invoice.items.length === 0 ? (
-          <p className='text-sm text-gray-500'>No items in this invoice</p>
-        ) : (
-          <div className='space-y-2'>
-            {invoice.items.slice(0, 3).map((item) => (
-              <div
-                key={item.id}
-                className='border-gray-200 flex items-center justify-between rounded-lg border p-3'
-              >
-                <div className='min-w-0 flex-1'>
-                  <p className='text-sm text-gray-900 truncate font-medium'>
-                    {item.productName}
-                  </p>
-                  <p className='text-xs text-gray-500'>{item.productCode}</p>
-                </div>
-                <div className='ml-4 text-right'>
-                  <p className='text-sm text-gray-900 font-medium'>
-                    {parseFloat(item.quantity)} ×{' '}
-                    {formatCurrency(item.unitPrice, invoice.currency)}
-                  </p>
-                  <p className='text-xs text-gray-500'>
-                    {formatCurrency(item.total, invoice.currency)}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {invoice.items.length > 3 && (
-              <div className='text-center'>
-                <p className='text-sm text-gray-500'>
-                  +{invoice.items.length - 3} more items
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Notes */}
-      {invoice.notes && (
-        <div>
-          <h3 className='text-sm text-gray-900 mb-2 font-medium'>Notes</h3>
-          <div className='bg-gray-50 rounded-lg p-3'>
-            <p className='text-sm text-gray-700 line-clamp-3'>
-              {invoice.notes}
-            </p>
-          </div>
-        </div>
+      {invoice.status === 'sent' && (
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={handleMarkAsPaid}
+        >
+          <Button.Icon as={RiMoneyDollarCircleLine} />
+          Mark as Paid
+        </Button.Root>
       )}
 
-      {/* Footer Info */}
-      <div className='text-xs text-gray-500 border-t pt-4'>
-        Created by
-        {invoice.createdByUser
-          ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
-          : 'Unknown'}{' '}
-        on {formatDate(invoice.createdAt)}
-      </div>
-    </div>
+      {invoice.status === 'draft' && (
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={handleEdit}
+        >
+          <Button.Icon as={RiEditLine} />
+          Edit
+        </Button.Root>
+      )}
+    </Drawer.Footer>
   );
 }
 
@@ -250,8 +285,7 @@ export function InvoicePreviewDrawer({
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        {/* Content */}
-        <div className='flex-1 overflow-y-auto px-6 py-6'>
+        <Drawer.Body>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
@@ -268,7 +302,11 @@ export function InvoicePreviewDrawer({
           {data?.data && !isLoading && !error && (
             <InvoicePreviewContent invoice={data.data} />
           )}
-        </div>
+        </Drawer.Body>
+
+        {data?.data && !isLoading && !error && (
+          <InvoicePreviewFooter invoice={data.data} />
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );

@@ -83,6 +83,13 @@ function UserPreviewContent({ user }: { user: any }) {
             >
               {user.type || 'full-time'}
             </Badge.Root>
+            <Badge.Root
+              variant='light'
+              color={user.isAdmin ? 'purple' : 'gray'}
+              size='medium'
+            >
+              {user.isAdmin ? 'Admin' : 'User'}
+            </Badge.Root>
           </div>
         </div>
       </div>

@@ -21,6 +21,7 @@ import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
+import * as Switch from '@/components/ui/switch';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
@@ -36,6 +37,7 @@ interface EditUserData {
   type: string;
   role: string;
   isActive: boolean;
+  isAdmin: boolean;
 }
 
 interface EditUserPageProps {
@@ -66,6 +68,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     type: 'full-time',
     role: 'staff',
     isActive: true,
+    isAdmin: false,
   });
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
@@ -107,6 +110,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
         type: user.type || 'full-time',
         role: user.role || 'staff',
         isActive: user.isActive ?? true,
+        isAdmin: user.isAdmin ?? false,
       });
     }
   }, [userData]);
@@ -178,6 +182,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           type: formData.type as 'full-time' | 'contract' | 'resigned',
           role: formData.role as 'staff' | 'manager' | 'director',
           isActive: formData.isActive,
+          isAdmin: formData.isAdmin,
         },
       });
 
@@ -261,9 +266,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='lastName'>
-                    Last Name <Label.Asterisk />
-                  </Label.Root>
+                  <Label.Root htmlFor='lastName'>Last Name</Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
                       <Input.Icon as={RiUserLine} />
@@ -468,6 +471,35 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                       <Select.Item value='inactive'>Inactive</Select.Item>
                     </Select.Content>
                   </Select.Root>
+                </div>
+              </div>
+
+              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-1'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='isAdmin'>
+                    Administrator Access
+                  </Label.Root>
+                  <div className='flex items-center space-x-3'>
+                    <Switch.Root
+                      id='isAdmin'
+                      checked={formData.isAdmin}
+                      onCheckedChange={(checked) =>
+                        handleInputChange('isAdmin', checked)
+                      }
+                    />
+                    <Label.Root htmlFor='isAdmin' className='text-sm'>
+                      Grant administrator privileges
+                    </Label.Root>
+                  </div>
+                  <div className='text-label-xs text-text-sub-600'>
+                    Administrators can manage users, reset passwords, and access
+                    admin-only features.
+                  </div>
+                  {validationErrors.isAdmin && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.isAdmin}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

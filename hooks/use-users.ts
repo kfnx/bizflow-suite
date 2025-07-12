@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { UpdateUserRequest } from '@/lib/validations/user';
+
 export type User = {
   id: string;
   code: string;
@@ -17,6 +19,7 @@ export type User = {
   role: string;
   signature?: string;
   isActive: boolean;
+  isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -99,18 +102,7 @@ const updatePassword = async (passwordData: {
 
 const updateUser = async (
   userId: string,
-  userData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-    NIK: string;
-    jobTitle?: string;
-    joinDate: string;
-    type?: 'full-time' | 'contract' | 'resigned';
-    role: 'staff' | 'manager' | 'director';
-    isActive?: boolean;
-  },
+  userData: UpdateUserRequest,
 ): Promise<void> => {
   const response = await fetch(`/api/users/${userId}`, {
     method: 'PUT',

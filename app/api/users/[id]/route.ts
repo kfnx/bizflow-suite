@@ -37,6 +37,7 @@ export async function GET(
         role: users.role,
         signature: users.signature,
         isActive: users.isActive,
+        isAdmin: users.isAdmin,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
@@ -98,6 +99,16 @@ export async function PUT(
       );
     }
 
+    // Only admins can grant or revoke admin privileges
+    if (validatedData.hasOwnProperty('isAdmin') && !session.user.isAdmin) {
+      return NextResponse.json(
+        {
+          error: 'Only administrators can grant or revoke admin privileges',
+        },
+        { status: 403 },
+      );
+    }
+
     // Check if user exists
     const existingUser = await db
       .select()
@@ -145,6 +156,17 @@ export async function PUT(
     if (validatedData.role && params.id === session.user.id) {
       return NextResponse.json(
         { error: 'You cannot change your own role' },
+        { status: 403 },
+      );
+    }
+
+    // Prevent users from changing their own admin status
+    if (
+      validatedData.hasOwnProperty('isAdmin') &&
+      params.id === session.user.id
+    ) {
+      return NextResponse.json(
+        { error: 'You cannot change your own admin status' },
         { status: 403 },
       );
     }

@@ -41,6 +41,7 @@ export const users = mysqlTable(
     role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, import-manager director
     signature: varchar('signature', { length: 500 }),
     isActive: boolean('is_active').default(true), // for soft delete
+    isAdmin: boolean('is_admin').default(false),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },

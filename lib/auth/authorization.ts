@@ -93,3 +93,20 @@ export async function requireAnyRole(
 
   return session;
 }
+
+export async function requireAdmin(request: NextRequest) {
+  const session = await requireAuth(request);
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
+  if (!session.user.isAdmin) {
+    return NextResponse.json(
+      { error: 'Forbidden - Administrator access required' },
+      { status: 403 },
+    );
+  }
+
+  return session;
+}

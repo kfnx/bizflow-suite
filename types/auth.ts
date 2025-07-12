@@ -10,6 +10,7 @@ declare module 'next-auth' {
       lastName: string | null;
       phone: string | null;
       avatar: string | null;
+      isAdmin: boolean;
     } & DefaultSession['user'];
   }
 
@@ -19,6 +20,7 @@ declare module 'next-auth' {
     lastName: string | null;
     phone: string | null;
     avatar: string | null;
+    isAdmin: boolean;
   }
 }
 
@@ -29,5 +31,6 @@ declare module 'next-auth/jwt' {
     lastName: string | null;
     phone: string | null;
     avatar: string | null;
+    isAdmin: boolean;
   }
 }

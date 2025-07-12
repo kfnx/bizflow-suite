@@ -18,6 +18,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
+import { useSession } from 'next-auth/react';
 
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/date-formatter';
@@ -70,6 +71,7 @@ const getTypeColor = (type: string) => {
 };
 
 function ActionCell({ row }: { row: any }) {
+  const { data: session } = useSession();
   const resetPasswordMutation = useResetUserPassword();
 
   const handleResetPassword = async (e: React.MouseEvent) => {
@@ -115,15 +117,17 @@ function ActionCell({ row }: { row: any }) {
             <RiEditLine className='size-4' />
             Edit User
           </DropdownItem>
-          <DropdownItem
-            onClick={handleResetPassword}
-            disabled={resetPasswordMutation.isPending}
-          >
-            <RiLockPasswordLine className='size-4' />
-            {resetPasswordMutation.isPending
-              ? 'Resetting...'
-              : 'Reset Password'}
-          </DropdownItem>
+          {session?.user?.isAdmin && (
+            <DropdownItem
+              onClick={handleResetPassword}
+              disabled={resetPasswordMutation.isPending}
+            >
+              <RiLockPasswordLine className='size-4' />
+              {resetPasswordMutation.isPending
+                ? 'Resetting...'
+                : 'Reset Password'}
+            </DropdownItem>
+          )}
         </DropdownContent>
       </Dropdown>
     </PermissionGate>
@@ -169,26 +173,6 @@ const columns: ColumnDef<User>[] = [
             </div>
           )}
         </div>
-      </div>
-    ),
-  },
-  {
-    id: 'nik',
-    accessorKey: 'NIK',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        NIK
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='font-mono text-paragraph-sm text-text-sub-600'>
-        {row.original.NIK || '—'}
       </div>
     ),
   },
@@ -249,6 +233,26 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) => (
       <Badge variant='light' color={getRoleColor(row.original.role)}>
         {row.original.role}
+      </Badge>
+    ),
+  },
+  {
+    id: 'isAdmin',
+    accessorKey: 'isAdmin',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Admin
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <Badge variant='light' color={row.original.isAdmin ? 'purple' : 'gray'}>
+        {row.original.isAdmin ? 'Admin' : 'User'}
       </Badge>
     ),
   },

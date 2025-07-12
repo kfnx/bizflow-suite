@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
-import { requirePermission } from '@/lib/auth/authorization';
+import { requireAdmin } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { users } from '@/lib/db/schema';
 
-// POST /api/users/[id]/reset-password - Reset user password to default (requires users:update permission)
+// POST /api/users/[id]/reset-password - Reset user password to default (requires admin access)
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await requirePermission(request, 'users:update');
+  const session = await requireAdmin(request);
 
   if (session instanceof NextResponse) {
     return session;

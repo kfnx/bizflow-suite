@@ -107,6 +107,7 @@ export async function GET(request: NextRequest) {
         role: users.role,
         signature: users.signature,
         isActive: users.isActive,
+        isAdmin: users.isAdmin,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
@@ -179,6 +180,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Only admins can grant admin privileges to other users
+    if (validatedData.isAdmin && !session.user.isAdmin) {
+      return NextResponse.json(
+        {
+          error:
+            'Only administrators can grant admin privileges to other users',
+        },
+        { status: 403 },
+      );
+    }
+
     // Check if user already exists (email)
     const existingUser = await db
       .select()
@@ -227,6 +239,7 @@ export async function POST(request: NextRequest) {
       role: validatedData.role,
       jobTitle: validatedData.jobTitle,
       type: validatedData.type || 'full-time',
+      isAdmin: validatedData.isAdmin || false,
     });
 
     return NextResponse.json(

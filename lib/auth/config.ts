@@ -77,6 +77,7 @@ export const authConfig: NextAuthConfig = {
             role: dbUser.role || 'user',
             phone: dbUser.phone,
             avatar: dbUser.avatar,
+            isAdmin: dbUser.isAdmin || false,
           };
         } catch (error) {
           console.error('Auth error:', error);
@@ -93,6 +94,7 @@ export const authConfig: NextAuthConfig = {
         token.lastName = user.lastName;
         token.phone = user.phone;
         token.avatar = user.avatar;
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },
@@ -104,6 +106,7 @@ export const authConfig: NextAuthConfig = {
         session.user.lastName = token.lastName as string;
         session.user.phone = token.phone as string | null;
         session.user.avatar = token.avatar as string | null;
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },

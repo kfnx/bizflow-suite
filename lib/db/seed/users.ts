@@ -3,14 +3,33 @@ const hashedPassword =
   '$2b$12$Sr7vKhJv/7gfaeOrEghHFuYpHRe8ZgQ/3rMM9XFTNcw8bAkvY6paO'; // password123
 
 export const userIds = {
-  user1: 'usr00001-0000-0000-0000-000000000001',
-  user2: 'usr00002-0000-0000-0000-000000000002',
-  user3: 'usr00003-0000-0000-0000-000000000003',
-  user4: 'usr00004-0000-0000-0000-000000000004',
-  user5: 'usr00005-0000-0000-0000-000000000005',
+  admin: 'admin001-0000-0000-0000-000000000001',
+  user1: 'user0001-0000-0000-0000-000000000001',
+  user2: 'user0002-0000-0000-0000-000000000002',
+  user3: 'user0003-0000-0000-0000-000000000003',
+  user4: 'user0004-0000-0000-0000-000000000004',
+  user5: 'user0005-0000-0000-0000-000000000005',
 };
 
 export const users = [
+  {
+    id: userIds.admin,
+    code: 'ADMIN01',
+    firstName: 'Admin',
+    lastName: 'IT support',
+    NIK: '1234567890123456',
+    email: 'admin@sti.com',
+    password: hashedPassword,
+    jobTitle: 'IT Support',
+    joinDate: new Date('1998-06-12'),
+    type: 'full-time',
+    phone: '+6281234567890',
+    avatar: null,
+    role: 'staff',
+    signature: null,
+    isActive: true,
+    isAdmin: true,
+  },
   {
     id: userIds.user1,
     code: 'USR001',
@@ -27,6 +46,7 @@ export const users = [
     role: 'staff',
     signature: null,
     isActive: true,
+    isAdmin: false,
   },
   {
     id: userIds.user2,
@@ -44,6 +64,7 @@ export const users = [
     role: 'manager',
     signature: null,
     isActive: true,
+    isAdmin: false,
   },
   {
     id: userIds.user3,
@@ -61,6 +82,7 @@ export const users = [
     role: 'director',
     signature: null,
     isActive: true,
+    isAdmin: false,
   },
   {
     id: userIds.user4,
@@ -78,6 +100,7 @@ export const users = [
     role: 'staff',
     signature: null,
     isActive: true,
+    isAdmin: false,
   },
   {
     id: userIds.user5,
@@ -95,5 +118,6 @@ export const users = [
     role: 'import-manager',
     signature: null,
     isActive: true,
+    isAdmin: false,
   },
 ];

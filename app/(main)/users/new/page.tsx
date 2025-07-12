@@ -20,6 +20,7 @@ import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
+import * as Switch from '@/components/ui/switch';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
@@ -34,6 +35,7 @@ interface CreateUserData {
   jobTitle: string;
   joinDate: string;
   type: string;
+  isAdmin: boolean;
 }
 
 interface ValidationError {
@@ -55,6 +57,7 @@ export default function CreateUserPage() {
     jobTitle: '',
     joinDate: new Date().toISOString().split('T')[0],
     type: 'full-time',
+    isAdmin: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,7 +119,7 @@ export default function CreateUserPage() {
 
     Object.keys(formData).forEach((key) => {
       const field = key as keyof CreateUserData;
-      const error = validateField(field, formData[field]);
+      const error = validateField(field, formData[field] as string);
       if (error) {
         errors[field] = error;
       }
@@ -174,10 +177,25 @@ export default function CreateUserPage() {
     }
   };
 
-  const handleInputChange = (field: keyof CreateUserData, value: string) => {
+  const handleInputChange = (
+    field: keyof CreateUserData,
+    value: string | boolean,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear validation errors when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+    }
+    if (error) {
+      setError(null);
+    }
+  };
+
+  const handleBooleanChange = (field: keyof CreateUserData, value: boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear validation errors when user changes value
     if (validationErrors[field]) {
       setValidationErrors((prev) => ({ ...prev, [field]: '' }));
     }
@@ -244,9 +262,7 @@ export default function CreateUserPage() {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='lastName'>
-                    Last Name <Label.Asterisk />
-                  </Label.Root>
+                  <Label.Root htmlFor='lastName'>Last Name</Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
                       <Input.Icon as={RiUserLine} />
@@ -466,6 +482,33 @@ export default function CreateUserPage() {
                   {validationErrors.role && (
                     <div className='text-xs text-red-600'>
                       {validationErrors.role}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='isAdmin'>
+                    Administrator Access
+                  </Label.Root>
+                  <div className='flex items-center space-x-3'>
+                    <Switch.Root
+                      id='isAdmin'
+                      checked={formData.isAdmin}
+                      onCheckedChange={(checked) =>
+                        handleBooleanChange('isAdmin', checked)
+                      }
+                    />
+                    <Label.Root htmlFor='isAdmin' className='text-sm'>
+                      Grant administrator privileges
+                    </Label.Root>
+                  </div>
+                  <div className='text-label-xs text-text-sub-600'>
+                    Administrators can manage users, reset passwords, and access
+                    admin-only features.
+                  </div>
+                  {validationErrors.isAdmin && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.isAdmin}
                     </div>
                   )}
                 </div>

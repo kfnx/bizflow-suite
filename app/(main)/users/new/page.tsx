@@ -98,8 +98,6 @@ export default function CreateUserPage() {
     switch (field) {
       case 'firstName':
         return !value.trim() ? 'First name is required' : null;
-      case 'lastName':
-        return !value.trim() ? 'Last name is required' : null;
       case 'email':
         if (!value.trim()) return 'Email address is required';
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))

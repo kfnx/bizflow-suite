@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const createUserSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   firstName: z.string().min(1, { message: 'First name is required' }),
-  lastName: z.string().min(1, { message: 'Last name is required' }),
+  lastName: z.string().optional(),
   phone: z.string().optional(),
   NIK: z.string().min(1, { message: 'NIK is required' }),
   jobTitle: z.string().optional(),
@@ -41,7 +41,7 @@ export const updatePasswordSchema = z
 
 export const updateUserSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
-  lastName: z.string().min(1, { message: 'Last name is required' }),
+  lastName: z.string().optional(),
   email: z.string().email({ message: 'Invalid email address' }),
   phone: z.string().optional(),
   NIK: z.string().min(1, { message: 'NIK is required' }),

@@ -150,9 +150,6 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     if (!formData.firstName.trim()) {
       errors.firstName = 'First name is required';
     }
-    if (!formData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
-    }
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     }

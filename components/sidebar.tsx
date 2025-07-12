@@ -85,13 +85,11 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiStoreLine,
         label: 'Warehouses',
         href: '/warehouses',
-        disabled: true,
       },
       {
         icon: RiExchangeFundsLine,
         label: 'Transfers',
         href: '/transfers',
-        disabled: true,
       },
     ],
   },
@@ -225,9 +223,14 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
         const routePermissions: Record<string, Permission[]> = {
           '/quotations': ['quotations:read'],
           '/invoices': ['invoices:read'],
+          '/delivery-notes': ['deliveries:read'],
           '/products': ['products:read'],
           '/warehouses': ['warehouses:read'],
-          '/settings': ['settings:manage'],
+          '/imports': ['imports:read'],
+          '/transfers': ['transfers:read'],
+          '/suppliers': ['suppliers:read'],
+          '/customers': ['customers:read'],
+          '/users': ['users:read'],
         };
 
         const requiredPermissions = routePermissions[link.href];

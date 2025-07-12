@@ -1,17 +1,11 @@
-export const customerIds = {
-  customer1: 'cus00001-0000-0000-0000-000000000001',
-  customer2: 'cus00002-0000-0000-0000-000000000002',
-  customer3: 'cus00003-0000-0000-0000-000000000003',
-  customer4: 'cus00004-0000-0000-0000-000000000004',
-  customer5: 'cus00005-0000-0000-0000-000000000005',
-};
+import { customerIds } from './seed-constants';
 
 export const customerContactPersonIds = {
-  customerContact1: 'ccp00001-0000-0000-0000-000000000001',
-  customerContact2: 'ccp00002-0000-0000-0000-000000000002',
-  customerContact3: 'ccp00003-0000-0000-0000-000000000003',
-  customerContact4: 'ccp00004-0000-0000-0000-000000000004',
-  customerContact5: 'ccp00005-0000-0000-0000-000000000005',
+  customerContact1: 'd0000001-0000-4000-a000-000000000001',
+  customerContact2: 'd0000002-0000-4000-a000-000000000001',
+  customerContact3: 'd0000003-0000-4000-a000-000000000001',
+  customerContact4: 'd0000004-0000-4000-a000-000000000001',
+  customerContact5: 'd0000005-0000-4000-a000-000000000001',
 };
 
 export const customerContactPersons = [

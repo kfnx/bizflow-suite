@@ -179,7 +179,7 @@ export async function PUT(
         const itemsToInsert = validatedData.items.map((item) => ({
           quotationId: id,
           productId: item.productId,
-          quantity: item.quantity.toString(),
+          quantity: item.quantity,
           unitPrice: item.unitPrice.toString(),
           total: (item.quantity * item.unitPrice).toString(),
           notes: item.notes || null,

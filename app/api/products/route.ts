@@ -3,6 +3,7 @@ import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
 import {
+  brands,
   NewProduct,
   ProductQueryParams,
   products,
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(products.category, category));
     }
     if (brand && brand !== 'all') {
-      conditions.push(eq(products.brand, brand));
+      conditions.push(eq(products.brandId, brand));
     }
     if (supplierId && supplierId !== 'all') {
       conditions.push(eq(products.supplierId, supplierId));
@@ -94,15 +95,15 @@ export async function GET(request: NextRequest) {
         name: products.name,
         description: products.description,
         category: products.category,
-        brand: products.brand,
+        brandId: products.brandId,
+        brandName: brands.name,
         model: products.model,
         year: products.year,
         condition: products.condition,
         status: products.status,
         warehouseId: products.warehouseId,
-        unit: products.unit,
+        unitOfMeasureId: products.unitOfMeasureId,
         price: products.price,
-        currency: products.currency,
         engineModel: products.engineModel,
         enginePower: products.enginePower,
         operatingWeight: products.operatingWeight,
@@ -115,6 +116,7 @@ export async function GET(request: NextRequest) {
       })
       .from(products)
       .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
+      .leftJoin(brands, eq(products.brandId, brands.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(orderByClause)
       .limit(limit)
@@ -125,6 +127,7 @@ export async function GET(request: NextRequest) {
       .select({ count: products.id })
       .from(products)
       .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
+      .leftJoin(brands, eq(products.brandId, brands.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return NextResponse.json({
@@ -146,39 +149,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const validatedData = body as NewProduct;
-
-    // Check if product code already exists
-    const existingProduct = await db
-      .select({ id: products.id })
-      .from(products)
-      .where(eq(products.code, validatedData.code))
-      .limit(1);
-
-    if (existingProduct.length > 0) {
-      return NextResponse.json(
-        { error: 'Product code already exists' },
-        { status: 409 },
-      );
-    }
-
-    // Create new product
-    const newProduct = await db.insert(products).values({
-      ...validatedData,
-      isActive: true,
-    });
-
-    return NextResponse.json(
-      { message: 'Product created successfully' },
-      { status: 201 },
-    );
-  } catch (error) {
-    console.error('Error creating product:', error);
-    return NextResponse.json(
-      { error: 'Failed to create product' },
-      { status: 500 },
-    );
-  }
+  // Products can only be created through imports workflow
+  return NextResponse.json(
+    {
+      error:
+        'Product creation not allowed. Products must be created through the imports workflow.',
+      redirectTo: '/imports/new',
+    },
+    { status: 403 },
+  );
 }

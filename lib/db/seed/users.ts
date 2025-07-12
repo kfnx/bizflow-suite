@@ -1,15 +1,8 @@
+import { userIds } from './seed-constants';
+
 // Use a fixed password hash for all users
 const hashedPassword =
   '$2b$12$Sr7vKhJv/7gfaeOrEghHFuYpHRe8ZgQ/3rMM9XFTNcw8bAkvY6paO'; // password123
-
-export const userIds = {
-  admin: 'admin001-0000-0000-0000-000000000001',
-  user1: 'user0001-0000-0000-0000-000000000001',
-  user2: 'user0002-0000-0000-0000-000000000002',
-  user3: 'user0003-0000-0000-0000-000000000003',
-  user4: 'user0004-0000-0000-0000-000000000004',
-  user5: 'user0005-0000-0000-0000-000000000005',
-};
 
 export const users = [
   {
@@ -35,7 +28,7 @@ export const users = [
     code: 'USR001',
     firstName: 'Asep',
     lastName: 'Staff',
-    NIK: '1234567890123456',
+    NIK: '1234567890123461',
     email: 'staff@bizdocgen.com',
     password: hashedPassword,
     jobTitle: 'Sales Staff',

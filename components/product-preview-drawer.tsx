@@ -7,8 +7,9 @@ import {
   RiMapPinLine,
 } from '@remixicon/react';
 
+import { type Product } from '@/lib/db/schema';
 import { formatDate } from '@/utils/date-formatter';
-import { type Product } from '@/hooks/use-products';
+import { type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -64,7 +65,7 @@ const formatCurrency = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-function ProductPreviewContent({ product }: { product: Product }) {
+function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
   return (
     <>
       <Divider.Root variant='solid-text'>Product Info</Divider.Root>
@@ -73,10 +74,11 @@ function ProductPreviewContent({ product }: { product: Product }) {
         <div className='mb-3 flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
             <div className='text-title-h4 text-text-strong-950'>
-              {product.name}
+              {product.brandId}{' '}
+              {product?.machineTypeId || product.unitOfMeasureId}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {product.code} • {product.category || 'Uncategorized'}
+              {product.category || 'Uncategorized'}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
               {product.brandName} {product.model}{' '}
@@ -116,7 +118,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
         </div>
 
         <div className='text-title-h4 text-text-strong-950'>
-          {formatCurrency(product.price, 'IDR')}
+          {formatCurrency(Number(product.price ?? 0), 'IDR')}
         </div>
       </div>
 
@@ -138,6 +140,160 @@ function ProductPreviewContent({ product }: { product: Product }) {
           )}
         </div>
 
+        <Divider.Root variant='line-spacing' />
+
+        {/* Category-specific details */}
+        {product.category === 'serialized' && (
+          <div>
+            <div className='text-subheading-xs uppercase text-text-soft-400'>
+              Serialized Product Details
+            </div>
+            <div className='mt-1 space-y-2'>
+              {product.machineTypeId && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Machine Type:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.machineTypeId}
+                  </span>
+                </div>
+              )}
+              {product.modelOrPartNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Model/Part Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.modelOrPartNumber}
+                  </span>
+                </div>
+              )}
+              {product.machineNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Machine Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.machineNumber}
+                  </span>
+                </div>
+              )}
+              {product.engineNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Engine Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.engineNumber}
+                  </span>
+                </div>
+              )}
+              {product.serialNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Serial Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.serialNumber}
+                  </span>
+                </div>
+              )}
+              {product.year && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Year:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.year}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {product.category === 'non_serialized' && (
+          <div>
+            <div className='text-subheading-xs uppercase text-text-soft-400'>
+              Non-Serialized Product Details
+            </div>
+            <div className='mt-1 space-y-2'>
+              {product.unitOfMeasureId && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Unit of Measure:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.unitOfMeasureId}
+                  </span>
+                </div>
+              )}
+              {product.batchOrLotNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Batch/Lot Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.batchOrLotNumber}
+                  </span>
+                </div>
+              )}
+              {product.modelOrPartNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Model/Part Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.modelOrPartNumber}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {product.category === 'bulk' && (
+          <div>
+            <div className='text-subheading-xs uppercase text-text-soft-400'>
+              Bulk Product Details
+            </div>
+            <div className='mt-1 space-y-2'>
+              {product.unitOfMeasureId && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Unit of Measure:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.unitOfMeasureId}
+                  </span>
+                </div>
+              )}
+              {product.modelOrPartNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Model/Part Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.modelOrPartNumber}
+                  </span>
+                </div>
+              )}
+              {product.batchOrLotNumber && (
+                <div className='flex justify-between'>
+                  <span className='text-paragraph-sm text-text-sub-600'>
+                    Batch/Lot Number:
+                  </span>
+                  <span className='text-label-sm text-text-strong-950'>
+                    {product.batchOrLotNumber}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Technical Specifications (common for all categories) */}
         {(product.engineModel ||
           product.enginePower ||
           product.operatingWeight) && (
@@ -147,20 +303,35 @@ function ProductPreviewContent({ product }: { product: Product }) {
               <div className='text-subheading-xs uppercase text-text-soft-400'>
                 Technical Specifications
               </div>
-              <div className='mt-1 space-y-1'>
+              <div className='mt-1 space-y-2'>
                 {product.engineModel && (
-                  <div className='text-label-sm text-text-strong-950'>
-                    Engine: {product.engineModel}
+                  <div className='flex justify-between'>
+                    <span className='text-paragraph-sm text-text-sub-600'>
+                      Engine Model:
+                    </span>
+                    <span className='text-label-sm text-text-strong-950'>
+                      {product.engineModel}
+                    </span>
                   </div>
                 )}
                 {product.enginePower && (
-                  <div className='text-label-sm text-text-strong-950'>
-                    Power: {product.enginePower}
+                  <div className='flex justify-between'>
+                    <span className='text-paragraph-sm text-text-sub-600'>
+                      Engine Power:
+                    </span>
+                    <span className='text-label-sm text-text-strong-950'>
+                      {product.enginePower}
+                    </span>
                   </div>
                 )}
                 {product.operatingWeight && (
-                  <div className='text-label-sm text-text-strong-950'>
-                    Weight: {product.operatingWeight}
+                  <div className='flex justify-between'>
+                    <span className='text-paragraph-sm text-text-sub-600'>
+                      Operating Weight:
+                    </span>
+                    <span className='text-label-sm text-text-strong-950'>
+                      {product.operatingWeight}
+                    </span>
                   </div>
                 )}
               </div>
@@ -175,7 +346,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(product.createdAt)}
+            {product.createdAt ? formatDate(product.createdAt) : '-'}
           </div>
         </div>
 
@@ -186,7 +357,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
             Last Updated
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(product.updatedAt)}
+            {product.updatedAt ? formatDate(product.updatedAt) : '-'}
           </div>
         </div>
 
@@ -208,7 +379,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
   );
 }
 
-function ProductPreviewFooter({ product }: { product: Product }) {
+function ProductPreviewFooter({ product }: { product: ProductWithRelations }) {
   const handleViewFull = () => {
     window.open(`/products/${product.id}`, '_blank');
   };

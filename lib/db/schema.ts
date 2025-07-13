@@ -15,7 +15,17 @@ import {
 } from 'drizzle-orm/mysql-core';
 
 import { DEFAULT_PASSWORD } from './constants';
-import { INVOICE_STATUS, QUOTATION_STATUS } from './enum';
+import {
+  DELIVERY_NOTE_STATUS,
+  IMPORT_STATUS,
+  INVOICE_STATUS,
+  MOVEMENT_TYPE,
+  PRODUCT_CATEGORY,
+  PRODUCT_CONDITION,
+  PRODUCT_STATUS,
+  QUOTATION_STATUS,
+  STOCK_CONDITION,
+} from './enum';
 
 // Users table
 export const users = mysqlTable(
@@ -55,7 +65,7 @@ export const users = mysqlTable(
 export const accounts = mysqlTable(
   'accounts',
   {
-    userId: varchar('userId', { length: 255 }).notNull(),
+    userId: varchar('userId', { length: 36 }).notNull(),
     type: varchar('type', { length: 255 }).notNull(),
     provider: varchar('provider', { length: 255 }).notNull(),
     providerAccountId: varchar('providerAccountId', { length: 255 }).notNull(),
@@ -77,7 +87,7 @@ export const accounts = mysqlTable(
 
 export const sessions = mysqlTable('sessions', {
   sessionToken: varchar('sessionToken', { length: 255 }).notNull().primaryKey(),
-  userId: varchar('userId', { length: 255 }).notNull(),
+  userId: varchar('userId', { length: 36 }).notNull(),
   expires: timestamp('expires', { mode: 'date' }).notNull(),
 });
 
@@ -256,6 +266,8 @@ export const quotations = mysqlTable(
       foreignColumns: [users.id],
       name: 'fk_quotations_approver',
     }),
+    // Note: invoiceId foreign key removed due to circular reference
+    // This relationship is handled through the invoices.quotationId instead
   ],
 );
 
@@ -322,11 +334,6 @@ export const invoices = mysqlTable(
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
     foreignKey({
-      columns: [table.quotationId],
-      foreignColumns: [quotations.id],
-      name: 'fk_invoices_quotation',
-    }),
-    foreignKey({
       columns: [table.customerId],
       foreignColumns: [customers.id],
       name: 'fk_invoices_customer',
@@ -336,6 +343,8 @@ export const invoices = mysqlTable(
       foreignColumns: [users.id],
       name: 'fk_invoices_created_by',
     }),
+    // Note: quotationId foreign key removed due to circular reference
+    // This relationship is handled through the relations instead
   ],
 );
 
@@ -373,9 +382,6 @@ export const invoiceItems = mysqlTable(
   ],
 );
 
-// keep simple type for now but use mysql enum when system requirement is clearer
-export type DeliveryNoteStatus = 'pending' | 'delivered' | 'canceled';
-
 // Delivery Notes table
 export const deliveryNotes = mysqlTable(
   'delivery_notes',
@@ -393,7 +399,9 @@ export const deliveryNotes = mysqlTable(
     deliveryMethod: varchar('delivery_method', { length: 100 }),
     driverName: varchar('driver_name', { length: 100 }),
     vehicleNumber: varchar('vehicle_number', { length: 20 }),
-    status: varchar('status', { length: 50 }).default('pending'), // pending, in_transit, delivered
+    status: mysqlEnum('status', DELIVERY_NOTE_STATUS).default(
+      DELIVERY_NOTE_STATUS.PENDING,
+    ),
     deliveredBy: varchar('delivered_by', { length: 36 }),
     receivedBy: varchar('received_by', { length: 36 }),
     notes: text('notes'),
@@ -474,19 +482,14 @@ export const products = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    code: varchar('code', { length: 100 }).notNull().unique(), // This serves as both code and serial number
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    category: varchar('category', { length: 100 }).notNull(), // serialized, non_serialized, bulk
+    category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
 
     /**
      * UNION Properties based on category
      *
      * serialized properties:
      * unitOfMeasure NULL
-     * itemName NULL
      * batchOrLotNumber NULL
-     * itemDescription NULL
      * machineType
      * modelOrPartNumber
      * machineNumber
@@ -498,31 +501,29 @@ export const products = mysqlTable(
      * machineNumber NULL
      * engineNumber NULL
      * unitOfMeasure
-     * itemName
      * batchOrLotNumber
-     * itemDescription
      *
      * bulk properties:
      * machineType NULL
      * machineNumber NULL
      * engineNumber NULL
-     * itemName NULL
      * unitOfMeasure
      * modelOrPartNumber
      * batchOrLotNumber
-     * itemDescription
      */
-    machineTypeId: varchar('machine_type_id', { length: 36 }),
-    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }),
-    brandId: varchar('brand_id', { length: 36 }),
+    machineTypeId: varchar('machine_type_id', { length: 36 }), // excavator, bulldozer, etc
+    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // kg, pcs, etc
 
     // dynamic / union properties based on category
     modelOrPartNumber: varchar('model_number', { length: 100 }),
     machineNumber: varchar('machine_number', { length: 100 }),
     engineNumber: varchar('engine_number', { length: 100 }),
-    itemName: varchar('item_name', { length: 100 }),
     batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
-    itemDescription: varchar('item_description', { length: 255 }),
+
+    // shared properties between all category
+    brandId: varchar('brand_id', { length: 36 }), // shantui, etc
+    name: varchar('name', { length: 100 }).notNull(),
+    description: text('description'),
 
     // product details (based on old prototype)
     serialNumber: varchar('serial_number', { length: 100 }),
@@ -530,7 +531,9 @@ export const products = mysqlTable(
     year: int('year'),
     condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
     status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
-    price: decimal('price', { precision: 15, scale: 2 }).default('0.00'),
+    price: decimal('price', { precision: 15, scale: 2 })
+      .notNull()
+      .default('0.00'),
 
     // Product Specifications (based on old prototype)
     engineModel: varchar('engine_model', { length: 100 }),
@@ -544,8 +547,6 @@ export const products = mysqlTable(
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
   (table) => [
-    index('code_idx').on(table.code),
-    index('name_idx').on(table.name),
     index('brand_id_idx').on(table.brandId),
     index('category_idx').on(table.category),
     index('status_idx').on(table.status),
@@ -580,17 +581,17 @@ export const products = mysqlTable(
 );
 
 export const brands = mysqlTable('brands', {
-  id: varchar('id', { length: 36 }).primaryKey().notNull(), // shantui
+  id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: shantui, toshiba, etc.
   name: varchar('name', { length: 100 }).notNull(),
 });
 
 export const machineTypes = mysqlTable('machine_types', {
-  id: varchar('id', { length: 36 }).primaryKey().notNull(), // 'excavator', 'bulldozer', 'loader', 'motor_grader', 'roller'
+  id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: 'excavator', 'bulldozer', 'loader', 'motor_grader', 'roller'
   name: varchar('name', { length: 100 }).notNull(),
 });
 
 export const unitOfMeasures = mysqlTable('unit_of_measures', {
-  id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: kg, pcs, etc.
   abbreviation: varchar('abbreviation', { length: 10 }).notNull(), // kg, pcs
   name: varchar('name', { length: 100 }).notNull(), // Kilogram, Pieces
 });
@@ -606,15 +607,14 @@ export const imports = mysqlTable(
     supplierId: varchar('supplier_id', { length: 36 }).notNull(),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     importDate: date('import_date').notNull(),
-    invoiceNumber: varchar('invoice_number', { length: 50 }),
+    invoiceNumber: varchar('invoice_number', { length: 50 }).notNull(),
     invoiceDate: date('invoice_date').notNull(),
-    exchangeRateRMB: decimal('exchange_rate_rmb', {
+    exchangeRateRMBtoIDR: decimal('exchange_rate_rmb_to_idr', {
       precision: 15,
       scale: 2,
-    }).default('0.00'),
-    subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
+    }).notNull(),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
-    status: varchar('status', { length: 50 }).default('pending'), // pending, verified
+    status: mysqlEnum('status', IMPORT_STATUS).default(IMPORT_STATUS.PENDING),
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
     verifiedBy: varchar('verified_by', { length: 36 }), // import-manager role
@@ -661,36 +661,8 @@ export const importItems = mysqlTable(
     importId: varchar('import_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }), // nullable for new product creation
     priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).notNull(),
-    quantity: int('quantity').notNull(),
+    quantity: int('quantity').notNull().default(1),
     total: decimal('total', { precision: 15, scale: 2 }).notNull(),
-
-    // Product creation fields (used when productId is null)
-    productCode: varchar('product_code', { length: 100 }),
-    productName: varchar('product_name', { length: 255 }),
-    productDescription: text('product_description'),
-    productCategory: varchar('product_category', { length: 100 }), // serialized, non_serialized, bulk
-    machineTypeId: varchar('machine_type_id', { length: 36 }),
-    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }),
-    brandId: varchar('brand_id', { length: 36 }),
-
-    // Dynamic/union properties based on category
-    modelOrPartNumber: varchar('model_or_part_number', { length: 100 }),
-    machineNumber: varchar('machine_number', { length: 100 }),
-    engineNumber: varchar('engine_number', { length: 100 }),
-    itemName: varchar('item_name', { length: 100 }),
-    batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
-    itemDescription: varchar('item_description', { length: 255 }),
-
-    // Additional product details
-    serialNumber: varchar('serial_number', { length: 100 }),
-    model: varchar('model', { length: 100 }),
-    year: int('year'),
-    condition: varchar('condition', { length: 50 }).default('new'),
-    engineModel: varchar('engine_model', { length: 100 }),
-    enginePower: varchar('engine_power', { length: 50 }),
-    operatingWeight: varchar('operating_weight', { length: 50 }),
-
-    notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
@@ -705,21 +677,6 @@ export const importItems = mysqlTable(
       columns: [table.productId],
       foreignColumns: [products.id],
       name: 'fk_import_items_product',
-    }),
-    foreignKey({
-      columns: [table.machineTypeId],
-      foreignColumns: [machineTypes.id],
-      name: 'fk_import_items_machine_type',
-    }),
-    foreignKey({
-      columns: [table.unitOfMeasureId],
-      foreignColumns: [unitOfMeasures.id],
-      name: 'fk_import_items_unit_of_measure',
-    }),
-    foreignKey({
-      columns: [table.brandId],
-      foreignColumns: [brands.id],
-      name: 'fk_import_items_brand',
     }),
   ],
 );
@@ -761,6 +718,7 @@ export const warehouseStocks = mysqlTable(
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     condition: varchar('condition', { length: 20 }).notNull(), // good, damaged, repair
+    quantity: int('quantity').default(0),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
@@ -789,7 +747,7 @@ export const stockMovements = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    warehouseIdFrom: varchar('warehouse_id_from', { length: 36 }).notNull(),
+    warehouseIdFrom: varchar('warehouse_id_from', { length: 36 }), // NULL for import
     warehouseIdTo: varchar('warehouse_id_to', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
@@ -931,7 +889,8 @@ export const quotationsRelations = relations(quotations, ({ one, many }) => ({
     relationName: 'approver',
   }),
   quotationItems: many(quotationItems),
-  invoices: many(invoices),
+  // Note: invoices relation removed due to circular reference
+  // This relationship is handled through the invoiceId field directly
 }));
 
 export const quotationItemsRelations = relations(quotationItems, ({ one }) => ({
@@ -950,10 +909,8 @@ export const invoicesRelations = relations(invoices, ({ one, many }) => ({
     fields: [invoices.customerId],
     references: [customers.id],
   }),
-  quotation: one(quotations, {
-    fields: [invoices.quotationId],
-    references: [quotations.id],
-  }),
+  // Note: quotation relation removed due to circular reference
+  // This relationship is handled through the quotationId field directly
   createdBy: one(users, {
     fields: [invoices.createdBy],
     references: [users.id],
@@ -1045,18 +1002,6 @@ export const importItemsRelations = relations(importItems, ({ one }) => ({
   product: one(products, {
     fields: [importItems.productId],
     references: [products.id],
-  }),
-  machineType: one(machineTypes, {
-    fields: [importItems.machineTypeId],
-    references: [machineTypes.id],
-  }),
-  unitOfMeasure: one(unitOfMeasures, {
-    fields: [importItems.unitOfMeasureId],
-    references: [unitOfMeasures.id],
-  }),
-  brand: one(brands, {
-    fields: [importItems.brandId],
-    references: [brands.id],
   }),
 }));
 

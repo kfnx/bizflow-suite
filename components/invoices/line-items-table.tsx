@@ -52,7 +52,7 @@ export function InvoiceLineItemsTable({ invoice }: InvoiceLineItemsTableProps) {
                     <Table.Cell>
                       <div>
                         <div className='text-gray-900 font-medium'>
-                          {item.productName}
+                          {item.name}
                         </div>
                         <div className='text-sm text-gray-500'>
                           {item.productCode}

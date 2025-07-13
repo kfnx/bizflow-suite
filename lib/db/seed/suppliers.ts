@@ -76,9 +76,9 @@ export const suppliers = [
     isActive: true,
   },
   {
-    id: supplierIds.supplier3,
-    code: 'SUP003',
-    name: 'PT Supplier Ketiga',
+    id: supplierIds.supplier4,
+    code: 'SUP004',
+    name: 'PT Supplier Keempat',
     country: 'Indonesia',
     address: 'Jl. Supplier No. 789, Bekasi, Jawa Barat 17111',
     city: 'Bekasi',

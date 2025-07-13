@@ -64,7 +64,6 @@ export async function GET(request: NextRequest) {
       conditions.push(
         or(
           like(products.name, `%${search}%`),
-          like(products.code, `%${search}%`),
           like(stockMovements.notes, `%${search}%`),
           like(stockMovements.invoiceId, `%${search}%`),
           like(stockMovements.deliveryId, `%${search}%`),
@@ -118,8 +117,7 @@ export async function GET(request: NextRequest) {
         warehouseIdTo: stockMovements.warehouseIdTo,
         warehouseToName: sql<string>`wt.name`,
         productId: stockMovements.productId,
-        productName: products.name,
-        productCode: products.code,
+        name: products.name,
         quantity: stockMovements.quantity,
         movementType: stockMovements.movementType,
         invoiceId: stockMovements.invoiceId,
@@ -257,8 +255,7 @@ export async function POST(request: NextRequest) {
         warehouseIdTo: stockMovements.warehouseIdTo,
         warehouseToName: sql<string>`wt.name`,
         productId: stockMovements.productId,
-        productName: products.name,
-        productCode: products.code,
+        name: products.name,
         quantity: stockMovements.quantity,
         movementType: stockMovements.movementType,
         invoiceId: stockMovements.invoiceId,

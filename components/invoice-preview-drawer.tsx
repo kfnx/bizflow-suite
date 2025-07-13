@@ -133,7 +133,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
                 >
                   <div className='min-w-0 flex-1'>
                     <div className='truncate text-label-sm text-text-strong-950'>
-                      {item.productName}
+                      {item.name}
                     </div>
                     <div className='text-paragraph-sm text-text-sub-600'>
                       {item.productCode}

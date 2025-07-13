@@ -2,34 +2,31 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export type Product = {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  category?: string;
-  brandId?: string;
-  brandName?: string;
-  model?: string;
-  year?: number;
-  condition: string;
-  status: string;
-  warehouseId?: string;
-  unitOfMeasureId?: string;
-  price: number;
-  engineModel?: string;
-  enginePower?: string;
-  operatingWeight?: string;
-  supplierId?: string;
-  supplierName?: string;
-  supplierCode?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+import type { Product } from '@/lib/db/schema';
+
+// Extended Product type that includes joined data from API responses
+export type ProductWithRelations = Product & {
+  brandId?: string | null;
+  brandName?: string | null;
+  machineTypeId?: string | null;
+  machineTypeName?: string | null;
+  unitOfMeasureId?: string | null;
+  unitOfMeasureName?: string | null;
+  unitOfMeasureAbbreviation?: string | null;
+  modelOrPartNumber?: string | null;
+  machineNumber?: string | null;
+  engineNumber?: string | null;
+  batchOrLotNumber?: string | null;
+  serialNumber?: string | null;
+  warehouseId?: string | null;
+  warehouseName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  supplierCode?: string | null;
 };
 
 export type ProductsResponse = {
-  data: Product[];
+  data: ProductWithRelations[];
   pagination: {
     page: number;
     limit: number;
@@ -42,8 +39,10 @@ export type ProductsFilters = {
   search?: string;
   status?: string;
   category?: string;
-  brand?: string;
+  brandId?: string;
   supplierId?: string;
+  warehouseId?: string;
+  condition?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -59,10 +58,14 @@ const fetchProducts = async (
     params.append('status', filters.status);
   if (filters.category && filters.category !== 'all')
     params.append('category', filters.category);
-  if (filters.brand && filters.brand !== 'all')
-    params.append('brand', filters.brand);
+  if (filters.brandId && filters.brandId !== 'all')
+    params.append('brandId', filters.brandId);
   if (filters.supplierId && filters.supplierId !== 'all')
     params.append('supplierId', filters.supplierId);
+  if (filters.warehouseId && filters.warehouseId !== 'all')
+    params.append('warehouseId', filters.warehouseId);
+  if (filters.condition && filters.condition !== 'all')
+    params.append('condition', filters.condition);
   if (filters.sortBy) params.append('sortBy', filters.sortBy);
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());
@@ -72,6 +75,17 @@ const fetchProducts = async (
     throw new Error('Failed to fetch products');
   }
   return response.json();
+};
+
+const fetchProduct = async (
+  productId: string,
+): Promise<ProductWithRelations> => {
+  const response = await fetch(`/api/products/${productId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch product');
+  }
+  const data = await response.json();
+  return data.data;
 };
 
 const deleteProduct = async (productId: string): Promise<void> => {
@@ -89,6 +103,14 @@ export function useProducts(filters: ProductsFilters = {}) {
   return useQuery({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
+  });
+}
+
+export function useProduct(productId: string | null) {
+  return useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => fetchProduct(productId!),
+    enabled: !!productId,
   });
 }
 

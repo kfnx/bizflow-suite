@@ -92,8 +92,6 @@ export async function GET(
         // Product data
         product: {
           id: products.id,
-          code: products.code,
-          name: products.name,
           price: products.price,
         },
       })

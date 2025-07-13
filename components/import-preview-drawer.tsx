@@ -164,7 +164,12 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
             Subtotal (RMB)
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatCurrency(importData.subtotal)}
+            {formatCurrency(
+              importData.items?.reduce(
+                (sum, item) => sum + parseFloat(item.priceRMB) * item.quantity,
+                0,
+              ) || 0,
+            )}
           </div>
         </div>
 
@@ -175,7 +180,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
             Exchange Rate
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {importData.exchangeRateRMB}
+            {importData.exchangeRateRMBtoIDR}
           </div>
         </div>
 
@@ -215,6 +220,52 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
           </>
         )}
       </div>
+
+      {importData.items && importData.items.length > 0 && (
+        <>
+          <Divider.Root variant='solid-text'>
+            Import Items ({importData.items.length})
+          </Divider.Root>
+
+          <div className='flex flex-col gap-4 p-5'>
+            {importData.items.map((item, index) => (
+              <div
+                key={item.id || index}
+                className='rounded-lg border border-stroke-soft-200 p-4'
+              >
+                <div className='mb-2 flex items-start justify-between'>
+                  <div className='flex-1'>
+                    <div className='text-label-sm font-medium text-text-strong-950'>
+                      {item.name}
+                    </div>
+                    {item.description && (
+                      <div className='mt-1 text-paragraph-xs text-text-sub-600'>
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                  <div className='text-right'>
+                    <div className='text-label-sm font-medium text-text-strong-950'>
+                      {item.quantity}x
+                    </div>
+                    <div className='text-paragraph-xs text-text-sub-600'>
+                      {formatCurrency(parseFloat(item.priceRMB))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-2 gap-2 text-paragraph-xs text-text-sub-600'>
+                  <div>Category: {item.category}</div>
+                  <div>
+                    Total:{' '}
+                    {formatCurrency(parseFloat(item.priceRMB) * item.quantity)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }

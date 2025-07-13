@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
 
     // Validate request body using Zod schema
     const validationResult = createQuotationDraftRequestSchema.safeParse(body);
-    console.log('🚀 ~ POST ~ body:', body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -50,7 +49,6 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
-      console.log('createdBy', createdBy);
       const { quotationNumber } = validatedData;
       // Create quotation (ID will be auto-generated)
       const quotationData = {

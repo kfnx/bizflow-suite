@@ -1,3 +1,4 @@
+import { IMPORT_STATUS } from '../enum';
 import { NewImport, NewImportItem } from '../schema';
 import {
   importIds,
@@ -16,10 +17,9 @@ export const imports: NewImport[] = [
     importDate: new Date('2024-01-15'),
     invoiceNumber: 'INV-CN-2024-001',
     invoiceDate: new Date('2024-01-10'),
-    exchangeRateRMB: '15750.00', // 1 USD = 15,750 IDR example rate
-    subtotal: '90000.00', // 85,000 + 5,000 RMB (from import items)
+    exchangeRateRMBtoIDR: '2260.00', // 1 USD = 15,750 IDR example rate
     total: '3465000000.00', // Total from import items in IDR
-    status: 'completed',
+    status: IMPORT_STATUS.VERIFIED,
     notes:
       'Shantui wheel loader and spare parts import - customs cleared successfully',
     createdBy: userIds.user5, // Import Manager
@@ -31,10 +31,9 @@ export const imports: NewImport[] = [
     importDate: new Date('2024-01-20'),
     invoiceNumber: 'INV-CN-2024-002',
     invoiceDate: new Date('2024-01-18'),
-    exchangeRateRMB: '15750.00',
-    subtotal: '107000.00', // 95,000 + 12,000 RMB (from import items)
+    exchangeRateRMBtoIDR: '2255.00',
     total: '1874250000.00', // Total from import items in IDR
-    status: 'completed',
+    status: IMPORT_STATUS.PENDING,
     notes:
       'Wheel loader and maintenance kit import - delivered to Jakarta warehouse',
     createdBy: userIds.user5, // Import Manager
@@ -46,10 +45,9 @@ export const imports: NewImport[] = [
     importDate: new Date('2024-02-01'),
     invoiceNumber: 'INV-CN-2024-003',
     invoiceDate: new Date('2024-01-28'),
-    exchangeRateRMB: '15800.00', // Different exchange rate
-    subtotal: '105000.00', // 75,000 + 30,000 RMB (from import items)
+    exchangeRateRMBtoIDR: '2252.00', // Different exchange rate
     total: '4029000000.00', // Total from import items in IDR
-    status: 'verified',
+    status: IMPORT_STATUS.VERIFIED,
     notes:
       'Bulldozer equipment and accessories import - pending final inspection',
     createdBy: userIds.user2, // Manager
@@ -61,10 +59,9 @@ export const imports: NewImport[] = [
     importDate: new Date('2024-02-10'),
     invoiceNumber: 'INV-CN-2024-004',
     invoiceDate: new Date('2024-02-05'),
-    exchangeRateRMB: '15800.00',
-    subtotal: '125000.00', // 65,000 + 60,000 RMB (from import items)
+    exchangeRateRMBtoIDR: '2252.00',
     total: '1975000000.00', // Total from import items in IDR
-    status: 'pending',
+    status: IMPORT_STATUS.PENDING,
     notes: 'Wheel loader and consumables import - still in customs processing',
     createdBy: userIds.user5, // Import Manager
   },
@@ -75,10 +72,9 @@ export const imports: NewImport[] = [
     importDate: new Date('2024-02-15'),
     invoiceNumber: 'INV-CN-2024-005',
     invoiceDate: new Date('2024-02-12'),
-    exchangeRateRMB: '15850.00',
-    subtotal: '65000.00', // 45,000 + 8,000 + 12,000 RMB (from import items)
+    exchangeRateRMBtoIDR: '2252.00',
     total: '3487000000.00', // Total from import items in IDR
-    status: 'verified',
+    status: IMPORT_STATUS.VERIFIED,
     notes:
       'Wheel loader, tools, and additional items import - quality inspection passed',
     createdBy: userIds.user3, // Director
@@ -90,10 +86,9 @@ export const imports: NewImport[] = [
     importDate: new Date('2024-02-20'),
     invoiceNumber: 'INV-CN-2024-006',
     invoiceDate: new Date('2024-02-18'),
-    exchangeRateRMB: '15850.00',
-    subtotal: '195000.00', // 120,000 + 75,000 RMB (from import items)
+    exchangeRateRMBtoIDR: '2258.00',
     total: '3090750000.00', // Total from import items in IDR
-    status: 'pending',
+    status: IMPORT_STATUS.PENDING,
     notes:
       'High-value excavator and safety equipment import - awaiting final customs approval',
     createdBy: userIds.user2, // Manager
@@ -107,8 +102,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import1,
     productId: productIds.product1,
     priceRMB: '85000.00',
-    quantity: 2,
-    total: '2677500000.00', // 85,000 * 15,750 * 2 in IDR
+    total: '170000.00', // 85,000 * 2 in RMB
   },
 
   // Import 1 - Additional product (spare parts)
@@ -117,8 +111,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import1,
     productId: productIds.product2,
     priceRMB: '5000.00',
-    quantity: 10,
-    total: '787500000.00', // 5,000 * 15,750 * 10 in IDR
+    total: '50000.00', // 5,000 * 10 in RMB
   },
 
   // Import 2 - Wheel loader
@@ -127,8 +120,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import2,
     productId: productIds.product2,
     priceRMB: '95000.00',
-    quantity: 1,
-    total: '1496250000.00', // 95,000 * 15,750 * 1 in IDR
+    total: '95000.00', // 95,000 * 1 in RMB
   },
 
   // Import 2 - Additional product (maintenance kit)
@@ -137,8 +129,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import2,
     productId: productIds.product3,
     priceRMB: '12000.00',
-    quantity: 2,
-    total: '378000000.00', // 12,000 * 15,750 * 2 in IDR
+    total: '24000.00', // 12,000 * 2 in RMB
   },
 
   // Import 3 - Bulldozer equipment
@@ -147,8 +138,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import3,
     productId: productIds.product4,
     priceRMB: '75000.00',
-    quantity: 3,
-    total: '3555000000.00', // 75,000 * 15,800 * 3 in IDR
+    total: '225000.00', // 75,000 * 3 in RMB
   },
 
   // Import 3 - Additional product (accessories)
@@ -157,8 +147,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import3,
     productId: productIds.product5,
     priceRMB: '15000.00',
-    quantity: 2,
-    total: '474000000.00', // 15,000 * 15,800 * 2 in IDR
+    total: '30000.00', // 15,000 * 2 in RMB
   },
 
   // Import 4 - Wheel loader
@@ -167,8 +156,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import4,
     productId: productIds.product1,
     priceRMB: '65000.00',
-    quantity: 1,
-    total: '1027000000.00', // 65,000 * 15,800 * 1 in IDR
+    total: '65000.00', // 65,000 * 1 in RMB
   },
 
   // Import 4 - Additional product (consumables)
@@ -177,8 +165,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import4,
     productId: productIds.product2,
     priceRMB: '3000.00',
-    quantity: 20,
-    total: '948000000.00', // 3,000 * 15,800 * 20 in IDR
+    total: '60000.00', // 3,000 * 20 in RMB
   },
 
   // Import 5 - Wheel loader batch
@@ -187,8 +174,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import5,
     productId: productIds.product3,
     priceRMB: '45000.00',
-    quantity: 4,
-    total: '2853000000.00', // 45,000 * 15,850 * 4 in IDR
+    total: '180000.00', // 45,000 * 4 in RMB
   },
 
   // Import 5 - Additional product (tools)
@@ -197,8 +183,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import5,
     productId: productIds.product4,
     priceRMB: '8000.00',
-    quantity: 5,
-    total: '634000000.00', // 8,000 * 15,850 * 5 in IDR
+    total: '40000.00', // 8,000 * 5 in RMB
   },
 
   // Import 6 - High-value excavator
@@ -207,8 +192,7 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import6,
     productId: productIds.product5,
     priceRMB: '120000.00',
-    quantity: 1,
-    total: '1902000000.00', // 120,000 * 15,850 * 1 in IDR
+    total: '120000.00', // 120,000 * 1 in RMB
   },
 
   // Import 6 - Additional product (safety equipment)
@@ -217,7 +201,6 @@ export const importItems: NewImportItem[] = [
     importId: importIds.import6,
     productId: productIds.product1,
     priceRMB: '25000.00',
-    quantity: 3,
-    total: '1188750000.00', // 25,000 * 15,850 * 3 in IDR
+    total: '75000.00', // 25,000 * 3 in RMB
   },
 ];

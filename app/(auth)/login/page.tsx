@@ -72,13 +72,10 @@ export default function PageLogin() {
         setError('Invalid email or password');
       } else {
         // Check if user is using default password
-        console.log(password, DEFAULT_PASSWORD, password === DEFAULT_PASSWORD);
         if (password === DEFAULT_PASSWORD) {
-          console.log('KE RESET PAS');
           router.push('/update-password');
         } else {
           router.push('/');
-          console.log('KE /');
           router.refresh();
         }
       }

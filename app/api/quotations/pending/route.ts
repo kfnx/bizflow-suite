@@ -90,8 +90,7 @@ export async function GET(request: NextRequest) {
           .select({
             id: quotationItems.id,
             productId: quotationItems.productId,
-            productName: products.name,
-            productCode: products.code,
+            name: products.name,
             quantity: quotationItems.quantity,
             unitPrice: quotationItems.unitPrice,
             total: quotationItems.total,

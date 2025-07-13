@@ -43,8 +43,7 @@ export async function GET(
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
-        exchangeRateRMB: imports.exchangeRateRMB,
-        subtotal: imports.subtotal,
+        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,
         notes: imports.notes,
@@ -72,40 +71,27 @@ export async function GET(
         id: importItems.id,
         importId: importItems.importId,
         productId: importItems.productId,
-        productCode: products.code,
-        productName: products.name,
         priceRMB: importItems.priceRMB,
         quantity: importItems.quantity,
         total: importItems.total,
-        // Product creation fields
-        productCategory: importItems.productCategory,
-        machineTypeName: machineTypes.name,
-        unitOfMeasureName: unitOfMeasures.name,
-        brandName: brands.name,
-        modelOrPartNumber: importItems.modelOrPartNumber,
-        machineNumber: importItems.machineNumber,
-        engineNumber: importItems.engineNumber,
-        itemName: importItems.itemName,
-        batchOrLotNumber: importItems.batchOrLotNumber,
-        itemDescription: importItems.itemDescription,
-        serialNumber: importItems.serialNumber,
-        model: importItems.model,
-        year: importItems.year,
-        condition: importItems.condition,
-        engineModel: importItems.engineModel,
-        enginePower: importItems.enginePower,
-        operatingWeight: importItems.operatingWeight,
-        notes: importItems.notes,
+        // Product fields from linked product
+        name: products.name,
+        model: products.model,
+        category: products.category,
+        description: products.description,
+        serialNumber: products.serialNumber,
+        year: products.year,
+        condition: products.condition,
+        engineModel: products.engineModel,
+        engineNumber: products.engineNumber,
+        machineNumber: products.machineNumber,
         createdAt: importItems.createdAt,
       })
       .from(importItems)
       .leftJoin(products, eq(importItems.productId, products.id))
-      .leftJoin(machineTypes, eq(importItems.machineTypeId, machineTypes.id))
-      .leftJoin(
-        unitOfMeasures,
-        eq(importItems.unitOfMeasureId, unitOfMeasures.id),
-      )
-      .leftJoin(brands, eq(importItems.brandId, brands.id))
+      .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
+      .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
+      .leftJoin(brands, eq(products.brandId, brands.id))
       .where(eq(importItems.importId, id));
 
     const result = {
@@ -177,8 +163,9 @@ export async function PUT(
         importUpdateData.invoiceNumber = validatedData.invoiceNumber;
       if (validatedData.invoiceDate)
         importUpdateData.invoiceDate = validatedData.invoiceDate;
-      if (validatedData.exchangeRateRMB)
-        importUpdateData.exchangeRateRMB = validatedData.exchangeRateRMB;
+      if (validatedData.exchangeRateRMBtoIDR)
+        importUpdateData.exchangeRateRMBtoIDR =
+          validatedData.exchangeRateRMBtoIDR;
       if (validatedData.status) importUpdateData.status = validatedData.status;
       if (validatedData.notes !== undefined)
         importUpdateData.notes = validatedData.notes;
@@ -203,14 +190,15 @@ export async function PUT(
           subtotal += itemTotal;
         }
 
-        const exchangeRate = parseFloat(validatedData.exchangeRateRMB || '0');
+        const exchangeRate = parseFloat(
+          validatedData.exchangeRateRMBtoIDR || '0',
+        );
         const totalIDR = subtotal * exchangeRate;
 
         // Update totals
         await tx
           .update(imports)
           .set({
-            subtotal: subtotal.toFixed(2),
             total: totalIDR.toFixed(2),
           })
           .where(eq(imports.id, id));
@@ -232,19 +220,16 @@ export async function PUT(
             priceRMB: item.priceRMB,
             quantity: item.quantity,
             total: itemTotal.toFixed(2),
-            productCode: item.code,
-            productName: item.name,
-            productDescription: item.description,
-            productCategory: item.category,
+            name: item.name,
+            description: item.description,
+            category: item.category,
             machineTypeId: item.machineTypeId,
             unitOfMeasureId: item.unitOfMeasureId,
             brandId: item.brandId,
             modelOrPartNumber: item.modelOrPartNumber,
             machineNumber: item.machineNumber,
             engineNumber: item.engineNumber,
-            itemName: item.itemName,
             batchOrLotNumber: item.batchOrLotNumber,
-            itemDescription: item.itemDescription,
             serialNumber: item.serialNumber,
             model: item.model,
             year: item.year,
@@ -271,8 +256,7 @@ export async function PUT(
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
-        exchangeRateRMB: imports.exchangeRateRMB,
-        subtotal: imports.subtotal,
+        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,
         notes: imports.notes,

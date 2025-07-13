@@ -81,7 +81,7 @@ export type InvoiceDetail = {
   };
   items: {
     id: string;
-    productName: string;
+    name: string;
     productCode: string;
     quantity: string;
     unitPrice: string;

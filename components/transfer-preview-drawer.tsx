@@ -24,7 +24,7 @@ interface StockMovement {
   warehouseIdTo: string;
   warehouseToName: string;
   productId: string;
-  productName: string;
+  name: string;
   productCode: string;
   quantity: number;
   movementType: string;
@@ -203,7 +203,7 @@ function TransferPreviewContent({ transfer }: { transfer: StockMovement }) {
           </div>
           <div>
             <div className='text-label-md font-medium text-text-strong-950'>
-              {transfer.productName}
+              {transfer.name}
             </div>
             <div className='text-paragraph-sm text-text-sub-600'>
               {transfer.productCode}

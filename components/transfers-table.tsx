@@ -136,7 +136,7 @@ const createColumns = (
 ): ColumnDef<Transfer>[] => [
   {
     id: 'product',
-    accessorKey: 'productName',
+    accessorKey: 'name',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
         Product
@@ -155,7 +155,7 @@ const createColumns = (
         </div>
         <div className='flex flex-col'>
           <div className='text-paragraph-sm text-text-strong-950'>
-            {row.original.productName}
+            {row.original.name}
           </div>
           <div className='text-paragraph-xs text-text-sub-600'>
             {row.original.productCode}

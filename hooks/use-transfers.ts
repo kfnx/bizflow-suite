@@ -9,7 +9,7 @@ export interface Transfer {
   warehouseIdTo: string;
   warehouseToName: string;
   productId: string;
-  productName: string;
+  name: string;
   productCode: string;
   quantity: number;
   movementType: 'in' | 'out' | 'transfer' | 'adjustment';

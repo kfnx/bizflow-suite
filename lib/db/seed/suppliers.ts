@@ -4,6 +4,7 @@ export const contactPersonIds = {
   supplierContact1: 'e0000001-0000-4000-a000-000000000001',
   supplierContact2: 'e0000002-0000-4000-a000-000000000001',
   supplierContact3: 'e0000003-0000-4000-a000-000000000001',
+  supplierContact4: 'e0000004-0000-4000-a000-000000000001',
 };
 
 export const supplierContactPersons = [
@@ -27,6 +28,13 @@ export const supplierContactPersons = [
     name: 'Ahmad Rizki',
     email: 'contact@supplierketiga.com',
     phone: '+6281234567895',
+  },
+  {
+    id: contactPersonIds.supplierContact4,
+    supplierId: supplierIds.supplier4,
+    name: 'Agus Rizki',
+    email: 'contact@supplierempat.com',
+    phone: '+6281234567896',
   },
 ];
 
@@ -53,6 +61,18 @@ export const suppliers = [
     province: 'Jawa Timur',
     postalCode: '60111',
     transactionCurrency: 'IDR',
+    isActive: false,
+  },
+  {
+    id: supplierIds.supplier3,
+    code: 'SUP003',
+    name: 'Global Machinery Co.',
+    country: 'Indonesia',
+    address: 'Jl. Supplier No. 789, Bekasi, Jawa Barat 17111',
+    city: 'Bekasi',
+    province: 'Jawa Barat',
+    postalCode: '17111',
+    transactionCurrency: 'USD',
     isActive: true,
   },
   {

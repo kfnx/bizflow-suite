@@ -12,6 +12,7 @@ import {
   RiReceiptLine,
   RiStoreLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -616,8 +617,8 @@ export default function NewImportPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log(':ASDUIDU');
-    // e.preventDefault();
+    toast.info('Submitting...');
+    e.preventDefault();
     setIsLoading(true);
     setValidationErrors({});
 
@@ -727,6 +728,7 @@ export default function NewImportPage() {
         year: item.year ? parseInt(item.year) : undefined,
       }));
 
+      toast.info('POSTing imports');
       const response = await fetch('/api/imports', {
         method: 'POST',
         headers: {
@@ -739,13 +741,21 @@ export default function NewImportPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create import');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to create import');
       }
+
+      toast.success('Import created successfully!', {
+        description: 'Your import has been recorded and saved.',
+      });
 
       router.push('/imports');
     } catch (error) {
       console.error('Error creating import:', error);
-      alert('Failed to create import. Please try again.');
+      toast.error('Failed to create import', {
+        description:
+          error instanceof Error ? error.message : 'Please try again.',
+      });
     } finally {
       setIsLoading(false);
     }

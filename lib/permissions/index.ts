@@ -72,14 +72,16 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'warehouses:read',
   ],
   'import-manager': [
+    'products:read',
+    'warehouses:read',
     'imports:read',
     'imports:create',
     'imports:update',
     'imports:verify',
     'transfers:read',
-    'products:read',
+    'transfers:create',
+    'transfers:update',
     'suppliers:read',
-    'warehouses:read',
   ],
   manager: [
     'users:read',

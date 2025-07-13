@@ -20,6 +20,7 @@ export const supplierIds = {
   supplier1: '20000001-0000-4000-a000-000000000001',
   supplier2: '20000002-0000-4000-a000-000000000001',
   supplier3: '20000003-0000-4000-a000-000000000001',
+  supplier4: '20000004-0000-4000-a000-000000000001',
 };
 
 export const warehouseIds = {

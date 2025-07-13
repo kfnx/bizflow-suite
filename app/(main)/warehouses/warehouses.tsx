@@ -1,0 +1,64 @@
+'use client';
+
+import { useState } from 'react';
+
+import { useWarehouses } from '@/hooks/use-warehouses';
+import { WarehousePreviewDrawer } from '@/components/warehouse-preview-drawer';
+import { WarehousesFilters } from '@/components/warehouses-filters';
+import { WarehousesTable } from '@/components/warehouses-table';
+
+interface WarehousesProps {
+  initialFilters: {
+    search: string;
+    isActive: 'all' | 'true' | 'false';
+    sortBy: string;
+    page: number;
+    limit: number;
+  };
+}
+
+export function Warehouses({ initialFilters }: WarehousesProps) {
+  const [filters, setFilters] = useState(initialFilters);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
+    null,
+  );
+
+  const { data, isLoading, error } = useWarehouses(filters);
+
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+  };
+
+  const handleWarehouseSelect = (warehouseId: string) => {
+    setSelectedWarehouseId(warehouseId);
+  };
+
+  const handleClosePreview = () => {
+    setSelectedWarehouseId(null);
+  };
+
+  return (
+    <>
+      <WarehousesFilters
+        filters={filters}
+        onFiltersChange={handleFilterChange}
+      />
+
+      <WarehousesTable
+        warehouses={data?.data || []}
+        pagination={data?.pagination}
+        isLoading={isLoading}
+        error={error}
+        onWarehouseSelect={handleWarehouseSelect}
+        filters={filters}
+        onFiltersChange={handleFilterChange}
+      />
+
+      <WarehousePreviewDrawer
+        warehouseId={selectedWarehouseId}
+        open={!!selectedWarehouseId}
+        onClose={handleClosePreview}
+      />
+    </>
+  );
+}

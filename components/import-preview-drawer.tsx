@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiDeleteBinLine, RiEditLine, RiImportLine } from '@remixicon/react';
+import {
+  RiDeleteBinLine,
+  RiEditLine,
+  RiImportLine,
+  RiLoader4Line,
+} from '@remixicon/react';
 
 import { Import, useDeleteImport, useImport } from '@/hooks/use-imports';
 import * as Badge from '@/components/ui/badge';
@@ -47,70 +52,48 @@ export function ImportPreviewDrawer({
     }
   };
 
-  const formatCurrency = (amount: number, currency: string = 'RMB') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === 'RMB' ? 'CNY' : currency,
-    }).format(amount);
-  };
-
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
       <Drawer.Content>
         <Drawer.Header>
-          <div className='flex items-center gap-3'>
-            <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
-              <RiImportLine className='size-5 text-text-sub-600' />
-            </div>
-            <div className='flex flex-col'>
-              <div className='text-title-h4 text-text-strong-950'>
-                Import Details
-              </div>
-              <div className='text-paragraph-sm text-text-sub-600'>
-                {importData?.invoiceNumber || 'Loading...'}
-              </div>
-            </div>
-          </div>
+          <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
         <Drawer.Body>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
-              <div className='text-paragraph-sm text-text-sub-600'>
-                Loading...
-              </div>
+              <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
+              <span className='text-sm text-gray-500 ml-2'>Loading...</span>
             </div>
           )}
 
           {error && (
-            <div className='flex items-center justify-center py-8'>
-              <div className='text-paragraph-sm text-red-600'>
+            <div className='py-8 text-center'>
+              <p className='text-sm text-red-600'>
                 Error loading import details
-              </div>
+              </p>
             </div>
           )}
 
           {!isLoading && !error && !importData && (
-            <div className='flex items-center justify-center py-8'>
-              <div className='text-paragraph-sm text-text-sub-600'>
-                Import not found
-              </div>
+            <div className='py-8 text-center'>
+              <p className='text-sm text-gray-500'>Import not found</p>
             </div>
           )}
 
-          {importData && (
-            <div className='space-y-6'>
-              <ImportPreviewContent importData={importData} />
-            </div>
+          {importData && !isLoading && !error && (
+            <ImportPreviewContent importData={importData} />
           )}
         </Drawer.Body>
 
-        <ImportPreviewFooter
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          isDeleting={deleteImportMutation.isPending}
-          disabled={!importData}
-        />
+        {importData && !isLoading && !error && (
+          <ImportPreviewFooter
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            isDeleting={deleteImportMutation.isPending}
+            disabled={!importData}
+          />
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );
@@ -130,105 +113,107 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
 
   return (
     <>
-      <Divider.Root variant='solid-text'>Invoice Information</Divider.Root>
-      <div className='space-y-4'>
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <div className='text-subheading-xs text-text-sub-600'>
-              Invoice Number
-            </div>
-            <div className='text-paragraph-sm text-text-strong-950'>
-              {importData.invoiceNumber}
-            </div>
+      <Divider.Root variant='solid-text'>Import Info</Divider.Root>
+
+      <div className='p-5'>
+        <div className='mb-3'>
+          <div className='text-title-h4 text-text-strong-950'>
+            {importData.invoiceNumber}
           </div>
-          <div>
-            <div className='text-subheading-xs text-text-sub-600'>
-              Invoice Date
-            </div>
-            <div className='text-paragraph-sm text-text-strong-950'>
-              {new Date(importData.invoiceDate).toLocaleDateString()}
-            </div>
+          <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+            {importData.supplierName} •{' '}
+            {new Date(importData.invoiceDate).toLocaleDateString()}
           </div>
         </div>
+
+        <div className='text-title-h4 text-text-strong-950'>
+          {formatCurrency(importData.total, 'IDR')}
+        </div>
+        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+          Total Amount (IDR)
+        </div>
+      </div>
+
+      <Divider.Root variant='solid-text'>Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
         <div>
-          <div className='text-subheading-xs text-text-sub-600'>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
             Import Date
           </div>
-          <div className='text-paragraph-sm text-text-strong-950'>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
             {new Date(importData.importDate).toLocaleDateString()}
           </div>
         </div>
-      </div>
 
-      <Divider.Root variant='solid-text'>Supplier & Warehouse</Divider.Root>
-      <div className='space-y-4'>
+        <Divider.Root variant='line-spacing' />
+
         <div>
-          <div className='text-subheading-xs text-text-sub-600'>Supplier</div>
-          <div className='text-paragraph-sm text-text-strong-950'>
-            {importData.supplierName}
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Warehouse
           </div>
-        </div>
-        <div>
-          <div className='text-subheading-xs text-text-sub-600'>Warehouse</div>
-          <div className='text-paragraph-sm text-text-strong-950'>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
             {importData.warehouseName}
           </div>
         </div>
-      </div>
 
-      <Divider.Root variant='solid-text'>Pricing</Divider.Root>
-      <div className='space-y-4'>
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <div className='text-subheading-xs text-text-sub-600'>
-              Subtotal (RMB)
-            </div>
-            <div className='text-paragraph-sm text-text-strong-950'>
-              {formatCurrency(importData.subtotal)}
-            </div>
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Subtotal (RMB)
           </div>
-          <div>
-            <div className='text-subheading-xs text-text-sub-600'>
-              Exchange Rate
-            </div>
-            <div className='text-paragraph-sm text-text-strong-950'>
-              {importData.exchangeRateRMB}
-            </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {formatCurrency(importData.subtotal)}
           </div>
         </div>
+
+        <Divider.Root variant='line-spacing' />
+
         <div>
-          <div className='text-subheading-xs text-text-sub-600'>
-            Total (IDR)
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Exchange Rate
           </div>
-          <div className='text-paragraph-sm font-medium text-text-strong-950'>
-            {formatCurrency(importData.total, 'IDR')}
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {importData.exchangeRateRMB}
           </div>
         </div>
-      </div>
 
-      {importData.notes && (
-        <>
-          <Divider.Root variant='solid-text'>Notes</Divider.Root>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {importData.notes}
-          </div>
-        </>
-      )}
+        <Divider.Root variant='line-spacing' />
 
-      <Divider.Root variant='solid-text'>Metadata</Divider.Root>
-      <div className='space-y-4'>
         <div>
-          <div className='text-subheading-xs text-text-sub-600'>Created By</div>
-          <div className='text-paragraph-sm text-text-strong-950'>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created By
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
             {importData.createdByUser}
           </div>
         </div>
+
+        <Divider.Root variant='line-spacing' />
+
         <div>
-          <div className='text-subheading-xs text-text-sub-600'>Created At</div>
-          <div className='text-paragraph-sm text-text-strong-950'>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Created Date
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
             {new Date(importData.createdAt).toLocaleDateString()}
           </div>
         </div>
+
+        {importData.notes && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Notes
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {importData.notes}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
@@ -248,28 +233,28 @@ function ImportPreviewFooter({
   disabled,
 }: ImportPreviewFooterProps) {
   return (
-    <Drawer.Footer>
-      <div className='flex justify-end gap-3'>
-        <Button.Root
-          variant='error'
-          mode='ghost'
-          size='medium'
-          onClick={onDelete}
-          disabled={disabled || isDeleting}
-        >
-          <RiDeleteBinLine className='size-4' />
-          {isDeleting ? 'Deleting...' : 'Delete'}
-        </Button.Root>
-        <Button.Root
-          variant='primary'
-          size='medium'
-          onClick={onEdit}
-          disabled={disabled}
-        >
-          <RiEditLine className='size-4' />
-          Edit Import
-        </Button.Root>
-      </div>
+    <Drawer.Footer className='border-t'>
+      <Button.Root
+        variant='error'
+        mode='stroke'
+        size='medium'
+        className='w-full'
+        onClick={onDelete}
+        disabled={disabled || isDeleting}
+      >
+        <RiDeleteBinLine className='size-4' />
+        {isDeleting ? 'Deleting...' : 'Delete'}
+      </Button.Root>
+      <Button.Root
+        variant='primary'
+        size='medium'
+        className='w-full'
+        onClick={onEdit}
+        disabled={disabled}
+      >
+        <RiEditLine className='size-4' />
+        Edit Import
+      </Button.Root>
     </Drawer.Footer>
   );
 }

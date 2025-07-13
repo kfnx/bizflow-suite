@@ -63,12 +63,13 @@ export const customers = [
     postalCode: '10110',
     paymentTerms: 'NET 30',
     isPPN: true,
+    isActive: true,
   },
   {
     id: customerIds.customer2,
     code: 'CUST002',
     name: 'CV Customer Kedua',
-    type: 'company',
+    type: 'individual',
     npwp: '12.345.678.9-123.457',
     npwp16: '12.345.678.9-123.457',
     billingAddress: 'Jl. Customer No. 2, Surabaya, Jawa Timur 60111',
@@ -80,6 +81,7 @@ export const customers = [
     postalCode: '60111',
     paymentTerms: 'NET 15',
     isPPN: false,
+    isActive: false,
   },
   {
     id: customerIds.customer3,
@@ -97,6 +99,7 @@ export const customers = [
     postalCode: '12120',
     paymentTerms: 'NET 30',
     isPPN: true,
+    isActive: true,
   },
   {
     id: customerIds.customer4,
@@ -114,6 +117,7 @@ export const customers = [
     postalCode: '60112',
     paymentTerms: 'NET 15',
     isPPN: false,
+    isActive: true,
   },
   {
     id: customerIds.customer5,
@@ -131,5 +135,6 @@ export const customers = [
     postalCode: '11420',
     paymentTerms: 'NET 30',
     isPPN: true,
+    isActive: true,
   },
 ];

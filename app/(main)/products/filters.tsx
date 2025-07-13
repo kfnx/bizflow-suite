@@ -153,26 +153,21 @@ export function Filters({ onFiltersChange }: FiltersProps) {
         {/* Status Filter */}
         <div className='flex items-center gap-2'>
           <span className='text-paragraph-sm text-text-sub-600'>Status:</span>
-          <SegmentedControl.Root
+          <Select.Root
             value={filters.status}
             onValueChange={handleStatusChange}
-            className='h-8'
           >
-            <SegmentedControl.List>
-              <SegmentedControl.Trigger value='all'>
-                All
-              </SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='in_stock'>
-                In Stock
-              </SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='out_of_stock'>
-                Out of Stock
-              </SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='discontinued'>
-                Discontinued
-              </SegmentedControl.Trigger>
-            </SegmentedControl.List>
-          </SegmentedControl.Root>
+            <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiFilterLine} />
+              <Select.Value placeholder='Status' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='all'>All Status</Select.Item>
+              <Select.Item value='in_stock'>In Stock</Select.Item>
+              <Select.Item value='out_of_stock'>Out of Stock</Select.Item>
+              <Select.Item value='discontinued'>Discontinued</Select.Item>
+            </Select.Content>
+          </Select.Root>
         </div>
 
         {/* Category Filter */}

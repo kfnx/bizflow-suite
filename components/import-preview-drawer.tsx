@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RiDeleteBinLine, RiEditLine, RiImportLine } from '@remixicon/react';
 
+import { Import, useDeleteImport, useImport } from '@/hooks/use-imports';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -21,29 +22,8 @@ export function ImportPreviewDrawer({
   onClose,
 }: ImportPreviewDrawerProps) {
   const router = useRouter();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // TODO: Replace with actual API call
-  const importData = importId
-    ? {
-        id: importId,
-        invoiceNumber: 'INV-2024-001',
-        invoiceDate: '2024-01-10',
-        importDate: '2024-01-15',
-        supplierName: 'Supplier ABC',
-        warehouseName: 'Warehouse Central',
-        productName: 'Product Sample',
-        quantity: 2,
-        priceRMB: 5000,
-        exchangeRateRMB: 2200,
-        total: 22000000,
-        notes: 'Sample import record',
-        createdByName: 'John Doe',
-        createdAt: '2024-01-01T00:00:00.000Z',
-      }
-    : null;
-  const isLoading = !importId;
-  const error = null;
+  const { data: importData, isLoading, error } = useImport(importId);
+  const deleteImportMutation = useDeleteImport();
 
   const handleEdit = () => {
     if (importId) {
@@ -59,15 +39,11 @@ export function ImportPreviewDrawer({
     );
     if (!confirmed) return;
 
-    setIsDeleting(true);
     try {
-      // TODO: Implement delete API call
-      console.log('Deleting import:', importId);
+      await deleteImportMutation.mutateAsync(importId);
       onClose();
     } catch (error) {
       console.error('Error deleting import:', error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -132,7 +108,7 @@ export function ImportPreviewDrawer({
         <ImportPreviewFooter
           onEdit={handleEdit}
           onDelete={handleDelete}
-          isDeleting={isDeleting}
+          isDeleting={deleteImportMutation.isPending}
           disabled={!importData}
         />
       </Drawer.Content>
@@ -140,25 +116,8 @@ export function ImportPreviewDrawer({
   );
 }
 
-interface ImportData {
-  id: string;
-  invoiceNumber: string;
-  invoiceDate: string;
-  importDate: string;
-  supplierName: string;
-  warehouseName: string;
-  productName: string;
-  quantity: number;
-  priceRMB: number;
-  exchangeRateRMB: number;
-  total: number;
-  notes: string;
-  createdByName: string;
-  createdAt: string;
-}
-
 interface ImportPreviewContentProps {
-  importData: ImportData;
+  importData: Import;
 }
 
 function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
@@ -217,31 +176,15 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
         </div>
       </div>
 
-      <Divider.Root variant='solid-text'>Product Information</Divider.Root>
-      <div className='space-y-4'>
-        <div>
-          <div className='text-subheading-xs text-text-sub-600'>Product</div>
-          <div className='text-paragraph-sm text-text-strong-950'>
-            {importData.productName}
-          </div>
-        </div>
-        <div>
-          <div className='text-subheading-xs text-text-sub-600'>Quantity</div>
-          <div className='text-paragraph-sm text-text-strong-950'>
-            {importData.quantity}
-          </div>
-        </div>
-      </div>
-
       <Divider.Root variant='solid-text'>Pricing</Divider.Root>
       <div className='space-y-4'>
         <div className='grid grid-cols-2 gap-4'>
           <div>
             <div className='text-subheading-xs text-text-sub-600'>
-              Price (RMB)
+              Subtotal (RMB)
             </div>
             <div className='text-paragraph-sm text-text-strong-950'>
-              {formatCurrency(importData.priceRMB)}
+              {formatCurrency(importData.subtotal)}
             </div>
           </div>
           <div>
@@ -277,7 +220,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
         <div>
           <div className='text-subheading-xs text-text-sub-600'>Created By</div>
           <div className='text-paragraph-sm text-text-strong-950'>
-            {importData.createdByName}
+            {importData.createdByUser}
           </div>
         </div>
         <div>

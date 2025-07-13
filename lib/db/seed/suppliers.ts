@@ -34,13 +34,13 @@ export const suppliers = [
   {
     id: supplierIds.supplier1,
     code: 'SUP001',
-    name: 'PT Supplier Utama',
+    name: 'Eastern Equipment Ltd.',
     country: 'Indonesia',
     address: 'Jl. Supplier No. 123, Jakarta Pusat, DKI Jakarta 10110',
     city: 'Jakarta',
     province: 'DKI Jakarta',
     postalCode: '10110',
-    transactionCurrency: 'IDR',
+    transactionCurrency: 'RMB',
     isActive: true,
   },
   {
@@ -64,7 +64,7 @@ export const suppliers = [
     city: 'Bekasi',
     province: 'Jawa Barat',
     postalCode: '17111',
-    transactionCurrency: 'IDR',
+    transactionCurrency: 'USD',
     isActive: true,
   },
 ];

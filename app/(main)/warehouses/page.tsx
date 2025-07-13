@@ -14,6 +14,7 @@ import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
 import Header from '@/components/header';
+import { WarehousePreviewDrawer } from '@/components/warehouse-preview-drawer';
 
 import WarehousesTable from './warehouses-table';
 
@@ -46,6 +47,9 @@ export default function WarehousesPage() {
     total: 0,
     totalPages: 0,
   });
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
+    null,
+  );
 
   const [filters, setFilters] = useState<WarehousesFilters>({
     search: '',
@@ -116,6 +120,14 @@ export default function WarehousesPage() {
     };
     setFilters(clearedFilters);
     fetchWarehouses(1, clearedFilters);
+  };
+
+  const handleWarehouseClick = (warehouseId: string) => {
+    setSelectedWarehouseId(warehouseId);
+  };
+
+  const handleCloseDrawer = () => {
+    setSelectedWarehouseId(null);
   };
 
   return (
@@ -234,10 +246,17 @@ export default function WarehousesPage() {
               pagination={pagination}
               onPageChange={handlePageChange}
               onRefresh={() => fetchWarehouses(pagination.page)}
+              onWarehouseClick={handleWarehouseClick}
             />
           )}
         </div>
       </div>
+
+      <WarehousePreviewDrawer
+        warehouseId={selectedWarehouseId}
+        open={!!selectedWarehouseId}
+        onClose={handleCloseDrawer}
+      />
     </>
   );
 }

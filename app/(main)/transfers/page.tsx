@@ -8,6 +8,7 @@ import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
 import Header from '@/components/header';
+import { TransferPreviewDrawer } from '@/components/transfer-preview-drawer';
 
 import TransfersTable from './transfers-table';
 
@@ -64,6 +65,9 @@ export default function TransfersPage() {
     total: 0,
     totalPages: 0,
   });
+  const [selectedTransferId, setSelectedTransferId] = useState<string | null>(
+    null,
+  );
 
   const [filters, setFilters] = useState<TransfersFilters>({
     search: '',
@@ -166,6 +170,14 @@ export default function TransfersPage() {
     };
     setFilters(clearedFilters);
     fetchTransfers(1, clearedFilters);
+  };
+
+  const handleTransferClick = (transferId: string) => {
+    setSelectedTransferId(transferId);
+  };
+
+  const handleCloseDrawer = () => {
+    setSelectedTransferId(null);
   };
 
   return (
@@ -402,10 +414,17 @@ export default function TransfersPage() {
               pagination={pagination}
               onPageChange={handlePageChange}
               onRefresh={() => fetchTransfers(pagination.page)}
+              onTransferClick={handleTransferClick}
             />
           )}
         </div>
       </div>
+
+      <TransferPreviewDrawer
+        transferId={selectedTransferId}
+        open={!!selectedTransferId}
+        onClose={handleCloseDrawer}
+      />
     </>
   );
 }

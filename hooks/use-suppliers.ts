@@ -53,6 +53,9 @@ const fetchSuppliers = async (
   if (filters?.page) params.append('page', filters.page.toString());
   if (filters?.limit) params.append('limit', filters.limit.toString());
 
+  // Include inactive suppliers in table view
+  params.append('includeInactive', 'true');
+
   const response = await fetch(`/api/suppliers?${params.toString()}`);
   if (!response.ok) {
     throw new Error('Failed to fetch suppliers');

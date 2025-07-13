@@ -24,7 +24,6 @@ import {
 } from '@tanstack/react-table';
 
 import {
-  useDeleteSupplier,
   useSuppliers,
   type Supplier,
   type SuppliersResponse,
@@ -65,17 +64,6 @@ export function SuppliersTable({
 }: SuppliersTableProps) {
   const { data, isLoading, error } = useSuppliers(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const deleteSupplier = useDeleteSupplier();
-
-  const handleDelete = async (supplierId: string) => {
-    if (confirm('Are you sure you want to delete this supplier?')) {
-      try {
-        await deleteSupplier.mutateAsync(supplierId);
-      } catch (error) {
-        console.error('Error deleting supplier:', error);
-      }
-    }
-  };
 
   const columns: ColumnDef<Supplier>[] = [
     {
@@ -188,16 +176,6 @@ export function SuppliersTable({
             >
               <RiFileTextLine className='size-4' />
               Edit Supplier
-            </Dropdown.Item>
-            <Dropdown.Separator />
-            <Dropdown.Item
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(row.original.id);
-              }}
-              className='text-red-600'
-            >
-              Delete Supplier
             </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Root>

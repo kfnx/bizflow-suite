@@ -68,6 +68,7 @@ export async function PUT(
       contactPersons: contactPersonsData,
       paymentTerms,
       isPPN,
+      isActive,
     } = body;
 
     // Check if customer exists
@@ -102,6 +103,7 @@ export async function PUT(
         postalCode,
         paymentTerms,
         isPPN,
+        isActive,
         updatedAt: new Date(),
       })
       .where(eq(customers.id, params.id));
@@ -141,7 +143,7 @@ export async function DELETE(
   try {
     // Check if customer exists
     const existingCustomer = await db
-      .select({ id: customers.id })
+      .select()
       .from(customers)
       .where(eq(customers.id, params.id))
       .limit(1);
@@ -153,14 +155,20 @@ export async function DELETE(
       );
     }
 
-    // Delete customer
-    await db.delete(customers).where(eq(customers.id, params.id));
+    // Soft delete by setting isActive to false
+    await db
+      .update(customers)
+      .set({ isActive: false })
+      .where(eq(customers.id, params.id));
 
-    return NextResponse.json({ message: 'Customer deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting customer:', error);
     return NextResponse.json(
-      { error: 'Failed to delete customer' },
+      { message: 'Successfully set customer to inactive' },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error('Error setting customer to inactive:', error);
+    return NextResponse.json(
+      { error: 'Failed to set customer to inactive' },
       { status: 500 },
     );
   }

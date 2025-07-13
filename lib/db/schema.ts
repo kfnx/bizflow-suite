@@ -101,7 +101,7 @@ export const customers = mysqlTable(
       .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
-    type: varchar('type', { length: 50 }).default('individual'), // individual, company
+    type: varchar('type', { length: 50 }).notNull().default('individual'), // individual, company
     npwp: varchar('npwp', { length: 50 }),
     npwp16: varchar('npwp16', { length: 50 }),
     billingAddress: text('billing_address'),
@@ -113,6 +113,7 @@ export const customers = mysqlTable(
     postalCode: varchar('postal_code', { length: 20 }),
     paymentTerms: varchar('payment_terms', { length: 100 }), // NET 30, NET 15
     isPPN: boolean('is_ppn').default(false),
+    isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },

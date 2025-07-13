@@ -15,3 +15,8 @@ export enum INVOICE_STATUS {
   VOID = 'void',
   OVERDUE = 'overdue',
 }
+
+export enum CUSTOMER_TYPE {
+  INDIVIDUAL = 'individual',
+  COMPANY = 'company',
+}

@@ -79,7 +79,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
               {product.code} • {product.category || 'Uncategorized'}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {product.brand} {product.model}{' '}
+              {product.brandName} {product.model}{' '}
               {product.year && `(${product.year})`}
             </div>
           </div>
@@ -116,28 +116,13 @@ function ProductPreviewContent({ product }: { product: Product }) {
         </div>
 
         <div className='text-title-h4 text-text-strong-950'>
-          {formatCurrency(product.price, product.currency)}
-        </div>
-        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-          per {product.unit}
+          {formatCurrency(product.price, 'IDR')}
         </div>
       </div>
 
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Location
-          </div>
-          <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
-            <RiMapPinLine className='size-4 text-text-soft-400' />
-            {product.location || 'Not specified'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
             Supplier

@@ -45,6 +45,7 @@ interface TransfersTableProps {
   };
   onPageChange: (page: number) => void;
   onRefresh: () => void;
+  onTransferClick?: (transferId: string) => void;
 }
 
 export default function TransfersTable({
@@ -53,6 +54,7 @@ export default function TransfersTable({
   pagination,
   onPageChange,
   onRefresh,
+  onTransferClick,
 }: TransfersTableProps) {
   const router = useRouter();
 
@@ -153,7 +155,11 @@ export default function TransfersTable({
             const MovementIcon = getMovementTypeIcon(transfer.movementType);
 
             return (
-              <Table.Row key={transfer.id}>
+              <Table.Row
+                key={transfer.id}
+                className='hover:bg-gray-50 cursor-pointer'
+                onClick={() => onTransferClick?.(transfer.id)}
+              >
                 <Table.Cell>
                   <div className='flex items-center gap-3'>
                     <div
@@ -251,7 +257,10 @@ export default function TransfersTable({
                       variant='neutral'
                       mode='ghost'
                       size='small'
-                      onClick={() => router.push(`/transfers/${transfer.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/transfers/${transfer.id}`);
+                      }}
                     >
                       <RiEyeLine className='size-4' />
                     </Button.Root>

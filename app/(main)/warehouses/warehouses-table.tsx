@@ -37,6 +37,7 @@ interface WarehousesTableProps {
   };
   onPageChange: (page: number) => void;
   onRefresh: () => void;
+  onWarehouseClick?: (warehouseId: string) => void;
 }
 
 export default function WarehousesTable({
@@ -45,6 +46,7 @@ export default function WarehousesTable({
   pagination,
   onPageChange,
   onRefresh,
+  onWarehouseClick,
 }: WarehousesTableProps) {
   const router = useRouter();
 
@@ -110,7 +112,11 @@ export default function WarehousesTable({
         </Table.Header>
         <Table.Body>
           {warehouses.map((warehouse) => (
-            <Table.Row key={warehouse.id}>
+            <Table.Row
+              key={warehouse.id}
+              className='hover:bg-gray-50 cursor-pointer'
+              onClick={() => onWarehouseClick?.(warehouse.id)}
+            >
               <Table.Cell>
                 <div className='flex items-center gap-3'>
                   <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-inset ring-blue-200'>
@@ -172,7 +178,10 @@ export default function WarehousesTable({
                     variant='neutral'
                     mode='ghost'
                     size='small'
-                    onClick={() => router.push(`/warehouses/${warehouse.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/warehouses/${warehouse.id}`);
+                    }}
                   >
                     <RiEyeLine className='size-4' />
                   </Button.Root>
@@ -180,9 +189,10 @@ export default function WarehousesTable({
                     variant='neutral'
                     mode='ghost'
                     size='small'
-                    onClick={() =>
-                      router.push(`/warehouses/${warehouse.id}/edit`)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/warehouses/${warehouse.id}/edit`);
+                    }}
                   >
                     <RiEditLine className='size-4' />
                   </Button.Root>

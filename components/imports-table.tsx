@@ -26,9 +26,15 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 
+import {
+  useImports,
+  type Import,
+  type ImportsResponse,
+} from '@/hooks/use-imports';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
+import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
 
@@ -40,32 +46,27 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-interface ImportData {
-  id: string;
-  supplierId: string;
-  supplierName: string;
-  warehouseId: string;
-  warehouseName: string;
-  importDate: string;
-  invoiceNumber: string;
-  invoiceDate: string;
-  productId: string;
-  productName: string;
-  exchangeRateRMB: number;
-  priceRMB: number;
-  quantity: number;
-  total: number;
-  notes: string;
-  createdAt: string;
-  createdBy: string;
-  createdByName: string;
-}
+const statusConfig = {
+  pending: {
+    label: 'Pending',
+    variant: 'light' as const,
+    color: 'orange' as const,
+  },
+  verified: {
+    label: 'Verified',
+    variant: 'light' as const,
+    color: 'green' as const,
+  },
+  completed: {
+    label: 'Completed',
+    variant: 'light' as const,
+    color: 'blue' as const,
+  },
+};
 
 interface ImportsTableProps {
   filters: {
     search: string;
-    supplierId: string;
-    warehouseId: string;
     sortBy: string;
     page?: number;
     limit?: number;
@@ -81,21 +82,8 @@ export function ImportsTable({
   onLimitChange,
   onImportClick,
 }: ImportsTableProps) {
-  // TODO: Replace with actual API call
+  const { data, isLoading, error } = useImports(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const isLoading = false;
-  const error = null;
-
-  // Mock data for now
-  const data = {
-    data: [] as ImportData[],
-    pagination: {
-      page: 1,
-      limit: 10,
-      total: 0,
-      totalPages: 0,
-    },
-  };
 
   const handleDelete = async (importId: string) => {
     if (confirm('Are you sure you want to delete this import record?')) {
@@ -115,32 +103,7 @@ export function ImportsTable({
     }).format(amount);
   };
 
-  const columns: ColumnDef<ImportData>[] = [
-    {
-      id: 'invoiceNumber',
-      accessorKey: 'invoiceNumber',
-      header: ({ column }) => (
-        <div className='flex items-center gap-0.5'>
-          Invoice
-          <button
-            type='button'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {getSortingIcon(column.getIsSorted())}
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className='flex flex-col'>
-          <div className='text-text-900 text-paragraph-sm font-medium'>
-            {row.original.invoiceNumber}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            {new Date(row.original.invoiceDate).toLocaleDateString()}
-          </div>
-        </div>
-      ),
-    },
+  const columns: ColumnDef<Import>[] = [
     {
       id: 'supplier',
       accessorKey: 'supplierName',
@@ -180,29 +143,25 @@ export function ImportsTable({
       ),
     },
     {
-      id: 'product',
-      accessorKey: 'productName',
-      header: 'Product',
-      cell: ({ row }) => (
-        <div className='flex items-center gap-2'>
-          <RiBox3Line className='size-4 text-text-sub-600' />
-          <div className='flex flex-col'>
-            <div className='text-paragraph-sm text-text-sub-600'>
-              {row.original.productName}
-            </div>
-            <div className='text-paragraph-xs text-text-soft-400'>
-              Qty: {row.original.quantity}
-            </div>
-          </div>
-        </div>
-      ),
+      id: 'status',
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const config =
+          statusConfig[row.original.status as keyof typeof statusConfig];
+        return (
+          <Badge.Root variant={config?.variant} color={config?.color}>
+            {config?.label || row.original.status}
+          </Badge.Root>
+        );
+      },
     },
     {
-      id: 'pricing',
-      accessorKey: 'priceRMB',
+      id: 'subtotal',
+      accessorKey: 'subtotal',
       header: ({ column }) => (
         <div className='flex items-center gap-0.5'>
-          Price
+          Subtotal (RMB)
           <button
             type='button'
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -214,7 +173,7 @@ export function ImportsTable({
       cell: ({ row }) => (
         <div className='flex flex-col'>
           <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(row.original.priceRMB)}
+            {formatCurrency(row.original.subtotal)}
           </div>
           <div className='text-paragraph-xs text-text-soft-400'>
             Rate: {row.original.exchangeRateRMB}

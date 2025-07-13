@@ -113,6 +113,10 @@ export function ProductsTable({
   const [quickViewProduct, setQuickViewProduct] =
     React.useState<Product | null>(null);
 
+  const handleRowClick = (product: Product) => {
+    setQuickViewProduct(product);
+  };
+
   const columns: ColumnDef<Product>[] = [
     {
       id: 'name',
@@ -159,7 +163,7 @@ export function ProductsTable({
             {row.original.category || '-'}
           </div>
           <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.brand} {row.original.model}
+            {row.original.brandName} {row.original.model}
           </div>
         </div>
       ),
@@ -195,19 +199,6 @@ export function ProductsTable({
       },
     },
     {
-      id: 'location',
-      accessorKey: 'location',
-      header: 'Location',
-      cell: ({ row }) => (
-        <div className='flex items-center gap-1'>
-          <RiMapPinLine className='size-4 text-text-soft-400' />
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.location || '-'}
-          </div>
-        </div>
-      ),
-    },
-    {
       id: 'supplier',
       accessorKey: 'supplierName',
       header: 'Supplier',
@@ -237,10 +228,7 @@ export function ProductsTable({
       cell: ({ row }) => (
         <div className='text-right'>
           <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(row.original.price, row.original.currency)}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            per {row.original.unit}
+            {formatCurrency(row.original.price, 'IDR')}
           </div>
         </div>
       ),
@@ -251,27 +239,38 @@ export function ProductsTable({
       cell: ({ row }) => (
         <Dropdown.Root>
           <Dropdown.Trigger asChild>
-            <Button.Root mode='ghost' className='h-8 w-8 p-0'>
+            <Button.Root
+              mode='ghost'
+              className='h-8 w-8 p-0'
+              onClick={(e) => e.stopPropagation()}
+            >
               <span className='sr-only'>Open menu</span>
               <RiMoreLine className='h-4 w-4' />
             </Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align='end'>
-            <Dropdown.Item onClick={() => setQuickViewProduct(row.original)}>
+            <Dropdown.Item
+              onClick={(e) => {
+                e.stopPropagation();
+                setQuickViewProduct(row.original);
+              }}
+            >
               <RiEyeLine className='mr-2 size-4' />
               Quick View
             </Dropdown.Item>
             <Dropdown.Item
-              onClick={() =>
-                window.open(`/products/${row.original.id}`, '_blank')
-              }
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(`/products/${row.original.id}`, '_blank');
+              }}
             >
               View Details
             </Dropdown.Item>
             <Dropdown.Item
-              onClick={() =>
-                window.open(`/products/${row.original.id}/edit`, '_blank')
-              }
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(`/products/${row.original.id}/edit`, '_blank');
+              }}
             >
               Edit
             </Dropdown.Item>
@@ -357,6 +356,8 @@ export function ProductsTable({
                 <Table.Row
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className='hover:bg-gray-50 cursor-pointer'
+                  onClick={() => handleRowClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <Table.Cell key={cell.id}>

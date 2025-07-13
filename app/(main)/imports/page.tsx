@@ -13,9 +13,8 @@ import { Filters, type ImportsFilters } from './filters';
 export default function PageImports() {
   const [filters, setFilters] = useState<ImportsFilters>({
     search: '',
-    supplierId: 'all',
-    warehouseId: 'all',
-    sortBy: 'newest-first',
+    status: 'all',
+    sortBy: 'date-desc',
     page: 1,
     limit: 10,
   });

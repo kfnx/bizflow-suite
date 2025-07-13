@@ -64,7 +64,7 @@ export default function EditSupplierPage({ params }: EditSupplierPageProps) {
     province: '',
     country: '',
     postalCode: '',
-    transactionCurrency: 'USD',
+    transactionCurrency: 'RMB',
     isActive: true,
     contactPersons: [{ name: '', email: '', phone: '' }],
   });
@@ -287,6 +287,7 @@ export default function EditSupplierPage({ params }: EditSupplierPageProps) {
                   </Label.Root>
                   <Select.Root
                     value={formData.transactionCurrency}
+                    defaultValue='RMB'
                     onValueChange={(value) =>
                       handleInputChange('transactionCurrency', value)
                     }
@@ -296,12 +297,11 @@ export default function EditSupplierPage({ params }: EditSupplierPageProps) {
                       <Select.Value placeholder='Select currency' />
                     </Select.Trigger>
                     <Select.Content>
+                      <Select.Item value='RMB'>RMB</Select.Item>
                       <Select.Item value='USD'>USD</Select.Item>
                       <Select.Item value='EUR'>EUR</Select.Item>
                       <Select.Item value='IDR'>IDR</Select.Item>
-                      <Select.Item value='JPY'>JPY</Select.Item>
                       <Select.Item value='CNY'>CNY</Select.Item>
-                      <Select.Item value='KRW'>KRW</Select.Item>
                       <Select.Item value='SGD'>SGD</Select.Item>
                     </Select.Content>
                   </Select.Root>

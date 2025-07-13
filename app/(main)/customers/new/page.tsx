@@ -257,7 +257,7 @@ export default function NewCustomerPage() {
                       handleInputChange('isPPN', Boolean(checked))
                     }
                   />
-                  <Label.Root htmlFor='isPPN'>PPN Customer</Label.Root>
+                  <Label.Root htmlFor='isPPN'>Include PPN</Label.Root>
                 </div>
               </div>
             </div>

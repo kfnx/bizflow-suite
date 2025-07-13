@@ -64,6 +64,12 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
             <Badge.Root variant='light' color={config?.color}>
               {config?.label || customer.type}
             </Badge.Root>
+            <Badge.Root
+              variant='light'
+              color={customer.isActive ? 'green' : 'gray'}
+            >
+              {customer.isActive ? 'Active' : 'Inactive'}
+            </Badge.Root>
             {customer.isPPN && (
               <Badge.Root variant='light' color='green'>
                 PPN
@@ -89,10 +95,21 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
 
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Status
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {customer.isActive ? 'Active Customer' : 'Inactive Customer'}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
             PPN Status
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {customer.isPPN ? 'PPN Customer' : 'Non-PPN Customer'}
+            {customer.isPPN ? 'Include PPN' : 'no PPN'}
           </div>
         </div>
 

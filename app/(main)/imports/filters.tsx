@@ -18,8 +18,7 @@ import IconCmd from '~/icons/icon-cmd.svg';
 
 export interface ImportsFilters {
   search: string;
-  supplierId: string;
-  warehouseId: string;
+  status: string;
   sortBy: string;
   page?: number;
   limit?: number;
@@ -32,9 +31,8 @@ interface FiltersProps {
 export function Filters({ onFiltersChange }: FiltersProps) {
   const [filters, setFilters] = useState<ImportsFilters>({
     search: '',
-    supplierId: 'all',
-    warehouseId: 'all',
-    sortBy: 'newest-first',
+    status: 'all',
+    sortBy: 'date-desc',
     page: 1,
     limit: 10,
   });
@@ -51,20 +49,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
   const handleSearchChange = useCallback(
     (value: string) => {
       handleFiltersChange({ search: value, page: 1 });
-    },
-    [handleFiltersChange],
-  );
-
-  const handleSupplierChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ supplierId: value, page: 1 });
-    },
-    [handleFiltersChange],
-  );
-
-  const handleWarehouseChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ warehouseId: value, page: 1 });
     },
     [handleFiltersChange],
   );
@@ -92,9 +76,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
   const filterActive =
     filters.search ||
-    filters.supplierId !== 'all' ||
-    filters.warehouseId !== 'all' ||
-    filters.sortBy !== 'newest-first' ||
+    filters.status !== 'all' ||
+    filters.sortBy !== 'date-desc' ||
     filters.page !== 1 ||
     filters.limit !== 10;
 
@@ -121,42 +104,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
       {/* Filters */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
-        {/* Supplier Filter */}
-        <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Supplier:</span>
-          <Select.Root
-            value={filters.supplierId}
-            onValueChange={handleSupplierChange}
-          >
-            <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
-              <Select.Value placeholder='All Suppliers' />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value='all'>All Suppliers</Select.Item>
-              {/* TODO: Add dynamic supplier options */}
-            </Select.Content>
-          </Select.Root>
-        </div>
-
-        {/* Warehouse Filter */}
-        <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>
-            Warehouse:
-          </span>
-          <Select.Root
-            value={filters.warehouseId}
-            onValueChange={handleWarehouseChange}
-          >
-            <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
-              <Select.Value placeholder='All Warehouses' />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value='all'>All Warehouses</Select.Item>
-              {/* TODO: Add dynamic warehouse options */}
-            </Select.Content>
-          </Select.Root>
-        </div>
-
         {/* Sort Filter */}
         <div className='flex items-center gap-2'>
           <span className='text-paragraph-sm text-text-sub-600'>Sort by:</span>
@@ -166,18 +113,14 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               <Select.Value placeholder='Sort by' />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value='newest-first'>Newest First</Select.Item>
-              <Select.Item value='oldest-first'>Oldest First</Select.Item>
-              <Select.Item value='invoice-asc'>
-                Invoice Number (A-Z)
-              </Select.Item>
-              <Select.Item value='invoice-desc'>
-                Invoice Number (Z-A)
-              </Select.Item>
+              <Select.Item value='date-desc'>Newest First</Select.Item>
+              <Select.Item value='date-asc'>Oldest First</Select.Item>
+              <Select.Item value='status-asc'>Status (A-Z)</Select.Item>
+              <Select.Item value='status-desc'>Status (Z-A)</Select.Item>
               <Select.Item value='supplier-asc'>Supplier (A-Z)</Select.Item>
               <Select.Item value='supplier-desc'>Supplier (Z-A)</Select.Item>
-              <Select.Item value='amount-asc'>Amount (Low-High)</Select.Item>
-              <Select.Item value='amount-desc'>Amount (High-Low)</Select.Item>
+              <Select.Item value='total-asc'>Amount (Low-High)</Select.Item>
+              <Select.Item value='total-desc'>Amount (High-Low)</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>
@@ -189,9 +132,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           onClick={() => {
             const clearedFilters = {
               search: '',
-              supplierId: 'all',
-              warehouseId: 'all',
-              sortBy: 'newest-first',
+              status: 'all',
+              sortBy: 'date-desc',
               page: 1,
               limit: 10,
             };

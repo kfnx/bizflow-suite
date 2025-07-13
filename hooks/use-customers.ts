@@ -18,6 +18,7 @@ export type Customer = {
   postalCode?: string;
   paymentTerms?: string;
   isPPN?: boolean;
+  isActive?: boolean;
   contactPersons?: Array<{
     id: string;
     name: string;
@@ -57,6 +58,9 @@ const fetchCustomers = async (
   if (filters.sortBy) params.append('sortBy', filters.sortBy);
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());
+
+  // Include inactive customers in table view
+  params.append('includeInactive', 'true');
 
   const response = await fetch(`/api/customers?${params.toString()}`);
   if (!response.ok) {

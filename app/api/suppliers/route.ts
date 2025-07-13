@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const search = searchParams.get('search');
     const country = searchParams.get('country');
+    const includeInactive = searchParams.get('includeInactive') === 'true';
     const sortBy = searchParams.get('sortBy') || 'newest-first';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -19,6 +20,11 @@ export async function GET(request: NextRequest) {
 
     // Build where conditions
     const whereConditions = [];
+
+    // By default, only include active suppliers unless explicitly requested
+    if (!includeInactive) {
+      whereConditions.push(eq(suppliers.isActive, true));
+    }
 
     if (search) {
       whereConditions.push(

@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const search = searchParams.get('search');
     const type = searchParams.get('type');
+    const includeInactive = searchParams.get('includeInactive') === 'true';
     const sortBy = searchParams.get('sortBy') || 'newest-first';
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
@@ -19,6 +20,11 @@ export async function GET(request: NextRequest) {
 
     // Build query conditions
     const conditions: any[] = [];
+
+    // By default, only include active customers unless explicitly requested
+    if (!includeInactive) {
+      conditions.push(eq(customers.isActive, true));
+    }
 
     if (search) {
       conditions.push(
@@ -50,6 +56,8 @@ export async function GET(request: NextRequest) {
         type: customers.type,
         city: customers.city,
         country: customers.country,
+        isPPN: customers.isPPN,
+        isActive: customers.isActive,
         createdAt: customers.createdAt,
       })
       .from(customers)

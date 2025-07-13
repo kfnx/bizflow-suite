@@ -26,7 +26,6 @@ import {
 
 import {
   useCustomers,
-  useDeleteCustomer,
   type Customer,
   type CustomersResponse,
 } from '@/hooks/use-customers';
@@ -79,17 +78,6 @@ export function CustomersTable({
 }: CustomersTableProps) {
   const { data, isLoading, error } = useCustomers(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const deleteCustomer = useDeleteCustomer();
-
-  const handleDelete = async (customerId: string) => {
-    if (confirm('Are you sure you want to delete this customer?')) {
-      try {
-        await deleteCustomer.mutateAsync(customerId);
-      } catch (error) {
-        console.error('Error deleting customer:', error);
-      }
-    }
-  };
 
   const columns: ColumnDef<Customer>[] = [
     {
@@ -168,13 +156,46 @@ export function CustomersTable({
     {
       id: 'ppn',
       accessorKey: 'isPPN',
-      header: 'PPN',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          PPN
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
       cell: ({ row }) => (
         <Badge.Root
           variant='light'
           color={row.original.isPPN ? 'green' : 'gray'}
         >
           {row.original.isPPN ? 'Yes' : 'No'}
+        </Badge.Root>
+      ),
+    },
+    {
+      id: 'status',
+      accessorKey: 'isActive',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Status
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <Badge.Root
+          variant='light'
+          color={row.original.isActive ? 'green' : 'gray'}
+        >
+          {row.original.isActive ? 'Active' : 'Inactive'}
         </Badge.Root>
       ),
     },
@@ -222,16 +243,6 @@ export function CustomersTable({
             >
               <RiFileTextLine className='size-4' />
               Edit Customer
-            </Dropdown.Item>
-            <Dropdown.Separator />
-            <Dropdown.Item
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(row.original.id);
-              }}
-              className='text-red-600'
-            >
-              Delete Customer
             </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Root>

@@ -38,6 +38,7 @@ interface EditCustomerData {
   postalCode: string;
   paymentTerms: string;
   isPPN: boolean;
+  isActive: boolean;
   contactPersons: Array<{
     id?: string;
     name: string;
@@ -76,6 +77,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     postalCode: '',
     paymentTerms: '',
     isPPN: false,
+    isActive: true,
     contactPersons: [{ name: '', email: '', phone: '' }],
   });
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
       setFormData({
         code: customerData.code || '',
         name: customerData.name || '',
-        type: customerData.type || 'individual',
+        type: customerData.type || 'individual', // This should work
         npwp: customerData.npwp || '',
         npwp16: customerData.npwp16 || '',
         billingAddress: customerData.billingAddress || '',
@@ -101,6 +103,8 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
         postalCode: customerData.postalCode || '',
         paymentTerms: customerData.paymentTerms || '',
         isPPN: customerData.isPPN || false,
+        isActive:
+          customerData.isActive !== undefined ? customerData.isActive : true,
         contactPersons:
           customerData.contactPersons && customerData.contactPersons.length > 0
             ? customerData.contactPersons.map((cp) => ({
@@ -297,10 +301,12 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
               <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='type'>
-                    Customer Type <Label.Asterisk />
+                    Customer Type
+                    <Label.Asterisk />
                   </Label.Root>
                   <Select.Root
                     value={formData.type}
+                    defaultValue='individual'
                     onValueChange={(value) => handleInputChange('type', value)}
                   >
                     <Select.Trigger>
@@ -332,7 +338,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
                 </div>
               </div>
 
-              <div className='mt-6'>
+              <div className='mt-6 space-y-4'>
                 <div className='flex items-center gap-2'>
                   <Checkbox.Root
                     id='isPPN'
@@ -341,7 +347,18 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
                       handleInputChange('isPPN', Boolean(checked))
                     }
                   />
-                  <Label.Root htmlFor='isPPN'>PPN Customer</Label.Root>
+                  <Label.Root htmlFor='isPPN'>Include PPN</Label.Root>
+                </div>
+
+                <div className='flex items-center gap-2'>
+                  <Checkbox.Root
+                    id='isActive'
+                    checked={formData.isActive}
+                    onCheckedChange={(checked) =>
+                      handleInputChange('isActive', Boolean(checked))
+                    }
+                  />
+                  <Label.Root htmlFor='isActive'>Active Customer</Label.Root>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import {
   RiArrowUpSFill,
   RiBuildingLine,
   RiExpandUpDownFill,
+  RiEyeLine,
   RiFileTextLine,
   RiMapPinLine,
   RiMoreLine,
@@ -34,6 +35,7 @@ import * as Dropdown from '@/components/ui/dropdown';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
+import { ProductPreviewDrawer } from '@/components/product-preview-drawer';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -108,6 +110,8 @@ export function ProductsTable({
 }: ProductsTableProps) {
   const { data, isLoading, error } = useProducts(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [quickViewProduct, setQuickViewProduct] =
+    React.useState<Product | null>(null);
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -253,6 +257,10 @@ export function ProductsTable({
             </Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align='end'>
+            <Dropdown.Item onClick={() => setQuickViewProduct(row.original)}>
+              <RiEyeLine className='mr-2 size-4' />
+              Quick View
+            </Dropdown.Item>
             <Dropdown.Item
               onClick={() =>
                 window.open(`/products/${row.original.id}`, '_blank')
@@ -324,54 +332,68 @@ export function ProductsTable({
   }
 
   return (
-    <div className='space-y-4'>
-      <Table.Root>
-        <Table.Header>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <Table.Row key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <Table.Head key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </Table.Head>
-              ))}
-            </Table.Row>
-          ))}
-        </Table.Header>
-        <Table.Body>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <Table.Row
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <Table.Cell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Table.Cell>
+    <>
+      <div className='space-y-4'>
+        <Table.Root>
+          <Table.Header>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <Table.Row key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <Table.Head key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </Table.Head>
                 ))}
               </Table.Row>
-            ))
-          ) : (
-            <Table.Row>
-              <Table.Cell colSpan={columns.length} className='h-24 text-center'>
-                No results.
-              </Table.Cell>
-            </Table.Row>
-          )}
-        </Table.Body>
-      </Table.Root>
+            ))}
+          </Table.Header>
+          <Table.Body>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <Table.Row
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <Table.Cell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </Table.Cell>
+                  ))}
+                </Table.Row>
+              ))
+            ) : (
+              <Table.Row>
+                <Table.Cell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  No results.
+                </Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table.Root>
 
-      <ProductsTablePagination
-        data={data.pagination}
-        onPageChange={onPageChange}
-        onLimitChange={onLimitChange}
+        <ProductsTablePagination
+          data={data.pagination}
+          onPageChange={onPageChange}
+          onLimitChange={onLimitChange}
+        />
+      </div>
+
+      <ProductPreviewDrawer
+        product={quickViewProduct}
+        open={!!quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
       />
-    </div>
+    </>
   );
 }
 

@@ -29,6 +29,11 @@ export const unitOfMeasures: NewUnitOfMeasure[] = [
     name: 'Ton',
   },
   {
+    id: 'box',
+    abbreviation: 'box',
+    name: 'Box',
+  },
+  {
     id: 'set',
     abbreviation: 'set',
     name: 'Set',

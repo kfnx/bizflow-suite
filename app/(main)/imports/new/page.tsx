@@ -4,14 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
-  RiBox3Line,
   RiBuildingLine,
   RiCalendarLine,
   RiDeleteBinLine,
-  RiGlobalLine,
-  RiHashtag,
+  RiExchangeCnyLine,
   RiImportLine,
-  RiMoneyDollarCircleLine,
   RiReceiptLine,
   RiStoreLine,
 } from '@remixicon/react';
@@ -57,6 +54,8 @@ interface ProductItem {
   itemName?: string;
   batchOrLotNumber?: string;
   itemDescription?: string;
+  modelNumber?: string;
+  brand?: string;
 }
 
 interface ImportFormData {
@@ -107,6 +106,7 @@ interface ProductItemFormProps {
   unitOfMeasures: UnitOfMeasure[];
   canRemove: boolean;
   validationErrors: Record<string, string>;
+  exchangeRateRMB: string;
 }
 
 function ProductItemForm({
@@ -119,20 +119,19 @@ function ProductItemForm({
   unitOfMeasures,
   canRemove,
   validationErrors,
+  exchangeRateRMB,
 }: ProductItemFormProps) {
   const handleFieldChange = (field: keyof ProductItem, value: any) => {
     onUpdate({ ...item, [field]: value });
   };
-
   const getFieldError = (field: string) => {
     return validationErrors[`items.${index}.${field}`];
   };
-
   return (
     <div className='rounded-lg border border-stroke-soft-200 p-6'>
       <div className='mb-4 flex items-center justify-between'>
         <h4 className='text-base text-gray-900 font-medium'>
-          Product {index + 1}
+          Item #{index + 1}
         </h4>
         {canRemove && (
           <Button.Root
@@ -146,114 +145,103 @@ function ProductItemForm({
           </Button.Root>
         )}
       </div>
-
-      <div className='space-y-6'>
-        {/* Basic Information */}
+      <div className='mb-4 grid grid-cols-1 gap-6 sm:grid-cols-3'>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`category-${index}`}>
+            Type <Label.Asterisk />
+          </Label.Root>
+          <Select.Root
+            value={item.category}
+            onValueChange={(value) => handleFieldChange('category', value)}
+          >
+            <Select.Trigger>
+              <Select.Value placeholder='Select type' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='serialized'>Serialized</Select.Item>
+              <Select.Item value='non_serialized'>Non-Serialized</Select.Item>
+              <Select.Item value='bulk'>Bulk</Select.Item>
+            </Select.Content>
+          </Select.Root>
+        </div>
+      </div>
+      {/* Category-specific fields */}
+      {item.category === 'serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`code-${index}`}>
-              Product Code <Label.Asterisk />
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Icon as={RiHashtag} />
-                <Input.Input
-                  id={`code-${index}`}
-                  value={item.code}
-                  onChange={(e) => handleFieldChange('code', e.target.value)}
-                  placeholder='Enter product code'
-                  required
-                />
-              </Input.Wrapper>
-            </Input.Root>
-            {getFieldError('code') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('code')}
-              </div>
-            )}
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`name-${index}`}>
-              Product Name <Label.Asterisk />
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Icon as={RiBox3Line} />
-                <Input.Input
-                  id={`name-${index}`}
-                  value={item.name}
-                  onChange={(e) => handleFieldChange('name', e.target.value)}
-                  placeholder='Enter product name'
-                  required
-                />
-              </Input.Wrapper>
-            </Input.Root>
-            {getFieldError('name') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('name')}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Category Selection */}
-        <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`category-${index}`}>
-              Category <Label.Asterisk />
+            <Label.Root>
+              Machine Type <Label.Asterisk />
             </Label.Root>
             <Select.Root
-              value={item.category}
-              onValueChange={(value) => handleFieldChange('category', value)}
-            >
-              <Select.Trigger>
-                <Select.TriggerIcon as={RiBox3Line} />
-                <Select.Value placeholder='Select category' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='serialized'>Serialized</Select.Item>
-                <Select.Item value='non_serialized'>Non-Serialized</Select.Item>
-                <Select.Item value='bulk'>Bulk</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`condition-${index}`}>
-              Condition <Label.Asterisk />
-            </Label.Root>
-            <Select.Root
-              value={item.condition}
-              onValueChange={(value) => handleFieldChange('condition', value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Select condition' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='new'>New</Select.Item>
-                <Select.Item value='used'>Used</Select.Item>
-                <Select.Item value='refurbished'>Refurbished</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`brand-${index}`}>Brand</Label.Root>
-            <Select.Root
-              value={item.brandId || 'none'}
+              value={item.machineTypeId || ''}
               onValueChange={(value) =>
-                handleFieldChange(
-                  'brandId',
-                  value === 'none' ? undefined : value,
-                )
+                handleFieldChange('machineTypeId', value)
               }
+            >
+              <Select.Trigger>
+                <Select.Value placeholder='Select type' />
+              </Select.Trigger>
+              <Select.Content>
+                {machineTypes.map((type) => (
+                  <Select.Item key={type.id} value={type.id}>
+                    {type.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Model Number</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.modelNumber || ''}
+                  onChange={(e) =>
+                    handleFieldChange('modelNumber', e.target.value)
+                  }
+                  placeholder='e.g. SD32'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Machine Number</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.machineNumber || ''}
+                  onChange={(e) =>
+                    handleFieldChange('machineNumber', e.target.value)
+                  }
+                  placeholder='Serial/Machine Number'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Engine Number</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.engineNumber || ''}
+                  onChange={(e) =>
+                    handleFieldChange('engineNumber', e.target.value)
+                  }
+                  placeholder='Engine Number'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Brand</Label.Root>
+            <Select.Root
+              value={item.brandId || ''}
+              onValueChange={(value) => handleFieldChange('brandId', value)}
             >
               <Select.Trigger>
                 <Select.Value placeholder='Select brand' />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value='none'>No brand</Select.Item>
                 {brands.map((brand) => (
                   <Select.Item key={brand.id} value={brand.id}>
                     {brand.name}
@@ -263,231 +251,239 @@ function ProductItemForm({
             </Select.Root>
           </div>
         </div>
-
-        {/* Category-specific fields */}
-        {item.category === 'serialized' && (
-          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-            <div className='flex flex-col gap-2'>
-              <Label.Root htmlFor={`machineType-${index}`}>
-                Machine Type <Label.Asterisk />
-              </Label.Root>
-              <Select.Root
-                value={item.machineTypeId || ''}
-                onValueChange={(value) =>
-                  handleFieldChange('machineTypeId', value)
-                }
-              >
-                <Select.Trigger>
-                  <Select.Value placeholder='Select machine type' />
-                </Select.Trigger>
-                <Select.Content>
-                  {machineTypes.map((type) => (
-                    <Select.Item key={type.id} value={type.id}>
-                      {type.name}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-              {getFieldError('machineTypeId') && (
-                <div className='text-xs text-red-600'>
-                  {getFieldError('machineTypeId')}
-                </div>
-              )}
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <Label.Root htmlFor={`serialNumber-${index}`}>
-                Serial Number
-              </Label.Root>
-              <Input.Root>
-                <Input.Wrapper>
-                  <Input.Input
-                    id={`serialNumber-${index}`}
-                    value={item.serialNumber || ''}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        'serialNumber',
-                        e.target.value || undefined,
-                      )
-                    }
-                    placeholder='Enter serial number'
-                  />
-                </Input.Wrapper>
-              </Input.Root>
-            </div>
-          </div>
-        )}
-
-        {(item.category === 'non_serialized' || item.category === 'bulk') && (
-          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-            <div className='flex flex-col gap-2'>
-              <Label.Root htmlFor={`unitOfMeasure-${index}`}>
-                Unit of Measure <Label.Asterisk />
-              </Label.Root>
-              <Select.Root
-                value={item.unitOfMeasureId || ''}
-                onValueChange={(value) =>
-                  handleFieldChange('unitOfMeasureId', value)
-                }
-              >
-                <Select.Trigger>
-                  <Select.Value placeholder='Select unit' />
-                </Select.Trigger>
-                <Select.Content>
-                  {unitOfMeasures.map((unit) => (
-                    <Select.Item key={unit.id} value={unit.id}>
-                      {unit.name} ({unit.abbreviation})
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-              {getFieldError('unitOfMeasureId') && (
-                <div className='text-xs text-red-600'>
-                  {getFieldError('unitOfMeasureId')}
-                </div>
-              )}
-            </div>
-
-            {item.category === 'non_serialized' && (
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor={`itemName-${index}`}>
-                  Item Name <Label.Asterisk />
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Input
-                      id={`itemName-${index}`}
-                      value={item.itemName || ''}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          'itemName',
-                          e.target.value || undefined,
-                        )
-                      }
-                      placeholder='Enter item name'
-                      required
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-                {getFieldError('itemName') && (
-                  <div className='text-xs text-red-600'>
-                    {getFieldError('itemName')}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Pricing and Quantity */}
-        <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
+      )}
+      {item.category === 'non_serialized' && (
+        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`quantity-${index}`}>
-              Quantity <Label.Asterisk />
-            </Label.Root>
+            <Label.Root>Unit</Label.Root>
+            <Select.Root
+              value={item.unitOfMeasureId || ''}
+              onValueChange={(value) =>
+                handleFieldChange('unitOfMeasureId', value)
+              }
+            >
+              <Select.Trigger>
+                <Select.Value placeholder='Select unit' />
+              </Select.Trigger>
+              <Select.Content>
+                {unitOfMeasures.map((unit) => (
+                  <Select.Item key={unit.id} value={unit.id}>
+                    {unit.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Item Name</Label.Root>
             <Input.Root>
               <Input.Wrapper>
-                <Input.Icon as={RiHashtag} />
                 <Input.Input
-                  id={`quantity-${index}`}
-                  type='number'
-                  min='1'
-                  value={item.quantity}
+                  value={item.itemName || ''}
                   onChange={(e) =>
-                    handleFieldChange('quantity', e.target.value)
+                    handleFieldChange('itemName', e.target.value)
                   }
-                  placeholder='Enter quantity'
-                  required
+                  placeholder='e.g. Bulldozer Blade'
                 />
               </Input.Wrapper>
             </Input.Root>
-            {getFieldError('quantity') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('quantity')}
-              </div>
-            )}
           </div>
-
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`priceRMB-${index}`}>
-              Price (RMB) <Label.Asterisk />
-            </Label.Root>
+            <Label.Root>Batch/Lot Number</Label.Root>
             <Input.Root>
               <Input.Wrapper>
-                <Input.Icon as={RiMoneyDollarCircleLine} />
                 <Input.Input
-                  id={`priceRMB-${index}`}
-                  type='number'
-                  step='0.01'
-                  min='0'
-                  value={item.priceRMB}
+                  value={item.batchOrLotNumber || ''}
                   onChange={(e) =>
-                    handleFieldChange('priceRMB', e.target.value)
+                    handleFieldChange('batchOrLotNumber', e.target.value)
                   }
-                  placeholder='Enter price in RMB'
-                  required
+                  placeholder='Batch or Lot Number'
                 />
               </Input.Wrapper>
             </Input.Root>
-            {getFieldError('priceRMB') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('priceRMB')}
-              </div>
-            )}
           </div>
-
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`year-${index}`}>Year</Label.Root>
+            <Label.Root>Description</Label.Root>
             <Input.Root>
               <Input.Wrapper>
-                <Input.Icon as={RiCalendarLine} />
                 <Input.Input
-                  id={`year-${index}`}
-                  type='number'
-                  min='1900'
-                  max='2100'
-                  value={item.year || ''}
+                  value={item.itemDescription || ''}
                   onChange={(e) =>
-                    handleFieldChange('year', e.target.value || undefined)
+                    handleFieldChange('itemDescription', e.target.value)
                   }
-                  placeholder='Enter year'
+                  placeholder='Item description'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Brand</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.brand || ''}
+                  onChange={(e) => handleFieldChange('brand', e.target.value)}
+                  placeholder='Brand'
                 />
               </Input.Wrapper>
             </Input.Root>
           </div>
         </div>
-
-        {/* Description and Notes */}
+      )}
+      {item.category === 'bulk' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`description-${index}`}>
-              Description
-            </Label.Root>
-            <TextArea.Root
-              id={`description-${index}`}
-              value={item.description || ''}
-              onChange={(e) =>
-                handleFieldChange('description', e.target.value || undefined)
+            <Label.Root>Unit</Label.Root>
+            <Select.Root
+              value={item.unitOfMeasureId || ''}
+              onValueChange={(value) =>
+                handleFieldChange('unitOfMeasureId', value)
               }
-              rows={3}
-              placeholder='Enter product description'
-              simple
-            />
+            >
+              <Select.Trigger>
+                <Select.Value placeholder='Select unit' />
+              </Select.Trigger>
+              <Select.Content>
+                {unitOfMeasures.map((unit) => (
+                  <Select.Item key={unit.id} value={unit.id}>
+                    {unit.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
           </div>
-
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
-            <TextArea.Root
-              id={`notes-${index}`}
-              value={item.notes || ''}
-              onChange={(e) =>
-                handleFieldChange('notes', e.target.value || undefined)
-              }
-              rows={3}
-              placeholder='Enter additional notes'
-              simple
-            />
+            <Label.Root>Model/Part Number</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.modelOrPartNumber || ''}
+                  onChange={(e) =>
+                    handleFieldChange('modelOrPartNumber', e.target.value)
+                  }
+                  placeholder='Part Number'
+                />
+              </Input.Wrapper>
+            </Input.Root>
           </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Batch/Lot Number</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.batchOrLotNumber || ''}
+                  onChange={(e) =>
+                    handleFieldChange('batchOrLotNumber', e.target.value)
+                  }
+                  placeholder='Batch or Lot Number'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Description</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.itemDescription || ''}
+                  onChange={(e) =>
+                    handleFieldChange('itemDescription', e.target.value)
+                  }
+                  placeholder='Item description'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label.Root>Brand</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  value={item.brand || ''}
+                  onChange={(e) => handleFieldChange('brand', e.target.value)}
+                  placeholder='Brand'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+        </div>
+      )}
+      {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
+      <div className='mt-4 grid grid-cols-1 gap-6 sm:grid-cols-5'>
+        <div className='flex flex-col gap-2'>
+          <Label.Root>QTY</Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                type='number'
+                min='1'
+                value={item.quantity}
+                onChange={(e) => handleFieldChange('quantity', e.target.value)}
+              />
+            </Input.Wrapper>
+          </Input.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root>Unit Price (RMB)</Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                type='number'
+                min='0'
+                value={item.priceRMB}
+                onChange={(e) => handleFieldChange('priceRMB', e.target.value)}
+              />
+            </Input.Wrapper>
+          </Input.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root>Total (RMB)</Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                type='number'
+                min='0'
+                value={String(
+                  (parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0),
+                )}
+                readOnly
+              />
+            </Input.Wrapper>
+          </Input.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root>Unit (IDR)</Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                type='number'
+                min='0'
+                value={String(
+                  (parseFloat(item.priceRMB) || 0) *
+                    (parseFloat(exchangeRateRMB) || 0),
+                )}
+                readOnly
+              />
+            </Input.Wrapper>
+          </Input.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root>Total (IDR)</Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                type='number'
+                min='0'
+                value={String(
+                  (parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0) *
+                    (parseFloat(exchangeRateRMB) || 0),
+                )}
+                readOnly
+              />
+            </Input.Wrapper>
+          </Input.Root>
         </div>
       </div>
     </div>
@@ -526,6 +522,15 @@ export default function NewImportPage() {
       priceRMB: '',
       quantity: '1',
       condition: 'new',
+      modelNumber: '',
+      machineNumber: '',
+      engineNumber: '',
+      brand: '',
+      unitOfMeasureId: '',
+      itemName: '',
+      batchOrLotNumber: '',
+      itemDescription: '',
+      modelOrPartNumber: '',
     };
   }
 
@@ -611,7 +616,8 @@ export default function NewImportPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    console.log(':ASDUIDU');
+    // e.preventDefault();
     setIsLoading(true);
     setValidationErrors({});
 
@@ -624,8 +630,15 @@ export default function NewImportPage() {
     if (!formData.warehouseId) {
       errors.warehouseId = 'Warehouse is required';
     }
+    if (!formData.importDate) {
+      errors.importDate = 'Import date is required';
+    }
+
     if (!formData.invoiceNumber.trim()) {
       errors.invoiceNumber = 'Invoice number is required';
+    }
+    if (!formData.invoiceDate) {
+      errors.invoiceDate = 'Invoice date is required';
     }
     if (!formData.exchangeRateRMB.trim()) {
       errors.exchangeRateRMB = 'Exchange rate is required';
@@ -655,6 +668,23 @@ export default function NewImportPage() {
         errors[`items.${index}.machineTypeId`] =
           'Machine type is required for serialized products';
       }
+      if (item.category === 'serialized' && !item.modelNumber?.trim()) {
+        errors[`items.${index}.modelNumber`] =
+          'Model number is required for serialized products';
+      }
+      if (item.category === 'serialized' && !item.machineNumber?.trim()) {
+        errors[`items.${index}.machineNumber`] =
+          'Machine number is required for serialized products';
+      }
+      if (item.category === 'serialized' && !item.engineNumber?.trim()) {
+        errors[`items.${index}.engineNumber`] =
+          'Engine number is required for serialized products';
+      }
+      if (item.category === 'serialized' && !item.brandId) {
+        errors[`items.${index}.brandId`] =
+          'Brand is required for serialized products';
+      }
+
       if (
         (item.category === 'non_serialized' || item.category === 'bulk') &&
         !item.unitOfMeasureId
@@ -665,6 +695,21 @@ export default function NewImportPage() {
       if (item.category === 'non_serialized' && !item.itemName?.trim()) {
         errors[`items.${index}.itemName`] =
           'Item name is required for non-serialized products';
+      }
+      if (item.category === 'bulk' && !item.modelOrPartNumber?.trim()) {
+        errors[`items.${index}.modelOrPartNumber`] =
+          'Model/Part number is required for bulk products';
+      }
+      if (item.category === 'bulk' && !item.batchOrLotNumber?.trim()) {
+        errors[`items.${index}.batchOrLotNumber`] =
+          'Batch/Lot number is required for bulk products';
+      }
+      if (item.category === 'bulk' && !item.itemDescription?.trim()) {
+        errors[`items.${index}.itemDescription`] =
+          'Description is required for bulk products';
+      }
+      if (item.category === 'bulk' && !item.brand?.trim()) {
+        errors[`items.${index}.brand`] = 'Brand is required for bulk products';
       }
     });
 
@@ -825,44 +870,6 @@ export default function NewImportPage() {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='exchangeRateRMB'>
-                    Exchange Rate (RMB to IDR) <Label.Asterisk />
-                  </Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiGlobalLine} />
-                      <Input.Input
-                        id='exchangeRateRMB'
-                        type='number'
-                        min='0'
-                        value={formData.exchangeRateRMB}
-                        onChange={(e) =>
-                          handleInputChange('exchangeRateRMB', e.target.value)
-                        }
-                        placeholder='Enter exchange rate'
-                        required
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                  {validationErrors.exchangeRateRMB && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.exchangeRateRMB}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <Divider.Root />
-
-            {/* Invoice Information */}
-            <div>
-              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
-                Invoice Information
-              </h3>
-
-              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='invoiceNumber'>
                     Invoice Number <Label.Asterisk />
                   </Label.Root>
@@ -906,6 +913,33 @@ export default function NewImportPage() {
                     </Input.Wrapper>
                   </Input.Root>
                 </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='exchangeRateRMB'>
+                    Exchange Rate (RMB to IDR) <Label.Asterisk />
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiExchangeCnyLine} />
+                      <Input.Input
+                        id='exchangeRateRMB'
+                        type='number'
+                        min='0'
+                        value={formData.exchangeRateRMB}
+                        onChange={(e) =>
+                          handleInputChange('exchangeRateRMB', e.target.value)
+                        }
+                        placeholder='Enter exchange rate'
+                        required
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.exchangeRateRMB && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.exchangeRateRMB}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -914,7 +948,7 @@ export default function NewImportPage() {
             {/* Products */}
             <div>
               <div className='mb-4 flex items-center justify-between'>
-                <h3 className='text-lg text-gray-900 font-medium'>Products</h3>
+                <h3 className='text-lg text-gray-900 font-medium'>Items</h3>
                 <Button.Root
                   type='button'
                   variant='neutral'
@@ -923,14 +957,14 @@ export default function NewImportPage() {
                   onClick={addProductItem}
                 >
                   <RiAddLine className='mr-2 size-4' />
-                  Add Product
+                  Add item
                 </Button.Root>
               </div>
 
               <div className='space-y-6'>
                 {formData.items.map((item, index) => (
                   <ProductItemForm
-                    key={item.id}
+                    key={index}
                     item={item}
                     index={index}
                     onUpdate={(updatedItem) =>
@@ -942,6 +976,7 @@ export default function NewImportPage() {
                     unitOfMeasures={unitOfMeasures}
                     canRemove={formData.items.length > 1}
                     validationErrors={validationErrors}
+                    exchangeRateRMB={formData.exchangeRateRMB}
                   />
                 ))}
               </div>
@@ -1014,7 +1049,7 @@ export default function NewImportPage() {
               Cancel
             </Button.Root>
             <Button.Root type='submit' variant='primary' disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Import'}
+              {isLoading ? 'Creating...' : 'Add Import'}
             </Button.Root>
           </div>
         </form>

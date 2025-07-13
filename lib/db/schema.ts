@@ -531,7 +531,9 @@ export const products = mysqlTable(
     year: int('year'),
     condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
     status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
-    price: decimal('price', { precision: 15, scale: 2 }).default('0.00'),
+    price: decimal('price', { precision: 15, scale: 2 })
+      .notNull()
+      .default('0.00'),
 
     // Product Specifications (based on old prototype)
     engineModel: varchar('engine_model', { length: 100 }),
@@ -659,7 +661,7 @@ export const importItems = mysqlTable(
     importId: varchar('import_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }), // nullable for new product creation
     priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).notNull(),
-    quantity: int('quantity').default(1),
+    quantity: int('quantity').notNull().default(1),
     total: decimal('total', { precision: 15, scale: 2 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
   },
@@ -745,7 +747,7 @@ export const stockMovements = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    warehouseIdFrom: varchar('warehouse_id_from', { length: 36 }).notNull(),
+    warehouseIdFrom: varchar('warehouse_id_from', { length: 36 }), // NULL for import
     warehouseIdTo: varchar('warehouse_id_to', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),

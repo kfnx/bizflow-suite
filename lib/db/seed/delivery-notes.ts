@@ -1,3 +1,4 @@
+import { DELIVERY_NOTE_STATUS } from '../enum';
 import {
   customerIds,
   deliveryNoteIds,
@@ -16,7 +17,7 @@ export const deliveryNotes = [
     deliveryMethod: 'Truck Delivery',
     driverName: 'Ahmad Supriadi',
     vehicleNumber: 'B 1234 ABC',
-    status: 'delivered',
+    status: DELIVERY_NOTE_STATUS.DELIVERED,
     deliveredBy: userIds.user1,
     receivedBy: userIds.user3, // Customer representative
     notes: 'Bulldozer delivered successfully to construction site',
@@ -31,7 +32,7 @@ export const deliveryNotes = [
     deliveryMethod: 'Truck Delivery',
     driverName: 'Budi Santoso',
     vehicleNumber: 'B 5678 DEF',
-    status: 'pending',
+    status: DELIVERY_NOTE_STATUS.PENDING,
     deliveredBy: null,
     receivedBy: null,
     notes: 'JCB backhoe loader scheduled for delivery',
@@ -46,7 +47,7 @@ export const deliveryNotes = [
     deliveryMethod: 'Truck Delivery',
     driverName: 'Rizky Pratama',
     vehicleNumber: 'B 9012 GHI',
-    status: 'delivered',
+    status: DELIVERY_NOTE_STATUS.DELIVERED,
     deliveredBy: userIds.user2,
     receivedBy: userIds.user4, // Customer representative
     notes: 'Caterpillar excavator delivered to mining site',
@@ -61,7 +62,7 @@ export const deliveryNotes = [
     deliveryMethod: 'Customer Pickup',
     driverName: null,
     vehicleNumber: null,
-    status: 'delivered',
+    status: DELIVERY_NOTE_STATUS.DELIVERED,
     deliveredBy: userIds.user4,
     receivedBy: userIds.user1, // Customer representative
     notes: 'Bulldozer picked up by customer at warehouse',

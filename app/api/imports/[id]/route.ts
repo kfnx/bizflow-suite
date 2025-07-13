@@ -74,35 +74,24 @@ export async function GET(
         priceRMB: importItems.priceRMB,
         quantity: importItems.quantity,
         total: importItems.total,
-        // Product creation fields
-        productCategory: importItems.productCategory,
-        machineTypeName: machineTypes.name,
-        unitOfMeasureName: unitOfMeasures.name,
-        brandName: brands.name,
-        modelOrPartNumber: importItems.modelOrPartNumber,
-        machineNumber: importItems.machineNumber,
-        engineNumber: importItems.engineNumber,
-        name: importItems.name,
-        batchOrLotNumber: importItems.batchOrLotNumber,
-        description: importItems.description,
-        serialNumber: importItems.serialNumber,
-        model: importItems.model,
-        year: importItems.year,
-        condition: importItems.condition,
-        engineModel: importItems.engineModel,
-        enginePower: importItems.enginePower,
-        operatingWeight: importItems.operatingWeight,
-        notes: importItems.notes,
+        // Product fields from linked product
+        name: products.name,
+        model: products.model,
+        category: products.category,
+        description: products.description,
+        serialNumber: products.serialNumber,
+        year: products.year,
+        condition: products.condition,
+        engineModel: products.engineModel,
+        engineNumber: products.engineNumber,
+        machineNumber: products.machineNumber,
         createdAt: importItems.createdAt,
       })
       .from(importItems)
       .leftJoin(products, eq(importItems.productId, products.id))
-      .leftJoin(machineTypes, eq(importItems.machineTypeId, machineTypes.id))
-      .leftJoin(
-        unitOfMeasures,
-        eq(importItems.unitOfMeasureId, unitOfMeasures.id),
-      )
-      .leftJoin(brands, eq(importItems.brandId, brands.id))
+      .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
+      .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
+      .leftJoin(brands, eq(products.brandId, brands.id))
       .where(eq(importItems.importId, id));
 
     const result = {

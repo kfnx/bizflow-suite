@@ -24,11 +24,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 
-import {
-  useProducts,
-  type Product,
-  type ProductsResponse,
-} from '@/hooks/use-products';
+import { useProducts, type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
@@ -111,13 +107,13 @@ export function ProductsTable({
   const { data, isLoading, error } = useProducts(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [quickViewProduct, setQuickViewProduct] =
-    React.useState<Product | null>(null);
+    React.useState<ProductWithRelations | null>(null);
 
-  const handleRowClick = (product: Product) => {
+  const handleRowClick = (product: ProductWithRelations) => {
     setQuickViewProduct(product);
   };
 
-  const columns: ColumnDef<Product>[] = [
+  const columns: ColumnDef<ProductWithRelations>[] = [
     {
       id: 'category',
       accessorKey: 'category',
@@ -138,7 +134,7 @@ export function ProductsTable({
             {row.original.category || '-'}
           </div>
           <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.brandName} {row.original.model}
+            {row.original.brandId} {row.original.model}
           </div>
         </div>
       ),
@@ -203,7 +199,7 @@ export function ProductsTable({
       cell: ({ row }) => (
         <div className='text-right'>
           <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(row.original.price, 'IDR')}
+            {formatCurrency(parseInt(row.original.price), 'IDR')}
           </div>
         </div>
       ),

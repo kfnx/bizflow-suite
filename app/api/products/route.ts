@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
+import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
   brands,
   NewProduct,
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(products.status, status));
     }
     if (category && category !== 'all') {
-      conditions.push(eq(products.category, category));
+      conditions.push(eq(products.category, category as PRODUCT_CATEGORY));
     }
     if (brand && brand !== 'all') {
       conditions.push(eq(products.brandId, brand));

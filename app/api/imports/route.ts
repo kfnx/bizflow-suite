@@ -3,20 +3,16 @@ import { and, asc, desc, eq, like, or, sql } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
+import { IMPORT_STATUS, PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
-  brands,
   importItems,
   imports,
-  machineTypes,
   products,
-  stockMovements,
   suppliers,
-  unitOfMeasures,
   users,
   warehouses,
 } from '@/lib/db/schema';
 import {
-  CreateImportRequest,
   createImportRequestSchema,
   importQueryParamsSchema,
 } from '@/lib/validations/import';
@@ -67,7 +63,9 @@ export async function GET(request: NextRequest) {
     const conditions = [];
 
     if (validatedParams.status && validatedParams.status !== 'all') {
-      conditions.push(eq(imports.status, validatedParams.status));
+      conditions.push(
+        eq(imports.status, validatedParams.status as IMPORT_STATUS),
+      );
     }
 
     if (validatedParams.supplierId) {
@@ -241,7 +239,7 @@ export async function POST(request: NextRequest) {
         exchangeRateRMBtoIDR: validatedData.exchangeRateRMBtoIDR,
         subtotal: subtotal.toFixed(2),
         total: totalIDR.toFixed(2),
-        status: 'pending',
+        status: IMPORT_STATUS.PENDING,
         notes: validatedData.notes,
         createdBy,
       };
@@ -267,7 +265,7 @@ export async function POST(request: NextRequest) {
         // If no productId provided, create new product
         if (!productId) {
           const productData = {
-            category: item.category,
+            category: item.category as PRODUCT_CATEGORY,
             machineTypeId,
             unitOfMeasureId,
             brandId: item.brandId,

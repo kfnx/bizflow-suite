@@ -2,16 +2,19 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { Product } from '@/lib/db/schema';
+import type { Product } from '@/lib/db/schema';
 
 // Extended Product type that includes joined data from API responses
 export type ProductWithRelations = Product & {
+  brandId?: string | null;
   brandName?: string | null;
+  supplierId?: string | null;
   supplierName?: string | null;
   supplierCode?: string | null;
   machineTypeName?: string | null;
   unitOfMeasureName?: string | null;
   unitOfMeasureAbbreviation?: string | null;
+  warehouseId?: string | null;
   warehouseName?: string | null;
 };
 

@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
+import { IMPORT_STATUS } from '@/lib/db/enum';
 import {
   importItems,
   imports,
@@ -45,7 +46,7 @@ export async function POST(
 
     const importRecord = existingImport[0];
 
-    if (importRecord.status !== 'pending') {
+    if (importRecord.status !== IMPORT_STATUS.PENDING) {
       return NextResponse.json(
         { error: 'Import is not in pending status and cannot be verified' },
         { status: 400 },
@@ -61,7 +62,7 @@ export async function POST(
       await tx
         .update(imports)
         .set({
-          status: 'verified',
+          status: IMPORT_STATUS.VERIFIED,
           verifiedBy,
           verifiedAt,
         })
@@ -80,9 +81,10 @@ export async function POST(
       for (const item of items) {
         if (item.productId) {
           await tx.insert(stockMovements).values({
-            warehouseIdFrom: importRecord.warehouseId, // Same warehouse for import flow
+            warehouseIdFrom: null, // null because its new import
             warehouseIdTo: importRecord.warehouseId,
             productId: item.productId,
+            quantity: item.quantity,
             movementType: 'in',
             notes: `Import verified from ${importRecord.invoiceNumber}`,
           });

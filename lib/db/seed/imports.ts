@@ -21,7 +21,7 @@ export const imports: NewImport[] = [
     total: '3465000000.00', // Total from import items in IDR
     status: 'completed',
     notes:
-      'Shantui bulldozer and spare parts import - customs cleared successfully',
+      'Shantui wheel loader and spare parts import - customs cleared successfully',
     createdBy: userIds.user5, // Import Manager
   },
   {
@@ -36,7 +36,7 @@ export const imports: NewImport[] = [
     total: '1874250000.00', // Total from import items in IDR
     status: 'completed',
     notes:
-      'Excavator and maintenance kit import - delivered to Jakarta warehouse',
+      'Wheel loader and maintenance kit import - delivered to Jakarta warehouse',
     createdBy: userIds.user5, // Import Manager
   },
   {
@@ -50,7 +50,8 @@ export const imports: NewImport[] = [
     subtotal: '105000.00', // 75,000 + 30,000 RMB (from import items)
     total: '4029000000.00', // Total from import items in IDR
     status: 'verified',
-    notes: 'Loader equipment and accessories import - pending final inspection',
+    notes:
+      'Bulldozer equipment and accessories import - pending final inspection',
     createdBy: userIds.user2, // Manager
   },
   {
@@ -64,7 +65,7 @@ export const imports: NewImport[] = [
     subtotal: '125000.00', // 65,000 + 60,000 RMB (from import items)
     total: '1975000000.00', // Total from import items in IDR
     status: 'pending',
-    notes: 'Motor grader and consumables import - still in customs processing',
+    notes: 'Wheel loader and consumables import - still in customs processing',
     createdBy: userIds.user5, // Import Manager
   },
   {
@@ -79,7 +80,7 @@ export const imports: NewImport[] = [
     total: '3487000000.00', // Total from import items in IDR
     status: 'verified',
     notes:
-      'Roller equipment, tools, and additional items import - quality inspection passed',
+      'Wheel loader, tools, and additional items import - quality inspection passed',
     createdBy: userIds.user3, // Director
   },
   {
@@ -94,13 +95,13 @@ export const imports: NewImport[] = [
     total: '3090750000.00', // Total from import items in IDR
     status: 'pending',
     notes:
-      'High-value crane and safety equipment import - awaiting final customs approval',
+      'High-value excavator and safety equipment import - awaiting final customs approval',
     createdBy: userIds.user2, // Manager
   },
 ];
 
 export const importItems: NewImportItem[] = [
-  // Import 1 - Shantui bulldozer
+  // Import 1 - Shantui wheel loader
   {
     id: importItemIds.importItem1,
     importId: importIds.import1,
@@ -114,13 +115,13 @@ export const importItems: NewImportItem[] = [
   {
     id: importItemIds.importItem7,
     importId: importIds.import1,
-    productId: productIds.product7,
+    productId: productIds.product2,
     priceRMB: '5000.00',
     quantity: 10,
     total: '787500000.00', // 5,000 * 15,750 * 10 in IDR
   },
 
-  // Import 2 - Excavator
+  // Import 2 - Wheel loader
   {
     id: importItemIds.importItem2,
     importId: importIds.import2,
@@ -134,17 +135,17 @@ export const importItems: NewImportItem[] = [
   {
     id: importItemIds.importItem11,
     importId: importIds.import2,
-    productId: productIds.product11,
+    productId: productIds.product3,
     priceRMB: '12000.00',
     quantity: 2,
     total: '378000000.00', // 12,000 * 15,750 * 2 in IDR
   },
 
-  // Import 3 - Loader equipment
+  // Import 3 - Bulldozer equipment
   {
     id: importItemIds.importItem3,
     importId: importIds.import3,
-    productId: productIds.product3,
+    productId: productIds.product4,
     priceRMB: '75000.00',
     quantity: 3,
     total: '3555000000.00', // 75,000 * 15,800 * 3 in IDR
@@ -154,17 +155,17 @@ export const importItems: NewImportItem[] = [
   {
     id: importItemIds.importItem8,
     importId: importIds.import3,
-    productId: productIds.product8,
+    productId: productIds.product5,
     priceRMB: '15000.00',
     quantity: 2,
     total: '474000000.00', // 15,000 * 15,800 * 2 in IDR
   },
 
-  // Import 4 - Motor grader
+  // Import 4 - Wheel loader
   {
     id: importItemIds.importItem4,
     importId: importIds.import4,
-    productId: productIds.product4,
+    productId: productIds.product1,
     priceRMB: '65000.00',
     quantity: 1,
     total: '1027000000.00', // 65,000 * 15,800 * 1 in IDR
@@ -174,17 +175,17 @@ export const importItems: NewImportItem[] = [
   {
     id: importItemIds.importItem12,
     importId: importIds.import4,
-    productId: productIds.product12,
+    productId: productIds.product2,
     priceRMB: '3000.00',
     quantity: 20,
     total: '948000000.00', // 3,000 * 15,800 * 20 in IDR
   },
 
-  // Import 5 - Roller equipment batch
+  // Import 5 - Wheel loader batch
   {
     id: importItemIds.importItem5,
     importId: importIds.import5,
-    productId: productIds.product5,
+    productId: productIds.product3,
     priceRMB: '45000.00',
     quantity: 4,
     total: '2853000000.00', // 45,000 * 15,850 * 4 in IDR
@@ -194,17 +195,17 @@ export const importItems: NewImportItem[] = [
   {
     id: importItemIds.importItem9,
     importId: importIds.import5,
-    productId: productIds.product9,
+    productId: productIds.product4,
     priceRMB: '8000.00',
     quantity: 5,
     total: '634000000.00', // 8,000 * 15,850 * 5 in IDR
   },
 
-  // Import 6 - High-value crane
+  // Import 6 - High-value excavator
   {
     id: importItemIds.importItem6,
     importId: importIds.import6,
-    productId: productIds.product6,
+    productId: productIds.product5,
     priceRMB: '120000.00',
     quantity: 1,
     total: '1902000000.00', // 120,000 * 15,850 * 1 in IDR
@@ -214,7 +215,7 @@ export const importItems: NewImportItem[] = [
   {
     id: importItemIds.importItem10,
     importId: importIds.import6,
-    productId: productIds.product10,
+    productId: productIds.product1,
     priceRMB: '25000.00',
     quantity: 3,
     total: '1188750000.00', // 25,000 * 15,850 * 3 in IDR

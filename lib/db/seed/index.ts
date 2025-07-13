@@ -10,6 +10,7 @@ import { invoiceItems, invoices } from './invoices';
 import { machineTypes } from './machine-types';
 import { products } from './products';
 import { quotationItems, quotations } from './quotations';
+import { stockMovements } from './stock-movements';
 import { supplierContactPersons, suppliers } from './suppliers';
 import { unitOfMeasures } from './unit-of-measures';
 import { users } from './users';
@@ -95,6 +96,10 @@ async function main() {
   console.log('🔄 Seeding import items...');
   await db.insert(schema.importItems).values(importItems);
   console.log(`✅ Seeded ${importItems.length} import items`);
+
+  console.log('🔄 Seeding stock movements...');
+  await db.insert(schema.stockMovements).values(stockMovements);
+  console.log(`✅ Seeded ${stockMovements.length} stock movements`);
 
   await connection.end();
   console.log('🎉 Database seeded successfully with complete sample data!');

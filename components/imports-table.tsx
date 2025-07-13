@@ -57,11 +57,6 @@ const statusConfig = {
     variant: 'light' as const,
     color: 'green' as const,
   },
-  completed: {
-    label: 'Completed',
-    variant: 'light' as const,
-    color: 'blue' as const,
-  },
 };
 
 interface ImportsTableProps {
@@ -157,31 +152,6 @@ export function ImportsTable({
       },
     },
     {
-      id: 'subtotal',
-      accessorKey: 'subtotal',
-      header: ({ column }) => (
-        <div className='flex items-center gap-0.5'>
-          Subtotal (RMB)
-          <button
-            type='button'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {getSortingIcon(column.getIsSorted())}
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(row.original.subtotal)}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            Rate: {row.original.exchangeRateRMB}
-          </div>
-        </div>
-      ),
-    },
-    {
       id: 'total',
       accessorKey: 'total',
       header: ({ column }) => (
@@ -196,8 +166,13 @@ export function ImportsTable({
         </div>
       ),
       cell: ({ row }) => (
-        <div className='text-text-900 text-paragraph-sm font-medium'>
-          {formatCurrency(row.original.total, 'IDR')}
+        <div className='flex flex-col'>
+          <div className='text-text-900 text-paragraph-sm font-medium'>
+            {formatCurrency(row.original.total, 'IDR')}
+          </div>
+          <div className='text-paragraph-xs text-text-soft-400'>
+            Rate: {row.original.exchangeRateRMBtoIDR}
+          </div>
         </div>
       ),
     },

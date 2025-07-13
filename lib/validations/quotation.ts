@@ -46,7 +46,7 @@ export const createQuotationRequestSchema = z.object({
     .array(
       z.object({
         productId: z.string().min(1, 'Product ID is required'),
-        productName: z.string().min(1, 'Product name is required'),
+        name: z.string().min(1, 'Product name is required'),
         quantity: z.number().positive('Quantity must be positive'),
         unitPrice: z.number().nonnegative('Unit price must be non-negative'),
         notes: z.string().optional(),
@@ -98,7 +98,7 @@ export interface QuotationItem {
 
 export interface QuotationItem {
   productId: string;
-  productName: string;
+  name: string;
   quantity: number;
   unitPrice: number;
   notes?: string;

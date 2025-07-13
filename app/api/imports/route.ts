@@ -144,8 +144,7 @@ export async function GET(request: NextRequest) {
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
-        exchangeRateRMB: imports.exchangeRateRMB,
-        subtotal: imports.subtotal,
+        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,
         notes: imports.notes,
@@ -202,7 +201,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    console.log('🚀 ~ POST ~ body:', body);
 
     // Validate request body using Zod schema
     const validationResult = createImportRequestSchema.safeParse(body);
@@ -226,7 +224,7 @@ export async function POST(request: NextRequest) {
       subtotal += itemTotal;
     });
 
-    const exchangeRate = parseFloat(validatedData.exchangeRateRMB);
+    const exchangeRate = parseFloat(validatedData.exchangeRateRMBtoIDR);
     const totalIDR = subtotal * exchangeRate;
 
     // Create import and items in a transaction
@@ -240,7 +238,7 @@ export async function POST(request: NextRequest) {
         importDate: validatedData.importDate,
         invoiceNumber: validatedData.invoiceNumber,
         invoiceDate: validatedData.invoiceDate,
-        exchangeRateRMB: validatedData.exchangeRateRMB,
+        exchangeRateRMBtoIDR: validatedData.exchangeRateRMBtoIDR,
         subtotal: subtotal.toFixed(2),
         total: totalIDR.toFixed(2),
         status: 'pending',
@@ -263,23 +261,22 @@ export async function POST(request: NextRequest) {
       // Process each item
       for (const item of validatedData.items) {
         let productId = item.productId;
+        const machineTypeId = item.machineTypeId || null;
+        const unitOfMeasureId = item.unitOfMeasureId || null;
 
         // If no productId provided, create new product
         if (!productId) {
           const productData = {
-            code: item.code,
-            name: item.name,
-            description: item.description,
             category: item.category,
-            machineTypeId: item.machineTypeId,
-            unitOfMeasureId: item.unitOfMeasureId,
+            machineTypeId,
+            unitOfMeasureId,
             brandId: item.brandId,
             modelOrPartNumber: item.modelOrPartNumber,
             machineNumber: item.machineNumber,
             engineNumber: item.engineNumber,
-            itemName: item.itemName,
+            name: item.name,
             batchOrLotNumber: item.batchOrLotNumber,
-            itemDescription: item.itemDescription,
+            description: item.description,
             serialNumber: item.serialNumber,
             model: item.model,
             year: item.year,
@@ -292,6 +289,7 @@ export async function POST(request: NextRequest) {
             price: (parseFloat(item.priceRMB) * exchangeRate).toFixed(2),
             isActive: true,
           };
+          console.table(productData);
 
           await tx.insert(products).values(productData);
 
@@ -299,7 +297,7 @@ export async function POST(request: NextRequest) {
           const createdProductResult = await tx
             .select({ id: products.id })
             .from(products)
-            .where(eq(products.code, item.code))
+            .where(eq(products.modelOrPartNumber, item.modelOrPartNumber || ''))
             .limit(1);
 
           productId = createdProductResult[0].id;
@@ -311,22 +309,18 @@ export async function POST(request: NextRequest) {
           importId,
           productId,
           priceRMB: item.priceRMB,
-          quantity: item.quantity,
           total: itemTotal.toFixed(2),
           // Store product creation fields for reference
-          productCode: item.code,
-          productName: item.name,
           productDescription: item.description,
           productCategory: item.category,
-          machineTypeId: item.machineTypeId,
-          unitOfMeasureId: item.unitOfMeasureId,
+          machineTypeId,
+          unitOfMeasureId,
           brandId: item.brandId,
           modelOrPartNumber: item.modelOrPartNumber,
           machineNumber: item.machineNumber,
           engineNumber: item.engineNumber,
-          itemName: item.itemName,
+          name: item.name,
           batchOrLotNumber: item.batchOrLotNumber,
-          itemDescription: item.itemDescription,
           serialNumber: item.serialNumber,
           model: item.model,
           year: item.year,
@@ -357,8 +351,7 @@ export async function POST(request: NextRequest) {
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
-        exchangeRateRMB: imports.exchangeRateRMB,
-        subtotal: imports.subtotal,
+        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,
         notes: imports.notes,

@@ -31,8 +31,6 @@ export async function GET(
     const productData = await db
       .select({
         id: products.id,
-        code: products.code,
-        name: products.name,
         description: products.description,
         category: products.category,
         machineTypeId: products.machineTypeId,
@@ -45,9 +43,8 @@ export async function GET(
         modelOrPartNumber: products.modelOrPartNumber,
         machineNumber: products.machineNumber,
         engineNumber: products.engineNumber,
-        itemName: products.itemName,
+        name: products.name,
         batchOrLotNumber: products.batchOrLotNumber,
-        itemDescription: products.itemDescription,
         serialNumber: products.serialNumber,
         model: products.model,
         year: products.year,

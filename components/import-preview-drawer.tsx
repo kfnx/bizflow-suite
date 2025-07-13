@@ -164,7 +164,12 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
             Subtotal (RMB)
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatCurrency(importData.subtotal)}
+            {formatCurrency(
+              importData.items?.reduce(
+                (sum, item) => sum + parseFloat(item.priceRMB) * item.quantity,
+                0,
+              ) || 0,
+            )}
           </div>
         </div>
 
@@ -175,7 +180,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
             Exchange Rate
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {importData.exchangeRateRMB}
+            {importData.exchangeRateRMBtoIDR}
           </div>
         </div>
 

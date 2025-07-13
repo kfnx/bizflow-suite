@@ -2,34 +2,21 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export type Product = {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  category?: string;
-  brandId?: string;
-  brandName?: string;
-  model?: string;
-  year?: number;
-  condition: string;
-  status: string;
-  warehouseId?: string;
-  unitOfMeasureId?: string;
-  price: number;
-  engineModel?: string;
-  enginePower?: string;
-  operatingWeight?: string;
-  supplierId?: string;
-  supplierName?: string;
-  supplierCode?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+import { Product } from '@/lib/db/schema';
+
+// Extended Product type that includes joined data from API responses
+export type ProductWithRelations = Product & {
+  brandName?: string | null;
+  supplierName?: string | null;
+  supplierCode?: string | null;
+  machineTypeName?: string | null;
+  unitOfMeasureName?: string | null;
+  unitOfMeasureAbbreviation?: string | null;
+  warehouseName?: string | null;
 };
 
 export type ProductsResponse = {
-  data: Product[];
+  data: ProductWithRelations[];
   pagination: {
     page: number;
     limit: number;
@@ -42,8 +29,10 @@ export type ProductsFilters = {
   search?: string;
   status?: string;
   category?: string;
-  brand?: string;
+  brandId?: string;
   supplierId?: string;
+  warehouseId?: string;
+  condition?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -59,10 +48,14 @@ const fetchProducts = async (
     params.append('status', filters.status);
   if (filters.category && filters.category !== 'all')
     params.append('category', filters.category);
-  if (filters.brand && filters.brand !== 'all')
-    params.append('brand', filters.brand);
+  if (filters.brandId && filters.brandId !== 'all')
+    params.append('brandId', filters.brandId);
   if (filters.supplierId && filters.supplierId !== 'all')
     params.append('supplierId', filters.supplierId);
+  if (filters.warehouseId && filters.warehouseId !== 'all')
+    params.append('warehouseId', filters.warehouseId);
+  if (filters.condition && filters.condition !== 'all')
+    params.append('condition', filters.condition);
   if (filters.sortBy) params.append('sortBy', filters.sortBy);
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());

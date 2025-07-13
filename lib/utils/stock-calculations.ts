@@ -8,7 +8,7 @@ export interface StockQuantity {
   warehouseId: string;
   quantity: number;
   productCode?: string;
-  productName?: string;
+  name?: string;
   warehouseName?: string;
 }
 
@@ -22,8 +22,7 @@ export interface WarehouseStockSummary {
 
 export interface ProductStockSummary {
   productId: string;
-  productCode: string;
-  productName: string;
+  name: string;
   totalQuantity: number;
   warehouseStocks: StockQuantity[];
 }
@@ -61,23 +60,21 @@ export async function calculateWarehouseStock(
   const result = await db
     .select({
       productId: stockMovements.productId,
-      productCode: products.code,
-      productName: products.name,
+      name: products.name,
       totalIn: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'in' THEN quantity ELSE 0 END), 0)`,
       totalOut: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'out' THEN quantity ELSE 0 END), 0)`,
     })
     .from(stockMovements)
     .leftJoin(products, eq(stockMovements.productId, products.id))
     .where(eq(stockMovements.warehouseIdTo, warehouseId))
-    .groupBy(stockMovements.productId, products.code, products.name);
+    .groupBy(stockMovements.productId, products.name);
 
   return result
     .map((row) => ({
       productId: row.productId,
       warehouseId,
       quantity: row.totalIn - row.totalOut,
-      productCode: row.productCode || undefined,
-      productName: row.productName || undefined,
+      name: row.name || undefined,
     }))
     .filter((stock) => stock.quantity > 0); // Only return products with positive stock
 }
@@ -142,7 +139,6 @@ export async function getProductStockSummary(
 ): Promise<ProductStockSummary | null> {
   const productInfo = await db
     .select({
-      code: products.code,
       name: products.name,
     })
     .from(products)
@@ -153,13 +149,12 @@ export async function getProductStockSummary(
     return null;
   }
 
-  const { code, name } = productInfo[0];
+  const { name } = productInfo[0];
   const warehouseStocks = await calculateProductStock(productId);
 
   return {
     productId,
-    productCode: code,
-    productName: name,
+    name: name,
     totalQuantity: warehouseStocks.reduce(
       (sum, stock) => sum + stock.quantity,
       0,
@@ -178,8 +173,7 @@ export async function getLowStockAlerts(
     .select({
       productId: stockMovements.productId,
       warehouseId: stockMovements.warehouseIdTo,
-      productCode: products.code,
-      productName: products.name,
+      name: products.name,
       warehouseName: warehouses.name,
       totalIn: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'in' THEN quantity ELSE 0 END), 0)`,
       totalOut: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'out' THEN quantity ELSE 0 END), 0)`,
@@ -190,7 +184,6 @@ export async function getLowStockAlerts(
     .groupBy(
       stockMovements.productId,
       stockMovements.warehouseIdTo,
-      products.code,
       products.name,
       warehouses.name,
     );
@@ -200,8 +193,7 @@ export async function getLowStockAlerts(
       productId: row.productId,
       warehouseId: row.warehouseId,
       quantity: row.totalIn - row.totalOut,
-      productCode: row.productCode || undefined,
-      productName: row.productName || undefined,
+      name: row.name || undefined,
       warehouseName: row.warehouseName || undefined,
     }))
     .filter(

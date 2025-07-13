@@ -45,8 +45,6 @@ export async function GET(request: NextRequest) {
     if (search) {
       conditions.push(
         or(
-          like(products.code, `%${search}%`),
-          like(products.name, `%${search}%`),
           like(products.description, `%${search}%`),
           like(products.model, `%${search}%`),
           like(suppliers.name, `%${search}%`),
@@ -58,18 +56,6 @@ export async function GET(request: NextRequest) {
     let orderByClause = desc(products.createdAt);
     if (sortBy) {
       switch (sortBy) {
-        case 'name-asc':
-          orderByClause = asc(products.name);
-          break;
-        case 'name-desc':
-          orderByClause = desc(products.name);
-          break;
-        case 'code-asc':
-          orderByClause = asc(products.code);
-          break;
-        case 'code-desc':
-          orderByClause = desc(products.code);
-          break;
         case 'price-asc':
           orderByClause = asc(products.price);
           break;
@@ -91,8 +77,6 @@ export async function GET(request: NextRequest) {
     const productsData = await db
       .select({
         id: products.id,
-        code: products.code,
-        name: products.name,
         description: products.description,
         category: products.category,
         brandId: products.brandId,

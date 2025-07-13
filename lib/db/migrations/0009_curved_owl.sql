@@ -1,1 +1,0 @@
-ALTER TABLE `customers` ADD `is_active` boolean DEFAULT true;

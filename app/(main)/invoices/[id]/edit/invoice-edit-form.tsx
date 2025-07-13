@@ -404,7 +404,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                     <Select.Content>
                       {products?.data?.map((product) => (
                         <Select.Item key={product.id} value={product.id}>
-                          {product.name} ({product.code})
+                          {product.name}
                         </Select.Item>
                       ))}
                     </Select.Content>

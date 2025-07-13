@@ -167,7 +167,7 @@ export function TransfersFilters({
                 <Select.Item value='all'>Any Product</Select.Item>
                 {products.map((product) => (
                   <Select.Item key={product.id} value={product.id}>
-                    {product.name} ({product.code})
+                    {product.name}
                   </Select.Item>
                 ))}
               </Select.Content>

@@ -7,8 +7,9 @@ import {
   RiMapPinLine,
 } from '@remixicon/react';
 
+import { type Product } from '@/lib/db/schema';
 import { formatDate } from '@/utils/date-formatter';
-import { type Product } from '@/hooks/use-products';
+import { type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -64,7 +65,7 @@ const formatCurrency = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-function ProductPreviewContent({ product }: { product: Product }) {
+function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
   return (
     <>
       <Divider.Root variant='solid-text'>Product Info</Divider.Root>
@@ -73,10 +74,11 @@ function ProductPreviewContent({ product }: { product: Product }) {
         <div className='mb-3 flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
             <div className='text-title-h4 text-text-strong-950'>
-              {product.name}
+              {product.brandId}{' '}
+              {product?.machineTypeId || product.unitOfMeasureId}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {product.code} • {product.category || 'Uncategorized'}
+              {product.category || 'Uncategorized'}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
               {product.brandName} {product.model}{' '}
@@ -116,7 +118,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
         </div>
 
         <div className='text-title-h4 text-text-strong-950'>
-          {formatCurrency(product.price, 'IDR')}
+          {formatCurrency(Number(product.price ?? 0), 'IDR')}
         </div>
       </div>
 
@@ -175,7 +177,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(product.createdAt)}
+            {product.createdAt ? formatDate(product.createdAt) : '-'}
           </div>
         </div>
 
@@ -186,7 +188,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
             Last Updated
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(product.updatedAt)}
+            {product.updatedAt ? formatDate(product.updatedAt) : '-'}
           </div>
         </div>
 
@@ -208,7 +210,7 @@ function ProductPreviewContent({ product }: { product: Product }) {
   );
 }
 
-function ProductPreviewFooter({ product }: { product: Product }) {
+function ProductPreviewFooter({ product }: { product: ProductWithRelations }) {
   const handleViewFull = () => {
     window.open(`/products/${product.id}`, '_blank');
   };

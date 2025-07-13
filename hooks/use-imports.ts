@@ -12,8 +12,7 @@ export type Import = {
   importDate: string;
   invoiceNumber: string;
   invoiceDate: string;
-  exchangeRateRMB: number;
-  subtotal: number;
+  exchangeRateRMBtoIDR: number;
   total: number;
   status: string;
   notes?: string;
@@ -23,6 +22,51 @@ export type Import = {
   verifiedAt?: string;
   createdAt: string;
   updatedAt: string;
+  items?: ImportItem[];
+};
+
+export type ImportItem = {
+  id?: string;
+  productId?: string;
+  description?: string;
+  category: 'serialized' | 'non_serialized' | 'bulk';
+  priceRMB: string;
+  quantity: number;
+  notes?: string;
+
+  // Common fields
+  name: string;
+  brandId?: string;
+  brand?: string;
+  condition: 'new' | 'used' | 'refurbished';
+  year?: number;
+
+  // Category-specific fields
+  machineTypeId?: string;
+  unitOfMeasureId?: string;
+  modelOrPartNumber?: string;
+  machineNumber?: string;
+  engineNumber?: string;
+  serialNumber?: string;
+  model?: string;
+  engineModel?: string;
+  enginePower?: string;
+  operatingWeight?: string;
+
+  // Non-serialized specific
+  batchOrLotNumber?: string;
+  modelNumber?: string;
+};
+
+export type CreateImportData = {
+  supplierId: string;
+  warehouseId: string;
+  importDate: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  exchangeRateRMBtoIDR: string;
+  notes: string;
+  items: ImportItem[];
 };
 
 export type ImportsResponse = {
@@ -79,6 +123,24 @@ const fetchImport = async (importId: string): Promise<Import> => {
   if (!response.ok) {
     throw new Error('Failed to fetch import details');
   }
+  const result = await response.json();
+  return result.data; // Extract data from the response
+};
+
+const createImport = async (data: CreateImportData): Promise<Import> => {
+  const response = await fetch('/api/imports', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to create import');
+  }
+
   return response.json();
 };
 
@@ -105,6 +167,18 @@ export function useImport(importId: string | null) {
     queryKey: ['import', importId],
     queryFn: () => fetchImport(importId!),
     enabled: !!importId,
+  });
+}
+
+export function useCreateImport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createImport,
+    onSuccess: () => {
+      // Invalidate and refetch imports after successful creation
+      queryClient.invalidateQueries({ queryKey: ['imports'] });
+    },
   });
 }
 

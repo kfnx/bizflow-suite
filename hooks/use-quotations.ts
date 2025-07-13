@@ -41,7 +41,7 @@ export type QuotationItem = {
   id: string;
   productId: string;
   productCode: string;
-  productName: string;
+  name: string;
   quantity: string;
   unitPrice: string;
   total: string;

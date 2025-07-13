@@ -83,7 +83,6 @@ export async function POST(
             warehouseIdFrom: importRecord.warehouseId, // Same warehouse for import flow
             warehouseIdTo: importRecord.warehouseId,
             productId: item.productId,
-            quantity: item.quantity,
             movementType: 'in',
             notes: `Import verified from ${importRecord.invoiceNumber}`,
           });
@@ -102,8 +101,8 @@ export async function POST(
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
-        exchangeRateRMB: imports.exchangeRateRMB,
-        subtotal: imports.subtotal,
+        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
+
         total: imports.total,
         status: imports.status,
         notes: imports.notes,

@@ -62,8 +62,7 @@ export async function GET(
       .select({
         id: quotationItems.id,
         productId: quotationItems.productId,
-        productCode: products.code,
-        productName: products.name,
+        name: products.name,
         quantity: quotationItems.quantity,
         unitPrice: quotationItems.unitPrice,
         total: quotationItems.total,
@@ -233,8 +232,7 @@ export async function PUT(
       .select({
         id: quotationItems.id,
         productId: quotationItems.productId,
-        productCode: products.code,
-        productName: products.name,
+        name: products.name,
         quantity: quotationItems.quantity,
         unitPrice: quotationItems.unitPrice,
         total: quotationItems.total,

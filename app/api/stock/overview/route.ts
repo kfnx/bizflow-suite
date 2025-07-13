@@ -43,8 +43,7 @@ export async function GET(request: NextRequest) {
       .select({
         id: stockMovements.id,
         productId: stockMovements.productId,
-        productCode: products.code,
-        productName: products.name,
+        name: products.name,
         warehouseIdFrom: stockMovements.warehouseIdFrom,
         warehouseIdTo: stockMovements.warehouseIdTo,
         warehouseName: warehouses.name,

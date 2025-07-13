@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
+import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
 import { customers, deliveryNotes, invoices, users } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
@@ -29,7 +30,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (status && status !== 'all') {
-      whereConditions.push(eq(deliveryNotes.status, status));
+      // Validate that the status is a valid enum value
+      const validStatuses = Object.values(DELIVERY_NOTE_STATUS);
+      if (validStatuses.includes(status as DELIVERY_NOTE_STATUS)) {
+        whereConditions.push(
+          eq(deliveryNotes.status, status as DELIVERY_NOTE_STATUS),
+        );
+      }
     }
 
     // Build order by

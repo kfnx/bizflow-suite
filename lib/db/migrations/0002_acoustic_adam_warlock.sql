@@ -1,1 +1,0 @@
-ALTER TABLE `imports` ADD `status` varchar(50) DEFAULT 'pending';

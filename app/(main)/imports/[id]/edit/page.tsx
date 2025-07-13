@@ -27,24 +27,21 @@ import Header from '@/components/header';
 interface ImportItem {
   id?: string;
   productId?: string;
-  productCode: string;
-  productName: string;
-  productDescription?: string;
-  productCategory: 'serialized' | 'non_serialized' | 'bulk';
+  category: 'serialized' | 'non_serialized' | 'bulk';
   priceRMB: string;
   quantity: number;
   total: string;
   notes?: string;
+  name: string;
+  description?: string;
+  brandId: string;
   // Product creation fields
   machineTypeId?: string;
   unitOfMeasureId?: string;
-  brandId?: string;
   modelOrPartNumber?: string;
   machineNumber?: string;
   engineNumber?: string;
-  itemName?: string;
   batchOrLotNumber?: string;
-  itemDescription?: string;
   serialNumber?: string;
   model?: string;
   year?: number;
@@ -60,7 +57,7 @@ interface EditImportData {
   importDate: string;
   invoiceNumber: string;
   invoiceDate: string;
-  exchangeRateRMB: string;
+  exchangeRateRMBtoIDR: string;
   notes: string;
   items: ImportItem[];
 }
@@ -79,7 +76,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     importDate: '',
     invoiceNumber: '',
     invoiceDate: '',
-    exchangeRateRMB: '2250',
+    exchangeRateRMBtoIDR: '2250',
     notes: '',
     items: [],
   });
@@ -120,14 +117,15 @@ export default function EditImportPage({ params }: EditImportPageProps) {
           invoiceDate: importData.invoiceDate
             ? new Date(importData.invoiceDate).toISOString().split('T')[0]
             : '',
-          exchangeRateRMB: importData.exchangeRateRMB?.toString() || '0',
+          exchangeRateRMBtoIDR:
+            importData.exchangeRateRMBtoIDR?.toString() || '0',
           notes: importData.notes || '',
           items:
             importData.items?.map((item: any) => ({
               id: item.id,
               productId: item.productId,
               productCode: item.productCode || '',
-              productName: item.productName || '',
+              name: item.name || '',
               productDescription: item.productDescription,
               productCategory: item.productCategory || 'non_serialized',
               priceRMB: item.priceRMB?.toString() || '0',
@@ -140,9 +138,8 @@ export default function EditImportPage({ params }: EditImportPageProps) {
               modelOrPartNumber: item.modelOrPartNumber,
               machineNumber: item.machineNumber,
               engineNumber: item.engineNumber,
-              itemName: item.itemName,
               batchOrLotNumber: item.batchOrLotNumber,
-              itemDescription: item.itemDescription,
+              description: item.description,
               serialNumber: item.serialNumber,
               model: item.model,
               year: item.year,
@@ -201,10 +198,10 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       errors.items = 'At least one product item is required';
     }
     if (
-      !formData.exchangeRateRMB ||
-      parseFloat(formData.exchangeRateRMB) <= 0
+      !formData.exchangeRateRMBtoIDR ||
+      parseFloat(formData.exchangeRateRMBtoIDR) <= 0
     ) {
-      errors.exchangeRateRMB = 'Exchange rate must be greater than 0';
+      errors.exchangeRateRMBtoIDR = 'Exchange rate must be greater than 0';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -221,15 +218,14 @@ export default function EditImportPage({ params }: EditImportPageProps) {
         importDate: formData.importDate,
         invoiceNumber: formData.invoiceNumber,
         invoiceDate: formData.invoiceDate,
-        exchangeRateRMB: formData.exchangeRateRMB,
+        exchangeRateRMBtoIDR: formData.exchangeRateRMBtoIDR,
         notes: formData.notes,
         items: formData.items.map((item) => ({
           id: item.id,
           productId: item.productId,
-          code: item.productCode,
-          name: item.productName,
-          description: item.productDescription,
-          category: item.productCategory,
+          name: item.name,
+          description: item.description,
+          category: item.category,
           priceRMB: item.priceRMB,
           quantity: item.quantity,
           notes: item.notes,
@@ -239,9 +235,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
           modelOrPartNumber: item.modelOrPartNumber,
           machineNumber: item.machineNumber,
           engineNumber: item.engineNumber,
-          itemName: item.itemName,
           batchOrLotNumber: item.batchOrLotNumber,
-          itemDescription: item.itemDescription,
           serialNumber: item.serialNumber,
           model: item.model,
           year: item.year,
@@ -290,7 +284,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   };
 
   const calculateTotal = () => {
-    const exchangeRate = parseFloat(formData.exchangeRateRMB) || 0;
+    const exchangeRate = parseFloat(formData.exchangeRateRMBtoIDR) || 0;
     const itemsTotal = formData.items.reduce((total, item) => {
       const itemTotal = item.quantity * parseFloat(item.priceRMB);
       return total + itemTotal;
@@ -473,28 +467,31 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
               <div className='grid grid-cols-1 gap-6 sm:grid-cols-1'>
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='exchangeRateRMB'>
+                  <Label.Root htmlFor='exchangeRateRMBtoIDR'>
                     Exchange Rate (RMB to IDR) <Label.Asterisk />
                   </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
                       <Input.Icon as={RiGlobalLine} />
                       <Input.Input
-                        id='exchangeRateRMB'
+                        id='exchangeRateRMBtoIDR'
                         type='number'
                         min='0'
-                        value={formData.exchangeRateRMB}
+                        value={formData.exchangeRateRMBtoIDR}
                         onChange={(e) =>
-                          handleInputChange('exchangeRateRMB', e.target.value)
+                          handleInputChange(
+                            'exchangeRateRMBtoIDR',
+                            e.target.value,
+                          )
                         }
                         placeholder='Enter exchange rate'
                         required
                       />
                     </Input.Wrapper>
                   </Input.Root>
-                  {validationErrors.exchangeRateRMB && (
+                  {validationErrors.exchangeRateRMBtoIDR && (
                     <div className='text-xs text-red-600'>
-                      {validationErrors.exchangeRateRMB}
+                      {validationErrors.exchangeRateRMBtoIDR}
                     </div>
                   )}
                 </div>

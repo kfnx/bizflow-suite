@@ -41,14 +41,10 @@ export async function GET(
         products.sort((a, b) => b.quantity - a.quantity);
         break;
       case 'name-asc':
-        products.sort((a, b) =>
-          (a.productName || '').localeCompare(b.productName || ''),
-        );
+        products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         break;
       case 'name-desc':
-        products.sort((a, b) =>
-          (b.productName || '').localeCompare(a.productName || ''),
-        );
+        products.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
         break;
       case 'code-asc':
         products.sort((a, b) =>

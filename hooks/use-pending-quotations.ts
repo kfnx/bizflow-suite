@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 export type PendingQuotationItem = {
   id: string;
   productId: string;
-  productName: string;
+  name: string;
   productCode: string;
   quantity: number;
   unitPrice: number;

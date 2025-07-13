@@ -94,8 +94,7 @@ export async function getQuotationWithItems(quotationId: string) {
     .select({
       id: sql`quotation_items.id`,
       productId: sql`quotation_items.product_id`,
-      productName: sql`products.name`,
-      productCode: sql`products.code`,
+      name: sql`products.name`,
       quantity: sql`quotation_items.quantity`,
       unitPrice: sql`quotation_items.unit_price`,
       total: sql`quotation_items.total`,
@@ -132,8 +131,7 @@ export async function getInvoiceWithItems(invoiceId: string) {
     .select({
       id: sql`invoice_items.id`,
       productId: sql`invoice_items.product_id`,
-      productName: sql`products.name`,
-      productCode: sql`products.code`,
+      name: sql`products.name`,
       quantity: sql`invoice_items.quantity`,
       unitPrice: sql`invoice_items.unit_price`,
       total: sql`invoice_items.total`,
@@ -170,8 +168,7 @@ export async function getDeliveryNoteWithItems(deliveryNoteId: string) {
     .select({
       id: sql`delivery_note_items.id`,
       productId: sql`delivery_note_items.product_id`,
-      productName: sql`products.name`,
-      productCode: sql`products.code`,
+      name: sql`products.name`,
       quantity: sql`delivery_note_items.quantity`,
       deliveredQuantity: sql`delivery_note_items.delivered_quantity`,
       notes: sql`delivery_note_items.notes`,
@@ -207,8 +204,7 @@ export async function getImportWithItems(importId: string) {
     .select({
       id: sql`import_items.id`,
       productId: sql`import_items.product_id`,
-      productName: sql`products.name`,
-      productCode: sql`products.code`,
+      name: sql`products.name`,
       quantity: sql`import_items.quantity`,
       receivedQuantity: sql`import_items.received_quantity`,
       unitPrice: sql`import_items.unit_price`,
@@ -235,7 +231,6 @@ export async function getProductWithSupplier(productId: string) {
   const product = await db
     .select({
       id: products.id,
-      code: products.code,
       name: products.name,
       description: products.description,
       category: products.category,

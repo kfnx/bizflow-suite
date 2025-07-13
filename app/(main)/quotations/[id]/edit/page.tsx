@@ -34,7 +34,7 @@ import Header from '@/components/header';
 interface QuotationItem {
   id?: string;
   productId: string;
-  productName: string;
+  name: string;
   quantity: number;
   unitPrice: number;
   notes?: string;
@@ -108,7 +108,7 @@ export default function EditQuotationPage() {
           items: quotationData.items.map((item: any) => ({
             id: item.id,
             productId: item.productId,
-            productName: item.productName,
+            name: item.name,
             quantity: Number(item.quantity),
             unitPrice: Number(item.unitPrice),
             notes: item.notes || '',
@@ -145,7 +145,7 @@ export default function EditQuotationPage() {
               ...prev.items,
               {
                 productId: '',
-                productName: '',
+                name: '',
                 quantity: 1,
                 unitPrice: 0,
                 notes: '',
@@ -251,7 +251,7 @@ export default function EditQuotationPage() {
         termsAndConditions: formData.termsAndConditions,
         items: formData.items.map((item) => ({
           productId: item.productId,
-          productName: item.productName,
+          name: item.name,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           notes: item.notes,
@@ -509,7 +509,7 @@ export default function EditQuotationPage() {
                             (p) => p.id === value,
                           );
                           updateItem(index, 'productId', value);
-                          updateItem(index, 'productName', product?.name || '');
+                          updateItem(index, 'name', product?.name || '');
                           updateItem(
                             index,
                             'unitPrice',
@@ -524,7 +524,7 @@ export default function EditQuotationPage() {
                         <Select.Content>
                           {products?.data?.map((product) => (
                             <Select.Item key={product.id} value={product.id}>
-                              {product.name} ({product.code})
+                              {product.name}
                             </Select.Item>
                           ))}
                         </Select.Content>

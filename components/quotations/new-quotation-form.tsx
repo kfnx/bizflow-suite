@@ -62,7 +62,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
         ...prev.items,
         {
           productId: '',
-          productName: '',
+          name: '',
           quantity: 1,
           unitPrice: 0,
           notes: '',
@@ -149,7 +149,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
         status,
         items: formData.items.map((item) => ({
           productId: item.productId,
-          productName: item.productName,
+          name: item.name,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           total: item.quantity * item.unitPrice,
@@ -362,7 +362,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                         (p) => p.id === value,
                       );
                       updateItem(index, 'productId', value);
-                      updateItem(index, 'productName', product?.name || '');
+                      updateItem(index, 'name', product?.name || '');
                       updateItem(
                         index,
                         'unitPrice',
@@ -377,7 +377,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                     <Select.Content>
                       {products?.data?.map((product) => (
                         <Select.Item key={product.id} value={product.id}>
-                          {product.name} ({product.code})
+                          {product.name}
                         </Select.Item>
                       ))}
                     </Select.Content>

@@ -3,8 +3,7 @@ import { z } from 'zod';
 // Base product schema for different categories
 const baseProductSchema = z.object({
   productId: z.string().uuid().optional(), // If provided, update existing product
-  code: z.string().min(1, 'Product code is required').max(100),
-  name: z.string().min(1, 'Product name is required').max(255),
+  name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   category: z.enum(['serialized', 'non_serialized', 'bulk']),
   brandId: z.string().optional(),
@@ -31,9 +30,7 @@ const serializedProductSchema = baseProductSchema.extend({
   enginePower: z.string().max(50).optional(),
   operatingWeight: z.string().max(50).optional(),
   // These should be null for serialized
-  itemName: z.string().nullish(),
   batchOrLotNumber: z.string().nullish(),
-  itemDescription: z.string().nullish(),
   id: z.string().uuid().optional(), // For updating existing items
 });
 
@@ -43,12 +40,7 @@ const nonSerializedProductSchema = baseProductSchema.extend({
   unitOfMeasureId: z
     .string()
     .min(1, 'Unit of measure is required for non-serialized products'),
-  itemName: z
-    .string()
-    .min(1, 'Item name is required for non-serialized products')
-    .max(100),
   batchOrLotNumber: z.string().max(100).optional(),
-  itemDescription: z.string().max(255).optional(),
   // These should be null for non-serialized
   machineTypeId: z.string().nullish(),
   modelOrPartNumber: z.string().nullish(),
@@ -70,12 +62,10 @@ const bulkProductSchema = baseProductSchema.extend({
     .min(1, 'Unit of measure is required for bulk products'),
   modelOrPartNumber: z.string().max(100).optional(),
   batchOrLotNumber: z.string().max(100).optional(),
-  itemDescription: z.string().max(255).optional(),
   // These should be null for bulk
   machineTypeId: z.string().nullish(),
   machineNumber: z.string().nullish(),
   engineNumber: z.string().nullish(),
-  itemName: z.string().nullish(),
   serialNumber: z.string().nullish(),
   model: z.string().nullish(),
   engineModel: z.string().nullish(),
@@ -98,7 +88,7 @@ export const createImportRequestSchema = z.object({
   importDate: z.string().transform((str) => new Date(str)),
   invoiceNumber: z.string().min(1, 'Invoice number is required').max(50),
   invoiceDate: z.string().transform((str) => new Date(str)),
-  exchangeRateRMB: z
+  exchangeRateRMBtoIDR: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, 'Invalid exchange rate'),
   notes: z.string().optional(),
@@ -119,7 +109,7 @@ export const updateImportRequestSchema = z.object({
     .string()
     .transform((str) => new Date(str))
     .optional(),
-  exchangeRateRMB: z
+  exchangeRateRMBtoIDR: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/)
     .optional(),

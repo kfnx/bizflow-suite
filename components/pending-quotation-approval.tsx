@@ -167,7 +167,7 @@ function PendingQuotationCard({
                           #{index + 1}
                         </span>
                         <p className='font-medium text-text-sub-600'>
-                          {item.productName}
+                          {item.name}
                         </p>
                       </div>
                       <p className='text-text-600 mb-1 text-paragraph-sm'>

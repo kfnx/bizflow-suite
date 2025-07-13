@@ -17,6 +17,11 @@ export type Permission =
   | 'deliveries:create'
   | 'deliveries:update'
   | 'deliveries:delete'
+  | 'imports:read'
+  | 'imports:create'
+  | 'imports:update'
+  | 'imports:delete'
+  | 'imports:verify'
   | 'products:read'
   | 'products:create'
   | 'products:update'
@@ -33,7 +38,10 @@ export type Permission =
   | 'warehouses:create'
   | 'warehouses:update'
   | 'warehouses:delete'
-  | 'settings:manage';
+  | 'transfers:read'
+  | 'transfers:create'
+  | 'transfers:update'
+  | 'transfers:delete';
 
 // Role hierarchy and permissions
 export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
@@ -48,6 +56,10 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'deliveries:read',
     'deliveries:create',
     'deliveries:update',
+    'imports:read',
+    'imports:create',
+    'imports:update',
+    'transfers:read',
     'products:read',
     'suppliers:read',
     'suppliers:create',
@@ -57,6 +69,16 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'customers:create',
     'customers:update',
     'customers:delete',
+    'warehouses:read',
+  ],
+  'import-manager': [
+    'imports:read',
+    'imports:create',
+    'imports:update',
+    'imports:verify',
+    'transfers:read',
+    'products:read',
+    'suppliers:read',
     'warehouses:read',
   ],
   manager: [
@@ -73,6 +95,12 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'deliveries:read',
     'deliveries:create',
     'deliveries:update',
+    'imports:read',
+    'imports:create',
+    'imports:update',
+    'imports:delete',
+    'imports:verify',
+    'transfers:read',
     'products:read',
     'products:create',
     'products:update',
@@ -105,6 +133,12 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'deliveries:create',
     'deliveries:update',
     'deliveries:delete',
+    'imports:read',
+    'imports:create',
+    'imports:update',
+    'imports:delete',
+    'imports:verify',
+    'transfers:read',
     'products:read',
     'products:create',
     'products:update',
@@ -121,7 +155,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'warehouses:create',
     'warehouses:update',
     'warehouses:delete',
-    'settings:manage',
   ],
 };
 
@@ -151,8 +184,9 @@ export function hasAllPermissions(
 // Role hierarchy for inheritance
 export const ROLE_HIERARCHY: Record<string, string[]> = {
   staff: [],
+  'import-manager': ['staff'],
   manager: ['staff'],
-  director: ['manager', 'staff'],
+  director: ['manager', 'import-manager', 'staff'],
 };
 
 export function hasRoleOrHigher(
@@ -167,18 +201,32 @@ export function hasRoleOrHigher(
 
 // Check if user can create a specific role
 export function canCreateRole(userRole: string, targetRole: string): boolean {
-  const roleOrder = ['staff', 'manager', 'director'];
+  const roleOrder = ['staff', 'import-manager', 'manager', 'director'];
   const userRoleIndex = roleOrder.indexOf(userRole);
   const targetRoleIndex = roleOrder.indexOf(targetRole);
 
-  // Can only create roles lower than or equal to their own
+  // Directors can create all roles, managers can create staff and import-manager
+  if (userRole === 'director') return true;
+  if (
+    userRole === 'manager' &&
+    ['staff', 'import-manager'].includes(targetRole)
+  )
+    return true;
+  if (userRole === 'import-manager' && targetRole === 'staff') return true;
+
   return userRoleIndex >= targetRoleIndex;
 }
 
 // Get available roles for creation based on user's role
 export function getAvailableRolesForCreation(userRole: string): string[] {
-  const roleOrder = ['staff', 'manager', 'director'];
-  const userRoleIndex = roleOrder.indexOf(userRole);
-
-  return roleOrder.slice(0, userRoleIndex + 1);
+  switch (userRole) {
+    case 'director':
+      return ['staff', 'import-manager', 'manager', 'director'];
+    case 'manager':
+      return ['staff', 'import-manager', 'manager'];
+    case 'import-manager':
+      return ['staff', 'import-manager'];
+    default:
+      return ['staff'];
+  }
 }

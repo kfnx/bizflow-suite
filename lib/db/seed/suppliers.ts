@@ -1,13 +1,9 @@
-export const supplierIds = {
-  supplier1: 'sup00001-0000-0000-0000-000000000001',
-  supplier2: 'sup00002-0000-0000-0000-000000000002',
-  supplier3: 'sup00003-0000-0000-0000-000000000003',
-};
+import { supplierIds } from './seed-constants';
 
 export const contactPersonIds = {
-  supplierContact1: 'scp00001-0000-0000-0000-000000000001',
-  supplierContact2: 'scp00002-0000-0000-0000-000000000002',
-  supplierContact3: 'scp00003-0000-0000-0000-000000000003',
+  supplierContact1: 'e0000001-0000-4000-a000-000000000001',
+  supplierContact2: 'e0000002-0000-4000-a000-000000000001',
+  supplierContact3: 'e0000003-0000-4000-a000-000000000001',
 };
 
 export const supplierContactPersons = [

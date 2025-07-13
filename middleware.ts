@@ -12,13 +12,14 @@ const PROTECTED_ROUTES: Record<string, Permission[]> = {
   '/invoices': ['invoices:read'],
   '/products': ['products:read'],
   '/warehouses': ['warehouses:read'],
-  '/settings': ['settings:manage'],
-  '/pending-approvals': ['quotations:read'],
+  '/pending-quotation-approvals': ['quotations:read'],
+  '/pending-import-verification': ['imports:read'],
 };
 
 // Define role-based access for specific routes
 const ROLE_BASED_ROUTES: Record<string, string[]> = {
-  '/pending-approvals': ['manager', 'director'],
+  '/pending-quotation-approvals': ['manager', 'director'],
+  '/pending-import-verification': ['import-manager', 'director'],
   '/users': ['manager', 'director'],
 };
 

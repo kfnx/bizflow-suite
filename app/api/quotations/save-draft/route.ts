@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
           }) => ({
             quotationId,
             productId: item.productId,
-            quantity: item.quantity.toString(),
+            quantity: item.quantity,
             unitPrice: item.unitPrice.toString(),
             total: (item.quantity * item.unitPrice).toString(),
             notes: item.notes,

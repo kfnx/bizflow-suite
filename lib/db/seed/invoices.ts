@@ -1,17 +1,11 @@
 import { INVOICE_STATUS } from '../enum';
-import { customerIds } from './customers';
-import { productIds } from './products';
-import { quotationIds } from './quotations';
-import { userIds } from './users';
-
-export const invoiceIds = {
-  invoice1: 'inv00001-0000-0000-0000-000000000001',
-  invoice2: 'inv00002-0000-0000-0000-000000000002',
-  invoice3: 'inv00003-0000-0000-0000-000000000003',
-  invoice4: 'inv00004-0000-0000-0000-000000000004',
-  invoice5: 'inv00005-0000-0000-0000-000000000005',
-  invoice6: 'inv00006-0000-0000-0000-000000000006',
-};
+import {
+  customerIds,
+  invoiceIds,
+  productIds,
+  quotationIds,
+  userIds,
+} from './seed-constants';
 
 export const invoices = [
   {
@@ -114,10 +108,10 @@ export const invoices = [
 
 export const invoiceItems = [
   {
-    id: 'iit00001-0000-0000-0000-000000000001',
+    id: 'b0000001-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice1,
     productId: productIds.product4,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '35000000.00',
     total: '35000000.00',
     paymentTerms: 'NET 30',
@@ -125,10 +119,10 @@ export const invoiceItems = [
     notes: 'Bulldozer with advanced controls - fully paid',
   },
   {
-    id: 'iit00002-0000-0000-0000-000000000002',
+    id: 'b0000002-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice2,
     productId: productIds.product15,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '32000000.00',
     total: '32000000.00',
     paymentTerms: 'NET 30',
@@ -136,10 +130,10 @@ export const invoiceItems = [
     notes: 'JCB backhoe loader for construction site',
   },
   {
-    id: 'iit00003-0000-0000-0000-000000000003',
+    id: 'b0000003-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice3,
     productId: productIds.product1,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '18500000.00',
     total: '18500000.00',
     paymentTerms: 'NET 30',
@@ -147,10 +141,10 @@ export const invoiceItems = [
     notes: 'Shantui wheel loader - direct sale',
   },
   {
-    id: 'iit00004-0000-0000-0000-000000000004',
+    id: 'b0000004-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice4,
     productId: productIds.product8,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '22000000.00',
     total: '22000000.00',
     paymentTerms: 'NET 15',
@@ -158,10 +152,10 @@ export const invoiceItems = [
     notes: 'Shantui bulldozer - no PPN applied',
   },
   {
-    id: 'iit00005-0000-0000-0000-000000000005',
+    id: 'b0000005-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice5,
     productId: productIds.product11,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '42000000.00',
     total: '42000000.00',
     paymentTerms: 'NET 30',
@@ -169,10 +163,10 @@ export const invoiceItems = [
     notes: 'Caterpillar excavator - payment received',
   },
   {
-    id: 'iit00006-0000-0000-0000-000000000006',
+    id: 'b0000006-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice6,
     productId: productIds.product6,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '13500000.00',
     total: '13500000.00',
     paymentTerms: 'NET 30',

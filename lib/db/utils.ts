@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { getDB } from './index';
 import {
@@ -7,10 +7,7 @@ import {
   invoices,
   products,
   quotations,
-  suppliers,
-  transfers,
   users,
-  warehouses,
 } from './schema';
 
 // Utility function to get user with their documents
@@ -64,10 +61,10 @@ export async function getUserWithDocuments(userId: string) {
     .from(imports)
     .where(eq(imports.createdBy, userId));
 
-  const userTransfers = await db
-    .select()
-    .from(transfers)
-    .where(eq(transfers.createdBy, userId));
+  // const userStockMovements = await db
+  //   .select()
+  //   .from(stockMovements)
+  //   .where(eq(stockMovements.createdBy, userId));
 
   return {
     ...user[0],
@@ -75,7 +72,7 @@ export async function getUserWithDocuments(userId: string) {
     invoices: userInvoices,
     deliveryNotes: userDeliveryNotes,
     imports: userImports,
-    transfers: userTransfers,
+    // transfers: userTransfers,
   };
 }
 
@@ -231,43 +228,6 @@ export async function getImportWithItems(importId: string) {
   };
 }
 
-// Utility function to get transfer with items
-export async function getTransferWithItems(transferId: string) {
-  const db = await getDB();
-
-  const transfer = await db
-    .select()
-    .from(transfers)
-    .where(eq(transfers.id, transferId))
-    .limit(1);
-
-  if (transfer.length === 0) {
-    return null;
-  }
-
-  const transferItems = await db
-    .select({
-      id: sql`transfer_items.id`,
-      productId: sql`transfer_items.product_id`,
-      productName: sql`products.name`,
-      productCode: sql`products.code`,
-      quantity: sql`transfer_items.quantity`,
-      transferredQuantity: sql`transfer_items.transferred_quantity`,
-      notes: sql`transfer_items.notes`,
-    })
-    .from(sql`transfer_items`)
-    .innerJoin(
-      sql`products`,
-      eq(sql`transfer_items.product_id`, sql`products.id`),
-    )
-    .where(eq(sql`transfer_items.transfer_id`, transferId));
-
-  return {
-    ...transfer[0],
-    items: transferItems,
-  };
-}
-
 // Utility function to get product with supplier
 export async function getProductWithSupplier(productId: string) {
   const db = await getDB();
@@ -279,9 +239,8 @@ export async function getProductWithSupplier(productId: string) {
       name: products.name,
       description: products.description,
       category: products.category,
-      unit: products.unit,
+      unitOfMeasureId: products.unitOfMeasureId,
       price: products.price,
-      currency: products.currency,
       isActive: products.isActive,
       createdAt: products.createdAt,
       supplierId: products.supplierId,

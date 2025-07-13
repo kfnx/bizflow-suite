@@ -178,7 +178,7 @@ export async function PUT(
         validatedData.items.map((item) => ({
           invoiceId: id,
           productId: item.productId,
-          quantity: item.quantity.toString(),
+          quantity: item.quantity,
           unitPrice: item.unitPrice.toString(),
           total: (item.quantity * item.unitPrice).toString(),
           paymentTerms: item.paymentTerms,

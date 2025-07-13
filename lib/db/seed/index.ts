@@ -2,12 +2,16 @@ import { drizzle } from 'drizzle-orm/mysql2';
 
 import { createConnection } from '../index';
 import * as schema from '../schema';
+import { brands } from './brands';
 import { customerContactPersons, customers } from './customers';
 import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
+import { importItems, imports } from './imports';
 import { invoiceItems, invoices } from './invoices';
+import { machineTypes } from './machine-types';
 import { products } from './products';
 import { quotationItems, quotations } from './quotations';
 import { supplierContactPersons, suppliers } from './suppliers';
+import { unitOfMeasures } from './unit-of-measures';
 import { users } from './users';
 import { warehouses } from './warehouses';
 
@@ -44,6 +48,18 @@ async function main() {
   await db.insert(schema.warehouses).values(warehouses);
   console.log(`✅ Seeded ${warehouses.length} warehouses`);
 
+  console.log('🔄 Seeding brands...');
+  await db.insert(schema.brands).values(brands);
+  console.log(`✅ Seeded ${brands.length} brands`);
+
+  console.log('🔄 Seeding machine types...');
+  await db.insert(schema.machineTypes).values(machineTypes);
+  console.log(`✅ Seeded ${machineTypes.length} machine types`);
+
+  console.log('🔄 Seeding unit of measures...');
+  await db.insert(schema.unitOfMeasures).values(unitOfMeasures);
+  console.log(`✅ Seeded ${unitOfMeasures.length} unit of measures`);
+
   console.log('🔄 Seeding products...');
   await db.insert(schema.products).values(products);
   console.log(`✅ Seeded ${products.length} products`);
@@ -71,6 +87,14 @@ async function main() {
   console.log('🔄 Seeding delivery note items...');
   await db.insert(schema.deliveryNoteItems).values(deliveryNoteItems);
   console.log(`✅ Seeded ${deliveryNoteItems.length} delivery note items`);
+
+  console.log('🔄 Seeding imports...');
+  await db.insert(schema.imports).values(imports);
+  console.log(`✅ Seeded ${imports.length} imports`);
+
+  console.log('🔄 Seeding import items...');
+  await db.insert(schema.importItems).values(importItems);
+  console.log(`✅ Seeded ${importItems.length} import items`);
 
   await connection.end();
   console.log('🎉 Database seeded successfully with complete sample data!');

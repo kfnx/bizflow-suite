@@ -24,17 +24,45 @@ import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
+interface ImportItem {
+  id?: string;
+  productId?: string;
+  productCode: string;
+  productName: string;
+  productDescription?: string;
+  productCategory: 'serialized' | 'non_serialized' | 'bulk';
+  priceRMB: string;
+  quantity: number;
+  total: string;
+  notes?: string;
+  // Product creation fields
+  machineTypeId?: string;
+  unitOfMeasureId?: string;
+  brandId?: string;
+  modelOrPartNumber?: string;
+  machineNumber?: string;
+  engineNumber?: string;
+  itemName?: string;
+  batchOrLotNumber?: string;
+  itemDescription?: string;
+  serialNumber?: string;
+  model?: string;
+  year?: number;
+  condition: 'new' | 'used' | 'refurbished';
+  engineModel?: string;
+  enginePower?: string;
+  operatingWeight?: string;
+}
+
 interface EditImportData {
   supplierId: string;
   warehouseId: string;
   importDate: string;
   invoiceNumber: string;
   invoiceDate: string;
-  productId: string;
-  exchangeRateRMB: number;
-  priceRMB: number;
-  quantity: number;
+  exchangeRateRMB: string;
   notes: string;
+  items: ImportItem[];
 }
 
 interface EditImportPageProps {
@@ -51,55 +79,91 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     importDate: '',
     invoiceNumber: '',
     invoiceDate: '',
-    productId: '',
-    exchangeRateRMB: 0,
-    priceRMB: 0,
-    quantity: 0,
+    exchangeRateRMB: '2250',
     notes: '',
+    items: [],
   });
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // TODO: Replace with actual API call
-  const importData = {
-    supplierId: 'supplier1',
-    warehouseId: 'warehouse1',
-    importDate: '2024-01-15',
-    invoiceNumber: 'INV-2024-001',
-    invoiceDate: '2024-01-10',
-    productId: 'product1',
-    exchangeRateRMB: 2200,
-    priceRMB: 5000,
-    quantity: 2,
-    notes: 'Sample import record',
-  };
-  const importLoading = false;
-  const importError = null;
-
-  // Populate form data when import data is loaded
+  // Fetch import data from API
   useEffect(() => {
-    if (importData) {
-      setFormData({
-        supplierId: importData.supplierId || '',
-        warehouseId: importData.warehouseId || '',
-        importDate: importData.importDate || '',
-        invoiceNumber: importData.invoiceNumber || '',
-        invoiceDate: importData.invoiceDate || '',
-        productId: importData.productId || '',
-        exchangeRateRMB: importData.exchangeRateRMB || 0,
-        priceRMB: importData.priceRMB || 0,
-        quantity: importData.quantity || 0,
-        notes: importData.notes || '',
-      });
-      setIsLoading(false);
-    }
-  }, [importData]);
+    const fetchImportData = async () => {
+      try {
+        const response = await fetch(`/api/imports/${params.id}`);
 
-  if (importLoading || isLoading) {
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('Import not found');
+          } else {
+            setError('Failed to load import data');
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        const result = await response.json();
+        const importData = result.data;
+
+        // Transform API data to form data
+        setFormData({
+          supplierId: importData.supplierId || '',
+          warehouseId: importData.warehouseId || '',
+          importDate: importData.importDate
+            ? new Date(importData.importDate).toISOString().split('T')[0]
+            : '',
+          invoiceNumber: importData.invoiceNumber || '',
+          invoiceDate: importData.invoiceDate
+            ? new Date(importData.invoiceDate).toISOString().split('T')[0]
+            : '',
+          exchangeRateRMB: importData.exchangeRateRMB?.toString() || '0',
+          notes: importData.notes || '',
+          items:
+            importData.items?.map((item: any) => ({
+              id: item.id,
+              productId: item.productId,
+              productCode: item.productCode || '',
+              productName: item.productName || '',
+              productDescription: item.productDescription,
+              productCategory: item.productCategory || 'non_serialized',
+              priceRMB: item.priceRMB?.toString() || '0',
+              quantity: item.quantity || 0,
+              total: item.total?.toString() || '0',
+              notes: item.notes,
+              machineTypeId: item.machineTypeId,
+              unitOfMeasureId: item.unitOfMeasureId,
+              brandId: item.brandId,
+              modelOrPartNumber: item.modelOrPartNumber,
+              machineNumber: item.machineNumber,
+              engineNumber: item.engineNumber,
+              itemName: item.itemName,
+              batchOrLotNumber: item.batchOrLotNumber,
+              itemDescription: item.itemDescription,
+              serialNumber: item.serialNumber,
+              model: item.model,
+              year: item.year,
+              condition: item.condition || 'new',
+              engineModel: item.engineModel,
+              enginePower: item.enginePower,
+              operatingWeight: item.operatingWeight,
+            })) || [],
+        });
+      } catch (err) {
+        console.error('Error fetching import data:', err);
+        setError('Failed to load import data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchImportData();
+  }, [params.id]);
+
+  if (isLoading) {
     return (
       <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
         Loading...
@@ -107,18 +171,10 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     );
   }
 
-  if (importError) {
+  if (error) {
     return (
       <div className='flex h-full w-full items-center justify-center text-red-600'>
-        Error loading import data
-      </div>
-    );
-  }
-
-  if (!importData) {
-    return (
-      <div className='flex h-full w-full items-center justify-center text-red-600'>
-        Import not found
+        {error}
       </div>
     );
   }
@@ -141,16 +197,13 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     if (!formData.invoiceNumber.trim()) {
       errors.invoiceNumber = 'Invoice number is required';
     }
-    if (!formData.productId) {
-      errors.productId = 'Product is required';
+    if (!formData.items || formData.items.length === 0) {
+      errors.items = 'At least one product item is required';
     }
-    if (!formData.quantity || formData.quantity <= 0) {
-      errors.quantity = 'Quantity must be greater than 0';
-    }
-    if (!formData.priceRMB || formData.priceRMB <= 0) {
-      errors.priceRMB = 'Price (RMB) must be greater than 0';
-    }
-    if (!formData.exchangeRateRMB || formData.exchangeRateRMB <= 0) {
+    if (
+      !formData.exchangeRateRMB ||
+      parseFloat(formData.exchangeRateRMB) <= 0
+    ) {
       errors.exchangeRateRMB = 'Exchange rate must be greater than 0';
     }
 
@@ -161,17 +214,55 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     }
 
     try {
-      // TODO: Implement API call
+      // Prepare data for API
+      const apiData = {
+        supplierId: formData.supplierId,
+        warehouseId: formData.warehouseId,
+        importDate: formData.importDate,
+        invoiceNumber: formData.invoiceNumber,
+        invoiceDate: formData.invoiceDate,
+        exchangeRateRMB: formData.exchangeRateRMB,
+        notes: formData.notes,
+        items: formData.items.map((item) => ({
+          id: item.id,
+          productId: item.productId,
+          code: item.productCode,
+          name: item.productName,
+          description: item.productDescription,
+          category: item.productCategory,
+          priceRMB: item.priceRMB,
+          quantity: item.quantity,
+          notes: item.notes,
+          machineTypeId: item.machineTypeId,
+          unitOfMeasureId: item.unitOfMeasureId,
+          brandId: item.brandId,
+          modelOrPartNumber: item.modelOrPartNumber,
+          machineNumber: item.machineNumber,
+          engineNumber: item.engineNumber,
+          itemName: item.itemName,
+          batchOrLotNumber: item.batchOrLotNumber,
+          itemDescription: item.itemDescription,
+          serialNumber: item.serialNumber,
+          model: item.model,
+          year: item.year,
+          condition: item.condition,
+          engineModel: item.engineModel,
+          enginePower: item.enginePower,
+          operatingWeight: item.operatingWeight,
+        })),
+      };
+
       const response = await fetch(`/api/imports/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update import');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update import');
       }
 
       router.push('/imports');
@@ -186,10 +277,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     }
   };
 
-  const handleInputChange = (
-    field: keyof EditImportData,
-    value: string | number,
-  ) => {
+  const handleInputChange = (field: keyof EditImportData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear validation errors when user starts typing
@@ -202,11 +290,13 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   };
 
   const calculateTotal = () => {
-    const quantity = formData.quantity || 0;
-    const priceRMB = formData.priceRMB || 0;
-    const exchangeRate = formData.exchangeRateRMB || 0;
+    const exchangeRate = parseFloat(formData.exchangeRateRMB) || 0;
+    const itemsTotal = formData.items.reduce((total, item) => {
+      const itemTotal = item.quantity * parseFloat(item.priceRMB);
+      return total + itemTotal;
+    }, 0);
 
-    return quantity * priceRMB * exchangeRate;
+    return itemsTotal * exchangeRate;
   };
 
   return (
@@ -294,7 +384,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                 </div>
               </div>
 
-              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-1'>
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='importDate'>
                     Import Date <Label.Asterisk />
@@ -313,33 +403,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                       />
                     </Input.Wrapper>
                   </Input.Root>
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='productId'>
-                    Product <Label.Asterisk />
-                  </Label.Root>
-                  <Select.Root
-                    value={formData.productId}
-                    onValueChange={(value) =>
-                      handleInputChange('productId', value)
-                    }
-                  >
-                    <Select.Trigger>
-                      <Select.TriggerIcon as={RiBox3Line} />
-                      <Select.Value placeholder='Select product' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {/* TODO: Add dynamic product options */}
-                      <Select.Item value='product1'>Product 1</Select.Item>
-                      <Select.Item value='product2'>Product 2</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                  {validationErrors.productId && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.productId}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -402,74 +465,13 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
             <Divider.Root />
 
-            {/* Quantity and Pricing */}
+            {/* Exchange Rate */}
             <div>
               <h3 className='text-lg text-gray-900 mb-4 font-medium'>
-                Quantity and Pricing
+                Exchange Rate
               </h3>
 
-              <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='quantity'>
-                    Quantity <Label.Asterisk />
-                  </Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiHashtag} />
-                      <Input.Input
-                        id='quantity'
-                        type='number'
-                        min='1'
-                        value={formData.quantity}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'quantity',
-                            parseInt(e.target.value),
-                          )
-                        }
-                        placeholder='Enter quantity'
-                        required
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                  {validationErrors.quantity && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.quantity}
-                    </div>
-                  )}
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='priceRMB'>
-                    Price (RMB) <Label.Asterisk />
-                  </Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiMoneyDollarCircleLine} />
-                      <Input.Input
-                        id='priceRMB'
-                        type='number'
-                        step='0.01'
-                        min='0'
-                        value={formData.priceRMB}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'priceRMB',
-                            parseFloat(e.target.value),
-                          )
-                        }
-                        placeholder='Enter price in RMB'
-                        required
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                  {validationErrors.priceRMB && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.priceRMB}
-                    </div>
-                  )}
-                </div>
-
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-1'>
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='exchangeRateRMB'>
                     Exchange Rate (RMB to IDR) <Label.Asterisk />
@@ -480,14 +482,10 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                       <Input.Input
                         id='exchangeRateRMB'
                         type='number'
-                        step='0.01'
                         min='0'
                         value={formData.exchangeRateRMB}
                         onChange={(e) =>
-                          handleInputChange(
-                            'exchangeRateRMB',
-                            parseFloat(e.target.value),
-                          )
+                          handleInputChange('exchangeRateRMB', e.target.value)
                         }
                         placeholder='Enter exchange rate'
                         required

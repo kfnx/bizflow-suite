@@ -36,6 +36,34 @@
       "when": 1752294861962,
       "tag": "0004_steep_omega_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1752316677566,
+      "tag": "0005_tough_layla_miller",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1752316962434,
+      "tag": "0006_watery_toxin",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1752317940093,
+      "tag": "0007_hesitant_molly_hayes",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1752319840287,
+      "tag": "0008_sturdy_stepford_cuckoos",
+      "breakpoints": true
     }
   ]
 }

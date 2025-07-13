@@ -1,14 +1,10 @@
-import { customerIds } from './customers';
-import { invoiceIds } from './invoices';
-import { productIds } from './products';
-import { userIds } from './users';
-
-export const deliveryNoteIds = {
-  deliveryNote1: 'dln00001-0000-0000-0000-000000000001',
-  deliveryNote2: 'dln00002-0000-0000-0000-000000000002',
-  deliveryNote3: 'dln00003-0000-0000-0000-000000000003',
-  deliveryNote4: 'dln00004-0000-0000-0000-000000000004',
-};
+import {
+  customerIds,
+  deliveryNoteIds,
+  invoiceIds,
+  productIds,
+  userIds,
+} from './seed-constants';
 
 export const deliveryNotes = [
   {
@@ -75,35 +71,35 @@ export const deliveryNotes = [
 
 export const deliveryNoteItems = [
   {
-    id: 'dit00001-0000-0000-0000-000000000001',
+    id: 'a0000001-0000-4000-a000-000000000001',
     deliveryNoteId: deliveryNoteIds.deliveryNote1,
     productId: productIds.product4,
-    quantity: '1.00',
-    deliveredQuantity: '1.00',
+    quantity: 1,
+    deliveredQuantity: 1,
     notes: 'Shantui DH08-B3-XL bulldozer delivered with full accessories',
   },
   {
-    id: 'dit00002-0000-0000-0000-000000000002',
+    id: 'a0000002-0000-4000-a000-000000000001',
     deliveryNoteId: deliveryNoteIds.deliveryNote2,
     productId: productIds.product15,
-    quantity: '1.00',
-    deliveredQuantity: '0.00',
+    quantity: 1,
+    deliveredQuantity: 0,
     notes: 'JCB 3DX backhoe loader - pending delivery',
   },
   {
-    id: 'dit00003-0000-0000-0000-000000000003',
+    id: 'a0000003-0000-4000-a000-000000000001',
     deliveryNoteId: deliveryNoteIds.deliveryNote3,
     productId: productIds.product11,
-    quantity: '1.00',
-    deliveredQuantity: '1.00',
+    quantity: 1,
+    deliveredQuantity: 1,
     notes: 'Caterpillar 320 excavator delivered with operator training',
   },
   {
-    id: 'dit00004-0000-0000-0000-000000000004',
+    id: 'a0000004-0000-4000-a000-000000000001',
     deliveryNoteId: deliveryNoteIds.deliveryNote4,
     productId: productIds.product8,
-    quantity: '1.00',
-    deliveredQuantity: '1.00',
+    quantity: 1,
+    deliveredQuantity: 1,
     notes: 'Shantui SD16F bulldozer picked up by customer',
   },
 ];

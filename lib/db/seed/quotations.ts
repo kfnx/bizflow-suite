@@ -1,19 +1,10 @@
 import { QUOTATION_STATUS } from '../enum';
-import { customerIds } from './customers';
-import { productIds } from './products';
-import { userIds } from './users';
-
-export const quotationIds = {
-  quotation1: 'quo00001-0000-0000-0000-000000000001',
-  quotation2: 'quo00002-0000-0000-0000-000000000002',
-  quotation3: 'quo00003-0000-0000-0000-000000000003',
-  quotation4: 'quo00004-0000-0000-0000-000000000004',
-  quotation5: 'quo00005-0000-0000-0000-000000000005',
-  quotation6: 'quo00006-0000-0000-0000-000000000006',
-  quotation7: 'quo00007-0000-0000-0000-000000000007',
-  quotation8: 'quo00008-0000-0000-0000-000000000008',
-  quotation9: 'quo00009-0000-0000-0000-000000000009',
-};
+import {
+  customerIds,
+  productIds,
+  quotationIds,
+  userIds,
+} from './seed-constants';
 
 export const quotations = [
   {
@@ -173,82 +164,82 @@ export const quotations = [
 
 export const quotationItems = [
   {
-    id: 'qit00001-0000-0000-0000-000000000001',
+    id: 'c0000001-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation1,
     productId: productIds.product1,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '15000000.00',
     total: '15000000.00',
     notes: 'Wheel loader with standard configuration',
   },
   {
-    id: 'qit00002-0000-0000-0000-000000000002',
+    id: 'c0000002-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation2,
     productId: productIds.product2,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '25000000.00',
     total: '25000000.00',
     notes: 'Wheel loader with premium features',
   },
   {
-    id: 'qit00003-0000-0000-0000-000000000003',
+    id: 'c0000003-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation3,
     productId: productIds.product4,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '35000000.00',
     total: '35000000.00',
     notes: 'Bulldozer with advanced controls',
   },
   {
-    id: 'qit00004-0000-0000-0000-000000000004',
+    id: 'c0000004-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation4,
     productId: productIds.product5,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '18000000.00',
     total: '18000000.00',
     notes: 'Excavator for construction project',
   },
   {
-    id: 'qit00005-0000-0000-0000-000000000005',
+    id: 'c0000005-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation5,
     productId: productIds.product11,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '42000000.00',
     total: '42000000.00',
     notes: 'Caterpillar excavator for mining operations',
   },
   {
-    id: 'qit00006-0000-0000-0000-000000000006',
+    id: 'c0000006-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation6,
     productId: productIds.product12,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '28000000.00',
     total: '28000000.00',
     notes: 'Komatsu excavator for infrastructure project',
   },
   {
-    id: 'qit00007-0000-0000-0000-000000000007',
+    id: 'c0000007-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation7,
     productId: productIds.product15,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '32000000.00',
     total: '32000000.00',
     notes: 'JCB backhoe loader for construction site',
   },
   {
-    id: 'qit00008-0000-0000-0000-000000000008',
+    id: 'c0000008-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation8,
     productId: productIds.product13,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '45000000.00',
     total: '45000000.00',
     notes: 'Hitachi excavator for large construction project',
   },
   {
-    id: 'qit00009-0000-0000-0000-000000000009',
+    id: 'c0000009-0000-4000-a000-000000000001',
     quotationId: quotationIds.quotation9,
     productId: productIds.product14,
-    quantity: '1.00',
+    quantity: 1,
     unitPrice: '22000000.00',
     total: '22000000.00',
     notes: 'Volvo wheel loader for logistics center',

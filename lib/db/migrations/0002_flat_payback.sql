@@ -1,0 +1,1 @@
+ALTER TABLE `products` RENAME COLUMN `item_name` TO `name`;

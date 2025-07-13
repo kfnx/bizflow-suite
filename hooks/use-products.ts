@@ -8,14 +8,21 @@ import type { Product } from '@/lib/db/schema';
 export type ProductWithRelations = Product & {
   brandId?: string | null;
   brandName?: string | null;
+  machineTypeId?: string | null;
+  machineTypeName?: string | null;
+  unitOfMeasureId?: string | null;
+  unitOfMeasureName?: string | null;
+  unitOfMeasureAbbreviation?: string | null;
+  modelOrPartNumber?: string | null;
+  machineNumber?: string | null;
+  engineNumber?: string | null;
+  batchOrLotNumber?: string | null;
+  serialNumber?: string | null;
+  warehouseId?: string | null;
+  warehouseName?: string | null;
   supplierId?: string | null;
   supplierName?: string | null;
   supplierCode?: string | null;
-  machineTypeName?: string | null;
-  unitOfMeasureName?: string | null;
-  unitOfMeasureAbbreviation?: string | null;
-  warehouseId?: string | null;
-  warehouseName?: string | null;
 };
 
 export type ProductsResponse = {
@@ -70,6 +77,17 @@ const fetchProducts = async (
   return response.json();
 };
 
+const fetchProduct = async (
+  productId: string,
+): Promise<ProductWithRelations> => {
+  const response = await fetch(`/api/products/${productId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch product');
+  }
+  const data = await response.json();
+  return data.data;
+};
+
 const deleteProduct = async (productId: string): Promise<void> => {
   const response = await fetch(`/api/products/${productId}`, {
     method: 'DELETE',
@@ -85,6 +103,14 @@ export function useProducts(filters: ProductsFilters = {}) {
   return useQuery({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
+  });
+}
+
+export function useProduct(productId: string | null) {
+  return useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => fetchProduct(productId!),
+    enabled: !!productId,
   });
 }
 

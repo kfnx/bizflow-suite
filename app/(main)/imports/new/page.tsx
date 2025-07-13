@@ -31,6 +31,7 @@ import Header from '@/components/header';
 interface ProductItem {
   id?: string;
   productId?: string;
+  name: string;
   description?: string;
   category: 'serialized' | 'non_serialized' | 'bulk';
   priceRMB: string;
@@ -55,10 +56,8 @@ interface ProductItem {
   operatingWeight?: string;
 
   // Non-serialized specific
-  name?: string;
   batchOrLotNumber?: string;
   modelNumber?: string;
-  brand?: string;
 }
 
 interface ImportFormData {
@@ -148,7 +147,7 @@ function ProductItemForm({
           </Button.Root>
         )}
       </div>
-      <div className='mb-4 grid grid-cols-1 gap-6 sm:grid-cols-3'>
+      <div className='mb-4 grid grid-cols-1 gap-6 sm:grid-cols-2'>
         <div className='flex flex-col gap-2'>
           <Label.Root htmlFor={`category-${index}`}>
             Type <Label.Asterisk />
@@ -157,7 +156,7 @@ function ProductItemForm({
             value={item.category}
             onValueChange={(value) => handleFieldChange('category', value)}
           >
-            <Select.Trigger>
+            <Select.Trigger id={`category-${index}`}>
               <Select.Value placeholder='Select type' />
             </Select.Trigger>
             <Select.Content>
@@ -167,12 +166,64 @@ function ProductItemForm({
             </Select.Content>
           </Select.Root>
         </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`brandInput-${index}`}>Brand</Label.Root>
+          <Select.Root
+            value={item.brandId || ''}
+            onValueChange={(value) => handleFieldChange('brandId', value)}
+          >
+            <Select.Trigger id={`brandInput-${index}`}>
+              <Select.Value placeholder='Select brand' />
+            </Select.Trigger>
+            <Select.Content>
+              {brands.map((brand) => (
+                <Select.Item key={brand.id} value={brand.id}>
+                  {brand.name}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`name-${index}`}>
+            Name <Label.Asterisk />
+          </Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                id={`name-${index}`}
+                value={item.name}
+                onChange={(e) => handleFieldChange('name', e.target.value)}
+                placeholder='Enter item name'
+              />
+            </Input.Wrapper>
+          </Input.Root>
+          {getFieldError('name') && (
+            <div className='text-xs text-red-600'>{getFieldError('name')}</div>
+          )}
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`description-${index}`}>Description</Label.Root>
+          <Input.Root>
+            <Input.Wrapper>
+              <Input.Input
+                id={`description-${index}`}
+                value={item.description || ''}
+                onChange={(e) =>
+                  handleFieldChange('description', e.target.value)
+                }
+                placeholder='Enter description'
+              />
+            </Input.Wrapper>
+          </Input.Root>
+        </div>
       </div>
+
       {/* Category-specific fields */}
       {item.category === 'serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root>
+            <Label.Root htmlFor={`machineType-${index}`}>
               Machine Type <Label.Asterisk />
             </Label.Root>
             <Select.Root
@@ -181,7 +232,7 @@ function ProductItemForm({
                 handleFieldChange('machineTypeId', value)
               }
             >
-              <Select.Trigger>
+              <Select.Trigger id={`machineType-${index}`}>
                 <Select.Value placeholder='Select type' />
               </Select.Trigger>
               <Select.Content>
@@ -194,10 +245,13 @@ function ProductItemForm({
             </Select.Root>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Model Number</Label.Root>
+            <Label.Root htmlFor={`modelNumber-${index}`}>
+              Model Number
+            </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id={`modelNumber-${index}`}
                   value={item.modelNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('modelNumber', e.target.value)
@@ -208,10 +262,13 @@ function ProductItemForm({
             </Input.Root>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Machine Number</Label.Root>
+            <Label.Root htmlFor={`machineNumber-${index}`}>
+              Machine Number
+            </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id={`machineNumber-${index}`}
                   value={item.machineNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('machineNumber', e.target.value)
@@ -222,10 +279,13 @@ function ProductItemForm({
             </Input.Root>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Engine Number</Label.Root>
+            <Label.Root htmlFor={`engineNumber-${index}`}>
+              Engine Number
+            </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id={`engineNumber-${index}`}
                   value={item.engineNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('engineNumber', e.target.value)
@@ -235,37 +295,19 @@ function ProductItemForm({
               </Input.Wrapper>
             </Input.Root>
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Brand</Label.Root>
-            <Select.Root
-              value={item.brandId || ''}
-              onValueChange={(value) => handleFieldChange('brandId', value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Select brand' />
-              </Select.Trigger>
-              <Select.Content>
-                {brands.map((brand) => (
-                  <Select.Item key={brand.id} value={brand.id}>
-                    {brand.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
         </div>
       )}
       {item.category === 'non_serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Unit</Label.Root>
+            <Label.Root htmlFor={`unit-${index}`}>Unit</Label.Root>
             <Select.Root
               value={item.unitOfMeasureId || ''}
               onValueChange={(value) =>
                 handleFieldChange('unitOfMeasureId', value)
               }
             >
-              <Select.Trigger>
+              <Select.Trigger id={`unit-${index}`}>
                 <Select.Value placeholder='Select unit' />
               </Select.Trigger>
               <Select.Content>
@@ -278,10 +320,13 @@ function ProductItemForm({
             </Select.Root>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Batch/Lot Number</Label.Root>
+            <Label.Root htmlFor={`batchLotNumber-${index}`}>
+              Batch/Lot Number
+            </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id={`batchLotNumber-${index}`}
                   value={item.batchOrLotNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('batchOrLotNumber', e.target.value)
@@ -291,57 +336,19 @@ function ProductItemForm({
               </Input.Wrapper>
             </Input.Root>
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Name</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={item.name || ''}
-                  onChange={(e) => handleFieldChange('name', e.target.value)}
-                  placeholder='e.g. Bulldozer Blade'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Description</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={item.description || ''}
-                  onChange={(e) =>
-                    handleFieldChange('description', e.target.value)
-                  }
-                  placeholder='Item description'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Brand</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={item.brand || ''}
-                  onChange={(e) => handleFieldChange('brand', e.target.value)}
-                  placeholder='Brand'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
         </div>
       )}
       {item.category === 'bulk' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Unit</Label.Root>
+            <Label.Root htmlFor={`unitBulk-${index}`}>Unit</Label.Root>
             <Select.Root
               value={item.unitOfMeasureId || ''}
               onValueChange={(value) =>
                 handleFieldChange('unitOfMeasureId', value)
               }
             >
-              <Select.Trigger>
+              <Select.Trigger id={`unitBulk-${index}`}>
                 <Select.Value placeholder='Select unit' />
               </Select.Trigger>
               <Select.Content>
@@ -354,10 +361,13 @@ function ProductItemForm({
             </Select.Root>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Model/Part Number</Label.Root>
+            <Label.Root htmlFor={`modelPartNumber-${index}`}>
+              Model/Part Number
+            </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id={`modelPartNumber-${index}`}
                   value={item.modelOrPartNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('modelOrPartNumber', e.target.value)
@@ -368,10 +378,13 @@ function ProductItemForm({
             </Input.Root>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root>Batch/Lot Number</Label.Root>
+            <Label.Root htmlFor={`batchLotNumberBulk-${index}`}>
+              Batch/Lot Number
+            </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
+                  id={`batchLotNumberBulk-${index}`}
                   value={item.batchOrLotNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('batchOrLotNumber', e.target.value)
@@ -381,43 +394,18 @@ function ProductItemForm({
               </Input.Wrapper>
             </Input.Root>
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Description</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={item.description || ''}
-                  onChange={(e) =>
-                    handleFieldChange('description', e.target.value)
-                  }
-                  placeholder='Item description'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root>Brand</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={item.brand || ''}
-                  onChange={(e) => handleFieldChange('brand', e.target.value)}
-                  placeholder='Brand'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
         </div>
       )}
       {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
       <div className='mt-4 grid grid-cols-1 gap-6 sm:grid-cols-5'>
         <div className='flex flex-col gap-2'>
-          <Label.Root>
+          <Label.Root htmlFor={`quantity-${index}`}>
             QTY <Label.Asterisk />
           </Label.Root>
           <Input.Root>
             <Input.Wrapper>
               <Input.Input
+                id={`quantity-${index}`}
                 type='number'
                 min='1'
                 value={item.quantity}
@@ -433,12 +421,13 @@ function ProductItemForm({
           )}
         </div>
         <div className='flex flex-col gap-2'>
-          <Label.Root>
+          <Label.Root htmlFor={`priceRMB-${index}`}>
             Price (RMB) <Label.Asterisk />
           </Label.Root>
           <Input.Root>
             <Input.Wrapper>
               <Input.Input
+                id={`priceRMB-${index}`}
                 type='number'
                 min='0'
                 step='0.01'
@@ -455,10 +444,11 @@ function ProductItemForm({
           )}
         </div>
         <div className='flex flex-col gap-2'>
-          <Label.Root>Total (RMB)</Label.Root>
+          <Label.Root htmlFor={`totalRMB-${index}`}>Total (RMB)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
               <Input.Input
+                id={`totalRMB-${index}`}
                 type='number'
                 min='0'
                 value={String(
@@ -471,10 +461,11 @@ function ProductItemForm({
           </Input.Root>
         </div>
         <div className='flex flex-col gap-2'>
-          <Label.Root>Price (IDR)</Label.Root>
+          <Label.Root htmlFor={`priceIDR-${index}`}>Price (IDR)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
               <Input.Input
+                id={`priceIDR-${index}`}
                 type='number'
                 min='0'
                 value={String(
@@ -487,10 +478,11 @@ function ProductItemForm({
           </Input.Root>
         </div>
         <div className='flex flex-col gap-2'>
-          <Label.Root>Total (IDR)</Label.Root>
+          <Label.Root htmlFor={`totalIDR-${index}`}>Total (IDR)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
               <Input.Input
+                id={`totalIDR-${index}`}
                 type='number'
                 min='0'
                 value={String(
@@ -535,17 +527,17 @@ export default function NewImportPage() {
   function createEmptyProductItem(): ProductItem {
     return {
       category: 'serialized',
+      name: '',
+      description: '',
       priceRMB: '',
       quantity: '1',
       condition: 'new',
       modelNumber: '',
       machineNumber: '',
       engineNumber: '',
-      brand: '',
+      brandId: '',
       unitOfMeasureId: '',
-      name: '',
       batchOrLotNumber: '',
-      description: '',
       modelOrPartNumber: '',
     };
   }
@@ -664,6 +656,9 @@ export default function NewImportPage() {
     }
 
     formData.items.forEach((item, index) => {
+      if (!item.name.trim()) {
+        errors[`items.${index}.name`] = 'Item name is required';
+      }
       if (!item.priceRMB.trim()) {
         errors[`items.${index}.priceRMB`] = 'Price is required';
       }
@@ -703,10 +698,6 @@ export default function NewImportPage() {
         errors[`items.${index}.unitOfMeasureId`] =
           'Unit of measure is required';
       }
-      if (item.category === 'non_serialized' && !item.name?.trim()) {
-        errors[`items.${index}.name`] =
-          'Item name is required for non-serialized products';
-      }
       if (item.category === 'bulk' && !item.modelOrPartNumber?.trim()) {
         errors[`items.${index}.modelOrPartNumber`] =
           'Model/Part number is required for bulk products';
@@ -719,8 +710,9 @@ export default function NewImportPage() {
         errors[`items.${index}.description`] =
           'Description is required for bulk products';
       }
-      if (item.category === 'bulk' && !item.brand?.trim()) {
-        errors[`items.${index}.brand`] = 'Brand is required for bulk products';
+      if (item.category === 'bulk' && !item.brandId) {
+        errors[`items.${index}.brandId`] =
+          'Brand is required for bulk products';
       }
     });
 

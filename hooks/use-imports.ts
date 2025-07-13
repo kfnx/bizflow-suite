@@ -144,6 +144,29 @@ const createImport = async (data: CreateImportData): Promise<Import> => {
   return response.json();
 };
 
+const updateImport = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: any;
+}): Promise<Import> => {
+  const response = await fetch(`/api/imports/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to update import');
+  }
+
+  return response.json();
+};
+
 const deleteImport = async (importId: string): Promise<void> => {
   const response = await fetch(`/api/imports/${importId}`, {
     method: 'DELETE',
@@ -178,6 +201,20 @@ export function useCreateImport() {
     onSuccess: () => {
       // Invalidate and refetch imports after successful creation
       queryClient.invalidateQueries({ queryKey: ['imports'] });
+    },
+  });
+}
+
+export function useUpdateImport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateImport,
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch imports after successful update
+      queryClient.invalidateQueries({ queryKey: ['imports'] });
+      // Update the specific import cache
+      queryClient.invalidateQueries({ queryKey: ['import', variables.id] });
     },
   });
 }

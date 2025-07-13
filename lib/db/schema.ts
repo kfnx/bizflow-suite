@@ -522,7 +522,7 @@ export const products = mysqlTable(
 
     // shared properties between all category
     brandId: varchar('brand_id', { length: 36 }), // shantui, etc
-    name: varchar('item_name', { length: 100 }).notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
     description: text('description'),
 
     // product details (based on old prototype)

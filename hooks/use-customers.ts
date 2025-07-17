@@ -17,7 +17,6 @@ export type Customer = {
   country?: string;
   postalCode?: string;
   paymentTerms?: string;
-  isPPN?: boolean;
   isActive?: boolean;
   contactPersons?: Array<{
     id: string;

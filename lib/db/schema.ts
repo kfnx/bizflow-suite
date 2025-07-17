@@ -122,7 +122,6 @@ export const customers = mysqlTable(
     country: varchar('country', { length: 100 }),
     postalCode: varchar('postal_code', { length: 20 }),
     paymentTerms: varchar('payment_terms', { length: 100 }), // NET 30, NET 15
-    isPPN: boolean('is_ppn').default(false),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -1104,7 +1103,6 @@ export interface UserQueryParams {
 export interface CustomerQueryParams {
   search?: string;
   type?: 'individual' | 'company';
-  isPPN?: boolean;
   page?: number;
   limit?: number;
 }

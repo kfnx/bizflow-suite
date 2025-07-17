@@ -127,11 +127,6 @@ export function CustomerDetail({ id }: CustomerDetailProps) {
           >
             {customer.isActive ? 'Active' : 'Inactive'}
           </Badge.Root>
-          {customer.isPPN && (
-            <Badge.Root variant='light' color='green'>
-              Include PPN
-            </Badge.Root>
-          )}
         </div>
 
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
@@ -177,15 +172,6 @@ export function CustomerDetail({ id }: CustomerDetailProps) {
                     {customer.isActive
                       ? 'Active Customer'
                       : 'Inactive Customer'}
-                  </div>
-                </div>
-
-                <div>
-                  <div className='mb-1 text-subheading-xs uppercase text-text-soft-400'>
-                    PPN Status
-                  </div>
-                  <div className='text-paragraph-sm text-text-strong-950'>
-                    {customer.isPPN ? 'Include PPN' : 'no PPN'}
                   </div>
                 </div>
 

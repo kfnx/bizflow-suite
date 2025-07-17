@@ -154,29 +154,6 @@ export function CustomersTable({
       ),
     },
     {
-      id: 'ppn',
-      accessorKey: 'isPPN',
-      header: ({ column }) => (
-        <div className='flex items-center gap-0.5'>
-          PPN
-          <button
-            type='button'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {getSortingIcon(column.getIsSorted())}
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => (
-        <Badge.Root
-          variant='light'
-          color={row.original.isPPN ? 'green' : 'gray'}
-        >
-          {row.original.isPPN ? 'Yes' : 'No'}
-        </Badge.Root>
-      ),
-    },
-    {
       id: 'status',
       accessorKey: 'isActive',
       header: ({ column }) => (

@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
         type: customers.type,
         city: customers.city,
         country: customers.country,
-        isPPN: customers.isPPN,
         isActive: customers.isActive,
         createdAt: customers.createdAt,
       })
@@ -116,7 +115,6 @@ export async function POST(request: NextRequest) {
       postalCode,
       contactPersons: contactPersonsData,
       paymentTerms,
-      isPPN,
     } = body;
 
     // Validate required fields
@@ -158,7 +156,6 @@ export async function POST(request: NextRequest) {
       country,
       postalCode,
       paymentTerms,
-      isPPN: isPPN || false,
     });
 
     // Handle contact persons if provided

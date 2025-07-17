@@ -39,7 +39,6 @@ export default function NewCustomerPage() {
     postalCode: '',
     contactPersons: [{ name: '', email: '', phone: '' }],
     paymentTerms: 'NET 30',
-    isPPN: false,
   });
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -245,19 +244,6 @@ export default function NewCustomerPage() {
                       />
                     </Input.Wrapper>
                   </Input.Root>
-                </div>
-              </div>
-
-              <div className='mt-6'>
-                <div className='flex items-center gap-2'>
-                  <Checkbox.Root
-                    id='isPPN'
-                    checked={formData.isPPN}
-                    onCheckedChange={(checked) =>
-                      handleInputChange('isPPN', Boolean(checked))
-                    }
-                  />
-                  <Label.Root htmlFor='isPPN'>Include PPN</Label.Root>
                 </div>
               </div>
             </div>

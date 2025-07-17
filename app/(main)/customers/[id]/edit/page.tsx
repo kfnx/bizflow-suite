@@ -37,7 +37,6 @@ interface EditCustomerData {
   country: string;
   postalCode: string;
   paymentTerms: string;
-  isPPN: boolean;
   isActive: boolean;
   contactPersons: Array<{
     id?: string;
@@ -76,7 +75,6 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     country: '',
     postalCode: '',
     paymentTerms: '',
-    isPPN: false,
     isActive: true,
     contactPersons: [{ name: '', email: '', phone: '' }],
   });
@@ -102,7 +100,6 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
         country: customerData.country || '',
         postalCode: customerData.postalCode || '',
         paymentTerms: customerData.paymentTerms || '',
-        isPPN: customerData.isPPN || false,
         isActive:
           customerData.isActive !== undefined ? customerData.isActive : true,
         contactPersons:
@@ -339,17 +336,6 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
               </div>
 
               <div className='mt-6 space-y-4'>
-                <div className='flex items-center gap-2'>
-                  <Checkbox.Root
-                    id='isPPN'
-                    checked={formData.isPPN}
-                    onCheckedChange={(checked) =>
-                      handleInputChange('isPPN', Boolean(checked))
-                    }
-                  />
-                  <Label.Root htmlFor='isPPN'>Include PPN</Label.Root>
-                </div>
-
                 <div className='flex items-center gap-2'>
                   <Checkbox.Root
                     id='isActive'

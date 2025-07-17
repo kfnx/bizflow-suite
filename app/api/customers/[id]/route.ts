@@ -67,7 +67,6 @@ export async function PUT(
       postalCode,
       contactPersons: contactPersonsData,
       paymentTerms,
-      isPPN,
       isActive,
     } = body;
 
@@ -102,7 +101,6 @@ export async function PUT(
         country,
         postalCode,
         paymentTerms,
-        isPPN,
         isActive,
         updatedAt: new Date(),
       })

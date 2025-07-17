@@ -62,7 +62,6 @@ export const customers = [
     country: 'Indonesia',
     postalCode: '10110',
     paymentTerms: 'NET 30',
-    isPPN: true,
     isActive: true,
   },
   {
@@ -80,7 +79,6 @@ export const customers = [
     country: 'Indonesia',
     postalCode: '60111',
     paymentTerms: 'NET 15',
-    isPPN: false,
     isActive: false,
   },
   {
@@ -98,7 +96,6 @@ export const customers = [
     country: 'Indonesia',
     postalCode: '12120',
     paymentTerms: 'NET 30',
-    isPPN: true,
     isActive: true,
   },
   {
@@ -116,7 +113,6 @@ export const customers = [
     country: 'Indonesia',
     postalCode: '60112',
     paymentTerms: 'NET 15',
-    isPPN: false,
     isActive: true,
   },
   {
@@ -134,7 +130,6 @@ export const customers = [
     country: 'Indonesia',
     postalCode: '11420',
     paymentTerms: 'NET 30',
-    isPPN: true,
     isActive: true,
   },
 ];

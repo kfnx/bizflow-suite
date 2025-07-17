@@ -3,10 +3,12 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
+import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
   brands,
   importItems,
   imports,
+  InsertImportItem,
   machineTypes,
   products,
   suppliers,
@@ -214,7 +216,7 @@ export async function PUT(
           }
 
           const itemTotal = item.quantity * parseFloat(item.priceRMB);
-          const importItemData = {
+          const importItemData: InsertImportItem = {
             importId: id,
             productId,
             priceRMB: item.priceRMB,
@@ -222,7 +224,7 @@ export async function PUT(
             total: itemTotal.toFixed(2),
             name: item.name,
             description: item.description,
-            category: item.category,
+            category: item.category as PRODUCT_CATEGORY,
             machineTypeId: item.machineTypeId,
             unitOfMeasureId: item.unitOfMeasureId,
             brandId: item.brandId,

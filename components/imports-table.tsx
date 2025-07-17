@@ -100,6 +100,29 @@ export function ImportsTable({
 
   const columns: ColumnDef<Import>[] = [
     {
+      id: 'invoiceNumber',
+      accessorKey: 'invoiceNumber',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Invoice Number
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className='flex items-center gap-2'>
+          <RiFileTextLine className='size-4 text-text-sub-600' />
+          <div className='text-paragraph-sm text-text-sub-600'>
+            {row.original.invoiceNumber}
+          </div>
+        </div>
+      ),
+    },
+    {
       id: 'supplier',
       accessorKey: 'supplierName',
       header: ({ column }) => (

@@ -53,7 +53,7 @@ export const navigationLinks: NavigationCategory[] = [
       {
         icon: RiCheckLine,
         label: 'Pending Approvals',
-        href: '/pending-quotation-approvals',
+        href: '/quotations/pending',
       },
       { icon: RiFileTextLine, label: 'Quotations', href: '/quotations' },
       {
@@ -74,7 +74,7 @@ export const navigationLinks: NavigationCategory[] = [
       {
         icon: RiCheckLine,
         label: 'Pending verification',
-        href: '/pending-import-verification',
+        href: '/imports/pending',
       },
       {
         icon: RiBox1Line,
@@ -214,8 +214,8 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
       links: category.links.filter((link) => {
         // Check role-based access for specific routes first
         const roleBasedRoutes: Record<string, string[]> = {
-          '/pending-quotation-approvals': ['manager', 'director'],
-          '/pending-import-verification': ['import-manager', 'director'],
+          '/quotations/pending': ['manager', 'director'],
+          '/imports/pending': ['import-manager', 'director'],
           '/users': ['manager', 'director'],
         };
 

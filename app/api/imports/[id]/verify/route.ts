@@ -7,6 +7,8 @@ import { IMPORT_STATUS } from '@/lib/db/enum';
 import {
   importItems,
   imports,
+  InsertProduct,
+  products,
   stockMovements,
   suppliers,
   users,
@@ -35,6 +37,8 @@ export async function POST(
         status: imports.status,
         warehouseId: imports.warehouseId,
         invoiceNumber: imports.invoiceNumber,
+        supplierId: imports.supplierId,
+        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
       })
       .from(imports)
       .where(eq(imports.id, id))
@@ -68,27 +72,124 @@ export async function POST(
         })
         .where(eq(imports.id, id));
 
-      // Get all import items for this import
+      // Get all import items for this import with complete product data
       const items = await tx
-        .select({
-          productId: importItems.productId,
-          quantity: importItems.quantity,
-        })
+        .select()
         .from(importItems)
         .where(eq(importItems.importId, id));
 
-      // Create stock movements for each item
+      // Process each item: create/update products and stock movements
       for (const item of items) {
-        if (item.productId) {
-          await tx.insert(stockMovements).values({
-            warehouseIdFrom: null, // null because its new import
-            warehouseIdTo: importRecord.warehouseId,
-            productId: item.productId,
-            quantity: item.quantity,
-            movementType: 'in',
-            notes: `Import verified from ${importRecord.invoiceNumber}`,
-          });
+        let productId = item.productId;
+
+        if (!productId) {
+          // Check for existing product by machineNumber (for serialized items)
+          if (item.category === 'serialized' && item.machineNumber) {
+            const existingProduct = await tx
+              .select({ id: products.id })
+              .from(products)
+              .where(eq(products.machineNumber, item.machineNumber))
+              .limit(1);
+
+            if (existingProduct.length > 0) {
+              productId = existingProduct[0].id;
+
+              // Update existing product with new data
+              await tx
+                .update(products)
+                .set({
+                  name: item.name,
+                  description: item.description,
+                  category: item.category,
+                  brandId: item.brandId,
+                  condition: item.condition,
+                  year: item.year,
+                  machineTypeId: item.machineTypeId,
+                  unitOfMeasureId: item.unitOfMeasureId,
+                  modelOrPartNumber: item.modelOrPartNumber,
+                  engineNumber: item.engineNumber,
+                  serialNumber: item.serialNumber,
+                  model: item.model,
+                  engineModel: item.engineModel,
+                  enginePower: item.enginePower,
+                  operatingWeight: item.operatingWeight,
+                  batchOrLotNumber: item.batchOrLotNumber,
+                  supplierId: importRecord.supplierId,
+                  warehouseId: importRecord.warehouseId,
+                  price: (
+                    parseFloat(item.priceRMB) *
+                    parseFloat(String(importRecord.exchangeRateRMBtoIDR))
+                  ).toFixed(2),
+                  updatedAt: new Date(),
+                })
+                .where(eq(products.id, productId));
+            }
+          }
+
+          // Create new product if no existing product found
+          if (!productId) {
+            // Generate product code
+            const productCode =
+              item.machineNumber ||
+              item.modelOrPartNumber ||
+              item.name ||
+              `IMPORT-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+            const productData: InsertProduct = {
+              code: productCode,
+              name: item.name,
+              description: item.description,
+              category: item.category,
+              brandId: item.brandId,
+              condition: item.condition,
+              year: item.year,
+              machineTypeId: item.machineTypeId,
+              unitOfMeasureId: item.unitOfMeasureId,
+              modelOrPartNumber: item.modelOrPartNumber,
+              machineNumber: item.machineNumber,
+              engineNumber: item.engineNumber,
+              serialNumber: item.serialNumber,
+              model: item.model,
+              engineModel: item.engineModel,
+              enginePower: item.enginePower,
+              operatingWeight: item.operatingWeight,
+              batchOrLotNumber: item.batchOrLotNumber,
+              supplierId: importRecord.supplierId,
+              warehouseId: importRecord.warehouseId,
+              price: (
+                parseFloat(item.priceRMB) *
+                parseFloat(String(importRecord.exchangeRateRMBtoIDR))
+              ).toFixed(2),
+              importNotes: item.notes,
+              isActive: true,
+            };
+
+            await tx.insert(products).values(productData);
+
+            const newProduct = await tx
+              .select({ id: products.id })
+              .from(products)
+              .where(eq(products.code, productCode))
+              .limit(1);
+
+            productId = newProduct[0].id;
+
+            // Update import item with created product ID
+            await tx
+              .update(importItems)
+              .set({ productId })
+              .where(eq(importItems.id, item.id));
+          }
         }
+
+        // Create stock movement for the import
+        await tx.insert(stockMovements).values({
+          warehouseIdFrom: null, // null because it's a new import
+          warehouseIdTo: importRecord.warehouseId,
+          productId: productId!,
+          quantity: item.quantity,
+          movementType: 'in',
+          notes: `Import verified from ${importRecord.invoiceNumber}`,
+        });
       }
     });
 

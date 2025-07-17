@@ -482,6 +482,7 @@ export const products = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
+    code: varchar('code', { length: 100 }).notNull().unique(),
     category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
 
     /**
@@ -542,6 +543,7 @@ export const products = mysqlTable(
 
     warehouseId: varchar('warehouse_id', { length: 36 }),
     supplierId: varchar('supplier_id', { length: 36 }),
+    importNotes: text('import_notes'),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -659,15 +661,43 @@ export const importItems = mysqlTable(
       .notNull()
       .default(sql`(UUID())`),
     importId: varchar('import_id', { length: 36 }).notNull(),
-    productId: varchar('product_id', { length: 36 }), // nullable for new product creation
+    productId: varchar('product_id', { length: 36 }), // nullable - only set if updating existing product
+
+    // Pricing & Quantity
     priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).notNull(),
     quantity: int('quantity').notNull().default(1),
-    total: decimal('total', { precision: 15, scale: 2 }).notNull(),
+    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    notes: text('notes'),
+
+    // Product Creation Data - Core fields
+    category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
+    description: text('description'),
+    brandId: varchar('brand_id', { length: 36 }),
+    condition: varchar('condition', { length: 50 }).default('new'),
+    year: int('year'),
+
+    // Category-specific fields
+    machineTypeId: varchar('machine_type_id', { length: 36 }), // for serialized
+    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // for non-serialized/bulk
+    modelOrPartNumber: varchar('model_or_part_number', { length: 100 }),
+    machineNumber: varchar('machine_number', { length: 100 }),
+    engineNumber: varchar('engine_number', { length: 100 }),
+    serialNumber: varchar('serial_number', { length: 100 }),
+    model: varchar('model', { length: 100 }),
+    engineModel: varchar('engine_model', { length: 100 }),
+    enginePower: varchar('engine_power', { length: 50 }),
+    operatingWeight: varchar('operating_weight', { length: 50 }),
+    batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
+    modelNumber: varchar('model_number', { length: 100 }),
+
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
     index('import_id_idx').on(table.importId),
     index('product_id_idx').on(table.productId),
+    index('category_idx').on(table.category),
+    index('machine_number_idx').on(table.machineNumber), // for duplicate detection
     foreignKey({
       columns: [table.importId],
       foreignColumns: [imports.id],
@@ -677,6 +707,21 @@ export const importItems = mysqlTable(
       columns: [table.productId],
       foreignColumns: [products.id],
       name: 'fk_import_items_product',
+    }),
+    foreignKey({
+      columns: [table.brandId],
+      foreignColumns: [brands.id],
+      name: 'fk_import_items_brand',
+    }),
+    foreignKey({
+      columns: [table.machineTypeId],
+      foreignColumns: [machineTypes.id],
+      name: 'fk_import_items_machine_type',
+    }),
+    foreignKey({
+      columns: [table.unitOfMeasureId],
+      foreignColumns: [unitOfMeasures.id],
+      name: 'fk_import_items_unit_of_measure',
     }),
   ],
 );
@@ -1003,6 +1048,18 @@ export const importItemsRelations = relations(importItems, ({ one }) => ({
     fields: [importItems.productId],
     references: [products.id],
   }),
+  brand: one(brands, {
+    fields: [importItems.brandId],
+    references: [brands.id],
+  }),
+  machineType: one(machineTypes, {
+    fields: [importItems.machineTypeId],
+    references: [machineTypes.id],
+  }),
+  unitOfMeasure: one(unitOfMeasures, {
+    fields: [importItems.unitOfMeasureId],
+    references: [unitOfMeasures.id],
+  }),
 }));
 
 export const warehouseStocksRelations = relations(
@@ -1164,40 +1221,44 @@ export interface BrandQueryParams {
 
 // Type exports
 export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type InsertUser = typeof users.$inferInsert;
 export type Customer = typeof customers.$inferSelect;
-export type NewCustomer = typeof customers.$inferInsert;
+export type InsertCustomer = typeof customers.$inferInsert;
 export type Supplier = typeof suppliers.$inferSelect;
-export type NewSupplier = typeof suppliers.$inferInsert;
+export type InsertSupplier = typeof suppliers.$inferInsert;
 export type Warehouse = typeof warehouses.$inferSelect;
-export type NewWarehouse = typeof warehouses.$inferInsert;
+export type InsertWarehouse = typeof warehouses.$inferInsert;
 export type Product = typeof products.$inferSelect;
-export type NewProduct = typeof products.$inferInsert;
+export type InsertProduct = typeof products.$inferInsert;
 export type Quotation = typeof quotations.$inferSelect;
-export type NewQuotation = typeof quotations.$inferInsert;
+export type InsertQuotation = typeof quotations.$inferInsert;
 export type QuotationItem = typeof quotationItems.$inferSelect;
-export type NewQuotationItem = typeof quotationItems.$inferInsert;
+export type InsertQuotationItem = typeof quotationItems.$inferInsert;
 export type Invoice = typeof invoices.$inferSelect;
-export type NewInvoice = typeof invoices.$inferInsert;
+export type InsertInvoice = typeof invoices.$inferInsert;
 export type InvoiceItem = typeof invoiceItems.$inferSelect;
-export type NewInvoiceItem = typeof invoiceItems.$inferInsert;
+export type InsertInvoiceItem = typeof invoiceItems.$inferInsert;
 export type DeliveryNote = typeof deliveryNotes.$inferSelect;
-export type NewDeliveryNote = typeof deliveryNotes.$inferInsert;
+export type InsertDeliveryNote = typeof deliveryNotes.$inferInsert;
 export type DeliveryNoteItem = typeof deliveryNoteItems.$inferSelect;
-export type NewDeliveryNoteItem = typeof deliveryNoteItems.$inferInsert;
+export type InsertDeliveryNoteItem = typeof deliveryNoteItems.$inferInsert;
 export type CustomerContactPerson = typeof customerContactPersons.$inferSelect;
-export type NewCustomerContactPerson =
+export type InsertCustomerContactPerson =
   typeof customerContactPersons.$inferInsert;
 export type SupplierContactPerson = typeof supplierContactPersons.$inferSelect;
-export type NewSupplierContactPerson =
+export type InsertSupplierContactPerson =
   typeof supplierContactPersons.$inferInsert;
 export type Brand = typeof brands.$inferSelect;
-export type NewBrand = typeof brands.$inferInsert;
+export type InsertBrand = typeof brands.$inferInsert;
+export type MachineType = typeof machineTypes.$inferSelect;
+export type InsertMachineType = typeof machineTypes.$inferInsert;
+export type UnitOfMeasure = typeof unitOfMeasures.$inferSelect;
+export type InsertUnitOfMeasure = typeof unitOfMeasures.$inferInsert;
 export type Import = typeof imports.$inferSelect;
-export type NewImport = typeof imports.$inferInsert;
+export type InsertImport = typeof imports.$inferInsert;
 export type ImportItem = typeof importItems.$inferSelect;
-export type NewImportItem = typeof importItems.$inferInsert;
+export type InsertImportItem = typeof importItems.$inferInsert;
 export type WarehouseStock = typeof warehouseStocks.$inferSelect;
-export type NewWarehouseStock = typeof warehouseStocks.$inferInsert;
+export type InsertWarehouseStock = typeof warehouseStocks.$inferInsert;
 export type StockMovement = typeof stockMovements.$inferSelect;
-export type NewStockMovement = typeof stockMovements.$inferInsert;
+export type InsertStockMovement = typeof stockMovements.$inferInsert;

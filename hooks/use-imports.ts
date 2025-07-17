@@ -27,23 +27,25 @@ export type Import = {
 
 export type ImportItem = {
   id?: string;
-  productId?: string;
-  description?: string;
-  category: 'serialized' | 'non_serialized' | 'bulk';
+  productId?: string; // nullable - only set if updating existing product
+
+  // Pricing & Quantity
   priceRMB: string;
   quantity: number;
   notes?: string;
 
-  // Common fields
+  // Product Creation Data - Core fields
+  category: 'serialized' | 'non_serialized' | 'bulk';
   name: string;
+  description?: string;
   brandId?: string;
-  brand?: string;
+  brand?: string; // for display purposes
   condition: 'new' | 'used' | 'refurbished';
   year?: number;
 
   // Category-specific fields
-  machineTypeId?: string;
-  unitOfMeasureId?: string;
+  machineTypeId?: string; // for serialized
+  unitOfMeasureId?: string; // for non-serialized/bulk
   modelOrPartNumber?: string;
   machineNumber?: string;
   engineNumber?: string;
@@ -52,8 +54,6 @@ export type ImportItem = {
   engineModel?: string;
   enginePower?: string;
   operatingWeight?: string;
-
-  // Non-serialized specific
   batchOrLotNumber?: string;
   modelNumber?: string;
 };
@@ -178,6 +178,48 @@ const deleteImport = async (importId: string): Promise<void> => {
   }
 };
 
+export type PendingImport = {
+  id: string;
+  supplierName: string;
+  supplierCode: string;
+  warehouseName: string;
+  importDate: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  exchangeRateRMBtoIDR: number;
+  itemCount: number;
+  totalRMB: number;
+  totalIDR: number;
+  notes?: string;
+  createdAt: string;
+};
+
+const fetchPendingImports = async (): Promise<PendingImport[]> => {
+  const response = await fetch('/api/imports/pending');
+  if (!response.ok) {
+    throw new Error('Failed to fetch pending imports');
+  }
+  const result = await response.json();
+  return result.data;
+};
+
+const verifyImport = async (importId: string): Promise<Import> => {
+  const response = await fetch(`/api/imports/${importId}/verify`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to verify import');
+  }
+
+  const result = await response.json();
+  return result.data;
+};
+
 export function useImports(filters: ImportsFilters = {}) {
   return useQuery({
     queryKey: ['imports', filters],
@@ -227,6 +269,26 @@ export function useDeleteImport() {
     onSuccess: () => {
       // Invalidate and refetch imports after successful deletion
       queryClient.invalidateQueries({ queryKey: ['imports'] });
+    },
+  });
+}
+
+export function usePendingImports() {
+  return useQuery({
+    queryKey: ['imports', 'pending'],
+    queryFn: fetchPendingImports,
+  });
+}
+
+export function useVerifyImport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: verifyImport,
+    onSuccess: () => {
+      // Invalidate and refetch imports after successful verification
+      queryClient.invalidateQueries({ queryKey: ['imports'] });
+      queryClient.invalidateQueries({ queryKey: ['imports', 'pending'] });
     },
   });
 }

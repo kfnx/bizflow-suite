@@ -1,42 +1,16 @@
-import { machineTypes as machineTypesSchema } from '../schema';
+import { InsertMachineType } from '../schema';
 
-export type NewMachineType = typeof machineTypesSchema.$inferInsert;
+export const machineTypesObject: Record<string, string> = {
+  excavator: 'Excavator',
+  bulldozer: 'Bulldozer',
+  wheel_loader: 'Wheel Loader',
+  backhoe_loader: 'Backhoe Loader',
+  motor_grader: 'Motor Grader',
+};
 
-export const machineTypes: NewMachineType[] = [
-  {
-    id: 'excavator',
-    name: 'Excavator',
-  },
-  {
-    id: 'bulldozer',
-    name: 'Bulldozer',
-  },
-  {
-    id: 'wheelLoader',
-    name: 'Wheel Loader',
-  },
-  {
-    id: 'backhoeLoader',
-    name: 'Backhoe Loader',
-  },
-  {
-    id: 'motorGrader',
-    name: 'Motor Grader',
-  },
-  {
-    id: 'roller',
-    name: 'Roller',
-  },
-  {
-    id: 'forklift',
-    name: 'Forklift',
-  },
-  {
-    id: 'compactor',
-    name: 'Compactor',
-  },
-  {
-    id: 'crane',
-    name: 'Crane',
-  },
-];
+export const machineTypes: InsertMachineType[] = Object.entries(
+  machineTypesObject,
+).map(([id, name]) => ({
+  id,
+  name,
+}));

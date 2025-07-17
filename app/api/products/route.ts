@@ -6,7 +6,6 @@ import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
   brands,
   machineTypes,
-  NewProduct,
   ProductQueryParams,
   products,
   suppliers,

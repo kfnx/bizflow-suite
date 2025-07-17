@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { RiImportLine } from '@remixicon/react';
+import { RiCheckLine, RiImportLine } from '@remixicon/react';
 
+import * as Button from '@/components/ui/button';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import { ImportPreviewDrawer } from '@/components/import-preview-drawer';
@@ -51,11 +52,22 @@ export default function PageImports() {
         title='Imports'
         description='Manage product imports from suppliers to warehouses.'
       >
-        <ActionButton
-          className='hidden lg:flex'
-          label='New Import'
-          href='/imports/new'
-        />
+        <div className='flex gap-2'>
+          <Button.Root
+            variant='neutral'
+            mode='stroke'
+            size='small'
+            onClick={() => (window.location.href = '/imports/pending')}
+          >
+            <RiCheckLine className='mr-2 size-4' />
+            Pending Verification
+          </Button.Root>
+          <ActionButton
+            className='hidden lg:flex'
+            label='New Import'
+            href='/imports/new'
+          />
+        </div>
       </Header>
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>

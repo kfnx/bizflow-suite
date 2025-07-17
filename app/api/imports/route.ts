@@ -7,6 +7,7 @@ import { IMPORT_STATUS, PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
   importItems,
   imports,
+  InsertImportItem,
   products,
   suppliers,
   users,
@@ -256,90 +257,38 @@ export async function POST(request: NextRequest) {
 
       const importId = createdImportResult[0].id;
 
-      // Process each item
+      // Create import items with complete product data (no products created yet)
+      // new imports -> import_item (pending) -> verify -> insert import_item into products
       for (const item of validatedData.items) {
-        let productId = item.productId;
-        const machineTypeId = item.machineTypeId || null;
-        const unitOfMeasureId = item.unitOfMeasureId || null;
-
-        // If no productId provided, create new product
-        if (!productId) {
-          const productData = {
-            category: item.category as PRODUCT_CATEGORY,
-            machineTypeId,
-            unitOfMeasureId,
-            brandId: item.brandId,
-            modelOrPartNumber: item.modelOrPartNumber,
-            machineNumber: item.machineNumber,
-            engineNumber: item.engineNumber,
-            name: item.name,
-            batchOrLotNumber: item.batchOrLotNumber,
-            description: item.description,
-            serialNumber: item.serialNumber,
-            model: item.model,
-            year: item.year,
-            condition: item.condition,
-            engineModel: item.engineModel,
-            enginePower: item.enginePower,
-            operatingWeight: item.operatingWeight,
-            warehouseId: validatedData.warehouseId,
-            supplierId: validatedData.supplierId,
-            price: (parseFloat(item.priceRMB) * exchangeRate).toFixed(2),
-            isActive: true,
-          };
-          console.table(productData);
-
-          await tx.insert(products).values(productData);
-
-          // Get the created product ID
-          const createdProductResult = await tx
-            .select({ id: products.id })
-            .from(products)
-            .where(eq(products.modelOrPartNumber, item.modelOrPartNumber || ''))
-            .limit(1);
-
-          productId = createdProductResult[0].id;
-        }
-
-        // item with category serialized is unique, hence qty will always 1
-        const itemQty =
-          item.category === PRODUCT_CATEGORY.SERIALIZED ? 1 : item.quantity;
-        const itemTotal = itemQty * parseFloat(item.priceRMB);
-        const importItemData = {
+        const importItemData: InsertImportItem = {
           importId,
-          productId: item.productId,
+          productId: item.productId || null, // Only set if linking to existing product
           priceRMB: item.priceRMB,
-          quantity: itemQty,
-          total: itemTotal.toFixed(2),
-        };
+          quantity: item.quantity,
+          notes: item.notes,
 
-        // TODO: update import item to follow product schema
-        // new imports -> import_item (pending) -> verify -> insert import_item into products
-        // const importItemData = {
-        //   importId,
-        //   productId,
-        //   priceRMB: item.priceRMB,
-        //   total: itemTotal.toFixed(2),
-        //   // Store product creation fields for reference
-        //   productDescription: item.description,
-        //   productCategory: item.category,
-        //   machineTypeId,
-        //   unitOfMeasureId,
-        //   brandId: item.brandId,
-        //   modelOrPartNumber: item.modelOrPartNumber,
-        //   machineNumber: item.machineNumber,
-        //   engineNumber: item.engineNumber,
-        //   name: item.name,
-        //   batchOrLotNumber: item.batchOrLotNumber,
-        //   serialNumber: item.serialNumber,
-        //   model: item.model,
-        //   year: item.year,
-        //   condition: item.condition,
-        //   engineModel: item.engineModel,
-        //   enginePower: item.enginePower,
-        //   operatingWeight: item.operatingWeight,
-        //   notes: item.notes,
-        // };
+          // Product creation data - store complete product info for verification
+          category: item.category as PRODUCT_CATEGORY,
+          name: item.name,
+          description: item.description,
+          brandId: item.brandId,
+          condition: item.condition,
+          year: item.year,
+
+          // Category-specific fields
+          machineTypeId: item.machineTypeId,
+          unitOfMeasureId: item.unitOfMeasureId,
+          modelOrPartNumber: item.modelOrPartNumber,
+          machineNumber: item.machineNumber,
+          engineNumber: item.engineNumber,
+          serialNumber: item.serialNumber,
+          model: item.model,
+          engineModel: item.engineModel,
+          enginePower: item.enginePower,
+          operatingWeight: item.operatingWeight,
+          batchOrLotNumber: item.batchOrLotNumber,
+          modelNumber: item.modelOrPartNumber,
+        };
 
         await tx.insert(importItems).values(importItemData);
 

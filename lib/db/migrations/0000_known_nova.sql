@@ -88,8 +88,26 @@ CREATE TABLE `import_items` (
 	`import_id` varchar(36) NOT NULL,
 	`product_id` varchar(36),
 	`price_rmb` decimal(15,2) NOT NULL,
-	`quantity` int DEFAULT 1,
-	`total` decimal(15,2) NOT NULL,
+	`quantity` int NOT NULL DEFAULT 1,
+	`notes` text,
+	`category` enum('serialized','non_serialized','bulk') NOT NULL,
+	`name` varchar(100) NOT NULL,
+	`description` text,
+	`brand_id` varchar(36),
+	`condition` varchar(50) DEFAULT 'new',
+	`year` int,
+	`machine_type_id` varchar(36),
+	`unit_of_measure_id` varchar(36),
+	`model_or_part_number` varchar(100),
+	`machine_number` varchar(100),
+	`engine_number` varchar(100),
+	`serial_number` varchar(100),
+	`model` varchar(100),
+	`engine_model` varchar(100),
+	`engine_power` varchar(50),
+	`operating_weight` varchar(50),
+	`batch_or_lot_number` varchar(100),
+	`model_number` varchar(100),
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `import_items_id` PRIMARY KEY(`id`)
 );
@@ -156,6 +174,7 @@ CREATE TABLE `machine_types` (
 --> statement-breakpoint
 CREATE TABLE `products` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
+	`code` varchar(100) NOT NULL,
 	`category` enum('serialized','non_serialized','bulk') NOT NULL,
 	`machine_type_id` varchar(36),
 	`unit_of_measure_id` varchar(36),
@@ -164,14 +183,14 @@ CREATE TABLE `products` (
 	`engine_number` varchar(100),
 	`batch_or_lot_number` varchar(100),
 	`brand_id` varchar(36),
-	`item_name` varchar(100) NOT NULL,
+	`name` varchar(100) NOT NULL,
 	`description` text,
 	`serial_number` varchar(100),
 	`model` varchar(100),
 	`year` int,
 	`condition` varchar(50) DEFAULT 'new',
 	`status` varchar(50) DEFAULT 'in_stock',
-	`price` decimal(15,2) DEFAULT '0.00',
+	`price` decimal(15,2) NOT NULL DEFAULT '0.00',
 	`engine_model` varchar(100),
 	`engine_power` varchar(50),
 	`operating_weight` varchar(50),
@@ -180,7 +199,8 @@ CREATE TABLE `products` (
 	`is_active` boolean DEFAULT true,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `products_id` PRIMARY KEY(`id`)
+	CONSTRAINT `products_id` PRIMARY KEY(`id`),
+	CONSTRAINT `products_code_unique` UNIQUE(`code`)
 );
 --> statement-breakpoint
 CREATE TABLE `quotation_items` (
@@ -234,7 +254,7 @@ CREATE TABLE `sessions` (
 --> statement-breakpoint
 CREATE TABLE `stock_movements` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
-	`warehouse_id_from` varchar(36) NOT NULL,
+	`warehouse_id_from` varchar(36),
 	`warehouse_id_to` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` int NOT NULL,
@@ -345,6 +365,9 @@ ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_delivered_by` FOR
 ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_received_by` FOREIGN KEY (`received_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_import` FOREIGN KEY (`import_id`) REFERENCES `imports`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_machine_type` FOREIGN KEY (`machine_type_id`) REFERENCES `machine_types`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_unit_of_measure` FOREIGN KEY (`unit_of_measure_id`) REFERENCES `unit_of_measures`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `imports` ADD CONSTRAINT `fk_imports_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `imports` ADD CONSTRAINT `fk_imports_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `imports` ADD CONSTRAINT `fk_imports_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -383,6 +406,8 @@ CREATE INDEX `status_idx` ON `delivery_notes` (`status`);--> statement-breakpoin
 CREATE INDEX `created_by_idx` ON `delivery_notes` (`created_by`);--> statement-breakpoint
 CREATE INDEX `import_id_idx` ON `import_items` (`import_id`);--> statement-breakpoint
 CREATE INDEX `product_id_idx` ON `import_items` (`product_id`);--> statement-breakpoint
+CREATE INDEX `category_idx` ON `import_items` (`category`);--> statement-breakpoint
+CREATE INDEX `machine_number_idx` ON `import_items` (`machine_number`);--> statement-breakpoint
 CREATE INDEX `invoice_number_idx` ON `imports` (`invoice_number`);--> statement-breakpoint
 CREATE INDEX `supplier_id_idx` ON `imports` (`supplier_id`);--> statement-breakpoint
 CREATE INDEX `warehouse_id_idx` ON `imports` (`warehouse_id`);--> statement-breakpoint

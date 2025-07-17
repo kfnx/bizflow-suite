@@ -1,41 +1,17 @@
-import { unitOfMeasures as unitOfMeasuresSchema } from '../schema';
+import { InsertUnitOfMeasure } from '../schema';
 
-export type NewUnitOfMeasure = typeof unitOfMeasuresSchema.$inferInsert;
+export const unitOfMeasuresObject: Record<string, string> = {
+  pcs: 'Pieces',
+  kg: 'Kilogram',
+  liter: 'Liter',
+  meter: 'Meter',
+  ton: 'Ton',
+};
 
-export const unitOfMeasures: NewUnitOfMeasure[] = [
-  {
-    id: 'pcs',
-    abbreviation: 'pcs',
-    name: 'Pieces',
-  },
-  {
-    id: 'kg',
-    abbreviation: 'kg',
-    name: 'Kilogram',
-  },
-  {
-    id: 'liter',
-    abbreviation: 'l',
-    name: 'Liter',
-  },
-  {
-    id: 'meter',
-    abbreviation: 'm',
-    name: 'Meter',
-  },
-  {
-    id: 'ton',
-    abbreviation: 'ton',
-    name: 'Ton',
-  },
-  {
-    id: 'box',
-    abbreviation: 'box',
-    name: 'Box',
-  },
-  {
-    id: 'set',
-    abbreviation: 'set',
-    name: 'Set',
-  },
-];
+export const unitOfMeasures: InsertUnitOfMeasure[] = Object.entries(
+  unitOfMeasuresObject,
+).map(([id, name]) => ({
+  id,
+  abbreviation: id,
+  name,
+}));

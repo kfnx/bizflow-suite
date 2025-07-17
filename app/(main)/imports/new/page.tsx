@@ -258,6 +258,23 @@ function ProductItemForm({
             </Select.Root>
           </div>
           <div className='flex flex-col gap-2'>
+            <Label.Root htmlFor={`serialNumber-${index}`}>
+              Serial Number <Label.Asterisk />
+            </Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Input
+                  id={`serialNumber-${index}`}
+                  value={item.serialNumber || ''}
+                  onChange={(e) =>
+                    handleFieldChange('serialNumber', e.target.value)
+                  }
+                  placeholder='e.g. SD32'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+          <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelNumber-${index}`}>
               Model Number
             </Label.Root>
@@ -673,6 +690,9 @@ export default function NewImportPage() {
       if (!item.name.trim()) {
         errors[`items.${index}.name`] = 'Item name is required';
       }
+      if (!item.brandId) {
+        errors[`items.${index}.brandId`] = 'Brand is required';
+      }
       if (!item.priceRMB.trim()) {
         errors[`items.${index}.priceRMB`] = 'Price is required';
       }
@@ -684,49 +704,56 @@ export default function NewImportPage() {
       }
 
       // Category-specific validation
-      if (item.category === 'serialized' && !item.machineTypeId) {
-        errors[`items.${index}.machineTypeId`] =
-          'Machine type is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.modelNumber?.trim()) {
-        errors[`items.${index}.modelNumber`] =
-          'Model number is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.machineNumber?.trim()) {
-        errors[`items.${index}.machineNumber`] =
-          'Machine number is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.engineNumber?.trim()) {
-        errors[`items.${index}.engineNumber`] =
-          'Engine number is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.brandId) {
-        errors[`items.${index}.brandId`] =
-          'Brand is required for serialized products';
-      }
+      switch (item.category) {
+        case PRODUCT_CATEGORY.SERIALIZED:
+          if (!item.machineTypeId) {
+            errors[`items.${index}.machineTypeId`] =
+              'Machine type is required for serialized products';
+          }
+          if (!item.machineTypeId) {
+            errors[`items.${index}.serialNumber`] =
+              'Serial number is required for serialized products';
+          }
+          if (!item.modelNumber?.trim()) {
+            errors[`items.${index}.modelNumber`] =
+              'Model number is required for serialized products';
+          }
+          if (!item.machineNumber?.trim()) {
+            errors[`items.${index}.machineNumber`] =
+              'Machine number is required for serialized products';
+          }
+          if (!item.engineNumber?.trim()) {
+            errors[`items.${index}.engineNumber`] =
+              'Engine number is required for serialized products';
+          }
+          if (!item.brandId) {
+            errors[`items.${index}.brandId`] =
+              'Brand is required for serialized products';
+          }
+          break;
+        case PRODUCT_CATEGORY.NON_SERIALIZED:
+          if (!item.unitOfMeasureId) {
+            errors[`items.${index}.unitOfMeasureId`] =
+              'Unit of measure is required';
+          }
+          break;
 
-      if (
-        (item.category === 'non_serialized' || item.category === 'bulk') &&
-        !item.unitOfMeasureId
-      ) {
-        errors[`items.${index}.unitOfMeasureId`] =
-          'Unit of measure is required';
-      }
-      if (item.category === 'bulk' && !item.modelOrPartNumber?.trim()) {
-        errors[`items.${index}.modelOrPartNumber`] =
-          'Model/Part number is required for bulk products';
-      }
-      if (item.category === 'bulk' && !item.batchOrLotNumber?.trim()) {
-        errors[`items.${index}.batchOrLotNumber`] =
-          'Batch/Lot number is required for bulk products';
-      }
-      if (item.category === 'bulk' && !item.description?.trim()) {
-        errors[`items.${index}.description`] =
-          'Description is required for bulk products';
-      }
-      if (item.category === 'bulk' && !item.brandId) {
-        errors[`items.${index}.brandId`] =
-          'Brand is required for bulk products';
+        case PRODUCT_CATEGORY.BULK:
+          if (!item.unitOfMeasureId) {
+            errors[`items.${index}.unitOfMeasureId`] =
+              'Unit of measure is required';
+          }
+          if (!item.modelOrPartNumber?.trim()) {
+            errors[`items.${index}.modelOrPartNumber`] =
+              'Model/Part number is required for bulk products';
+          }
+          if (!item.batchOrLotNumber?.trim()) {
+            errors[`items.${index}.batchOrLotNumber`] =
+              'Batch/Lot number is required for bulk products';
+          }
+          break;
+        default:
+          break;
       }
     });
 

@@ -301,33 +301,45 @@ export async function POST(request: NextRequest) {
           productId = createdProductResult[0].id;
         }
 
-        // Create import item record
-        const itemTotal = item.quantity * parseFloat(item.priceRMB);
+        // item with category serialized is unique, hence qty will always 1
+        const itemQty =
+          item.category === PRODUCT_CATEGORY.SERIALIZED ? 1 : item.quantity;
+        const itemTotal = itemQty * parseFloat(item.priceRMB);
         const importItemData = {
           importId,
-          productId,
+          productId: item.productId,
           priceRMB: item.priceRMB,
+          quantity: itemQty,
           total: itemTotal.toFixed(2),
-          // Store product creation fields for reference
-          productDescription: item.description,
-          productCategory: item.category,
-          machineTypeId,
-          unitOfMeasureId,
-          brandId: item.brandId,
-          modelOrPartNumber: item.modelOrPartNumber,
-          machineNumber: item.machineNumber,
-          engineNumber: item.engineNumber,
-          name: item.name,
-          batchOrLotNumber: item.batchOrLotNumber,
-          serialNumber: item.serialNumber,
-          model: item.model,
-          year: item.year,
-          condition: item.condition,
-          engineModel: item.engineModel,
-          enginePower: item.enginePower,
-          operatingWeight: item.operatingWeight,
-          notes: item.notes,
         };
+
+        // TODO: update import item to follow product schema
+        // new imports -> import_item (pending) -> verify -> insert import_item into products
+        // const importItemData = {
+        //   importId,
+        //   productId,
+        //   priceRMB: item.priceRMB,
+        //   total: itemTotal.toFixed(2),
+        //   // Store product creation fields for reference
+        //   productDescription: item.description,
+        //   productCategory: item.category,
+        //   machineTypeId,
+        //   unitOfMeasureId,
+        //   brandId: item.brandId,
+        //   modelOrPartNumber: item.modelOrPartNumber,
+        //   machineNumber: item.machineNumber,
+        //   engineNumber: item.engineNumber,
+        //   name: item.name,
+        //   batchOrLotNumber: item.batchOrLotNumber,
+        //   serialNumber: item.serialNumber,
+        //   model: item.model,
+        //   year: item.year,
+        //   condition: item.condition,
+        //   engineModel: item.engineModel,
+        //   enginePower: item.enginePower,
+        //   operatingWeight: item.operatingWeight,
+        //   notes: item.notes,
+        // };
 
         await tx.insert(importItems).values(importItemData);
 

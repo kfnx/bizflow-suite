@@ -14,6 +14,7 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
   useCreateImport,
   type CreateImportData,
@@ -124,7 +125,19 @@ function ProductItemForm({
   exchangeRateRMBtoIDR,
 }: ProductItemFormProps) {
   const handleFieldChange = (field: keyof ProductItem, value: any) => {
-    onUpdate({ ...item, [field]: value });
+    // Handle category changes - reset quantity to 1 only when changing category
+    if (field === 'category') {
+      // When changing to serialized, reset quantity to 1
+      // But allow manual quantity changes afterward
+      const updatedItem = { ...item, [field]: value };
+      if (value === 'serialized') {
+        updatedItem.quantity = '1';
+      }
+      onUpdate(updatedItem);
+    } else {
+      // For all other fields including quantity, allow normal updates
+      onUpdate({ ...item, [field]: value });
+    }
   };
   const getFieldError = (field: string) => {
     return validationErrors[`items.${index}.${field}`];
@@ -411,6 +424,7 @@ function ProductItemForm({
                 value={item.quantity}
                 onChange={(e) => handleFieldChange('quantity', e.target.value)}
                 placeholder='1'
+                disabled={item.category === PRODUCT_CATEGORY.SERIALIZED}
               />
             </Input.Wrapper>
           </Input.Root>

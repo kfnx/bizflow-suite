@@ -167,9 +167,6 @@ export default function PageLogin() {
                 Keep me logged in
               </LabelPrimitive.Root>
             </div>
-            <LinkButton.Root variant='gray' size='medium' underline asChild>
-              <Link href='/reset-password'>Forgot password?</Link>
-            </LinkButton.Root>
           </div>
 
           <FancyButton.Root

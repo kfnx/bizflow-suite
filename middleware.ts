@@ -49,8 +49,9 @@ export async function middleware(request: NextRequest) {
   // Check role-based access for protected FRONTEND routes only
   if (session && !isAuthRoute) {
     const requiredPermissions = PROTECTED_ROUTES[pathname];
+    const isAdmin = session.user.isAdmin;
 
-    if (requiredPermissions) {
+    if (!isAdmin && requiredPermissions) {
       const hasAccess = requiredPermissions.some((permission) =>
         hasPermission(session.user.role, permission),
       );
@@ -63,7 +64,7 @@ export async function middleware(request: NextRequest) {
     // Check role-based access for specific routes
     const requiredRoles = ROLE_BASED_ROUTES[pathname];
 
-    if (requiredRoles) {
+    if (!isAdmin && requiredRoles) {
       const hasRoleAccess = requiredRoles.includes(session.user.role);
 
       if (!hasRoleAccess) {

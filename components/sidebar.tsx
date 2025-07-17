@@ -212,6 +212,8 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
     .map((category) => ({
       ...category,
       links: category.links.filter((link) => {
+        // Admin bypass permission check
+        if (session?.user?.isAdmin) return true;
         // Check role-based access for specific routes first
         const roleBasedRoutes: Record<string, string[]> = {
           '/quotations/pending': ['manager', 'director'],

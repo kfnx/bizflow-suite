@@ -17,15 +17,25 @@ export function PermissionGate({
 }: PermissionGateProps) {
   const { data: session } = useSession();
 
-  if (!session?.user) {
+  // no session no permission
+  const isAuthenticated = session?.user;
+  if (!isAuthenticated) {
     return fallback;
   }
 
-  if (!hasPermission(session.user.role, permission)) {
+  // Admins bypass permission checks
+  const isAdmin = session.user.isAdmin;
+  if (isAdmin) {
+    return children;
+  }
+
+  // check authorization
+  const isAllowed = !hasPermission(session.user.role, permission);
+  if (!isAllowed) {
     return fallback;
   }
 
-  return <>{children}</>;
+  return children;
 }
 
 interface RoleGateProps {

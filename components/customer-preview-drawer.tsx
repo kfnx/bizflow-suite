@@ -134,7 +134,7 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
                 </div>
               )}
               {customer.contactPersons.length > 1 && (
-                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                <div className='mt-1 text-paragraph-sm italic text-text-soft-400'>
                   +{customer.contactPersons.length - 1} more contacts
                 </div>
               )}

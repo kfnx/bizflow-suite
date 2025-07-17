@@ -32,31 +32,29 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
       <Divider.Root variant='solid-text'>Supplier Info</Divider.Root>
 
       <div className='p-5'>
-        <div className='mb-3 flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <RiBuildingLine className='size-5 text-text-sub-600' />
-            <div>
-              <div className='text-title-h4 text-text-strong-950'>
-                {supplier.name}
-              </div>
-              <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-                {supplier.code}
-              </div>
+        <div className='mb-3 flex items-center gap-2'>
+          <RiBuildingLine className='size-5 text-text-sub-600' />
+          <div>
+            <div className='text-title-h4 text-text-strong-950'>
+              {supplier.name}
+            </div>
+            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+              {supplier.code}
             </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <Badge.Root
-              variant='light'
-              color={supplier.isActive ? 'green' : 'gray'}
-            >
-              {supplier.isActive ? 'Active' : 'Inactive'}
+        </div>
+        <div className='flex items-center gap-2'>
+          <Badge.Root
+            variant='light'
+            color={supplier.isActive ? 'green' : 'gray'}
+          >
+            {supplier.isActive ? 'Active' : 'Inactive'}
+          </Badge.Root>
+          {supplier.transactionCurrency && (
+            <Badge.Root variant='light' color='blue'>
+              {supplier.transactionCurrency}
             </Badge.Root>
-            {supplier.transactionCurrency && (
-              <Badge.Root variant='light' color='blue'>
-                {supplier.transactionCurrency}
-              </Badge.Root>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
@@ -76,10 +74,10 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
 
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Currency
+            Country
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {supplier.transactionCurrency || 'Not specified'}
+            {supplier.country || 'Not specified'}
           </div>
         </div>
 
@@ -104,7 +102,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
                 </div>
               )}
               {supplier.contactPersons.length > 1 && (
-                <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                <div className='mt-1 text-paragraph-sm italic text-text-soft-400'>
                   +{supplier.contactPersons.length - 1} more contacts
                 </div>
               )}

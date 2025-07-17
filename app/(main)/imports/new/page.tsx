@@ -293,7 +293,7 @@ function ProductItemForm({
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`machineNumber-${index}`}>
-              Machine Number
+              Machine Number <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>

@@ -282,32 +282,6 @@ export default function EditSupplierPage({ params }: EditSupplierPageProps) {
 
               <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='transactionCurrency'>
-                    Transaction Currency <Label.Asterisk />
-                  </Label.Root>
-                  <Select.Root
-                    value={formData.transactionCurrency}
-                    defaultValue='RMB'
-                    onValueChange={(value) =>
-                      handleInputChange('transactionCurrency', value)
-                    }
-                  >
-                    <Select.Trigger>
-                      <Select.TriggerIcon as={RiGlobalLine} />
-                      <Select.Value placeholder='Select currency' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value='RMB'>RMB</Select.Item>
-                      <Select.Item value='USD'>USD</Select.Item>
-                      <Select.Item value='EUR'>EUR</Select.Item>
-                      <Select.Item value='IDR'>IDR</Select.Item>
-                      <Select.Item value='CNY'>CNY</Select.Item>
-                      <Select.Item value='SGD'>SGD</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                </div>
-
-                <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='isActive'>Status</Label.Root>
                   <Select.Root
                     value={formData.isActive ? 'active' : 'inactive'}

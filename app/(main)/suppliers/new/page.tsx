@@ -223,52 +223,6 @@ export default function NewSupplierPage() {
                   )}
                 </div>
               </div>
-
-              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='transactionCurrency'>
-                    Transaction Currency <Label.Asterisk />
-                  </Label.Root>
-                  <Select.Root
-                    value={formData.transactionCurrency}
-                    onValueChange={(value) =>
-                      handleInputChange('transactionCurrency', value)
-                    }
-                  >
-                    <Select.Trigger>
-                      <Select.TriggerIcon as={RiGlobalLine} />
-                      <Select.Value placeholder='Select currency' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value='USD'>USD</Select.Item>
-                      <Select.Item value='EUR'>EUR</Select.Item>
-                      <Select.Item value='IDR'>IDR</Select.Item>
-                      <Select.Item value='JPY'>JPY</Select.Item>
-                      <Select.Item value='CNY'>CNY</Select.Item>
-                      <Select.Item value='KRW'>KRW</Select.Item>
-                      <Select.Item value='SGD'>SGD</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='isActive'>Status</Label.Root>
-                  <Select.Root
-                    value={formData.isActive ? 'active' : 'inactive'}
-                    onValueChange={(value) =>
-                      handleInputChange('isActive', value === 'active')
-                    }
-                  >
-                    <Select.Trigger>
-                      <Select.Value placeholder='Select status' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value='active'>Active</Select.Item>
-                      <Select.Item value='inactive'>Inactive</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                </div>
-              </div>
             </div>
 
             <Divider.Root />

@@ -14,7 +14,7 @@ export const imports: InsertImport[] = [
     supplierId: supplierIds.supplier1,
     warehouseId: warehouseIds.warehouse1,
     importDate: new Date('2024-01-15'),
-    invoiceNumber: 'INV-CN-2024-001',
+    invoiceNumber: 'INV/CN/2024/001',
     invoiceDate: new Date('2024-01-10'),
     exchangeRateRMBtoIDR: '2260.00', // 1 USD = 15,750 IDR example rate
     total: '3465000000.00', // Total from import items in IDR
@@ -28,7 +28,7 @@ export const imports: InsertImport[] = [
     supplierId: supplierIds.supplier1,
     warehouseId: warehouseIds.warehouse2,
     importDate: new Date('2024-01-20'),
-    invoiceNumber: 'INV-CN-2024-002',
+    invoiceNumber: 'INV/CN/2024/002',
     invoiceDate: new Date('2024-01-18'),
     exchangeRateRMBtoIDR: '2255.00',
     total: '1874250000.00', // Total from import items in IDR
@@ -42,7 +42,7 @@ export const imports: InsertImport[] = [
     supplierId: supplierIds.supplier2,
     warehouseId: warehouseIds.warehouse1,
     importDate: new Date('2024-02-01'),
-    invoiceNumber: 'INV-CN-2024-003',
+    invoiceNumber: 'INV/CN/2024/003',
     invoiceDate: new Date('2024-01-28'),
     exchangeRateRMBtoIDR: '2252.00', // Different exchange rate
     total: '4029000000.00', // Total from import items in IDR
@@ -56,7 +56,7 @@ export const imports: InsertImport[] = [
     supplierId: supplierIds.supplier1,
     warehouseId: warehouseIds.warehouse3,
     importDate: new Date('2024-02-10'),
-    invoiceNumber: 'INV-CN-2024-004',
+    invoiceNumber: 'INV/CN/2024/004',
     invoiceDate: new Date('2024-02-05'),
     exchangeRateRMBtoIDR: '2252.00',
     total: '1975000000.00', // Total from import items in IDR
@@ -69,7 +69,7 @@ export const imports: InsertImport[] = [
     supplierId: supplierIds.supplier3,
     warehouseId: warehouseIds.warehouse2,
     importDate: new Date('2024-02-15'),
-    invoiceNumber: 'INV-CN-2024-005',
+    invoiceNumber: 'INV/CN/2024/005',
     invoiceDate: new Date('2024-02-12'),
     exchangeRateRMBtoIDR: '2252.00',
     total: '3487000000.00', // Total from import items in IDR
@@ -83,7 +83,7 @@ export const imports: InsertImport[] = [
     supplierId: supplierIds.supplier2,
     warehouseId: warehouseIds.warehouse1,
     importDate: new Date('2024-02-20'),
-    invoiceNumber: 'INV-CN-2024-006',
+    invoiceNumber: 'INV/CN/2024/006',
     invoiceDate: new Date('2024-02-18'),
     exchangeRateRMBtoIDR: '2258.00',
     total: '3090750000.00', // Total from import items in IDR

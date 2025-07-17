@@ -10,7 +10,12 @@ import {
 } from '@remixicon/react';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
-import { useDeleteImport, useImport } from '@/hooks/use-imports';
+import {
+  useDeleteImport,
+  useImport,
+  useVerifyImport,
+} from '@/hooks/use-imports';
+import { usePermissions } from '@/hooks/use-permissions';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -25,7 +30,10 @@ export function ImportDetail({ id }: ImportDetailProps) {
   const router = useRouter();
   const { data: importData, isLoading, error } = useImport(id);
   const deleteImportMutation = useDeleteImport();
+  const verifyImportMutation = useVerifyImport();
+  const { can } = usePermissions();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleEdit = () => {
     router.push(`/imports/${id}/edit`);
@@ -44,6 +52,23 @@ export function ImportDetail({ id }: ImportDetailProps) {
     } catch (error) {
       console.error('Error deleting import:', error);
       setIsDeleting(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    const confirmed = confirm(
+      'Are you sure you want to verify this import? This will create products and stock movements.',
+    );
+    if (!confirmed) return;
+
+    setIsVerifying(true);
+    try {
+      await verifyImportMutation.mutateAsync(id);
+      router.refresh();
+    } catch (error) {
+      console.error('Error verifying import:', error);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -90,6 +115,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
   }
 
   const canEdit = importData.status === 'pending';
+  const canVerify = importData.status === 'pending' && can('imports:verify');
 
   return (
     <>
@@ -132,6 +158,17 @@ export function ImportDetail({ id }: ImportDetailProps) {
             <RiDeleteBinLine className='mr-2 size-4' />
             {isDeleting ? 'Deleting...' : 'Delete Import'}
           </Button.Root>
+
+          {canVerify && (
+            <Button.Root
+              variant='primary'
+              onClick={handleVerify}
+              disabled={isVerifying}
+            >
+              <RiVerifiedBadgeLine className='mr-2 size-4' />
+              {isVerifying ? 'Verifying...' : 'Verify Import'}
+            </Button.Root>
+          )}
         </div>
 
         {/* Import Details */}

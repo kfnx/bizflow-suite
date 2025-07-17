@@ -77,23 +77,25 @@ export async function GET(
         quantity: importItems.quantity,
         total: importItems.total,
         // Product fields from linked product
-        name: products.name,
-        model: products.model,
-        category: products.category,
-        description: products.description,
-        serialNumber: products.serialNumber,
-        year: products.year,
-        condition: products.condition,
-        engineModel: products.engineModel,
-        engineNumber: products.engineNumber,
-        machineNumber: products.machineNumber,
+        name: importItems.name,
+        model: importItems.model,
+        category: importItems.category,
+        description: importItems.description,
+        serialNumber: importItems.serialNumber,
+        year: importItems.year,
+        condition: importItems.condition,
+        engineModel: importItems.engineModel,
+        engineNumber: importItems.engineNumber,
+        machineNumber: importItems.machineNumber,
         createdAt: importItems.createdAt,
       })
       .from(importItems)
-      .leftJoin(products, eq(importItems.productId, products.id))
-      .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
-      .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
-      .leftJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(machineTypes, eq(importItems.machineTypeId, machineTypes.id))
+      .leftJoin(
+        unitOfMeasures,
+        eq(importItems.unitOfMeasureId, unitOfMeasures.id),
+      )
+      .leftJoin(brands, eq(importItems.brandId, brands.id))
       .where(eq(importItems.importId, id));
 
     const result = {

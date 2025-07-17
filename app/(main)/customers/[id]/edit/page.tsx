@@ -22,21 +22,10 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import { CreateCustomerInput, createCustomerSchema } from '@/lib/validations/customer';
+import { toast } from 'sonner';
 
-interface EditCustomerData {
-  code: string;
-  name: string;
-  type: string;
-  npwp: string;
-  npwp16: string;
-  billingAddress: string;
-  shippingAddress: string;
-  address: string;
-  city: string;
-  province: string;
-  country: string;
-  postalCode: string;
-  paymentTerms: string;
+interface EditCustomerData extends CreateCustomerInput {
   isActive: boolean;
   contactPersons: Array<{
     id?: string;
@@ -89,7 +78,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
       setFormData({
         code: customerData.code || '',
         name: customerData.name || '',
-        type: customerData.type || 'individual', // This should work
+        type: (customerData.type as 'individual' | 'company') || 'individual',
         npwp: customerData.npwp || '',
         npwp16: customerData.npwp16 || '',
         billingAddress: customerData.billingAddress || '',
@@ -144,17 +133,33 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     setError(null);
     setValidationErrors({});
 
-    // Client-side validation
-    const errors: Record<string, string> = {};
+    // Client-side validation using Zod
+    const validationData = {
+      code: formData.code,
+      name: formData.name,
+      type: formData.type,
+      npwp: formData.npwp,
+      npwp16: formData.npwp16,
+      billingAddress: formData.billingAddress,
+      shippingAddress: formData.shippingAddress,
+      address: formData.address,
+      city: formData.city,
+      province: formData.province,
+      country: formData.country,
+      postalCode: formData.postalCode,
+      paymentTerms: formData.paymentTerms,
+      contactPersons: formData.contactPersons,
+    };
 
-    if (!formData.code.trim()) {
-      errors.code = 'Customer code is required';
-    }
-    if (!formData.name.trim()) {
-      errors.name = 'Customer name is required';
-    }
-
-    if (Object.keys(errors).length > 0) {
+    const validationResult = createCustomerSchema.safeParse(validationData);
+    
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        if (issue.path.length > 0) {
+          errors[issue.path[0].toString()] = issue.message;
+        }
+      });
       setValidationErrors(errors);
       return;
     }
@@ -165,14 +170,13 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
         customerData: formData,
       });
 
+      toast.success('Customer updated successfully');
       // Navigate back to customers list
       router.push('/customers');
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An error occurred while updating the customer');
-      }
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while updating the customer';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

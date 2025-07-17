@@ -97,9 +97,25 @@ export async function GET(request: NextRequest) {
   }
 }
 
+import { createCustomerSchema } from '@/lib/validations/customer';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    
+    // Validate request body against schema
+    const validationResult = createCustomerSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Validation failed',
+          details: validationResult.error.issues 
+        },
+        { status: 400 },
+      );
+    }
+
     const {
       code,
       name,
@@ -115,21 +131,13 @@ export async function POST(request: NextRequest) {
       postalCode,
       contactPersons: contactPersonsData,
       paymentTerms,
-    } = body;
-
-    // Validate required fields
-    if (!code || !name) {
-      return NextResponse.json(
-        { error: 'Code and name are required' },
-        { status: 400 },
-      );
-    }
+    } = validationResult.data;
 
     // Check if customer code already exists
     const existingCustomer = await db
       .select({ id: customers.id })
       .from(customers)
-      .where(eq(customers.code, code))
+      .where(eq(customers.code, code as string))
       .limit(1);
 
     if (existingCustomer.length > 0) {

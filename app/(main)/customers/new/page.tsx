@@ -20,14 +20,16 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import { CreateCustomerInput, createCustomerSchema } from '@/lib/validations/customer';
+import { toast } from 'sonner';
 
 export default function NewCustomerPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateCustomerInput>({
     code: '',
     name: '',
-    type: 'company',
+    type: 'individual',
     npwp: '',
     npwp16: '',
     billingAddress: '',
@@ -49,46 +51,67 @@ export default function NewCustomerPage() {
     setIsLoading(true);
     setValidationErrors({});
 
-    // Client-side validation
-    const errors: Record<string, string> = {};
-
-    if (!formData.code.trim()) {
-      errors.code = 'Customer code is required';
-    }
-    if (!formData.name.trim()) {
-      errors.name = 'Customer name is required';
-    }
-
-    if (Object.keys(errors).length > 0) {
+    // Filter out empty contact persons before validation
+    const dataToValidate = {
+      ...formData,
+      contactPersons: formData.contactPersons?.filter(cp => cp.name.trim().length > 0) || []
+    };
+    
+    // Client-side validation using Zod
+    const validationResult = createCustomerSchema.safeParse(dataToValidate);
+    
+    if (!validationResult.success) {
+      console.log('Validation failed:', validationResult.error.issues);
+      const errors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        if (issue.path.length > 0) {
+          errors[issue.path[0].toString()] = issue.message;
+        }
+      });
       setValidationErrors(errors);
       setIsLoading(false);
       return;
     }
 
     try {
+      console.log('Making API request with data:', dataToValidate);
       const response = await fetch('/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToValidate),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create customer');
+        const errorData = await response.json();
+        if (errorData.details) {
+          // Handle validation errors from server
+          const serverErrors: Record<string, string> = {};
+          errorData.details.forEach((issue: any) => {
+            if (issue.path && issue.path.length > 0) {
+              serverErrors[issue.path[0]] = issue.message;
+            }
+          });
+          setValidationErrors(serverErrors);
+          setIsLoading(false);
+          return;
+        }
+        throw new Error(errorData.error || 'Failed to create customer');
       }
 
+      toast.success('Customer created successfully');
       router.push('/customers');
     } catch (error) {
       console.error('Error creating customer:', error);
-      alert('Failed to create customer. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to create customer. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInputChange = (
-    field: string,
+    field: keyof CreateCustomerInput,
     value: string | boolean | Array<any>,
   ) => {
     setFormData((prev) => ({
@@ -107,7 +130,7 @@ export default function NewCustomerPage() {
     field: string,
     value: string,
   ) => {
-    const updatedContactPersons = [...formData.contactPersons];
+    const updatedContactPersons = [...(formData.contactPersons || [])];
     updatedContactPersons[index] = {
       ...updatedContactPersons[index],
       [field]: value,
@@ -120,13 +143,13 @@ export default function NewCustomerPage() {
 
   const addContactPerson = () => {
     handleInputChange('contactPersons', [
-      ...formData.contactPersons,
+      ...(formData.contactPersons || []),
       { name: '', email: '', phone: '' },
     ]);
   };
 
   const removeContactPerson = (index: number) => {
-    if (formData.contactPersons.length > 1) {
+    if (formData.contactPersons && formData.contactPersons.length > 1) {
       const updatedContactPersons = formData.contactPersons.filter(
         (_, i) => i !== index,
       );
@@ -431,7 +454,7 @@ export default function NewCustomerPage() {
               </h3>
 
               <div className='space-y-4'>
-                {formData.contactPersons.map((contact, index) => (
+                {(formData.contactPersons || []).map((contact, index) => (
                   <div
                     key={index}
                     className='rounded-lg border border-stroke-soft-200 p-4'
@@ -440,7 +463,7 @@ export default function NewCustomerPage() {
                       <h4 className='text-sm text-gray-900 font-medium'>
                         Contact Person {index + 1}
                       </h4>
-                      {formData.contactPersons.length > 1 && (
+                      {(formData.contactPersons || []).length > 1 && (
                         <Button.Root
                           type='button'
                           variant='neutral'
@@ -487,7 +510,7 @@ export default function NewCustomerPage() {
                             <Input.Input
                               id={`contact-email-${index}`}
                               type='email'
-                              value={contact.email}
+                              value={contact.email || ''}
                               onChange={(e) =>
                                 handleContactPersonChange(
                                   index,
@@ -511,7 +534,7 @@ export default function NewCustomerPage() {
                             <Input.Input
                               id={`contact-phone-${index}`}
                               type='tel'
-                              value={contact.phone}
+                              value={contact.phone || ''}
                               onChange={(e) =>
                                 handleContactPersonChange(
                                   index,

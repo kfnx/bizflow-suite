@@ -30,13 +30,6 @@ Use `pnpm` for all package management operations.
 - `pnpm db:reset` - Drop, migrate, and seed database (full reset)
 - `pnpm db:drop` - Drop all database tables
 
-### Docker Operations
-
-- `./scripts/docker-setup.sh` - Automated Docker setup with database initialization
-- `docker-compose up -d --build` - Build and start all services
-- `docker-compose logs -f` - View logs
-- `docker-compose down` - Stop services
-
 ## Architecture Overview
 
 ### Application Structure

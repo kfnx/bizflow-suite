@@ -50,7 +50,7 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <Icon className='size-5 text-text-sub-600' />
+            <Icon className='size-5 min-w-5 text-text-sub-600' />
             <div>
               <div className='text-title-h4 text-text-strong-950'>
                 {customer.name}
@@ -60,17 +60,18 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
               </div>
             </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <Badge.Root variant='light' color={config?.color}>
-              {config?.label || customer.type}
-            </Badge.Root>
-            <Badge.Root
-              variant='light'
-              color={customer.isActive ? 'green' : 'gray'}
-            >
-              {customer.isActive ? 'Active' : 'Inactive'}
-            </Badge.Root>
-          </div>
+        </div>
+
+        <div className='flex items-center gap-2'>
+          <Badge.Root variant='light' color={config?.color}>
+            {config?.label || customer.type}
+          </Badge.Root>
+          <Badge.Root
+            variant='light'
+            color={customer.isActive ? 'green' : 'gray'}
+          >
+            {customer.isActive ? 'Active' : 'Inactive'}
+          </Badge.Root>
         </div>
       </div>
 

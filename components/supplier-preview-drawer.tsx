@@ -3,14 +3,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   RiBuildingLine,
-  RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
   RiLoader4Line,
-  RiMailLine,
-  RiMapPinLine,
-  RiMoneyDollarCircleLine,
-  RiPhoneLine,
 } from '@remixicon/react';
 
 import { formatDate } from '@/utils/date-formatter';
@@ -33,7 +28,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
 
       <div className='p-5'>
         <div className='mb-3 flex items-center gap-2'>
-          <RiBuildingLine className='size-5 text-text-sub-600' />
+          <RiBuildingLine className='size-5 min-w-5 text-text-sub-600' />
           <div>
             <div className='text-title-h4 text-text-strong-950'>
               {supplier.name}

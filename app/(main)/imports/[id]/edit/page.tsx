@@ -722,7 +722,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
     formData.items.forEach((item, index) => {
       if (!item.name.trim()) {
-        errors[`items.${index}.name`] = 'Item name is required';
+        errors[`items.${index}.name`] = 'Name is required';
       }
       if (!item.priceRMB.trim()) {
         errors[`items.${index}.priceRMB`] = 'Price is required';

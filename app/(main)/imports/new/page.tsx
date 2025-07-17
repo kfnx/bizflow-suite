@@ -688,7 +688,7 @@ export default function NewImportPage() {
 
     formData.items.forEach((item, index) => {
       if (!item.name.trim()) {
-        errors[`items.${index}.name`] = 'Item name is required';
+        errors[`items.${index}.name`] = 'Name is required';
       }
       if (!item.brandId) {
         errors[`items.${index}.brandId`] = 'Brand is required';
@@ -710,7 +710,7 @@ export default function NewImportPage() {
             errors[`items.${index}.machineTypeId`] =
               'Machine type is required for serialized products';
           }
-          if (!item.machineTypeId) {
+          if (!item.serialNumber) {
             errors[`items.${index}.serialNumber`] =
               'Serial number is required for serialized products';
           }

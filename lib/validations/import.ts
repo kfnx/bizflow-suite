@@ -20,11 +20,14 @@ const serializedProductSchema = baseProductSchema.extend({
   machineTypeId: z
     .string()
     .min(1, 'Machine type is required for serialized products'),
-  unitOfMeasureId: z.string().nullish(), // NULL for serialized
+  unitOfMeasureId: z
+    .string()
+    .transform((str) => (str === '' ? null : str))
+    .nullish(), // NULL for serialized
   modelOrPartNumber: z.string().max(100).optional(),
   machineNumber: z.string().max(100).optional(),
   engineNumber: z.string().max(100).optional(),
-  serialNumber: z.string().max(100).optional(),
+  serialNumber: z.string().max(100),
   model: z.string().max(100).optional(),
   engineModel: z.string().max(100).optional(),
   enginePower: z.string().max(50).optional(),
@@ -83,18 +86,21 @@ const productItemSchema = z.discriminatedUnion('category', [
 
 // Import request validation schemas
 export const createImportRequestSchema = z.object({
-  supplierId: z.string().uuid('Invalid supplier ID'),
-  warehouseId: z.string().uuid('Invalid warehouse ID'),
+  supplierId: z.string().uuid({ message: 'Invalid supplier ID' }),
+  warehouseId: z.string().uuid({ message: 'Invalid warehouse ID' }),
   importDate: z.string().transform((str) => new Date(str)),
-  invoiceNumber: z.string().min(1, 'Invoice number is required').max(50),
+  invoiceNumber: z
+    .string()
+    .min(1, { message: 'Invoice number is required' })
+    .max(50),
   invoiceDate: z.string().transform((str) => new Date(str)),
   exchangeRateRMBtoIDR: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, 'Invalid exchange rate'),
+    .regex(/^\d+(\.\d{1,2})?$/, { message: 'Invalid exchange rate' }),
   notes: z.string().optional(),
   items: z
     .array(productItemSchema)
-    .min(1, 'At least one product item is required'),
+    .min(1, { message: 'At least one product item is required' }),
 });
 
 export const updateImportRequestSchema = z.object({

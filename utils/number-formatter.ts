@@ -34,9 +34,23 @@ export const parseNumberFromDots = (value: string): string => {
   
   // Remove all dots except the last one (decimal separator)
   const parts = value.split('.');
-  if (parts.length <= 2) {
-    // If there's only one dot or none, treat it as decimal separator
-    return value.replace(/\./g, '');
+  if (parts.length <= 1) {
+    // No dots - just return the value
+    return value;
+  }
+  
+  if (parts.length === 2) {
+    // Only one dot - check if it's a decimal separator or thousand separator
+    // If the part after the dot has more than 2 digits, it's likely a thousand separator
+    // If it has 1-2 digits, it's likely a decimal separator
+    const afterDot = parts[1];
+    if (afterDot.length <= 2) {
+      // Likely decimal separator - keep it
+      return value;
+    } else {
+      // Likely thousand separator - remove it
+      return parts.join('');
+    }
   }
   
   // Multiple dots - last one is decimal separator, others are thousand separators

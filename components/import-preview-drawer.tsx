@@ -1,16 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiDeleteBinLine,
   RiEditLine,
-  RiImportLine,
+  RiExternalLinkLine,
   RiLoader4Line,
 } from '@remixicon/react';
 
+import { IMPORT_STATUS } from '@/lib/db/enum';
 import { Import, useDeleteImport, useImport } from '@/hooks/use-imports';
-import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
@@ -33,6 +32,12 @@ export function ImportPreviewDrawer({
   const handleEdit = () => {
     if (importId) {
       router.push(`/imports/${importId}/edit`);
+    }
+  };
+
+  const handleViewDetails = () => {
+    if (importId) {
+      router.push(`/imports/${importId}`);
     }
   };
 
@@ -89,9 +94,11 @@ export function ImportPreviewDrawer({
         {importData && !isLoading && !error && (
           <ImportPreviewFooter
             onEdit={handleEdit}
+            onViewDetails={handleViewDetails}
             onDelete={handleDelete}
             isDeleting={deleteImportMutation.isPending}
             disabled={!importData}
+            canEdit={importData.status === IMPORT_STATUS.PENDING}
           />
         )}
       </Drawer.Content>
@@ -272,19 +279,46 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
 
 interface ImportPreviewFooterProps {
   onEdit: () => void;
+  onViewDetails: () => void;
   onDelete: () => void;
   isDeleting: boolean;
   disabled: boolean;
+  canEdit: boolean;
 }
 
 function ImportPreviewFooter({
   onEdit,
+  onViewDetails,
   onDelete,
   isDeleting,
   disabled,
+  canEdit,
 }: ImportPreviewFooterProps) {
   return (
     <Drawer.Footer className='border-t'>
+      <Button.Root
+        variant='neutral'
+        mode='stroke'
+        size='medium'
+        className='w-full'
+        onClick={onViewDetails}
+        disabled={disabled}
+      >
+        <Button.Icon as={RiExternalLinkLine} />
+        View
+      </Button.Root>
+      {canEdit && (
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={onEdit}
+          disabled={disabled}
+        >
+          <RiEditLine className='size-4' />
+          Edit
+        </Button.Root>
+      )}
       <Button.Root
         variant='error'
         mode='stroke'
@@ -295,16 +329,6 @@ function ImportPreviewFooter({
       >
         <RiDeleteBinLine className='size-4' />
         {isDeleting ? 'Deleting...' : 'Delete'}
-      </Button.Root>
-      <Button.Root
-        variant='primary'
-        size='medium'
-        className='w-full'
-        onClick={onEdit}
-        disabled={disabled}
-      >
-        <RiEditLine className='size-4' />
-        Edit Import
       </Button.Root>
     </Drawer.Footer>
   );

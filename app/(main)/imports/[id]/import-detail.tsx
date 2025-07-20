@@ -114,8 +114,8 @@ export function ImportDetail({ id }: ImportDetailProps) {
     );
   }
 
-  const canEdit = importData.status === 'pending';
-  const canVerify = importData.status === 'pending' && can('imports:verify');
+  const canEdit = importData.status === IMPORT_STATUS.PENDING;
+  const canVerify = importData.status === IMPORT_STATUS.PENDING && can('imports:verify');
 
   return (
     <>

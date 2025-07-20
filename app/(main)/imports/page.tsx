@@ -53,20 +53,7 @@ export default function PageImports() {
         description='Manage product imports from suppliers to warehouses.'
       >
         <div className='flex gap-2'>
-          <Button.Root
-            variant='neutral'
-            mode='stroke'
-            size='small'
-            onClick={() => (window.location.href = '/imports/pending')}
-          >
-            <RiCheckLine className='mr-2 size-4' />
-            Pending Verification
-          </Button.Root>
-          <ActionButton
-            className='hidden lg:flex'
-            label='New Import'
-            href='/imports/new'
-          />
+          <ActionButton label='New Import' href='/imports/new' />
         </div>
       </Header>
 

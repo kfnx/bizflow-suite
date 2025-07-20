@@ -11,11 +11,14 @@ import {
   RiBox3Line,
   RiBuildingLine,
   RiExpandUpDownFill,
+  RiExternalLinkLine,
+  RiEyeLine,
   RiFileTextLine,
   RiImportLine,
   RiMapPinLine,
   RiMoreLine,
   RiStoreLine,
+  RiVerifiedBadgeLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -26,11 +29,14 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 
+import { IMPORT_STATUS } from '@/lib/db/enum';
 import {
   useImports,
+  useVerifyImport,
   type Import,
   type ImportsResponse,
 } from '@/hooks/use-imports';
+import { usePermissions } from '@/hooks/use-permissions';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
@@ -78,6 +84,8 @@ export function ImportsTable({
   onImportClick,
 }: ImportsTableProps) {
   const { data, isLoading, error } = useImports(filters);
+  const verifyImportMutation = useVerifyImport();
+  const { can } = usePermissions();
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const handleDelete = async (importId: string) => {
@@ -87,6 +95,24 @@ export function ImportsTable({
         console.log('Deleting import:', importId);
       } catch (error) {
         console.error('Error deleting import:', error);
+      }
+    }
+  };
+
+  const handleOpenImport = (importId: string) => {
+    window.location.href = `/imports/${importId}`;
+  };
+
+  const handleVerifyImport = async (importId: string) => {
+    if (
+      confirm(
+        'Are you sure you want to verify this import? This will create products and stock movements.',
+      )
+    ) {
+      try {
+        await verifyImportMutation.mutateAsync(importId);
+      } catch (error) {
+        console.error('Error verifying import:', error);
       }
     }
   };
@@ -238,13 +264,41 @@ export function ImportsTable({
             <Dropdown.Item
               onClick={(e) => {
                 e.stopPropagation();
-                window.location.href = `/imports/${row.original.id}/edit`;
+                handleOpenImport(row.original.id);
               }}
             >
-              <RiFileTextLine className='size-4' />
-              Edit Import
+              <RiExternalLinkLine className='size-4' />
+              View Details
             </Dropdown.Item>
             <Dropdown.Separator />
+            {row.original.status === IMPORT_STATUS.PENDING && (
+              <>
+                <Dropdown.Item
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `/imports/${row.original.id}/edit`;
+                  }}
+                >
+                  <RiFileTextLine className='size-4' />
+                  Edit Import
+                </Dropdown.Item>
+                {can('imports:verify') && (
+                  <Dropdown.Item
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVerifyImport(row.original.id);
+                    }}
+                    disabled={verifyImportMutation.isPending}
+                  >
+                    <RiVerifiedBadgeLine className='size-4' />
+                    {verifyImportMutation.isPending
+                      ? 'Verifying...'
+                      : 'Verify Import'}
+                  </Dropdown.Item>
+                )}
+                <Dropdown.Separator />
+              </>
+            )}
             <Dropdown.Item
               onClick={(e) => {
                 e.stopPropagation();

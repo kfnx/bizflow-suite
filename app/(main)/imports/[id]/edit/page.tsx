@@ -15,7 +15,7 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { PRODUCT_CATEGORY } from '@/lib/db/enum';
+import { PRODUCT_CATEGORY, IMPORT_STATUS } from '@/lib/db/enum';
 import { useImport, useUpdateImport } from '@/hooks/use-imports';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -881,12 +881,16 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   }
 
   // Check if import can be edited (only pending imports)
-  if (importData.status !== 'pending') {
+  if (importData.status !== IMPORT_STATUS.PENDING) {
+    const statusMessage = importData.status === IMPORT_STATUS.VERIFIED 
+      ? 'This import cannot be edited because it has already been verified.'
+      : 'This import cannot be edited due to its current status.';
+      
     return (
       <div className='flex h-full w-full items-center justify-center'>
         <div className='text-center'>
           <p className='text-text-sub-600'>
-            This import cannot be edited because it has already been verified.
+            {statusMessage}
           </p>
           <Button.Root className='mt-4' onClick={() => router.push('/imports')}>
             Back to Imports

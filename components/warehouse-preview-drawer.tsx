@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
+  RiEditLine,
   RiExternalLinkLine,
   RiMapPinLine,
   RiStoreLine,
@@ -19,7 +20,7 @@ interface Warehouse {
   name: string;
   address?: string;
   managerId?: string;
-  managerName?: string;
+  managerFirstName?: string;
   managerLastName?: string;
   isActive: boolean;
   createdAt: string;
@@ -157,9 +158,6 @@ function WarehousePreviewContent({ warehouse }: { warehouse: Warehouse }) {
             <div className='text-title-h4 text-text-strong-950'>
               {warehouse.name}
             </div>
-            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              ID: {warehouse.id}
-            </div>
           </div>
           <div className='ml-4'>
             <Badge.Root
@@ -196,7 +194,7 @@ function WarehousePreviewContent({ warehouse }: { warehouse: Warehouse }) {
           <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
             <RiUserLine className='size-4 text-text-soft-400' />
             {formatManagerName(
-              warehouse.managerName,
+              warehouse.managerFirstName,
               warehouse.managerLastName,
             )}
           </div>
@@ -233,17 +231,33 @@ function WarehousePreviewFooter({ warehouse }: { warehouse: Warehouse }) {
     window.open(`/warehouses/${warehouse.id}`, '_blank');
   };
 
+  const handleEdit = () => {
+    window.open(`/warehouses/${warehouse.id}/edit`, '_blank');
+  };
+
   return (
     <Drawer.Footer className='border-t'>
-      <Button.Root
-        variant='primary'
-        size='medium'
-        className='w-full'
-        onClick={handleViewFull}
-      >
-        <Button.Icon as={RiExternalLinkLine} />
-        View Full Details
-      </Button.Root>
+      <div className='flex gap-3 w-full'>
+        <Button.Root
+          variant='neutral'
+          mode='stroke'
+          size='medium'
+          className='flex-1'
+          onClick={handleEdit}
+        >
+          <Button.Icon as={RiEditLine} />
+          Edit
+        </Button.Root>
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='flex-1'
+          onClick={handleViewFull}
+        >
+          <Button.Icon as={RiExternalLinkLine} />
+          View Details
+        </Button.Root>
+      </div>
     </Drawer.Footer>
   );
 }

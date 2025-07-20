@@ -1,24 +1,21 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-export interface Warehouse {
+export type Warehouse = {
   id: string;
-  code: string;
   name: string;
   address?: string;
-  city?: string;
-  province?: string;
-  country?: string;
-  postalCode?: string;
   managerId?: string;
-  managerName?: string;
+  managerFirstName?: string;
+  managerLastName?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-}
+};
 
-interface WarehousesResponse {
+export type WarehousesResponse = {
   data: Warehouse[];
   pagination: {
     page: number;
@@ -26,136 +23,285 @@ interface WarehousesResponse {
     total: number;
     totalPages: number;
   };
-}
+};
 
-interface WarehousesFilters {
+export type WarehousesFilters = {
   search?: string;
-  isActive?: 'all' | 'true' | 'false';
+  isActive?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
-}
+};
 
-const buildQueryParams = (filters: WarehousesFilters) => {
+export type CreateWarehouseData = {
+  name: string;
+  address?: string;
+  managerId?: string;
+};
+
+export type UpdateWarehouseData = {
+  name: string;
+  address?: string;
+  managerId?: string;
+  isActive: boolean;
+};
+
+const fetchWarehouses = async (
+  filters: WarehousesFilters = {},
+): Promise<WarehousesResponse> => {
   const params = new URLSearchParams();
 
-  Object.entries(filters).forEach(([key, value]) => {
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== '' &&
-      value !== 'all'
-    ) {
-      params.append(key, value.toString());
+  if (filters.search) params.append('search', filters.search);
+  if (filters.isActive && filters.isActive !== 'all')
+    params.append('isActive', filters.isActive);
+  if (filters.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters.page) params.append('page', filters.page.toString());
+  if (filters.limit) params.append('limit', filters.limit.toString());
+
+  const response = await fetch(`/api/warehouses?${params.toString()}`);
+  if (!response.ok) {
+    let errorMessage = 'Failed to fetch warehouses';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
     }
-  });
 
-  return params.toString();
+    throw new Error(errorMessage);
+  }
+  return response.json();
 };
 
-export const useWarehouses = (filters: WarehousesFilters = {}) => {
-  const queryParams = buildQueryParams(filters);
+const fetchWarehouse = async (warehouseId: string): Promise<Warehouse> => {
+  const response = await fetch(`/api/warehouses/${warehouseId}`);
+  if (!response.ok) {
+    let errorMessage = 'Failed to fetch warehouse';
 
-  return useQuery<WarehousesResponse>({
-    queryKey: ['warehouses', queryParams],
-    queryFn: async () => {
-      const response = await fetch(`/api/warehouses?${queryParams}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch warehouses');
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Warehouse not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
       }
-      return response.json();
-    },
-  });
+    }
+
+    throw new Error(errorMessage);
+  }
+  return response.json();
 };
 
-export const useWarehouse = (id: string | null) => {
-  return useQuery<Warehouse>({
-    queryKey: ['warehouse', id],
-    queryFn: async () => {
-      if (!id) throw new Error('Warehouse ID is required');
-      const response = await fetch(`/api/warehouses/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch warehouse');
+const createWarehouse = async (
+  data: CreateWarehouseData,
+): Promise<Warehouse> => {
+  const response = await fetch('/api/warehouses', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to create warehouse';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
       }
-      return response.json();
-    },
-    enabled: !!id,
-  });
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  const result = await response.json();
+  return result.data;
 };
 
-export const useCreateWarehouse = () => {
+const updateWarehouse = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: UpdateWarehouseData;
+}): Promise<void> => {
+  const response = await fetch(`/api/warehouses/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to update warehouse';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Warehouse not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
+  }
+};
+
+const deleteWarehouse = async (warehouseId: string): Promise<void> => {
+  const response = await fetch(`/api/warehouses/${warehouseId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to delete warehouse';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Warehouse not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
+  }
+};
+
+export function useWarehouses(filters: WarehousesFilters = {}) {
+  return useQuery({
+    queryKey: ['warehouses'],
+    queryFn: () => fetchWarehouses(filters),
+  });
+}
+
+export function useWarehouse(warehouseId: string | null) {
+  return useQuery({
+    queryKey: ['warehouse', warehouseId],
+    queryFn: () => fetchWarehouse(warehouseId!),
+    enabled: !!warehouseId,
+  });
+}
+
+export function useCreateWarehouse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<Warehouse>) => {
-      const response = await fetch('/api/warehouses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create warehouse');
-      }
-
-      return response.json();
-    },
+    mutationFn: createWarehouse,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
+      toast.success('Warehouse created successfully!', {
+        description: 'The warehouse has been added to your system.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to create warehouse', {
+        description: error.message,
+      });
     },
   });
-};
+}
 
-export const useUpdateWarehouse = () => {
+export function useUpdateWarehouse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<Warehouse>;
-    }) => {
-      const response = await fetch(`/api/warehouses/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update warehouse');
-      }
-
-      return response.json();
-    },
-    onSuccess: (_, { id }) => {
+    mutationFn: updateWarehouse,
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
-      queryClient.invalidateQueries({ queryKey: ['warehouse', id] });
+      queryClient.invalidateQueries({ queryKey: ['warehouse', variables.id] });
+      toast.success('Warehouse updated successfully!', {
+        description: 'The warehouse changes have been saved.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to update warehouse', {
+        description: error.message,
+      });
     },
   });
-};
+}
 
-export const useDeleteWarehouse = () => {
+export function useDeleteWarehouse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await fetch(`/api/warehouses/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete warehouse');
-      }
-
-      return response.json();
-    },
+    mutationFn: deleteWarehouse,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
+      toast.success('Warehouse deactivated successfully!', {
+        description: 'The warehouse has been set to inactive.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to deactivate warehouse', {
+        description: error.message,
+      });
     },
   });
-};
+}

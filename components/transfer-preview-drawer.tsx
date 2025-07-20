@@ -179,9 +179,6 @@ function TransferPreviewContent({ transfer }: { transfer: StockMovement }) {
             <div className='text-title-h4 text-text-strong-950'>
               Stock Movement
             </div>
-            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              ID: {transfer.id}
-            </div>
           </div>
           <div className='ml-4'>
             <Badge.Root

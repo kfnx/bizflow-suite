@@ -29,6 +29,14 @@ export function Warehouses({ initialFilters }: WarehousesProps) {
     setFilters(newFilters);
   };
 
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
+
+  const handleLimitChange = (limit: number) => {
+    setFilters((prev) => ({ ...prev, limit, page: 1 }));
+  };
+
   const handleWarehouseSelect = (warehouseId: string) => {
     setSelectedWarehouseId(warehouseId);
   };
@@ -50,8 +58,9 @@ export function Warehouses({ initialFilters }: WarehousesProps) {
         isLoading={isLoading}
         error={error}
         onWarehouseSelect={handleWarehouseSelect}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
         filters={filters}
-        onFiltersChange={handleFilterChange}
       />
 
       <WarehousePreviewDrawer

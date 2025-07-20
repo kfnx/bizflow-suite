@@ -81,11 +81,6 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
           <div className='text-paragraph-sm text-text-strong-950'>
             {row.original.name}
           </div>
-          {row.original.code && (
-            <div className='text-paragraph-xs text-text-sub-600'>
-              {row.original.code}
-            </div>
-          )}
         </div>
       </div>
     ),
@@ -101,7 +96,6 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
             <RiMapPinLine className='text-text-sub-400 mt-0.5 size-4 shrink-0' />
             <span className='line-clamp-2 text-paragraph-sm text-text-sub-600'>
               {row.original.address}
-              {row.original.city && `, ${row.original.city}`}
             </span>
           </div>
         ) : (
@@ -114,7 +108,7 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
   },
   {
     id: 'manager',
-    accessorKey: 'managerName',
+    accessorKey: 'managerFirstName',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
         Manager
@@ -130,7 +124,9 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
       <div className='flex items-center gap-2'>
         <RiUserLine className='text-text-sub-400 size-4' />
         <span className='text-paragraph-sm text-text-sub-600'>
-          {row.original.managerName || 'No manager assigned'}
+          {row.original.managerFirstName
+            ? `${row.original.managerFirstName} ${row.original.managerLastName || ''}`
+            : 'No manager assigned'}
         </span>
       </div>
     ),
@@ -183,8 +179,9 @@ interface WarehousesTableProps {
   isLoading?: boolean;
   error?: Error | null;
   onWarehouseSelect?: (id: string) => void;
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
   filters: any;
-  onFiltersChange: (filters: any) => void;
 }
 
 export function WarehousesTable({
@@ -193,8 +190,9 @@ export function WarehousesTable({
   isLoading,
   error,
   onWarehouseSelect,
+  onPageChange,
+  onLimitChange,
   filters,
-  onFiltersChange,
 }: WarehousesTableProps) {
   const columns = React.useMemo(() => createColumns(), []);
 
@@ -203,20 +201,6 @@ export function WarehousesTable({
       onWarehouseSelect?.(warehouse.id);
     },
     [onWarehouseSelect],
-  );
-
-  const handlePageChange = React.useCallback(
-    (page: number) => {
-      onFiltersChange({ ...filters, page });
-    },
-    [filters, onFiltersChange],
-  );
-
-  const handleLimitChange = React.useCallback(
-    (limit: number) => {
-      onFiltersChange({ ...filters, limit, page: 1 });
-    },
-    [filters, onFiltersChange],
   );
 
   const emptyState = {
@@ -243,8 +227,8 @@ export function WarehousesTable({
       isLoading={isLoading}
       error={error}
       onRowClick={handleRowClick}
-      onPageChange={handlePageChange}
-      onLimitChange={handleLimitChange}
+      onPageChange={onPageChange}
+      onLimitChange={onLimitChange}
       emptyState={emptyState}
       tableClassName='rounded-lg border border-stroke-soft-200 bg-bg-white-0'
     />

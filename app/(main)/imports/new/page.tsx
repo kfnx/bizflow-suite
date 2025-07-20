@@ -28,6 +28,7 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import { formatNumberWithDots, parseNumberFromDots } from '@/utils/number-formatter';
 
 interface ProductItem {
   id?: string;
@@ -459,11 +460,12 @@ function ProductItemForm({
             <Input.Wrapper>
               <Input.Input
                 id={`priceRMB-${index}`}
-                type='number'
-                min='0'
-                step='0.01'
-                value={item.priceRMB}
-                onChange={(e) => handleFieldChange('priceRMB', e.target.value)}
+                type='text'
+                value={formatNumberWithDots(item.priceRMB)}
+                onChange={(e) => {
+                  const rawValue = parseNumberFromDots(e.target.value);
+                  handleFieldChange('priceRMB', rawValue);
+                }}
                 placeholder='0.00'
               />
             </Input.Wrapper>
@@ -480,11 +482,10 @@ function ProductItemForm({
             <Input.Wrapper>
               <Input.Input
                 id={`totalRMB-${index}`}
-                type='number'
-                min='0'
-                value={String(
-                  (parseFloat(item.quantity) || 0) *
-                    (parseFloat(item.priceRMB) || 0),
+                type='text'
+                value={formatNumberWithDots(
+                  ((parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0)).toFixed(2)
                 )}
                 readOnly
               />
@@ -497,11 +498,10 @@ function ProductItemForm({
             <Input.Wrapper>
               <Input.Input
                 id={`priceIDR-${index}`}
-                type='number'
-                min='0'
-                value={String(
-                  (parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0),
+                type='text'
+                value={formatNumberWithDots(
+                  ((parseFloat(item.priceRMB) || 0) *
+                    (parseFloat(exchangeRateRMBtoIDR) || 0)).toFixed(0)
                 )}
                 readOnly
               />
@@ -514,12 +514,11 @@ function ProductItemForm({
             <Input.Wrapper>
               <Input.Input
                 id={`totalIDR-${index}`}
-                type='number'
-                min='0'
-                value={String(
-                  (parseFloat(item.quantity) || 0) *
+                type='text'
+                value={formatNumberWithDots(
+                  ((parseFloat(item.quantity) || 0) *
                     (parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0),
+                    (parseFloat(exchangeRateRMBtoIDR) || 0)).toFixed(0)
                 )}
                 readOnly
               />
@@ -979,15 +978,12 @@ export default function NewImportPage() {
                       <Input.Icon as={RiExchangeCnyLine} />
                       <Input.Input
                         id='exchangeRateRMBtoIDR'
-                        type='number'
-                        min='0'
-                        value={formData.exchangeRateRMBtoIDR}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'exchangeRateRMBtoIDR',
-                            e.target.value,
-                          )
-                        }
+                        type='text'
+                        value={formatNumberWithDots(formData.exchangeRateRMBtoIDR)}
+                        onChange={(e) => {
+                          const rawValue = parseNumberFromDots(e.target.value);
+                          handleInputChange('exchangeRateRMBtoIDR', rawValue);
+                        }}
                         placeholder='Enter exchange rate'
                         required
                       />

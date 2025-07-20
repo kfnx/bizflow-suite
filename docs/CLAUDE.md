@@ -18,7 +18,10 @@ Use `pnpm` for all package management operations.
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
+- `pnpm lint:fix` - Run ESLint with automatic fixes
+- `pnpm tscheck` - Run TypeScript type checking
 - `pnpm format:write` - Format code with Prettier
+- `pnpm format:fix` - Run both lint:fix and format:write
 
 ### Database Operations
 
@@ -27,8 +30,7 @@ Use `pnpm` for all package management operations.
 - `pnpm db:push` - Push schema changes directly to database
 - `pnpm db:studio` - Open Drizzle Studio (database GUI)
 - `pnpm db:seed` - Seed database with sample data
-- `pnpm db:reset` - Drop, migrate, and seed database (full reset)
-- `pnpm db:drop` - Drop all database tables
+- `pnpm db:truncate` - Truncate all database tables
 
 ## Architecture Overview
 
@@ -102,6 +104,17 @@ Required environment variables (see `DATABASE_SETUP.md` for details):
 - Follow existing AlignUI component patterns in `/components/ui/`
 - Use TypeScript with proper prop interfaces
 - Implement responsive design with mobile-first approach
+- Use `@remixicon/react` for importing icons
+- Follow functional programming patterns; avoid classes
+- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`)
+
+### Code Style Guidelines
+
+- Use lowercase with dashes for directory names (e.g., `components/auth-wizard`)
+- Minimize use of `'use client'`, `useEffect`, and `setState`; favor React Server Components
+- Implement guard clauses for error handling and early returns
+- Use Zod schemas for validation (`/lib/validations/`)
+- Structure files: exported components, subcomponents, helpers, static content, types
 
 ## Business Logic
 
@@ -118,8 +131,11 @@ The application follows a standard business document workflow:
 Always run these commands before committing:
 
 - `pnpm lint` - Check for linting errors
+- `pnpm tscheck` - Run TypeScript type checking
 - `pnpm build` - Ensure the application builds successfully
 - Test database operations with `pnpm db:studio` to verify schema changes
+
+Use `pnpm format:fix` to automatically fix both linting and formatting issues.
 
 ## Docker Environment
 

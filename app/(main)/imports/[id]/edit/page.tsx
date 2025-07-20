@@ -532,7 +532,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     isLoading: isLoadingImport,
     error: importError,
   } = useImport(params.id);
-  console.log('🚀 ~ EditImportPage ~ importData:', importData);
   const updateImportMutation = useUpdateImport();
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -552,7 +551,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     notes: '',
     items: [],
   });
-  console.log('🚀 ~ EditImportPage ~ formData:', formData);
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>

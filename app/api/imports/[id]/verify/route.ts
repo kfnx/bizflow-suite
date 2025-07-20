@@ -187,6 +187,7 @@ export async function POST(
           warehouseIdTo: importRecord.warehouseId,
           productId: productId!,
           quantity: item.quantity,
+          invoiceId: importRecord.invoiceNumber,
           movementType: 'in',
           notes: `Import verified from ${importRecord.invoiceNumber}`,
         });
@@ -280,7 +281,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Error fetching import verification status:', error);
+    console.error('Error fetching pending import verification status:', error);
     return NextResponse.json(
       { error: 'Failed to fetch verification status' },
       { status: 500 },

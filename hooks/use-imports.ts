@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export type Import = {
   id: string;
@@ -19,6 +20,7 @@ export type Import = {
   createdBy: string;
   createdByUser: string;
   verifiedBy?: string;
+  verifiedByUser?: string;
   verifiedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -113,7 +115,28 @@ const fetchImports = async (
 
   const response = await fetch(`/api/imports?${params.toString()}`);
   if (!response.ok) {
-    throw new Error('Failed to fetch imports');
+    let errorMessage = 'Failed to fetch imports';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
   return response.json();
 };
@@ -121,7 +144,30 @@ const fetchImports = async (
 const fetchImport = async (importId: string): Promise<Import> => {
   const response = await fetch(`/api/imports/${importId}`);
   if (!response.ok) {
-    throw new Error('Failed to fetch import details');
+    let errorMessage = 'Failed to fetch import details';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Import not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
   const result = await response.json();
   return result.data; // Extract data from the response
@@ -197,7 +243,28 @@ export type PendingImport = {
 const fetchPendingImports = async (): Promise<PendingImport[]> => {
   const response = await fetch('/api/imports/pending');
   if (!response.ok) {
-    throw new Error('Failed to fetch pending imports');
+    let errorMessage = 'Failed to fetch pending imports';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
   const result = await response.json();
   return result.data;
@@ -212,8 +279,32 @@ const verifyImport = async (importId: string): Promise<Import> => {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Failed to verify import');
+    let errorMessage = 'Failed to verify import';
+
+    try {
+      const errorData = await response.json();
+      // Check for various possible error message fields
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      // If JSON parsing fails, create a descriptive error based on status
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Import not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
 
   const result = await response.json();
@@ -243,6 +334,14 @@ export function useCreateImport() {
     onSuccess: () => {
       // Invalidate and refetch imports after successful creation
       queryClient.invalidateQueries({ queryKey: ['imports'] });
+      toast.success('Import created successfully!', {
+        description: 'The import has been saved and is ready for verification.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to create import', {
+        description: error.message,
+      });
     },
   });
 }
@@ -257,6 +356,14 @@ export function useUpdateImport() {
       queryClient.invalidateQueries({ queryKey: ['imports'] });
       // Update the specific import cache
       queryClient.invalidateQueries({ queryKey: ['import', variables.id] });
+      toast.success('Import updated successfully!', {
+        description: 'The import changes have been saved.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to update import', {
+        description: error.message,
+      });
     },
   });
 }
@@ -269,6 +376,14 @@ export function useDeleteImport() {
     onSuccess: () => {
       // Invalidate and refetch imports after successful deletion
       queryClient.invalidateQueries({ queryKey: ['imports'] });
+      toast.success('Import deleted successfully!', {
+        description: 'The import has been permanently removed.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to delete import', {
+        description: error.message,
+      });
     },
   });
 }
@@ -289,6 +404,14 @@ export function useVerifyImport() {
       // Invalidate and refetch imports after successful verification
       queryClient.invalidateQueries({ queryKey: ['imports'] });
       queryClient.invalidateQueries({ queryKey: ['imports', 'pending'] });
+      toast.success('Import verified successfully!', {
+        description: 'Items have been added to the products inventory.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to verify import', {
+        description: error.message,
+      });
     },
   });
 }

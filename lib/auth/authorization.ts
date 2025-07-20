@@ -23,6 +23,11 @@ export async function requirePermission(
     return session;
   }
 
+  // Bypass permission check if user is admin
+  if (session.user.isAdmin) {
+    return session;
+  }
+
   if (!hasPermission(session.user.role, permission)) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient permissions' },

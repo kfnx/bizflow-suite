@@ -63,6 +63,20 @@ export async function GET(
       .where(eq(imports.id, id))
       .limit(1);
 
+    // Fetch verifier information separately if import is verified
+    let verifiedByUser: string | undefined;
+    if (importData[0]?.verifiedBy) {
+      const verifierData = await db
+        .select({
+          firstName: users.firstName,
+        })
+        .from(users)
+        .where(eq(users.id, importData[0].verifiedBy))
+        .limit(1);
+
+      verifiedByUser = verifierData[0]?.firstName;
+    }
+
     if (importData.length === 0) {
       return NextResponse.json({ error: 'Import not found' }, { status: 404 });
     }
@@ -109,6 +123,7 @@ export async function GET(
 
     const result = {
       ...importData[0],
+      verifiedByUser,
       items: itemsData,
     };
 

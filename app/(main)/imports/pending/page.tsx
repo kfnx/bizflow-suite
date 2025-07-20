@@ -11,7 +11,6 @@ import {
   RiImportLine,
   RiStoreLine,
 } from '@remixicon/react';
-import { toast } from 'sonner';
 
 import {
   usePendingImports,
@@ -22,6 +21,7 @@ import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import { SimplePageLoading } from '@/components/simple-page-loading';
 
 export default function PendingImportsPage() {
   const router = useRouter();
@@ -29,23 +29,14 @@ export default function PendingImportsPage() {
   const verifyImportMutation = useVerifyImport();
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
 
-  const handleVerifyImport = async (importId: string) => {
+  const handleVerifyImport = (importId: string) => {
     setVerifyingId(importId);
-    try {
-      await verifyImportMutation.mutateAsync(importId);
-      toast.success('Import verified successfully!', {
-        description: 'Items have been added to the products inventory.',
-      });
-      refetch();
-    } catch (error) {
-      console.error('Error verifying import:', error);
-      toast.error('Failed to verify import', {
-        description:
-          error instanceof Error ? error.message : 'Please try again.',
-      });
-    } finally {
-      setVerifyingId(null);
-    }
+    verifyImportMutation.mutate(importId, {
+      onSettled: () => {
+        setVerifyingId(null);
+        refetch();
+      },
+    });
   };
 
   const handleViewDetails = (importId: string) => {
@@ -53,11 +44,7 @@ export default function PendingImportsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
-        Loading pending imports...
-      </div>
-    );
+    return <SimplePageLoading>Loading pending imports...</SimplePageLoading>;
   }
 
   if (error) {
@@ -223,7 +210,10 @@ export default function PendingImportsPage() {
                       <div>
                         <p className='text-xs text-text-sub-600'>Total (RMB)</p>
                         <p className='text-lg font-semibold text-text-strong-950'>
-                          ¥{/* ¥{importItem.totalRMB?.toFixed(2)} */}
+                          {new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'CNY',
+                          }).format(importItem.totalRMB)}
                         </p>
                       </div>
                       <div>

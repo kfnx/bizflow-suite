@@ -21,6 +21,7 @@ import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import { SimplePageLoading } from '@/components/simple-page-loading';
 
 interface ImportDetailProps {
   id: string;
@@ -91,11 +92,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading import details...</p>
-      </div>
-    );
+    return <SimplePageLoading>Loading import details...</SimplePageLoading>;
   }
 
   if (error) {
@@ -115,7 +112,8 @@ export function ImportDetail({ id }: ImportDetailProps) {
   }
 
   const canEdit = importData.status === IMPORT_STATUS.PENDING;
-  const canVerify = importData.status === IMPORT_STATUS.PENDING && can('imports:verify');
+  const canVerify =
+    importData.status === IMPORT_STATUS.PENDING && can('imports:verify');
 
   return (
     <>
@@ -251,15 +249,28 @@ export function ImportDetail({ id }: ImportDetailProps) {
             </div>
 
             {importData.verifiedBy && (
-              <div>
-                <div className='text-subheading-xs uppercase text-text-soft-400'>
-                  Verified By
+              <>
+                <div>
+                  <div className='text-subheading-xs uppercase text-text-soft-400'>
+                    Verified By
+                  </div>
+                  <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
+                    <RiVerifiedBadgeLine className='size-4 text-green-600' />
+                    {importData.verifiedByUser}
+                  </div>
                 </div>
-                <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
-                  <RiVerifiedBadgeLine className='size-4 text-green-600' />
-                  {importData.verifiedBy}
-                </div>
-              </div>
+
+                {importData.verifiedAt && (
+                  <div>
+                    <div className='text-subheading-xs uppercase text-text-soft-400'>
+                      Verified Date
+                    </div>
+                    <div className='mt-1 text-label-sm text-text-strong-950'>
+                      {new Date(importData.verifiedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

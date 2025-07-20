@@ -10,6 +10,7 @@ import {
   RiArrowUpSFill,
   RiBox3Line,
   RiBuildingLine,
+  RiDeleteBinLine,
   RiExpandUpDownFill,
   RiExternalLinkLine,
   RiEyeLine,
@@ -31,6 +32,7 @@ import {
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
 import {
+  useDeleteImport,
   useImports,
   useVerifyImport,
   type Import,
@@ -83,19 +85,33 @@ export function ImportsTable({
   onLimitChange,
   onImportClick,
 }: ImportsTableProps) {
-  const { data, isLoading, error } = useImports(filters);
+  const { data, isLoading, error, refetch } = useImports(filters);
   const verifyImportMutation = useVerifyImport();
+  const deleteImportMutation = useDeleteImport();
   const { can } = usePermissions();
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const handleDelete = async (importId: string) => {
-    if (confirm('Are you sure you want to delete this import record?')) {
-      try {
-        // TODO: Implement delete functionality
-        console.log('Deleting import:', importId);
-      } catch (error) {
-        console.error('Error deleting import:', error);
-      }
+  const handleDelete = (
+    importId: string,
+    invoiceNumber: string,
+    status: string,
+  ) => {
+    let message = `Are you sure you want to delete import "${invoiceNumber}"?\n\nThis action cannot be undone and will permanently remove:\n• Import record\n• All associated items\n• Any related data`;
+
+    // Add extra warning for verified imports
+    if (status === IMPORT_STATUS.VERIFIED) {
+      message +=
+        '\n• Products and stock movements created by this import\n\n⚠️ WARNING: This import has been verified and have created products and stock movements.';
+    }
+
+    message += '\n\nClick OK to confirm deletion.';
+
+    if (confirm(message)) {
+      deleteImportMutation.mutate(importId, {
+        onSuccess: () => {
+          refetch();
+        },
+      });
     }
   };
 
@@ -302,11 +318,17 @@ export function ImportsTable({
             <Dropdown.Item
               onClick={(e) => {
                 e.stopPropagation();
-                handleDelete(row.original.id);
+                handleDelete(
+                  row.original.id,
+                  row.original.invoiceNumber,
+                  row.original.status,
+                );
               }}
               className='text-red-600'
+              disabled={deleteImportMutation.isPending}
             >
-              Delete Import
+              <RiDeleteBinLine className='size-4' />
+              {deleteImportMutation.isPending ? 'Deleting...' : 'Delete Import'}
             </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Root>

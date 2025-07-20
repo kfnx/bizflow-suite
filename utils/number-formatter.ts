@@ -19,26 +19,26 @@ export const formatCurrency = (amount: number, currency: string = 'USD') => {
 
 export const formatNumberWithDots = (value: string | number): string => {
   if (!value) return '';
-  
+
   const cleanValue = value.toString().replace(/[^\d.]/g, '');
   const parts = cleanValue.split('.');
-  
+
   // Format the integer part with dots as thousand separators
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  
+
   return parts.join('.');
 };
 
 export const parseNumberFromDots = (value: string): string => {
   if (!value) return '';
-  
+
   // Remove all dots except the last one (decimal separator)
   const parts = value.split('.');
   if (parts.length <= 1) {
     // No dots - just return the value
     return value;
   }
-  
+
   if (parts.length === 2) {
     // Only one dot - check if it's a decimal separator or thousand separator
     // If the part after the dot has more than 2 digits, it's likely a thousand separator
@@ -52,10 +52,10 @@ export const parseNumberFromDots = (value: string): string => {
       return parts.join('');
     }
   }
-  
+
   // Multiple dots - last one is decimal separator, others are thousand separators
   const decimalPart = parts.pop();
   const integerPart = parts.join('');
-  
+
   return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
 };

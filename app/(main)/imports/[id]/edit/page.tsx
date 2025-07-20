@@ -849,11 +849,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
         id: params.id,
         data: updateData,
       });
-
-      toast.success('Import updated successfully!', {
-        description: 'Your import has been updated and saved.',
-      });
-
       router.push('/imports');
     } catch (error) {
       console.error('Error updating import:', error);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import type { Product } from '@/lib/db/schema';
 
@@ -72,7 +73,28 @@ const fetchProducts = async (
 
   const response = await fetch(`/api/products?${params.toString()}`);
   if (!response.ok) {
-    throw new Error('Failed to fetch products');
+    let errorMessage = 'Failed to fetch products';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
   return response.json();
 };
@@ -82,10 +104,81 @@ const fetchProduct = async (
 ): Promise<ProductWithRelations> => {
   const response = await fetch(`/api/products/${productId}`);
   if (!response.ok) {
-    throw new Error('Failed to fetch product');
+    let errorMessage = 'Failed to fetch product';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Product not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
   const data = await response.json();
   return data.data;
+};
+
+export type UpdateProductData = Partial<ProductWithRelations>;
+
+const updateProduct = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: UpdateProductData;
+}): Promise<ProductWithRelations> => {
+  const response = await fetch(`/api/products/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to update product';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Product not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  const result = await response.json();
+  return result.data;
 };
 
 const deleteProduct = async (productId: string): Promise<void> => {
@@ -94,8 +187,30 @@ const deleteProduct = async (productId: string): Promise<void> => {
   });
 
   if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to delete product');
+    let errorMessage = 'Failed to delete product';
+
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.message ||
+        errorData.error ||
+        errorData.detail ||
+        errorMessage;
+    } catch {
+      if (response.status === 403) {
+        errorMessage = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        errorMessage = 'Unauthorized - Please log in again';
+      } else if (response.status === 404) {
+        errorMessage = 'Product not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error - Please try again later';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+
+    throw new Error(errorMessage);
   }
 };
 
@@ -114,6 +229,28 @@ export function useProduct(productId: string | null) {
   });
 }
 
+export function useUpdateProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateProduct,
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch products after successful update
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      // Update the specific product cache
+      queryClient.invalidateQueries({ queryKey: ['product', variables.id] });
+      toast.success('Product updated successfully!', {
+        description: 'The product changes have been saved.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to update product', {
+        description: error.message,
+      });
+    },
+  });
+}
+
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
 
@@ -122,6 +259,14 @@ export function useDeleteProduct() {
     onSuccess: () => {
       // Invalidate and refetch products after successful deletion
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Product deleted successfully!', {
+        description: 'The product has been permanently removed.',
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to delete product', {
+        description: error.message,
+      });
     },
   });
 }

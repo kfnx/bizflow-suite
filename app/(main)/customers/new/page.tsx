@@ -10,7 +10,12 @@ import {
   RiPhoneLine,
   RiUserLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
+import {
+  CreateCustomerInput,
+  createCustomerSchema,
+} from '@/lib/validations/customer';
 import * as Button from '@/components/ui/button';
 import * as Checkbox from '@/components/ui/checkbox';
 import * as Divider from '@/components/ui/divider';
@@ -20,8 +25,6 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { CreateCustomerInput, createCustomerSchema } from '@/lib/validations/customer';
-import { toast } from 'sonner';
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -54,12 +57,14 @@ export default function NewCustomerPage() {
     // Filter out empty contact persons before validation
     const dataToValidate = {
       ...formData,
-      contactPersons: formData.contactPersons?.filter(cp => cp.name.trim().length > 0) || []
+      contactPersons:
+        formData.contactPersons?.filter((cp) => cp.name.trim().length > 0) ||
+        [],
     };
-    
+
     // Client-side validation using Zod
     const validationResult = createCustomerSchema.safeParse(dataToValidate);
-    
+
     if (!validationResult.success) {
       console.log('Validation failed:', validationResult.error.issues);
       const errors: Record<string, string> = {};
@@ -104,7 +109,11 @@ export default function NewCustomerPage() {
       router.push('/customers');
     } catch (error) {
       console.error('Error creating customer:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create customer. Please try again.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to create customer. Please try again.',
+      );
     } finally {
       setIsLoading(false);
     }

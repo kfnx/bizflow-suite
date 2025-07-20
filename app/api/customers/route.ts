@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { db } from '@/lib/db';
 import { customerContactPersons, customers } from '@/lib/db/schema';
+import { createCustomerSchema } from '@/lib/validations/customer';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,20 +98,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-import { createCustomerSchema } from '@/lib/validations/customer';
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request body against schema
     const validationResult = createCustomerSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Validation failed',
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 },
       );

@@ -115,11 +115,11 @@ export function ProductsTable({
 
   const columns: ColumnDef<ProductWithRelations>[] = [
     {
-      id: 'category',
-      accessorKey: 'category',
+      id: 'product',
+      accessorKey: 'name',
       header: ({ column }) => (
         <div className='flex items-center gap-0.5'>
-          Category
+          Product
           <button
             type='button'
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -130,11 +130,14 @@ export function ProductsTable({
       ),
       cell: ({ row }) => (
         <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.category || '-'}
+          <div className='text-paragraph-sm font-medium text-text-strong-950'>
+            {row.original.name || 'Unnamed Product'}
           </div>
           <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.brandId} {row.original.model}
+            {row.original.brandName && `${row.original.brandName} • `}
+            {row.original.category || 'Uncategorized'}
+            {row.original.modelOrPartNumber &&
+              ` • ${row.original.modelOrPartNumber}`}
           </div>
         </div>
       ),
@@ -170,15 +173,35 @@ export function ProductsTable({
       },
     },
     {
-      id: 'supplier',
-      accessorKey: 'supplierName',
-      header: 'Supplier',
+      id: 'code',
+      accessorKey: 'code',
+      header: 'Code',
       cell: ({ row }) => (
-        <div className='flex items-center gap-1'>
-          <RiBuildingLine className='size-4 text-text-soft-400' />
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.supplierName || '-'}
+        <div className='font-mono text-paragraph-sm text-text-sub-600'>
+          {row.original.code || '-'}
+        </div>
+      ),
+    },
+    {
+      id: 'location',
+      accessorKey: 'warehouseName',
+      header: 'Location',
+      cell: ({ row }) => (
+        <div className='flex flex-col'>
+          <div className='flex items-center gap-1'>
+            <RiMapPinLine className='size-4 text-text-soft-400' />
+            <div className='text-paragraph-sm text-text-sub-600'>
+              {row.original.warehouseName || '-'}
+            </div>
           </div>
+          {row.original.supplierName && (
+            <div className='mt-1 flex items-center gap-1'>
+              <RiBuildingLine className='size-4 text-text-soft-400' />
+              <div className='text-paragraph-xs text-text-soft-400'>
+                {row.original.supplierName}
+              </div>
+            </div>
+          )}
         </div>
       ),
     },

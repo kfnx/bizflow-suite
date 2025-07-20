@@ -74,15 +74,22 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
         <div className='mb-3 flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
             <div className='text-title-h4 text-text-strong-950'>
-              {product.brandId}{' '}
-              {product?.machineTypeId || product.unitOfMeasureId}
+              {product.name || 'Unnamed Product'}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+              {product.code && (
+                <span className='bg-gray-100 text-xs mr-2 rounded px-2 py-1 font-mono'>
+                  {product.code}
+                </span>
+              )}
+              {product.brandName && `${product.brandName} • `}
               {product.category || 'Uncategorized'}
+              {product.year && ` • ${product.year}`}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {product.brandName} {product.model}{' '}
-              {product.year && `(${product.year})`}
+              {product.modelOrPartNumber &&
+                `Model: ${product.modelOrPartNumber}`}
+              {product.machineNumber && ` • Machine: ${product.machineNumber}`}
             </div>
           </div>
           <div className='ml-4 flex flex-col gap-2'>
@@ -127,17 +134,21 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
       <div className='flex flex-col gap-3 p-5'>
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Supplier
+            Location & Supplier
+          </div>
+          <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
+            <RiMapPinLine className='size-4 text-text-soft-400' />
+            {product.warehouseName || 'No warehouse assigned'}
           </div>
           <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
             <RiBuildingLine className='size-4 text-text-soft-400' />
-            {product.supplierName || 'Not specified'}
+            {product.supplierName || 'No supplier assigned'}
+            {product.supplierCode && (
+              <div className='mr-1 text-paragraph-sm text-text-soft-400'>
+                {product.supplierCode}
+              </div>
+            )}
           </div>
-          {product.supplierCode && (
-            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              Code: {product.supplierCode}
-            </div>
-          )}
         </div>
 
         <Divider.Root variant='line-spacing' />
@@ -149,13 +160,13 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               Serialized Product Details
             </div>
             <div className='mt-1 space-y-2'>
-              {product.machineTypeId && (
+              {product.machineTypeName && (
                 <div className='flex justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
                     Machine Type:
                   </span>
                   <span className='text-label-sm text-text-strong-950'>
-                    {product.machineTypeId}
+                    {product.machineTypeName}
                   </span>
                 </div>
               )}
@@ -219,13 +230,14 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               Non-Serialized Product Details
             </div>
             <div className='mt-1 space-y-2'>
-              {product.unitOfMeasureId && (
+              {product.unitOfMeasureName && (
                 <div className='flex justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
                     Unit of Measure:
                   </span>
                   <span className='text-label-sm text-text-strong-950'>
-                    {product.unitOfMeasureId}
+                    {product.unitOfMeasureName} (
+                    {product.unitOfMeasureAbbreviation})
                   </span>
                 </div>
               )}
@@ -259,13 +271,14 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               Bulk Product Details
             </div>
             <div className='mt-1 space-y-2'>
-              {product.unitOfMeasureId && (
+              {product.unitOfMeasureName && (
                 <div className='flex justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
                     Unit of Measure:
                   </span>
                   <span className='text-label-sm text-text-strong-950'>
-                    {product.unitOfMeasureId}
+                    {product.unitOfMeasureName} (
+                    {product.unitOfMeasureAbbreviation})
                   </span>
                 </div>
               )}

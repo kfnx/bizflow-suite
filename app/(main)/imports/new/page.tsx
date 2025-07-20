@@ -16,6 +16,10 @@ import { toast } from 'sonner';
 
 import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
+  formatNumberWithDots,
+  parseNumberFromDots,
+} from '@/utils/number-formatter';
+import {
   useCreateImport,
   type CreateImportData,
   type ImportItem,
@@ -28,7 +32,6 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { formatNumberWithDots, parseNumberFromDots } from '@/utils/number-formatter';
 
 interface ProductItem {
   id?: string;
@@ -484,8 +487,10 @@ function ProductItemForm({
                 id={`totalRMB-${index}`}
                 type='text'
                 value={formatNumberWithDots(
-                  ((parseFloat(item.quantity) || 0) *
-                    (parseFloat(item.priceRMB) || 0)).toFixed(2)
+                  (
+                    (parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0)
+                  ).toFixed(2),
                 )}
                 readOnly
               />
@@ -500,8 +505,10 @@ function ProductItemForm({
                 id={`priceIDR-${index}`}
                 type='text'
                 value={formatNumberWithDots(
-                  ((parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0)).toFixed(0)
+                  (
+                    (parseFloat(item.priceRMB) || 0) *
+                    (parseFloat(exchangeRateRMBtoIDR) || 0)
+                  ).toFixed(0),
                 )}
                 readOnly
               />
@@ -516,9 +523,11 @@ function ProductItemForm({
                 id={`totalIDR-${index}`}
                 type='text'
                 value={formatNumberWithDots(
-                  ((parseFloat(item.quantity) || 0) *
+                  (
+                    (parseFloat(item.quantity) || 0) *
                     (parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0)).toFixed(0)
+                    (parseFloat(exchangeRateRMBtoIDR) || 0)
+                  ).toFixed(0),
                 )}
                 readOnly
               />
@@ -791,11 +800,6 @@ export default function NewImportPage() {
 
     try {
       await createImportMutation.mutateAsync(importData);
-
-      toast.success('Import created successfully!', {
-        description: 'Your import has been recorded and saved.',
-      });
-
       router.push('/imports');
     } catch (error) {
       console.error('Error creating import:', error);
@@ -979,7 +983,9 @@ export default function NewImportPage() {
                       <Input.Input
                         id='exchangeRateRMBtoIDR'
                         type='text'
-                        value={formatNumberWithDots(formData.exchangeRateRMBtoIDR)}
+                        value={formatNumberWithDots(
+                          formData.exchangeRateRMBtoIDR,
+                        )}
                         onChange={(e) => {
                           const rawValue = parseNumberFromDots(e.target.value);
                           handleInputChange('exchangeRateRMBtoIDR', rawValue);

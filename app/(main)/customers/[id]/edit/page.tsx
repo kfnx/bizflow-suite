@@ -11,7 +11,12 @@ import {
   RiPhoneLine,
   RiUserLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
+import {
+  CreateCustomerInput,
+  createCustomerSchema,
+} from '@/lib/validations/customer';
 import { useCustomerDetail, useUpdateCustomer } from '@/hooks/use-customers';
 import * as Button from '@/components/ui/button';
 import * as Checkbox from '@/components/ui/checkbox';
@@ -22,8 +27,6 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { CreateCustomerInput, createCustomerSchema } from '@/lib/validations/customer';
-import { toast } from 'sonner';
 
 interface EditCustomerData extends CreateCustomerInput {
   isActive: boolean;
@@ -152,7 +155,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     };
 
     const validationResult = createCustomerSchema.safeParse(validationData);
-    
+
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
       validationResult.error.issues.forEach((issue) => {
@@ -174,7 +177,10 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
       // Navigate back to customers list
       router.push('/customers');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred while updating the customer';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'An error occurred while updating the customer';
       setError(errorMessage);
       toast.error(errorMessage);
     }

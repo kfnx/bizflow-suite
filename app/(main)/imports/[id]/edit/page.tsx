@@ -15,7 +15,11 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { PRODUCT_CATEGORY, IMPORT_STATUS } from '@/lib/db/enum';
+import { IMPORT_STATUS, PRODUCT_CATEGORY } from '@/lib/db/enum';
+import {
+  formatNumberWithDots,
+  parseNumberFromDots,
+} from '@/utils/number-formatter';
 import { useImport, useUpdateImport } from '@/hooks/use-imports';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -25,7 +29,6 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { formatNumberWithDots, parseNumberFromDots } from '@/utils/number-formatter';
 
 interface ProductItem {
   id?: string;
@@ -470,8 +473,10 @@ function ProductItemForm({
                 id={`totalRMB-${index}`}
                 type='text'
                 value={formatNumberWithDots(
-                  ((parseFloat(item.quantity) || 0) *
-                    (parseFloat(item.priceRMB) || 0)).toFixed(2)
+                  (
+                    (parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0)
+                  ).toFixed(2),
                 )}
                 readOnly
               />
@@ -486,8 +491,10 @@ function ProductItemForm({
                 id={`priceIDR-${index}`}
                 type='text'
                 value={formatNumberWithDots(
-                  ((parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0)).toFixed(0)
+                  (
+                    (parseFloat(item.priceRMB) || 0) *
+                    (parseFloat(exchangeRateRMBtoIDR) || 0)
+                  ).toFixed(0),
                 )}
                 readOnly
               />
@@ -502,9 +509,11 @@ function ProductItemForm({
                 id={`totalIDR-${index}`}
                 type='text'
                 value={formatNumberWithDots(
-                  ((parseFloat(item.quantity) || 0) *
+                  (
+                    (parseFloat(item.quantity) || 0) *
                     (parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0)).toFixed(0)
+                    (parseFloat(exchangeRateRMBtoIDR) || 0)
+                  ).toFixed(0),
                 )}
                 readOnly
               />
@@ -523,6 +532,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     isLoading: isLoadingImport,
     error: importError,
   } = useImport(params.id);
+  console.log('🚀 ~ EditImportPage ~ importData:', importData);
   const updateImportMutation = useUpdateImport();
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -530,6 +540,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
   const [unitOfMeasures, setUnitOfMeasures] = useState<UnitOfMeasure[]>([]);
+  const [isLoadingReference, setLoadingReference] = useState(false);
 
   const [formData, setFormData] = useState<EditImportData>({
     supplierId: '',
@@ -541,10 +552,20 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     notes: '',
     items: [],
   });
+  console.log('🚀 ~ EditImportPage ~ formData:', formData);
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  // Helper function to format date for HTML date input (YYYY-MM-DD)
+  const formatDateForInput = (dateString: string): string => {
+    if (!dateString) return '';
+    // Handle various date formats and convert to YYYY-MM-DD
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
+  };
 
   // Create empty product item
   function createEmptyProductItem(): ProductItem {
@@ -569,6 +590,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   useEffect(() => {
     const loadReferenceData = async () => {
       try {
+        setLoadingReference(true);
         const [
           suppliersRes,
           warehousesRes,
@@ -609,6 +631,8 @@ export default function EditImportPage({ params }: EditImportPageProps) {
         }
       } catch (error) {
         console.error('Error loading reference data:', error);
+      } finally {
+        setLoadingReference(false);
       }
     };
 
@@ -621,9 +645,9 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       setFormData({
         supplierId: importData.supplierId,
         warehouseId: importData.warehouseId,
-        importDate: importData.importDate,
+        importDate: formatDateForInput(importData.importDate),
         invoiceNumber: importData.invoiceNumber,
-        invoiceDate: importData.invoiceDate,
+        invoiceDate: formatDateForInput(importData.invoiceDate),
         exchangeRateRMBtoIDR: importData.exchangeRateRMBtoIDR.toString(),
         notes: importData.notes || '',
         items:
@@ -858,7 +882,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
   if (isLoadingImport) {
     return (
-      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
+      <div className='flex h-full min-h-80 w-full items-center justify-center text-text-sub-600'>
         Loading import data...
       </div>
     );
@@ -866,7 +890,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
   if (importError) {
     return (
-      <div className='flex h-full w-full items-center justify-center text-red-600'>
+      <div className='flex h-full min-h-80 w-full items-center justify-center text-red-600'>
         Error loading import data
       </div>
     );
@@ -874,7 +898,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
   if (!importData) {
     return (
-      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
+      <div className='flex h-full min-h-80 w-full items-center justify-center text-text-sub-600'>
         Import not found
       </div>
     );
@@ -882,20 +906,27 @@ export default function EditImportPage({ params }: EditImportPageProps) {
 
   // Check if import can be edited (only pending imports)
   if (importData.status !== IMPORT_STATUS.PENDING) {
-    const statusMessage = importData.status === IMPORT_STATUS.VERIFIED 
-      ? 'This import cannot be edited because it has already been verified.'
-      : 'This import cannot be edited due to its current status.';
-      
+    const statusMessage =
+      importData.status === IMPORT_STATUS.VERIFIED
+        ? 'This import cannot be edited because it has already been verified.'
+        : 'This import cannot be edited due to its current status.';
+
     return (
       <div className='flex h-full w-full items-center justify-center'>
         <div className='text-center'>
-          <p className='text-text-sub-600'>
-            {statusMessage}
-          </p>
+          <p className='text-text-sub-600'>{statusMessage}</p>
           <Button.Root className='mt-4' onClick={() => router.push('/imports')}>
             Back to Imports
           </Button.Root>
         </div>
+      </div>
+    );
+  }
+
+  if (isLoadingReference) {
+    return (
+      <div className='flex h-full min-h-80 w-full items-center justify-center text-text-sub-600'>
+        Loading form reference data...
       </div>
     );
   }
@@ -1059,7 +1090,9 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                       <Input.Input
                         id='exchangeRateRMBtoIDR'
                         type='text'
-                        value={formatNumberWithDots(formData.exchangeRateRMBtoIDR)}
+                        value={formatNumberWithDots(
+                          formData.exchangeRateRMBtoIDR,
+                        )}
                         onChange={(e) => {
                           const rawValue = parseNumberFromDots(e.target.value);
                           handleInputChange('exchangeRateRMBtoIDR', rawValue);

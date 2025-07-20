@@ -578,6 +578,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       machineNumber: '',
       engineNumber: '',
       brandId: '',
+      machineTypeId: '', // Add this for serialized products
       unitOfMeasureId: '',
       batchOrLotNumber: '',
       modelOrPartNumber: '',
@@ -651,28 +652,28 @@ export default function EditImportPage({ params }: EditImportPageProps) {
         items:
           importData.items?.map((item) => ({
             id: item.id,
-            productId: item.productId,
-            name: item.name,
-            description: item.description,
+            productId: item.productId || undefined,
+            name: item.name || '',
+            description: item.description || '',
             category: item.category,
-            priceRMB: item.priceRMB,
-            quantity: item.quantity.toString(),
-            notes: item.notes,
-            brandId: item.brandId,
+            priceRMB: item.priceRMB || '',
+            quantity: item.quantity?.toString() || '1',
+            notes: item.notes || '',
+            brandId: item.brandId || '',
             condition: item.condition,
-            year: item.year?.toString(),
-            machineTypeId: item.machineTypeId,
-            unitOfMeasureId: item.unitOfMeasureId,
-            modelOrPartNumber: item.modelOrPartNumber,
-            machineNumber: item.machineNumber,
-            engineNumber: item.engineNumber,
-            serialNumber: item.serialNumber,
-            model: item.model,
-            engineModel: item.engineModel,
-            enginePower: item.enginePower,
-            operatingWeight: item.operatingWeight,
-            batchOrLotNumber: item.batchOrLotNumber,
-            modelNumber: item.modelNumber,
+            year: item.year?.toString() || '',
+            machineTypeId: item.machineTypeId || '',
+            unitOfMeasureId: item.unitOfMeasureId || '',
+            modelOrPartNumber: item.modelOrPartNumber || '',
+            machineNumber: item.machineNumber || '',
+            engineNumber: item.engineNumber || '',
+            serialNumber: item.serialNumber || '',
+            model: item.model || '',
+            engineModel: item.engineModel || '',
+            enginePower: item.enginePower || '',
+            operatingWeight: item.operatingWeight || '',
+            batchOrLotNumber: item.batchOrLotNumber || '',
+            modelNumber: item.modelNumber || '',
           })) || [],
       });
     }
@@ -747,34 +748,32 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       }
       if (!item.priceRMB.trim()) {
         errors[`items.${index}.priceRMB`] = 'Price is required';
+      } else {
+        const price = parseFloat(item.priceRMB);
+        if (isNaN(price) || price <= 0) {
+          errors[`items.${index}.priceRMB`] = 'Price must be a valid number greater than 0';
+        }
       }
       if (!item.quantity.trim()) {
         errors[`items.${index}.quantity`] = 'Quantity is required';
-      }
-      if (parseInt(item.quantity) <= 0) {
-        errors[`items.${index}.quantity`] = 'Quantity must be greater than 0';
+      } else {
+        const quantity = parseInt(item.quantity);
+        if (isNaN(quantity) || quantity <= 0) {
+          errors[`items.${index}.quantity`] = 'Quantity must be a valid number greater than 0';
+        }
       }
 
       // Category-specific validation
-      if (item.category === 'serialized' && !item.machineTypeId) {
-        errors[`items.${index}.machineTypeId`] =
-          'Machine type is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.modelNumber?.trim()) {
-        errors[`items.${index}.modelNumber`] =
-          'Model number is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.machineNumber?.trim()) {
-        errors[`items.${index}.machineNumber`] =
-          'Machine number is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.engineNumber?.trim()) {
-        errors[`items.${index}.engineNumber`] =
-          'Engine number is required for serialized products';
-      }
-      if (item.category === 'serialized' && !item.brandId) {
-        errors[`items.${index}.brandId`] =
-          'Brand is required for serialized products';
+      if (item.category === 'serialized') {
+        if (!item.machineTypeId) {
+          errors[`items.${index}.machineTypeId`] =
+            'Machine type is required for serialized products';
+        }
+        if (!item.machineNumber?.trim()) {
+          errors[`items.${index}.machineNumber`] =
+            'Machine number is required for serialized products';
+        }
+        // Note: modelNumber, engineNumber, and brandId are optional for serialized products
       }
 
       if (
@@ -784,59 +783,50 @@ export default function EditImportPage({ params }: EditImportPageProps) {
         errors[`items.${index}.unitOfMeasureId`] =
           'Unit of measure is required';
       }
-      if (item.category === 'bulk' && !item.modelOrPartNumber?.trim()) {
-        errors[`items.${index}.modelOrPartNumber`] =
-          'Model/Part number is required for bulk products';
-      }
-      if (item.category === 'bulk' && !item.batchOrLotNumber?.trim()) {
-        errors[`items.${index}.batchOrLotNumber`] =
-          'Batch/Lot number is required for bulk products';
-      }
-      if (item.category === 'bulk' && !item.description?.trim()) {
-        errors[`items.${index}.description`] =
-          'Description is required for bulk products';
-      }
-      if (item.category === 'bulk' && !item.brandId) {
-        errors[`items.${index}.brandId`] =
-          'Brand is required for bulk products';
+      if (item.category === 'bulk') {
+        if (!item.modelOrPartNumber?.trim()) {
+          errors[`items.${index}.modelOrPartNumber`] =
+            'Model/Part number is required for bulk products';
+        }
+        // Note: batchOrLotNumber, description, and brandId are optional for bulk products
       }
     });
 
     if (Object.keys(errors).length > 0) {
-      Object.entries(errors).forEach(([key, value]) => {
-        toast.error(value, {
-          description: key,
-        });
+      // Show a single summary toast instead of multiple toasts
+      const errorCount = Object.keys(errors).length;
+      toast.error(`Please fix ${errorCount} validation error${errorCount > 1 ? 's' : ''}`, {
+        description: 'Check the highlighted fields below',
       });
       setValidationErrors(errors);
       return;
     }
 
-    // Transform items for API
+    // Transform items for API - convert empty strings to undefined for optional fields
     const transformedItems = formData.items.map((item) => ({
-      id: item.id,
-      productId: item.productId,
+      id: item.id || undefined,
+      productId: item.productId || undefined,
       name: item.name,
-      description: item.description,
+      description: item.description?.trim() || undefined,
       category: item.category,
       priceRMB: item.priceRMB,
       quantity: parseInt(item.quantity),
-      notes: item.notes,
-      brandId: item.brandId,
+      notes: item.notes?.trim() || undefined,
+      brandId: item.brandId?.trim() || undefined,
       condition: item.condition,
-      year: item.year ? parseInt(item.year) : undefined,
-      machineTypeId: item.machineTypeId,
-      unitOfMeasureId: item.unitOfMeasureId,
-      modelOrPartNumber: item.modelOrPartNumber,
-      machineNumber: item.machineNumber,
-      engineNumber: item.engineNumber,
-      serialNumber: item.serialNumber,
-      model: item.model,
-      engineModel: item.engineModel,
-      enginePower: item.enginePower,
-      operatingWeight: item.operatingWeight,
-      batchOrLotNumber: item.batchOrLotNumber,
-      modelNumber: item.modelNumber,
+      year: item.year && item.year.trim() ? parseInt(item.year) : undefined,
+      machineTypeId: item.machineTypeId?.trim() || undefined,
+      unitOfMeasureId: item.unitOfMeasureId?.trim() || undefined,
+      modelOrPartNumber: item.modelOrPartNumber?.trim() || undefined,
+      machineNumber: item.machineNumber?.trim() || undefined,
+      engineNumber: item.engineNumber?.trim() || undefined,
+      serialNumber: item.serialNumber?.trim() || undefined,
+      model: item.model?.trim() || undefined,
+      engineModel: item.engineModel?.trim() || undefined,
+      enginePower: item.enginePower?.trim() || undefined,
+      operatingWeight: item.operatingWeight?.trim() || undefined,
+      batchOrLotNumber: item.batchOrLotNumber?.trim() || undefined,
+      modelNumber: item.modelNumber?.trim() || undefined,
     }));
 
     const updateData = {

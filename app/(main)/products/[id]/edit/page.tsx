@@ -659,59 +659,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                 </div>
               )}
             </div>
-
-            <Divider.Root />
-
-            {/* Location Information */}
-            <div>
-              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
-                Location & Supplier
-              </h3>
-
-              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='supplierId'>Supplier</Label.Root>
-                  <Select.Root
-                    value={formData.supplierId || ''}
-                    onValueChange={(value) =>
-                      handleInputChange('supplierId', value)
-                    }
-                  >
-                    <Select.Trigger id='supplierId'>
-                      <Select.Value placeholder='Select supplier' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {suppliers.map((supplier) => (
-                        <Select.Item key={supplier.id} value={supplier.id}>
-                          {supplier.name} ({supplier.code})
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='warehouseId'>Warehouse</Label.Root>
-                  <Select.Root
-                    value={formData.warehouseId || ''}
-                    onValueChange={(value) =>
-                      handleInputChange('warehouseId', value)
-                    }
-                  >
-                    <Select.Trigger id='warehouseId'>
-                      <Select.Value placeholder='Select warehouse' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {warehouses.map((warehouse) => (
-                        <Select.Item key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className='flex flex-col gap-4 pb-4 sm:flex-row sm:justify-end'>

@@ -30,21 +30,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
     router.push(`/products/${id}/edit`);
   };
 
-  const handleDelete = async () => {
-    const confirmed = confirm('Are you sure you want to delete this product?');
-    if (!confirmed) return;
-
-    setIsDeleting(true);
-    try {
-      // TODO: Implement delete functionality
-      console.log('Delete product:', id);
-      router.push('/products');
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      setIsDeleting(false);
-    }
-  };
-
   const formatCurrency = (amount: number, currency: string = 'IDR') => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -136,16 +121,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
           <Button.Root variant='neutral' mode='stroke' onClick={handleEdit}>
             <RiEditLine className='mr-2 size-4' />
             Edit Product
-          </Button.Root>
-
-          <Button.Root
-            variant='error'
-            mode='stroke'
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            <RiDeleteBinLine className='mr-2 size-4' />
-            {isDeleting ? 'Deleting...' : 'Delete Product'}
           </Button.Root>
         </div>
 

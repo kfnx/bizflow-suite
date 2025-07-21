@@ -5,29 +5,28 @@ import { useRouter } from 'next/navigation';
 import { RiFileAddLine } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 
-import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { hasPermission } from '@/lib/permissions';
-import { QuotationFormData } from '@/lib/validations/quotation';
+import { InvoiceFormData } from '@/lib/validations/invoice';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { NewQuotationForm } from '@/components/quotations/new-quotation-form';
+import { NewInvoiceForm } from '@/components/invoices/new-invoice-form';
 
-const initialFormData: QuotationFormData = {
-  quotationNumber: '', // Will be populated by the form component
-  quotationDate: new Date().toISOString().split('T')[0],
-  validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+const initialFormData: InvoiceFormData = {
+  invoiceDate: new Date().toISOString().split('T')[0],
+  dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0], // 30 days from now
   customerId: '',
   branchId: '',
-  isIncludePPN: false,
   currency: 'IDR',
-  status: QUOTATION_STATUS.DRAFT,
+  status: 'draft',
+  paymentMethod: '',
+  notes: '',
   items: [],
 };
 
-export default function NewQuotationPage() {
+export default function NewInvoicePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -42,7 +41,7 @@ export default function NewQuotationPage() {
     // Check permission
     const userHasPermission = hasPermission(
       session.user.role,
-      'quotations:create',
+      'invoices:create',
     );
     if (!userHasPermission) {
       router.push('/unauthorized');
@@ -59,20 +58,20 @@ export default function NewQuotationPage() {
   }
 
   return (
-    <PermissionGate permission='quotations:create'>
+    <PermissionGate permission='invoices:create'>
       <Header
         icon={
           <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
             <RiFileAddLine className='size-6' />
           </div>
         }
-        title='New Quotation'
-        description='Create a new quotation for your customer.'
+        title='New Invoice'
+        description='Create a new invoice for your customer.'
       >
-        <BackButton href='/quotations' label='Back to Quotations' />
+        <BackButton href='/invoices' label='Back to Invoices' />
       </Header>
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <NewQuotationForm initialFormData={initialFormData} />
+        <NewInvoiceForm initialFormData={initialFormData} />
       </div>
     </PermissionGate>
   );

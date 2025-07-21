@@ -1,10 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
-  RiArrowLeftLine,
   RiCalendarLine,
   RiDeleteBinLine,
   RiGlobalLine,
@@ -19,7 +18,6 @@ import { toast } from 'sonner';
 import { InvoiceFormData, type InvoiceItem } from '@/lib/validations/invoice';
 import { useBranches } from '@/hooks/use-branches';
 import { useCustomers } from '@/hooks/use-customers';
-import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -28,60 +26,20 @@ import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customer-select-with-add';
 
-interface InvoiceEditFormProps {
-  id: string;
+interface InvoiceFormProps {
+  initialFormData: InvoiceFormData;
 }
 
-export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
-  const [formData, setFormData] = useState<InvoiceFormData>({
-    invoiceDate: '',
-    dueDate: '',
-    customerId: '',
-    branchId: '',
-    currency: 'IDR',
-    status: 'draft',
-    paymentMethod: '',
-    notes: '',
-    items: [],
-  });
+export function NewInvoiceForm({ initialFormData }: InvoiceFormProps) {
+  const [formData, setFormData] = useState<InvoiceFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Fetch data
-  const { data: invoice, isLoading: isLoadingInvoice } = useInvoiceDetail(id);
   const { data: branches } = useBranches();
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
-
-  // Initialize form data from invoice
-  useEffect(() => {
-    if (invoice?.data && !isInitialized) {
-      const invoiceData = invoice.data;
-      setFormData({
-        invoiceDate: invoiceData.invoiceDate || '',
-        dueDate: invoiceData.dueDate || '',
-        customerId: invoiceData.customerId || '',
-        branchId: invoiceData.branchId || '',
-        currency: invoiceData.currency || 'IDR',
-        status: invoiceData.status as 'draft' | 'sent' | 'paid' | 'void',
-        paymentMethod: invoiceData.paymentMethod || '',
-        notes: invoiceData.notes || '',
-        items:
-          invoiceData.items?.map((item: any) => ({
-            productId: item.productId,
-            quantity: Number(item.quantity),
-            unitPrice: Number(item.unitPrice),
-            paymentTerms: item.paymentTerms || '',
-            termsAndConditions: item.termsAndConditions || '',
-            notes: item.notes || '',
-          })) || [],
-      });
-      setIsInitialized(true);
-    }
-  }, [invoice, isInitialized]);
 
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string) => {
@@ -135,8 +93,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
 
   const calculateTax = useCallback(() => {
     const subtotal = calculateSubtotal();
-    // For now, we'll use a simple 11% tax calculation
-    return subtotal * 0.11;
+    return subtotal * 0.11; // 11% tax
   }, [calculateSubtotal]);
 
   const calculateTotal = useCallback(() => {
@@ -171,22 +128,21 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
         return;
       }
 
-      const response = await fetch(`/api/invoices/${id}`, {
-        method: 'PUT',
+      const response = await fetch('/api/invoices', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data.error || 'Failed to update invoice');
+        toast.error(data.error || 'Failed to create invoice');
         return;
       }
 
-      toast.success('Invoice updated successfully!');
+      toast.success('Invoice created successfully!');
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['invoice', id] });
-      router.push(`/invoices/${id}`);
+      router.push('/invoices');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -194,48 +150,8 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
     }
   };
 
-  if (isLoadingInvoice || !isInitialized) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading invoice...</p>
-      </div>
-    );
-  }
-
-  if (!invoice?.data) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Invoice not found</p>
-      </div>
-    );
-  }
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className='mx-auto w-full max-w-4xl space-y-8'
-    >
-      {/* Header */}
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-3'>
-          <Button.Root
-            variant='neutral'
-            mode='ghost'
-            size='small'
-            onClick={() => router.push(`/invoices/${id}`)}
-            type='button'
-          >
-            <RiArrowLeftLine className='size-4' />
-          </Button.Root>
-          <div>
-            <h1 className='text-2xl font-bold text-text-strong-950'>
-              Edit Invoice
-            </h1>
-            <p className='text-text-sub-600'>{invoice.data.invoiceNumber}</p>
-          </div>
-        </div>
-      </div>
-
+    <form onSubmit={handleSubmit} className='space-y-6'>
       {/* Invoice Details */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
         <h3 className='text-lg mb-6 font-semibold text-text-strong-950'>
@@ -250,7 +166,6 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
               <Input.Wrapper>
                 <Input.Icon as={RiCalendarLine} />
                 <Input.Input
-                  id='invoiceDate'
                   type='date'
                   value={formData.invoiceDate}
                   onChange={(e) =>
@@ -335,36 +250,17 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
           </div>
 
           <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='status'>Status</Label.Root>
-            <Select.Root
-              value={formData.status}
-              onValueChange={(value) => handleInputChange('status', value)}
-            >
-              <Select.Trigger id='status'>
-                <Select.TriggerIcon as={RiHashtag} />
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='draft'>Draft</Select.Item>
-                <Select.Item value='sent'>Sent</Select.Item>
-                <Select.Item value='paid'>Paid</Select.Item>
-                <Select.Item value='void'>Void</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='paymentMethod'>Payment Method</Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Icon as={RiMoneyDollarCircleLine} />
                 <Input.Input
                   id='paymentMethod'
-                  value={formData.paymentMethod || ''}
+                  value={formData.paymentMethod}
                   onChange={(e) =>
                     handleInputChange('paymentMethod', e.target.value)
                   }
-                  placeholder='e.g., Bank Transfer, Cash, Credit Card'
+                  placeholder='Enter payment method'
                 />
               </Input.Wrapper>
             </Input.Root>
@@ -372,13 +268,17 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
 
           <div className='flex flex-col gap-1 md:col-span-2'>
             <Label.Root htmlFor='notes'>Notes</Label.Root>
-            <Textarea.Root
-              id='notes'
-              rows={3}
-              value={formData.notes || ''}
-              onChange={(e) => handleInputChange('notes', e.target.value)}
-              placeholder='Additional notes...'
-            />
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Icon as={RiHashtag} />
+                <Input.Input
+                  id='notes'
+                  value={formData.notes || ''}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  placeholder='Additional notes...'
+                />
+              </Input.Wrapper>
+            </Input.Root>
           </div>
         </div>
       </div>
@@ -408,7 +308,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
             {formData.items.map((item, index) => (
               <div
                 key={index}
-                className='grid grid-cols-12 items-end gap-2 border-b border-stroke-soft-200 pb-4'
+                className='grid grid-cols-12 items-end gap-2 pb-4'
               >
                 <div className='col-span-12 flex flex-col gap-1 md:col-span-4'>
                   <Label.Root htmlFor={`product-${index}`}>Product</Label.Root>
@@ -419,13 +319,11 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                         (p) => p.id === value,
                       );
                       updateItem(index, 'productId', value);
-                      if (product) {
-                        updateItem(
-                          index,
-                          'unitPrice',
-                          Number(product.price) || 0,
-                        );
-                      }
+                      updateItem(
+                        index,
+                        'unitPrice',
+                        Number(product?.price) || 0,
+                      );
                     }}
                   >
                     <Select.Trigger id={`product-${index}`}>
@@ -443,9 +341,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                 </div>
 
                 <div className='col-span-6 flex flex-col gap-1 md:col-span-2'>
-                  <Label.Root htmlFor={`quantity-${index}`}>
-                    Quantity
-                  </Label.Root>
+                  <Label.Root htmlFor={`quantity-${index}`}>Quantity</Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
                       <Input.Icon as={RiHashtag} />
@@ -495,7 +391,6 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
                   <Button.Root
                     variant='error'
                     mode='stroke'
-                    size='small'
                     onClick={() => removeItem(index)}
                     type='button'
                     className='w-full'
@@ -560,7 +455,7 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
         <Button.Root
           variant='neutral'
           mode='stroke'
-          onClick={() => router.push(`/invoices/${id}`)}
+          onClick={() => router.push('/invoices')}
           type='button'
           disabled={isLoading}
         >
@@ -572,9 +467,9 @@ export default function InvoiceEditForm({ id }: InvoiceEditFormProps) {
           type='submit'
           disabled={isLoading || formData.items.length === 0}
         >
-          {isLoading ? 'Saving...' : 'Save Changes'}
+          {isLoading ? 'Creating...' : 'Create Invoice'}
         </Button.Root>
       </div>
     </form>
   );
-}
+} 

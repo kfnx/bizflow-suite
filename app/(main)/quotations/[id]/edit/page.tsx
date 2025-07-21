@@ -11,6 +11,7 @@ import {
   RiEditLine,
   RiGlobalLine,
   RiHashtag,
+  RiMapPin2Line,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
   RiUserLine,
@@ -20,6 +21,7 @@ import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { UpdateQuotationRequest } from '@/lib/validations/quotation';
+import { useBranches } from '@/hooks/use-branches';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
@@ -45,6 +47,7 @@ interface QuotationFormData {
   quotationDate: string;
   validUntil: string;
   customerId: string;
+  branchId: string;
   isIncludePPN: boolean;
   currency: string;
   notes?: string;
@@ -63,6 +66,7 @@ export default function EditQuotationPage() {
   const queryClient = useQueryClient();
 
   // Fetch data for form options
+  const { data: branches } = useBranches();
   const { data: customers } = useCustomers();
   const { data: products } = useProducts();
 
@@ -101,6 +105,7 @@ export default function EditQuotationPage() {
           quotationDate: formatDateForInput(quotationData.quotationDate),
           validUntil: formatDateForInput(quotationData.validUntil),
           customerId: quotationData.customerId,
+          branchId: quotationData.branchId || '',
           isIncludePPN: quotationData.isIncludePPN,
           currency: quotationData.currency,
           notes: quotationData.notes || '',
@@ -245,6 +250,7 @@ export default function EditQuotationPage() {
         validUntil: formData.validUntil,
         status,
         customerId: formData.customerId,
+        branchId: formData.branchId,
         isIncludePPN: formData.isIncludePPN,
         currency: formData.currency,
         notes: formData.notes,
@@ -390,6 +396,30 @@ export default function EditQuotationPage() {
                     {customers?.data?.map((customer) => (
                       <Select.Item key={customer.id} value={customer.id}>
                         {customer.name} ({customer.code})
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+              </div>
+
+              <div className='flex flex-col gap-1'>
+                <Label.Root htmlFor='branchId'>
+                  Branch <Label.Asterisk />
+                </Label.Root>
+                <Select.Root
+                  value={formData.branchId}
+                  onValueChange={(value) =>
+                    handleInputChange('branchId', value)
+                  }
+                >
+                  <Select.Trigger id='branchId'>
+                    <Select.TriggerIcon as={RiMapPin2Line} />
+                    <Select.Value placeholder='Select branch' />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {branches?.data?.map((branch) => (
+                      <Select.Item key={branch.id} value={branch.id}>
+                        {branch.name}
                       </Select.Item>
                     ))}
                   </Select.Content>

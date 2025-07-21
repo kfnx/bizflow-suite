@@ -141,6 +141,9 @@ export async function PUT(
       if (validatedData.customerId) {
         updateData.customerId = validatedData.customerId;
       }
+      if (validatedData.branchId) {
+        updateData.branchId = validatedData.branchId;
+      }
       if (validatedData.approvedBy !== undefined) {
         updateData.approvedBy = validatedData.approvedBy;
       }

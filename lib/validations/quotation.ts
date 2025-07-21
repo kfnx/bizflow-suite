@@ -35,6 +35,7 @@ export const createQuotationRequestSchema = z.object({
   quotationDate: z.string().min(1, 'Quotation date is required'),
   validUntil: z.string().min(1, 'Valid until date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
+  branchId: z.string().min(1, 'Branch is required'),
   isIncludePPN: z.boolean().optional().default(false),
   currency: z.string().optional().default('IDR'),
   notes: z.string().optional(),
@@ -133,6 +134,7 @@ export interface UpdateQuotationRequest {
   validUntil?: string;
   status?: string;
   customerId?: string;
+  branchId?: string;
   approvedBy?: string;
   isIncludePPN?: boolean;
   currency?: string;

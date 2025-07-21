@@ -8,6 +8,7 @@ import {
   RiDeleteBinLine,
   RiGlobalLine,
   RiHashtag,
+  RiMapPin2Line,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
   RiUserLine,
@@ -20,6 +21,7 @@ import {
   QuotationFormData,
   type QuotationItem,
 } from '@/lib/validations/quotation';
+import { useBranches } from '@/hooks/use-branches';
 import { useProducts } from '@/hooks/use-products';
 import { useQuotationNumber } from '@/hooks/use-quotation-number';
 import * as Button from '@/components/ui/button';
@@ -29,6 +31,8 @@ import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customer-select-with-add';
 import QuotationNumberDisplay from '@/components/quotation-number-display';
+
+import { SimplePageLoading } from '../simple-page-loading';
 
 interface QuotationFormProps {
   initialFormData: QuotationFormData;
@@ -41,6 +45,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const { data: branches } = useBranches();
   const { data: products } = useProducts();
   const { data: quotationNumber, isLoading: isLoadingQuotationNumber } =
     useQuotationNumber();
@@ -142,6 +147,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
         quotationDate: formData.quotationDate,
         validUntil: formData.validUntil,
         customerId: formData.customerId,
+        branchId: formData.branchId,
         isIncludePPN: formData.isIncludePPN,
         currency: formData.currency,
         notes: formData.notes,
@@ -191,7 +197,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
 
   // Show loading state while fetching quotation number
   if (isLoadingQuotationNumber || !quotationNumber) {
-    return <div>Loading quotation number...</div>;
+    return <SimplePageLoading>Loading quotation number...</SimplePageLoading>;
   }
 
   return (
@@ -258,6 +264,28 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
               placeholder='Select a customer'
               required
             />
+          </div>
+
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='branchId'>
+              Branch <Label.Asterisk />
+            </Label.Root>
+            <Select.Root
+              value={formData.branchId}
+              onValueChange={(value) => handleInputChange('branchId', value)}
+            >
+              <Select.Trigger id='branchId'>
+                <Select.TriggerIcon as={RiMapPin2Line} />
+                <Select.Value placeholder='Select branch' />
+              </Select.Trigger>
+              <Select.Content>
+                {branches?.data?.map((branch) => (
+                  <Select.Item key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
           </div>
 
           <div className='flex flex-col gap-1'>

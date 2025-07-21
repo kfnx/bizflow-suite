@@ -82,6 +82,13 @@ export default function EditUserPage({ params }: EditUserPageProps) {
 
   const availableRoles = getAvailableRolesForCreation();
 
+  // Helper function to get branch name by ID
+  const getBranchNameById = (branchId: string) => {
+    if (!branchesData?.data) return '';
+    const branch = branchesData.data.find((b) => b.id === branchId);
+    return branch?.name || '';
+  };
+
   useEffect(() => {
     if (status === 'loading') return;
 
@@ -121,7 +128,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     }
   }, [userData]);
 
-  if (status === 'loading' || userLoading) {
+  if (status === 'loading' || userLoading || branchesLoading) {
     return (
       <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
         Loading...
@@ -475,17 +482,11 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                       <Select.Value placeholder='Select branch' />
                     </Select.Trigger>
                     <Select.Content>
-                      {branchesLoading ? (
-                        <Select.Item value='-' disabled>
-                          Loading branches...
+                      {branchesData?.data.map((branch) => (
+                        <Select.Item key={branch.id} value={branch.id}>
+                          {branch.name}
                         </Select.Item>
-                      ) : (
-                        branchesData?.data.map((branch) => (
-                          <Select.Item key={branch.id} value={branch.id}>
-                            {branch.name}
-                          </Select.Item>
-                        ))
-                      )}
+                      ))}
                     </Select.Content>
                   </Select.Root>
                   {validationErrors.branchId && (

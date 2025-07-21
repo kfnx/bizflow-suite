@@ -30,6 +30,7 @@ export const updateInvoiceRequestSchema = z.object({
   invoiceDate: z.string().min(1, 'Invoice date is required'),
   dueDate: z.string().min(1, 'Due date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
+  branchId: z.string().min(1, 'Branch is required'),
   currency: z.string().optional().default('IDR'),
   status: z.enum(['draft', 'sent', 'paid', 'void']).optional().default('draft'),
   paymentMethod: z.string().optional(),
@@ -64,6 +65,7 @@ export interface UpdateInvoiceRequest {
   invoiceDate?: string;
   dueDate?: string;
   customerId?: string;
+  branchId?: string;
   currency?: string;
   status?: string;
   paymentMethod?: string;

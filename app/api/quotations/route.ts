@@ -239,6 +239,7 @@ export async function POST(request: NextRequest) {
       const quotationData = {
         quotationNumber,
         quotationDate: new Date(validatedData.quotationDate),
+        branchId: validatedData.branchId,
         validUntil: new Date(validatedData.validUntil),
         customerId: validatedData.customerId,
         isIncludePPN: validatedData.isIncludePPN || false,

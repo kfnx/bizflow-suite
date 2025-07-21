@@ -203,7 +203,7 @@ export default function ProfilePage() {
                     Role & Permissions
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {user.role}
+                    {user.role} {user.isAdmin && '(Admin)'}
                   </div>
                 </div>
               </div>

@@ -64,6 +64,8 @@ export type InvoiceDetail = {
   invoiceDate: string;
   dueDate: string;
   customerId: string;
+  branchId?: string;
+  branchName?: string;
   subtotal: string;
   tax: string;
   total: string;

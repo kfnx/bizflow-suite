@@ -11,10 +11,7 @@ import {
   quotations,
   users,
 } from '@/lib/db/schema';
-import {
-  CreateQuotationRequest,
-  createQuotationRequestSchema,
-} from '@/lib/validations/quotation';
+import { createQuotationRequestSchema } from '@/lib/validations/quotation';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +36,12 @@ export async function GET(request: NextRequest) {
 
     // Build query conditions
     const conditions = [];
+
+    // Branch-based access control
+    // HO users (ho_*) can see all branches, others can only see their own branch
+    if (session.user.branchId && !session.user.branchId.startsWith('ho_')) {
+      conditions.push(eq(quotations.branchId, session.user.branchId));
+    }
     if (status && status !== 'all') {
       const statusValue =
         QUOTATION_STATUS[status.toUpperCase() as keyof typeof QUOTATION_STATUS];

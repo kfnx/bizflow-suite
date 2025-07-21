@@ -74,6 +74,14 @@ const fetchUser = async (userId: string): Promise<{ user: User }> => {
   return response.json();
 };
 
+const fetchCurrentUser = async (): Promise<{ user: User }> => {
+  const response = await fetch('/api/profile');
+  if (!response.ok) {
+    throw new Error('Failed to fetch user profile');
+  }
+  return response.json();
+};
+
 const resetUserPassword = async (userId: string): Promise<void> => {
   const response = await fetch(`/api/users/${userId}/reset-password`, {
     method: 'POST',
@@ -134,6 +142,13 @@ export function useUser(userId: string) {
     queryKey: ['user', userId],
     queryFn: () => fetchUser(userId),
     enabled: !!userId,
+  });
+}
+
+export function useCurrentUser() {
+  return useQuery({
+    queryKey: ['current-user'],
+    queryFn: fetchCurrentUser,
   });
 }
 

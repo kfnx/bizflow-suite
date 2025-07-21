@@ -5,6 +5,7 @@ import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { INVOICE_STATUS } from '@/lib/db/enum';
 import {
+  branches,
   customers,
   invoiceItems,
   invoices,
@@ -35,6 +36,8 @@ export async function GET(
         invoiceDate: invoices.invoiceDate,
         dueDate: invoices.dueDate,
         customerId: invoices.customerId,
+        branchId: invoices.branchId,
+        branchName: branches.name,
         subtotal: invoices.subtotal,
         tax: invoices.tax,
         total: invoices.total,
@@ -71,6 +74,7 @@ export async function GET(
       .leftJoin(customers, eq(invoices.customerId, customers.id))
       .leftJoin(quotations, eq(invoices.quotationId, quotations.id))
       .leftJoin(users, eq(invoices.createdBy, users.id))
+      .leftJoin(branches, eq(invoices.branchId, branches.id))
       .where(eq(invoices.id, id))
       .limit(1);
 

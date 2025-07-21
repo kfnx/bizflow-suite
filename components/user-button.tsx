@@ -1,15 +1,15 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   RiArrowDownSLine,
   RiArrowRightSLine,
-  RiLayoutGridLine,
   RiLogoutBoxRLine,
   RiMoonLine,
   RiPaletteLine,
-  RiPulseLine,
   RiSettings2Line,
+  RiUserLine,
 } from '@remixicon/react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
@@ -25,6 +25,7 @@ import IconVerifiedFill from '~/icons/icon-verified-fill.svg';
 export function UserButton({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   // Show loading state while session is loading
   if (status === 'loading') {
@@ -57,6 +58,10 @@ export function UserButton({ className }: { className?: string }) {
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login' });
+  };
+
+  const handleProfileClick = () => {
+    router.push('/profile');
   };
 
   return (
@@ -118,15 +123,11 @@ export function UserButton({ className }: { className?: string }) {
         </Dropdown.Item>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
-          <Dropdown.Item disabled>
-            <Dropdown.ItemIcon as={RiPulseLine} />
-            Activity
+          <Dropdown.Item onSelect={handleProfileClick}>
+            <Dropdown.ItemIcon as={RiUserLine} />
+            Profile
           </Dropdown.Item>
           <Dropdown.Item disabled>
-            <Dropdown.ItemIcon as={RiLayoutGridLine} />
-            Integrations
-          </Dropdown.Item>
-          <Dropdown.Item>
             <Dropdown.ItemIcon as={RiSettings2Line} />
             Settings
           </Dropdown.Item>
@@ -147,6 +148,7 @@ export function UserButton({ className }: { className?: string }) {
 export function UserButtonMobile({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   // Show loading state while session is loading
   if (status === 'loading') {
@@ -179,6 +181,10 @@ export function UserButtonMobile({ className }: { className?: string }) {
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login' });
+  };
+
+  const handleProfileClick = () => {
+    router.push('/profile');
   };
 
   return (
@@ -240,15 +246,11 @@ export function UserButtonMobile({ className }: { className?: string }) {
         </Dropdown.Item>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
-          <Dropdown.Item>
-            <Dropdown.ItemIcon as={RiPulseLine} />
-            Activity
+          <Dropdown.Item onSelect={handleProfileClick}>
+            <Dropdown.ItemIcon as={RiUserLine} />
+            Profile
           </Dropdown.Item>
-          <Dropdown.Item>
-            <Dropdown.ItemIcon as={RiLayoutGridLine} />
-            Integrations
-          </Dropdown.Item>
-          <Dropdown.Item>
+          <Dropdown.Item disabled>
             <Dropdown.ItemIcon as={RiSettings2Line} />
             Settings
           </Dropdown.Item>

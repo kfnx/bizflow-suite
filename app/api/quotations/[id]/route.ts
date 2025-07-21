@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
 import {
+  branches,
   customers,
   products,
   quotationItems,
@@ -28,6 +29,8 @@ export async function GET(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        branchId: quotations.branchId,
+        branchName: branches.name,
         approvedBy: quotations.approvedBy,
         isIncludePPN: quotations.isIncludePPN,
         subtotal: quotations.subtotal,
@@ -47,6 +50,7 @@ export async function GET(
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
       .leftJoin(users, eq(quotations.createdBy, users.id))
+      .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(eq(quotations.id, id))
       .limit(1);
 
@@ -208,6 +212,8 @@ export async function PUT(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        branchId: quotations.branchId,
+        branchName: branches.name,
         approvedBy: quotations.approvedBy,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
@@ -224,6 +230,7 @@ export async function PUT(
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
       .leftJoin(users, eq(quotations.createdBy, users.id))
+      .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(eq(quotations.id, id))
       .limit(1);
 

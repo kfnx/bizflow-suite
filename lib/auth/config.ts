@@ -78,6 +78,7 @@ export const authConfig: NextAuthConfig = {
             phone: dbUser.phone,
             avatar: dbUser.avatar,
             isAdmin: dbUser.isAdmin || false,
+            branchId: dbUser.branchId,
           };
         } catch (error) {
           console.error('Auth error:', error);
@@ -95,6 +96,7 @@ export const authConfig: NextAuthConfig = {
         token.phone = user.phone;
         token.avatar = user.avatar;
         token.isAdmin = user.isAdmin;
+        token.branchId = user.branchId;
       }
       return token;
     },
@@ -107,6 +109,7 @@ export const authConfig: NextAuthConfig = {
         session.user.phone = token.phone as string | null;
         session.user.avatar = token.avatar as string | null;
         session.user.isAdmin = token.isAdmin as boolean;
+        session.user.branchId = token.branchId as string | null;
       }
       return session;
     },

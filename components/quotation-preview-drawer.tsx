@@ -99,6 +99,17 @@ function QuotationPreviewContent({
 
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Branch
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {quotation.branchName || '—'}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
             Items
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>

@@ -281,12 +281,13 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <Dropdown.Root>
-          <Dropdown.Trigger asChild>
-            <Button.Root mode='ghost' size='xsmall' className='h-8 w-8 p-0'>
-              <RiMoreLine className='size-4' />
-            </Button.Root>
-          </Dropdown.Trigger>
+        <div onClick={(e) => e.stopPropagation()}>
+          <Dropdown.Root>
+            <Dropdown.Trigger asChild>
+              <Button.Root mode='ghost' size='xsmall' className='h-8 w-8 p-0'>
+                <RiMoreLine className='size-4' />
+              </Button.Root>
+            </Dropdown.Trigger>
           <Dropdown.Content align='end'>
             <Dropdown.Item
               onClick={() => router.push(`/invoices/${row.original.id}`)}
@@ -339,6 +340,7 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
             </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Root>
+        </div>
       ),
     },
   ];
@@ -406,7 +408,11 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
         </Table.Header>
         <Table.Body>
           {table.getRowModel().rows.map((row) => (
-            <Table.Row key={row.id}>
+            <Table.Row 
+              key={row.id}
+              className="cursor-pointer hover:bg-bg-weak-50"
+              onClick={() => onPreview?.(row.original.id)}
+            >
               {row.getVisibleCells().map((cell) => (
                 <Table.Cell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

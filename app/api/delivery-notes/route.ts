@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
+import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
 import {
@@ -15,6 +16,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = request.nextUrl;
     const search = searchParams.get('search');
     const status = searchParams.get('status');
@@ -26,6 +33,12 @@ export async function GET(request: NextRequest) {
 
     // Build where conditions
     const whereConditions = [];
+
+    // Branch-based access control
+    // HO users (ho_*) can see all branches, others can only see their own branch
+    if (session.user.branchId && !session.user.branchId.startsWith('ho_')) {
+      whereConditions.push(eq(deliveryNotes.branchId, session.user.branchId));
+    }
 
     if (search) {
       whereConditions.push(

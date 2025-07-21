@@ -38,6 +38,12 @@ export async function GET(request: NextRequest) {
     // Build where conditions
     const whereConditions = [];
 
+    // Branch-based access control
+    // HO users (ho_*) can see all branches, others can only see their own branch
+    if (session.user.branchId && !session.user.branchId.startsWith('ho_')) {
+      whereConditions.push(eq(invoices.branchId, session.user.branchId));
+    }
+
     if (search) {
       whereConditions.push(
         or(

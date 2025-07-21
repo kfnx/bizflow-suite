@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/mysql2';
 
 import { createConnection } from '../index';
 import * as schema from '../schema';
+import { branches } from './branches';
 import { brands } from './brands';
 import { customerContactPersons, customers } from './customers';
 import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
@@ -21,6 +22,9 @@ async function main() {
   const db = drizzle(connection, { schema, mode: 'default' });
 
   // Direct database inserts to ensure proper relationships
+  await db.insert(schema.branches).values(branches);
+  console.log(`✅ Seeded ${branches.length} branches`);
+
   await db.insert(schema.users).values(users);
   console.log(`✅ Seeded ${users.length} users`);
 

@@ -1,17 +1,10 @@
 import { InsertBrand } from '../schema';
 
-export const brandsObject: Record<string, string> = {
-  shantui: 'Shantui',
-  caterpillar: 'Caterpillar',
-  komatsu: 'Komatsu',
-  hitachi: 'Hitachi',
-  volvo: 'Volvo',
-  jcb: 'JCB',
-};
-
-export const brands: InsertBrand[] = Object.entries(brandsObject).map(
-  ([id, name]) => ({
-    id,
-    name,
-  }),
-);
+export const brands: InsertBrand[] = [
+  { id: 'shantui', name: 'Shantui' },
+  { id: 'caterpillar', name: 'Caterpillar' },
+  { id: 'komatsu', name: 'Komatsu' },
+  { id: 'hitachi', name: 'Hitachi' },
+  { id: 'volvo', name: 'Volvo' },
+  { id: 'jcb', name: 'JCB' },
+];

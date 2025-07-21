@@ -13,8 +13,9 @@ export const quotations = [
     quotationDate: new Date('2025-04-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer1,
-    approverBy: userIds.user2, // Manager
-    createdBy: userIds.user1,
+    approverBy: userIds.manager_kendari, // Manager
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '15000000.00',
     tax: '1500000.00',
@@ -31,7 +32,8 @@ export const quotations = [
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer2,
     approverBy: userIds.user3, // Director
-    createdBy: userIds.user2,
+    createdBy: userIds.manager_kendari, // Budi - Kendari branch
+    branchId: 'kendari', // Created by Budi at Kendari branch
     isIncludePPN: false,
     subtotal: '25000000.00',
     tax: '0.00',
@@ -47,8 +49,9 @@ export const quotations = [
     quotationDate: new Date('2025-05-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer3,
-    approverBy: userIds.user2, // Manager
-    createdBy: userIds.user1,
+    approverBy: userIds.manager_kendari, // Manager
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '35000000.00',
     tax: '3500000.00',
@@ -65,7 +68,8 @@ export const quotations = [
     validUntil: new Date('2025-02-28'),
     customerId: customerIds.customer4,
     approverBy: userIds.user3, // Director
-    createdBy: userIds.user3,
+    createdBy: userIds.user3, // Rizky - HO Jakarta
+    branchId: 'ho_jakarta', // Created by Rizky at HO Jakarta
     isIncludePPN: true,
     subtotal: '18000000.00',
     tax: '1800000.00',
@@ -81,8 +85,9 @@ export const quotations = [
     quotationDate: new Date('2025-06-15'),
     validUntil: new Date('2025-07-15'),
     customerId: customerIds.customer5,
-    approverBy: userIds.user2, // Manager
-    createdBy: userIds.user4,
+    approverBy: userIds.manager_kendari, // Manager
+    createdBy: userIds.user4, // Rini - Balikpapan branch
+    branchId: 'balikpapan', // Created by Rini at Balikpapan branch
     isIncludePPN: true,
     subtotal: '42000000.00',
     tax: '4200000.00',
@@ -99,7 +104,8 @@ export const quotations = [
     validUntil: new Date('2025-07-20'),
     customerId: customerIds.customer1,
     approverBy: userIds.user3, // Director
-    createdBy: userIds.user2,
+    createdBy: userIds.manager_kendari, // Budi - Kendari branch
+    branchId: 'kendari', // Created by Budi at Kendari branch
     isIncludePPN: false,
     subtotal: '28000000.00',
     tax: '0.00',
@@ -115,8 +121,9 @@ export const quotations = [
     quotationDate: new Date('2025-09-10'),
     validUntil: new Date('2025-12-10'),
     customerId: customerIds.customer2,
-    approverBy: userIds.user2, // Manager
-    createdBy: userIds.user1,
+    approverBy: userIds.manager_kendari, // Manager
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '32000000.00',
     tax: '3200000.00',
@@ -132,8 +139,9 @@ export const quotations = [
     quotationDate: new Date('2025-10-15'),
     validUntil: new Date('2025-11-15'),
     customerId: customerIds.customer3,
-    approverBy: userIds.user2, // Manager
-    createdBy: userIds.user1,
+    approverBy: userIds.manager_kendari, // Manager
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '45000000.00',
     tax: '4500000.00',
@@ -150,7 +158,8 @@ export const quotations = [
     validUntil: new Date('2025-11-20'),
     customerId: customerIds.customer4,
     approverBy: userIds.user3, // Director
-    createdBy: userIds.user2,
+    createdBy: userIds.manager_kendari, // Budi - Kendari branch
+    branchId: 'kendari', // Created by Budi at Kendari branch
     isIncludePPN: false,
     subtotal: '22000000.00',
     tax: '0.00',

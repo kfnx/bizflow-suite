@@ -139,6 +139,13 @@ async function main() {
 
   // 6. Delete reference tables (no dependencies)
   try {
+    await db.delete(schema.branches);
+    console.log('✅ Truncated branches');
+  } catch (error) {
+    console.error('⚠️ Error truncating branches:', error);
+  }
+
+  try {
     await db.delete(schema.brands);
     console.log('✅ Truncated brands');
   } catch (error) {

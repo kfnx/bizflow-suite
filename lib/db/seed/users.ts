@@ -6,7 +6,7 @@ const hashedPassword =
 
 export const users = [
   {
-    id: userIds.admin,
+    id: userIds.admin_ho_jakarta,
     code: 'ADMIN01',
     firstName: 'Admin',
     lastName: 'IT support',
@@ -19,12 +19,13 @@ export const users = [
     phone: '+6281234567890',
     avatar: null,
     role: 'staff',
+    branchId: 'ho_jakarta', // Admin at HO Jakarta
     signature: null,
     isActive: true,
     isAdmin: true,
   },
   {
-    id: userIds.user1,
+    id: userIds.staff_pekanbaru,
     code: 'USR001',
     firstName: 'Asep',
     lastName: 'Staff',
@@ -37,12 +38,13 @@ export const users = [
     phone: '+6281234567890',
     avatar: null,
     role: 'staff',
+    branchId: 'pekanbaru', // Sales staff at Pekanbaru
     signature: null,
     isActive: true,
     isAdmin: false,
   },
   {
-    id: userIds.user2,
+    id: userIds.manager_kendari,
     code: 'USR002',
     firstName: 'Budi',
     lastName: 'Manager',
@@ -55,6 +57,7 @@ export const users = [
     phone: '+6281234567891',
     avatar: null,
     role: 'manager',
+    branchId: 'kendari', // Sales manager at Kendari
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -73,6 +76,7 @@ export const users = [
     phone: '+6281234567892',
     avatar: null,
     role: 'director',
+    branchId: 'ho_jakarta', // Director at HO Jakarta
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -91,6 +95,7 @@ export const users = [
     phone: '+6281234567893',
     avatar: null,
     role: 'staff',
+    branchId: 'balikpapan', // Sales staff at Balikpapan
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -109,6 +114,7 @@ export const users = [
     phone: '+6281234567894',
     avatar: null,
     role: 'import-manager',
+    branchId: 'ho_jakarta', // Import manager at HO Jakarta
     signature: null,
     isActive: true,
     isAdmin: false,

@@ -49,6 +49,7 @@ export const users = mysqlTable(
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
     role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, import-manager director
+    branchId: varchar('branch_id', { length: 36 }), // HO Jakarta, Pekanbaru , Kendari, Balikpapan
     signature: varchar('signature', { length: 500 }),
     isActive: boolean('is_active').default(true), // for soft delete
     isAdmin: boolean('is_admin').default(false),
@@ -58,8 +59,18 @@ export const users = mysqlTable(
   (table) => [
     index('email_idx').on(table.email),
     index('role_idx').on(table.role),
+    foreignKey({
+      columns: [table.branchId],
+      foreignColumns: [branches.id],
+      name: 'fk_users_branch',
+    }),
   ],
 );
+
+export const branches = mysqlTable('branches', {
+  id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  name: varchar('name', { length: 100 }).notNull(),
+});
 
 // NextAuth.js required tables
 export const accounts = mysqlTable(
@@ -216,6 +227,7 @@ export const quotations = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
+    branchId: varchar('branch_id', { length: 36 }),
     quotationNumber: varchar('quotation_number', { length: 50 }) // QT/2025/04/001
       .notNull()
       .unique(),
@@ -254,6 +266,11 @@ export const quotations = mysqlTable(
       columns: [table.customerId],
       foreignColumns: [customers.id],
       name: 'fk_quotations_customer',
+    }),
+    foreignKey({
+      columns: [table.branchId],
+      foreignColumns: [branches.id],
+      name: 'fk_quotations_branch',
     }),
     foreignKey({
       columns: [table.createdBy],
@@ -310,6 +327,7 @@ export const invoices = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
+    branchId: varchar('branch_id', { length: 36 }),
     invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
     quotationId: varchar('quotation_id', { length: 36 }),
     invoiceDate: date('invoice_date').notNull(),
@@ -336,6 +354,11 @@ export const invoices = mysqlTable(
       columns: [table.customerId],
       foreignColumns: [customers.id],
       name: 'fk_invoices_customer',
+    }),
+    foreignKey({
+      columns: [table.branchId],
+      foreignColumns: [branches.id],
+      name: 'fk_invoices_branch',
     }),
     foreignKey({
       columns: [table.createdBy],
@@ -389,6 +412,7 @@ export const deliveryNotes = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
+    branchId: varchar('branch_id', { length: 36 }),
     deliveryNumber: varchar('delivery_number', { length: 50 })
       .notNull()
       .unique(),
@@ -418,6 +442,11 @@ export const deliveryNotes = mysqlTable(
       columns: [table.invoiceId],
       foreignColumns: [invoices.id],
       name: 'fk_delivery_notes_invoice',
+    }),
+    foreignKey({
+      columns: [table.branchId],
+      foreignColumns: [branches.id],
+      name: 'fk_delivery_notes_branch',
     }),
     foreignKey({
       columns: [table.customerId],
@@ -1220,6 +1249,8 @@ export interface BrandQueryParams {
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+export type Branch = typeof branches.$inferSelect;
+export type InsertBranch = typeof branches.$inferInsert;
 export type Customer = typeof customers.$inferSelect;
 export type InsertCustomer = typeof customers.$inferInsert;
 export type Supplier = typeof suppliers.$inferSelect;

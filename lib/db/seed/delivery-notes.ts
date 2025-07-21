@@ -13,21 +13,23 @@ export const deliveryNotes = [
     deliveryNumber: 'DN/2025/05/001',
     invoiceId: invoiceIds.invoice1, // Paid invoice
     customerId: customerIds.customer3,
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     deliveryDate: new Date('2025-05-05'),
     deliveryMethod: 'Truck Delivery',
     driverName: 'Ahmad Supriadi',
     vehicleNumber: 'B 1234 ABC',
     status: DELIVERY_NOTE_STATUS.DELIVERED,
-    deliveredBy: userIds.user1,
+    deliveredBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
     receivedBy: userIds.user3, // Customer representative
     notes: 'Bulldozer delivered successfully to construction site',
-    createdBy: userIds.user1,
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
     id: deliveryNoteIds.deliveryNote2,
     deliveryNumber: 'DN/2025/07/001',
     invoiceId: invoiceIds.invoice2, // Sent invoice
     customerId: customerIds.customer2,
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     deliveryDate: new Date('2025-07-25'),
     deliveryMethod: 'Truck Delivery',
     driverName: 'Budi Santoso',
@@ -36,37 +38,39 @@ export const deliveryNotes = [
     deliveredBy: null,
     receivedBy: null,
     notes: 'JCB backhoe loader scheduled for delivery',
-    createdBy: userIds.user2,
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
     id: deliveryNoteIds.deliveryNote3,
     deliveryNumber: 'DN/2025/09/001',
     invoiceId: invoiceIds.invoice5, // Paid invoice
     customerId: customerIds.customer5,
+    branchId: 'kendari', // Created by Budi at Kendari branch
     deliveryDate: new Date('2025-09-10'),
     deliveryMethod: 'Truck Delivery',
     driverName: 'Rizky Pratama',
     vehicleNumber: 'B 9012 GHI',
     status: DELIVERY_NOTE_STATUS.DELIVERED,
-    deliveredBy: userIds.user2,
+    deliveredBy: userIds.manager_kendari, // Budi - Kendari branch
     receivedBy: userIds.user4, // Customer representative
     notes: 'Caterpillar excavator delivered to mining site',
-    createdBy: userIds.user2,
+    createdBy: userIds.manager_kendari, // Budi - Kendari branch
   },
   {
     id: deliveryNoteIds.deliveryNote4,
     deliveryNumber: 'DN/2025/08/001',
     invoiceId: invoiceIds.invoice4, // Sent invoice
     customerId: customerIds.customer4,
+    branchId: 'balikpapan', // Created by Rini at Balikpapan branch
     deliveryDate: new Date('2025-08-15'),
     deliveryMethod: 'Customer Pickup',
     driverName: null,
     vehicleNumber: null,
     status: DELIVERY_NOTE_STATUS.DELIVERED,
-    deliveredBy: userIds.user4,
-    receivedBy: userIds.user1, // Customer representative
+    deliveredBy: userIds.user4, // Rini - Balikpapan branch
+    receivedBy: userIds.staff_pekanbaru, // Customer representative
     notes: 'Bulldozer picked up by customer at warehouse',
-    createdBy: userIds.user4,
+    createdBy: userIds.user4, // Rini - Balikpapan branch
   },
 ];
 

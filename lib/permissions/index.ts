@@ -59,6 +59,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'imports:read',
     'imports:create',
     'imports:update',
+    'imports:delete',
     'transfers:read',
     'products:read',
     'suppliers:read',

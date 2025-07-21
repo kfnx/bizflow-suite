@@ -49,7 +49,7 @@ export const imports: InsertImport[] = [
     status: IMPORT_STATUS.VERIFIED,
     notes:
       'Bulldozer equipment and accessories import - pending final inspection',
-    createdBy: userIds.user2, // Manager
+    createdBy: userIds.manager_kendari, // Manager
   },
   {
     id: importIds.import4,
@@ -90,7 +90,7 @@ export const imports: InsertImport[] = [
     status: IMPORT_STATUS.PENDING,
     notes:
       'High-value excavator and safety equipment import - awaiting final customs approval',
-    createdBy: userIds.user2, // Manager
+    createdBy: userIds.manager_kendari, // Manager
   },
 ];
 

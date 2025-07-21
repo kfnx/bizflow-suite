@@ -114,6 +114,8 @@ export function ImportDetail({ id }: ImportDetailProps) {
   const canEdit = importData.status === IMPORT_STATUS.PENDING;
   const canVerify =
     importData.status === IMPORT_STATUS.PENDING && can('imports:verify');
+  const canDelete =
+    importData.status === IMPORT_STATUS.PENDING && can('imports:delete');
 
   return (
     <>
@@ -147,15 +149,17 @@ export function ImportDetail({ id }: ImportDetailProps) {
             </Button.Root>
           )}
 
-          <Button.Root
-            variant='error'
-            mode='stroke'
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            <RiDeleteBinLine className='mr-2 size-4' />
-            {isDeleting ? 'Deleting...' : 'Delete Import'}
-          </Button.Root>
+          {canDelete && (
+            <Button.Root
+              variant='error'
+              mode='stroke'
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <RiDeleteBinLine className='mr-2 size-4' />
+              {isDeleting ? 'Deleting...' : 'Delete Import'}
+            </Button.Root>
+          )}
 
           {canVerify && (
             <Button.Root

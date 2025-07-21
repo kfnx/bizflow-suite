@@ -15,6 +15,7 @@ export const invoices = [
     invoiceDate: new Date('2025-04-30'),
     dueDate: new Date('2025-05-30'),
     customerId: customerIds.customer3,
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     subtotal: '35000000.00',
     tax: '3500000.00',
     total: '38500000.00',
@@ -22,7 +23,7 @@ export const invoices = [
     status: INVOICE_STATUS.PAID,
     paymentMethod: 'Bank Transfer',
     notes: 'Invoice for premium equipment package - payment received',
-    createdBy: userIds.user1,
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
     id: invoiceIds.invoice2,
@@ -31,6 +32,7 @@ export const invoices = [
     invoiceDate: new Date('2025-06-20'),
     dueDate: new Date('2025-07-20'),
     customerId: customerIds.customer2,
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     subtotal: '32000000.00',
     tax: '3200000.00',
     total: '35200000.00',
@@ -38,7 +40,7 @@ export const invoices = [
     status: INVOICE_STATUS.SENT,
     paymentMethod: 'Bank Transfer',
     notes: 'Invoice for JCB backhoe loader - pending payment',
-    createdBy: userIds.user2,
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
     id: invoiceIds.invoice3,
@@ -47,6 +49,7 @@ export const invoices = [
     invoiceDate: new Date('2025-07-15'),
     dueDate: new Date('2025-08-15'),
     customerId: customerIds.customer1,
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     subtotal: '18500000.00',
     tax: '1850000.00',
     total: '20350000.00',
@@ -54,7 +57,7 @@ export const invoices = [
     status: INVOICE_STATUS.DRAFT,
     paymentMethod: 'Bank Transfer',
     notes: 'Direct invoice for Shantui wheel loader',
-    createdBy: userIds.user1,
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
     id: invoiceIds.invoice4,
@@ -63,6 +66,7 @@ export const invoices = [
     invoiceDate: new Date('2025-08-10'),
     dueDate: new Date('2025-09-10'),
     customerId: customerIds.customer4,
+    branchId: 'balikpapan', // Created by Rini at Balikpapan branch
     subtotal: '22000000.00',
     tax: '0.00',
     total: '22000000.00',
@@ -70,7 +74,7 @@ export const invoices = [
     status: INVOICE_STATUS.SENT,
     paymentMethod: 'Cash',
     notes: 'Direct invoice for bulldozer - no PPN',
-    createdBy: userIds.user4,
+    createdBy: userIds.user4, // Rini - Balikpapan branch
   },
   {
     id: invoiceIds.invoice5,
@@ -79,6 +83,7 @@ export const invoices = [
     invoiceDate: new Date('2025-09-05'),
     dueDate: new Date('2025-10-05'),
     customerId: customerIds.customer5,
+    branchId: 'kendari', // Created by Budi at Kendari branch
     subtotal: '42000000.00',
     tax: '4200000.00',
     total: '46200000.00',
@@ -86,7 +91,7 @@ export const invoices = [
     status: INVOICE_STATUS.PAID,
     paymentMethod: 'Bank Transfer',
     notes: 'Direct invoice for Caterpillar excavator - payment received',
-    createdBy: userIds.user2,
+    createdBy: userIds.manager_kendari, // Budi - Kendari branch
   },
   {
     id: invoiceIds.invoice6,
@@ -95,6 +100,7 @@ export const invoices = [
     invoiceDate: new Date('2025-10-01'),
     dueDate: new Date('2025-11-01'),
     customerId: customerIds.customer3,
+    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
     subtotal: '13500000.00',
     tax: '1350000.00',
     total: '14850000.00',
@@ -102,7 +108,7 @@ export const invoices = [
     status: INVOICE_STATUS.VOID,
     paymentMethod: 'Bank Transfer',
     notes: 'Voided invoice due to customer cancellation',
-    createdBy: userIds.user1,
+    createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
 ];
 

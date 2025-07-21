@@ -237,7 +237,7 @@ function WarehousePreviewFooter({ warehouse }: { warehouse: Warehouse }) {
 
   return (
     <Drawer.Footer className='border-t'>
-      <div className='flex gap-3 w-full'>
+      <div className='flex w-full gap-3'>
         <Button.Root
           variant='neutral'
           mode='stroke'

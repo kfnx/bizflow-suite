@@ -88,6 +88,7 @@ interface InvoicesTableProps {
   filters: {
     search: string;
     status: string;
+    branch?: string;
     sortBy: string;
     page?: number;
     limit?: number;
@@ -188,6 +189,16 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
           <div className='text-paragraph-sm text-text-sub-600'>
             {row.original.customer?.name || '-'}
           </div>
+        </div>
+      ),
+    },
+    {
+      id: 'branch',
+      accessorKey: 'branchName',
+      header: 'Branch',
+      cell: ({ row }) => (
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {row.original.branchName || '—'}
         </div>
       ),
     },

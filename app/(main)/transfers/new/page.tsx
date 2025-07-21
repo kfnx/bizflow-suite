@@ -4,17 +4,17 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiArrowRightLine,
+  RiBox1Line,
   RiExchangeLine,
   RiFileTextLine,
   RiHashtag,
-  RiBox1Line,
   RiStoreLine,
   RiTruckLine,
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { useCreateTransfer } from '@/hooks/use-transfers';
 import { useProducts } from '@/hooks/use-products';
+import { useCreateTransfer } from '@/hooks/use-transfers';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -39,16 +39,17 @@ interface TransferFormData {
 export default function NewTransferPage() {
   const router = useRouter();
   const createTransferMutation = useCreateTransfer();
-  
+
   const { data: productsData, isLoading: isLoadingProducts } = useProducts({
     limit: 1000,
     status: 'in_stock',
   });
-  
-  const { data: warehousesData, isLoading: isLoadingWarehouses } = useWarehouses({
-    limit: 100,
-    isActive: 'true',
-  });
+
+  const { data: warehousesData, isLoading: isLoadingWarehouses } =
+    useWarehouses({
+      limit: 100,
+      isActive: 'true',
+    });
 
   const [formData, setFormData] = useState<TransferFormData>({
     productId: '',
@@ -60,7 +61,7 @@ export default function NewTransferPage() {
     deliveryId: '',
     notes: '',
   });
-  
+
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -74,26 +75,30 @@ export default function NewTransferPage() {
 
     // Client-side validation
     const errors: Record<string, string> = {};
-    
+
     if (!formData.productId) {
       errors.productId = 'Product is required';
     }
-    
+
     if (!formData.warehouseIdTo) {
       errors.warehouseIdTo = 'Destination warehouse is required';
     }
-    
+
     if (formData.movementType === 'transfer' && !formData.warehouseIdFrom) {
       errors.warehouseIdFrom = 'Source warehouse is required for transfers';
     }
-    
+
     if (!formData.quantity || parseInt(formData.quantity) <= 0) {
       errors.quantity = 'Quantity must be greater than 0';
     }
 
-    if (formData.warehouseIdFrom && formData.warehouseIdTo && 
-        formData.warehouseIdFrom === formData.warehouseIdTo) {
-      errors.warehouseIdTo = 'Source and destination warehouses must be different';
+    if (
+      formData.warehouseIdFrom &&
+      formData.warehouseIdTo &&
+      formData.warehouseIdFrom === formData.warehouseIdTo
+    ) {
+      errors.warehouseIdTo =
+        'Source and destination warehouses must be different';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -126,10 +131,7 @@ export default function NewTransferPage() {
     });
   };
 
-  const handleInputChange = (
-    field: keyof TransferFormData,
-    value: string,
-  ) => {
+  const handleInputChange = (field: keyof TransferFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -193,7 +195,9 @@ export default function NewTransferPage() {
                 </Label.Root>
                 <Select.Root
                   value={formData.movementType}
-                  onValueChange={(value) => handleInputChange('movementType', value)}
+                  onValueChange={(value) =>
+                    handleInputChange('movementType', value)
+                  }
                 >
                   <Select.Trigger>
                     <Select.TriggerIcon as={RiExchangeLine} />
@@ -205,7 +209,9 @@ export default function NewTransferPage() {
                         <RiExchangeLine className='size-4' />
                         <div>
                           <div className='font-medium'>Transfer</div>
-                          <div className='text-xs text-text-sub-600'>Between warehouses</div>
+                          <div className='text-xs text-text-sub-600'>
+                            Between warehouses
+                          </div>
                         </div>
                       </div>
                     </Select.Item>
@@ -214,7 +220,9 @@ export default function NewTransferPage() {
                         <RiBox1Line className='size-4' />
                         <div>
                           <div className='font-medium'>Stock In</div>
-                          <div className='text-xs text-text-sub-600'>From external source</div>
+                          <div className='text-xs text-text-sub-600'>
+                            From external source
+                          </div>
                         </div>
                       </div>
                     </Select.Item>
@@ -223,7 +231,9 @@ export default function NewTransferPage() {
                         <RiTruckLine className='size-4' />
                         <div>
                           <div className='font-medium'>Stock Out</div>
-                          <div className='text-xs text-text-sub-600'>To external destination</div>
+                          <div className='text-xs text-text-sub-600'>
+                            To external destination
+                          </div>
                         </div>
                       </div>
                     </Select.Item>
@@ -232,7 +242,9 @@ export default function NewTransferPage() {
                         <RiFileTextLine className='size-4' />
                         <div>
                           <div className='font-medium'>Adjustment</div>
-                          <div className='text-xs text-text-sub-600'>Manual correction</div>
+                          <div className='text-xs text-text-sub-600'>
+                            Manual correction
+                          </div>
                         </div>
                       </div>
                     </Select.Item>
@@ -259,7 +271,9 @@ export default function NewTransferPage() {
                   </Label.Root>
                   <Select.Root
                     value={formData.productId}
-                    onValueChange={(value) => handleInputChange('productId', value)}
+                    onValueChange={(value) =>
+                      handleInputChange('productId', value)
+                    }
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiBox1Line} />
@@ -280,7 +294,9 @@ export default function NewTransferPage() {
                         <Select.Item key={product.id} value={product.id}>
                           <div>
                             <div className='font-medium'>{product.name}</div>
-                            <div className='text-xs text-text-sub-600'>{product.code}</div>
+                            <div className='text-xs text-text-sub-600'>
+                              {product.code}
+                            </div>
                           </div>
                         </Select.Item>
                       ))}
@@ -334,21 +350,24 @@ export default function NewTransferPage() {
                 {/* From Warehouse */}
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='warehouseFrom'>
-                    From Warehouse {formData.movementType === 'transfer' && <Label.Asterisk />}
+                    From Warehouse{' '}
+                    {formData.movementType === 'transfer' && <Label.Asterisk />}
                   </Label.Root>
                   <Select.Root
                     value={formData.warehouseIdFrom}
-                    onValueChange={(value) => handleInputChange('warehouseIdFrom', value)}
+                    onValueChange={(value) =>
+                      handleInputChange('warehouseIdFrom', value)
+                    }
                     disabled={formData.movementType === 'in'}
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiStoreLine} />
-                      <Select.Value 
+                      <Select.Value
                         placeholder={
-                          formData.movementType === 'in' 
-                            ? 'External source' 
+                          formData.movementType === 'in'
+                            ? 'External source'
                             : 'Select source warehouse'
-                        } 
+                        }
                       />
                     </Select.Trigger>
                     <Select.Content>
@@ -363,12 +382,12 @@ export default function NewTransferPage() {
                         </Select.Item>
                       )}
                       {warehouses
-                        .filter(w => w.id !== formData.warehouseIdTo)
+                        .filter((w) => w.id !== formData.warehouseIdTo)
                         .map((warehouse) => (
-                        <Select.Item key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name}
-                        </Select.Item>
-                      ))}
+                          <Select.Item key={warehouse.id} value={warehouse.id}>
+                            {warehouse.name}
+                          </Select.Item>
+                        ))}
                     </Select.Content>
                   </Select.Root>
                   {validationErrors.warehouseIdFrom && (
@@ -397,17 +416,19 @@ export default function NewTransferPage() {
                   </Label.Root>
                   <Select.Root
                     value={formData.warehouseIdTo}
-                    onValueChange={(value) => handleInputChange('warehouseIdTo', value)}
+                    onValueChange={(value) =>
+                      handleInputChange('warehouseIdTo', value)
+                    }
                     disabled={formData.movementType === 'out'}
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiStoreLine} />
-                      <Select.Value 
+                      <Select.Value
                         placeholder={
-                          formData.movementType === 'out' 
-                            ? 'External destination' 
+                          formData.movementType === 'out'
+                            ? 'External destination'
                             : 'Select destination warehouse'
-                        } 
+                        }
                       />
                     </Select.Trigger>
                     <Select.Content>
@@ -422,12 +443,12 @@ export default function NewTransferPage() {
                         </Select.Item>
                       )}
                       {warehouses
-                        .filter(w => w.id !== formData.warehouseIdFrom)
+                        .filter((w) => w.id !== formData.warehouseIdFrom)
                         .map((warehouse) => (
-                        <Select.Item key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name}
-                        </Select.Item>
-                      ))}
+                          <Select.Item key={warehouse.id} value={warehouse.id}>
+                            {warehouse.name}
+                          </Select.Item>
+                        ))}
                     </Select.Content>
                   </Select.Root>
                   {validationErrors.warehouseIdTo && (
@@ -471,7 +492,9 @@ export default function NewTransferPage() {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='deliveryId'>Delivery Reference</Label.Root>
+                  <Label.Root htmlFor='deliveryId'>
+                    Delivery Reference
+                  </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
                       <Input.Icon as={RiTruckLine} />
@@ -492,9 +515,7 @@ export default function NewTransferPage() {
                   <TextArea.Root
                     id='notes'
                     value={formData.notes}
-                    onChange={(e) =>
-                      handleInputChange('notes', e.target.value)
-                    }
+                    onChange={(e) => handleInputChange('notes', e.target.value)}
                     rows={3}
                     placeholder='Enter any additional notes (optional)'
                     simple

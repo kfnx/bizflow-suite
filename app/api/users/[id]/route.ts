@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { branches, users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
 import { updateUserSchema } from '@/lib/validations/user';
 
@@ -38,10 +38,13 @@ export async function GET(
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,
+        branchId: users.branchId,
+        branchName: branches.name,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
+      .leftJoin(branches, eq(users.branchId, branches.id))
       .where(eq(users.id, params.id))
       .limit(1);
 

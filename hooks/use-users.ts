@@ -17,6 +17,8 @@ export type User = {
   phone?: string;
   avatar?: string;
   role: string;
+  branchId?: string;
+  branchName?: string;
   signature?: string;
   isActive: boolean;
   isAdmin: boolean;
@@ -38,6 +40,7 @@ export type UsersFilters = {
   search?: string;
   role?: string;
   status?: string;
+  branch?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -51,6 +54,7 @@ const fetchUsers = async (
   if (filters.search) params.append('search', filters.search);
   if (filters.role) params.append('role', filters.role);
   if (filters.status) params.append('status', filters.status);
+  if (filters.branch) params.append('branch', filters.branch);
   if (filters.sortBy) params.append('sortBy', filters.sortBy);
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());

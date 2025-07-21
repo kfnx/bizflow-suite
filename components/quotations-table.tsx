@@ -198,6 +198,26 @@ const createColumns = (
     ),
   },
   {
+    id: 'branch',
+    accessorKey: 'branchName',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Branch
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className='text-paragraph-sm text-text-sub-600'>
+        {row.original.branchName || '—'}
+      </div>
+    ),
+  },
+  {
     id: 'quotationDate',
     accessorKey: 'quotationDate',
     header: ({ column }) => (
@@ -328,6 +348,7 @@ interface QuotationsTableProps {
     search?: string;
     status?: string;
     customerId?: string;
+    branch?: string;
     sortBy?: string;
     page?: number;
     limit?: number;

@@ -751,7 +751,8 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       } else {
         const price = parseFloat(item.priceRMB);
         if (isNaN(price) || price <= 0) {
-          errors[`items.${index}.priceRMB`] = 'Price must be a valid number greater than 0';
+          errors[`items.${index}.priceRMB`] =
+            'Price must be a valid number greater than 0';
         }
       }
       if (!item.quantity.trim()) {
@@ -759,7 +760,8 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       } else {
         const quantity = parseInt(item.quantity);
         if (isNaN(quantity) || quantity <= 0) {
-          errors[`items.${index}.quantity`] = 'Quantity must be a valid number greater than 0';
+          errors[`items.${index}.quantity`] =
+            'Quantity must be a valid number greater than 0';
         }
       }
 
@@ -795,9 +797,12 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     if (Object.keys(errors).length > 0) {
       // Show a single summary toast instead of multiple toasts
       const errorCount = Object.keys(errors).length;
-      toast.error(`Please fix ${errorCount} validation error${errorCount > 1 ? 's' : ''}`, {
-        description: 'Check the highlighted fields below',
-      });
+      toast.error(
+        `Please fix ${errorCount} validation error${errorCount > 1 ? 's' : ''}`,
+        {
+          description: 'Check the highlighted fields below',
+        },
+      );
       setValidationErrors(errors);
       return;
     }

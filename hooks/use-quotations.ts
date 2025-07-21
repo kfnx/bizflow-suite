@@ -13,6 +13,8 @@ export type Quotation = {
   customerId: string;
   customerName: string;
   customerCode: string;
+  branchId?: string;
+  branchName?: string;
   subtotal: number;
   tax: number;
   total: number;
@@ -73,6 +75,7 @@ export type QuotationsFilters = {
   search?: string;
   status?: string;
   customerId?: string;
+  branch?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -88,6 +91,7 @@ const fetchQuotations = async (
   if (filters.status && filters.status !== 'all')
     params.append('status', filters.status);
   if (filters.customerId) params.append('customerId', filters.customerId);
+  if (filters.branch) params.append('branch', filters.branch);
   if (filters.sortBy) params.append('sortBy', filters.sortBy);
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());

@@ -2,15 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  RiStoreLine,
-  RiMapPinLine,
-  RiUserLine,
-} from '@remixicon/react';
+import { RiMapPinLine, RiStoreLine, RiUserLine } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { useCreateWarehouse } from '@/hooks/use-warehouses';
 import { useUsers } from '@/hooks/use-users';
+import { useCreateWarehouse } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
@@ -82,10 +78,7 @@ export default function NewWarehousePage() {
     });
   };
 
-  const handleInputChange = (
-    field: keyof WarehouseFormData,
-    value: string,
-  ) => {
+  const handleInputChange = (field: keyof WarehouseFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -149,12 +142,12 @@ export default function NewWarehousePage() {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='manager'>
-                    Warehouse Manager
-                  </Label.Root>
+                  <Label.Root htmlFor='manager'>Warehouse Manager</Label.Root>
                   <Select.Root
                     value={formData.managerId}
-                    onValueChange={(value) => handleInputChange('managerId', value)}
+                    onValueChange={(value) =>
+                      handleInputChange('managerId', value)
+                    }
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiUserLine} />
@@ -173,7 +166,8 @@ export default function NewWarehousePage() {
                       )}
                       {managers.map((manager) => (
                         <Select.Item key={manager.id} value={manager.id}>
-                          {manager.firstName} {manager.lastName} - {manager.role}
+                          {manager.firstName} {manager.lastName} -{' '}
+                          {manager.role}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -196,15 +190,11 @@ export default function NewWarehousePage() {
               </h3>
 
               <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='address'>
-                  Warehouse Address
-                </Label.Root>
+                <Label.Root htmlFor='address'>Warehouse Address</Label.Root>
                 <TextArea.Root
                   id='address'
                   value={formData.address}
-                  onChange={(e) =>
-                    handleInputChange('address', e.target.value)
-                  }
+                  onChange={(e) => handleInputChange('address', e.target.value)}
                   rows={4}
                   placeholder='Enter complete warehouse address (optional)'
                   simple

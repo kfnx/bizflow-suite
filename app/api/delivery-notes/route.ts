@@ -3,7 +3,13 @@ import { and, asc, desc, eq, inArray, like, or } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
 import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
-import { customers, deliveryNotes, invoices, users } from '@/lib/db/schema';
+import {
+  branches,
+  customers,
+  deliveryNotes,
+  invoices,
+  users,
+} from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +18,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const search = searchParams.get('search');
     const status = searchParams.get('status');
+    const branch = searchParams.get('branch');
     const sortBy = searchParams.get('sortBy') || 'newest-first';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -37,6 +44,10 @@ export async function GET(request: NextRequest) {
           eq(deliveryNotes.status, status as DELIVERY_NOTE_STATUS),
         );
       }
+    }
+
+    if (branch) {
+      whereConditions.push(eq(deliveryNotes.branchId, branch));
     }
 
     // Build order by
@@ -65,6 +76,7 @@ export async function GET(request: NextRequest) {
     const totalCount = await db
       .select({ count: deliveryNotes.id })
       .from(deliveryNotes)
+      .leftJoin(branches, eq(deliveryNotes.branchId, branches.id))
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
       .then((result) => result.length);
 
@@ -75,6 +87,8 @@ export async function GET(request: NextRequest) {
         deliveryNumber: deliveryNotes.deliveryNumber,
         invoiceId: deliveryNotes.invoiceId,
         customerId: deliveryNotes.customerId,
+        branchId: deliveryNotes.branchId,
+        branchName: branches.name,
         deliveryDate: deliveryNotes.deliveryDate,
         deliveryMethod: deliveryNotes.deliveryMethod,
         driverName: deliveryNotes.driverName,
@@ -108,6 +122,7 @@ export async function GET(request: NextRequest) {
       .leftJoin(customers, eq(deliveryNotes.customerId, customers.id))
       .leftJoin(invoices, eq(deliveryNotes.invoiceId, invoices.id))
       .leftJoin(users, eq(deliveryNotes.createdBy, users.id))
+      .leftJoin(branches, eq(deliveryNotes.branchId, branches.id))
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
       .orderBy(orderBy)
       .limit(limit)

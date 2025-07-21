@@ -181,7 +181,7 @@ const columns: ColumnDef<User>[] = [
     accessorKey: 'email',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
-        Email
+        Contact
         <button
           type='button'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -191,17 +191,22 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>
-        {row.original.email}
+      <div>
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {row.original.email}
+        </div>
+        <div className='text-paragraph-sm text-text-soft-400'>
+          {row.original.phone || '—'}
+        </div>
       </div>
     ),
   },
   {
-    id: 'phone',
-    accessorKey: 'phone',
+    id: 'branch',
+    accessorKey: 'branchName',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
-        Phone
+        Branch
         <button
           type='button'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -211,29 +216,9 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>
-        {row.original.phone || '—'}
-      </div>
-    ),
-  },
-  {
-    id: 'role',
-    accessorKey: 'role',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Role
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <Badge variant='light' color={getRoleColor(row.original.role)}>
-        {row.original.role}
-      </Badge>
+      <p className='text-paragraph-sm text-text-sub-600'>
+        {row.original.branchName || '—'}
+      </p>
     ),
   },
   {
@@ -334,6 +319,7 @@ interface UsersTableProps {
     search?: string;
     role?: string;
     status?: string;
+    branch?: string;
     sortBy?: string;
     page?: number;
     limit?: number;
@@ -384,7 +370,10 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
           No users found
         </h3>
         <p className='text-sm text-gray-500 mt-1'>
-          {filters?.search || filters?.role || filters?.status
+          {filters?.search ||
+          filters?.role ||
+          filters?.status ||
+          filters?.branch
             ? 'No users match your current filters. Try adjusting your search criteria.'
             : 'Get started by creating a new user account.'}
         </p>

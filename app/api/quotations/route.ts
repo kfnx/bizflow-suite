@@ -4,7 +4,13 @@ import { and, asc, desc, eq, inArray, isNull, like, or } from 'drizzle-orm';
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { customers, quotationItems, quotations, users } from '@/lib/db/schema';
+import {
+  branches,
+  customers,
+  quotationItems,
+  quotations,
+  users,
+} from '@/lib/db/schema';
 import {
   CreateQuotationRequest,
   createQuotationRequestSchema,
@@ -24,6 +30,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const status = searchParams.get('status');
     const customerId = searchParams.get('customerId');
+    const branch = searchParams.get('branch');
     const sortBy = searchParams.get('sortBy');
     const readyForInvoice = searchParams.get('ready_for_invoice');
     const page = parseInt(searchParams.get('page') || '1');
@@ -43,6 +50,9 @@ export async function GET(request: NextRequest) {
     }
     if (customerId) {
       conditions.push(eq(quotations.customerId, customerId));
+    }
+    if (branch) {
+      conditions.push(eq(quotations.branchId, branch));
     }
     if (search) {
       conditions.push(
@@ -117,6 +127,8 @@ export async function GET(request: NextRequest) {
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        branchId: quotations.branchId,
+        branchName: branches.name,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
@@ -133,6 +145,7 @@ export async function GET(request: NextRequest) {
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
       .leftJoin(users, eq(quotations.createdBy, users.id))
+      .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(orderByClause)
       .limit(limit)
@@ -143,6 +156,7 @@ export async function GET(request: NextRequest) {
       .select({ count: quotations.id })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return NextResponse.json({

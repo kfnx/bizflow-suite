@@ -5,7 +5,7 @@ import { and, desc, eq, like, or } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth/authorization';
 import { getDB } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
-import { users } from '@/lib/db/schema';
+import { branches, users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
 import { createUserSchema } from '@/lib/validations/user';
 
@@ -108,10 +108,13 @@ export async function GET(request: NextRequest) {
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,
+        branchId: users.branchId,
+        branchName: branches.name,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
+      .leftJoin(branches, eq(users.branchId, branches.id))
       .where(whereCondition)
       .orderBy(orderBy)
       .limit(limit)

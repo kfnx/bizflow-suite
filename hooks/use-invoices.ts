@@ -9,6 +9,8 @@ export type Invoice = {
   invoiceDate: string;
   dueDate: string;
   customerId: string;
+  branchId?: string;
+  branchName?: string;
   subtotal: string;
   tax: string;
   total: string;
@@ -49,6 +51,7 @@ export type InvoicesResponse = {
 export type InvoicesFilters = {
   search?: string;
   status?: string;
+  branch?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -97,6 +100,7 @@ const fetchInvoices = async (
   if (filters?.search) params.append('search', filters.search);
   if (filters?.status && filters.status !== 'all')
     params.append('status', filters.status);
+  if (filters?.branch) params.append('branch', filters.branch);
   if (filters?.sortBy) params.append('sortBy', filters.sortBy);
   if (filters?.page) params.append('page', filters.page.toString());
   if (filters?.limit) params.append('limit', filters.limit.toString());

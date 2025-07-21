@@ -7,6 +7,8 @@ export type DeliveryNote = {
   deliveryNumber: string;
   invoiceId?: string;
   customerId: string;
+  branchId?: string;
+  branchName?: string;
   deliveryDate: string;
   deliveryMethod?: string;
   driverName?: string;
@@ -58,6 +60,7 @@ export type DeliveryNotesResponse = {
 export type DeliveryNotesFilters = {
   search?: string;
   status?: string;
+  branch?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -71,6 +74,7 @@ const fetchDeliveryNotes = async (
   if (filters?.search) params.append('search', filters.search);
   if (filters?.status && filters.status !== 'all')
     params.append('status', filters.status);
+  if (filters?.branch) params.append('branch', filters.branch);
   if (filters?.sortBy) params.append('sortBy', filters.sortBy);
   if (filters?.page) params.append('page', filters.page.toString());
   if (filters?.limit) params.append('limit', filters.limit.toString());

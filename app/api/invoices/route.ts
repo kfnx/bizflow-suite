@@ -4,7 +4,13 @@ import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { INVOICE_STATUS } from '@/lib/db/enum';
-import { customers, invoices, quotations, users } from '@/lib/db/schema';
+import {
+  branches,
+  customers,
+  invoices,
+  quotations,
+  users,
+} from '@/lib/db/schema';
 import { hasPermission } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +29,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const search = searchParams.get('search');
     const status = searchParams.get('status');
+    const branch = searchParams.get('branch');
     const sortBy = searchParams.get('sortBy') || 'newest-first';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -42,6 +49,10 @@ export async function GET(request: NextRequest) {
 
     if (status && status !== 'all') {
       whereConditions.push(eq(invoices.status, status as INVOICE_STATUS));
+    }
+
+    if (branch) {
+      whereConditions.push(eq(invoices.branchId, branch));
     }
 
     // Build order by
@@ -76,6 +87,7 @@ export async function GET(request: NextRequest) {
     const totalCount = await db
       .select({ count: invoices.id })
       .from(invoices)
+      .leftJoin(branches, eq(invoices.branchId, branches.id))
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
       .then((result) => result.length);
 
@@ -88,6 +100,8 @@ export async function GET(request: NextRequest) {
         invoiceDate: invoices.invoiceDate,
         dueDate: invoices.dueDate,
         customerId: invoices.customerId,
+        branchId: invoices.branchId,
+        branchName: branches.name,
         subtotal: invoices.subtotal,
         tax: invoices.tax,
         total: invoices.total,
@@ -120,6 +134,7 @@ export async function GET(request: NextRequest) {
       .leftJoin(customers, eq(invoices.customerId, customers.id))
       .leftJoin(quotations, eq(invoices.quotationId, quotations.id))
       .leftJoin(users, eq(invoices.createdBy, users.id))
+      .leftJoin(branches, eq(invoices.branchId, branches.id))
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
       .orderBy(orderBy)
       .limit(limit)

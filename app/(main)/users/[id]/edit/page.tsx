@@ -283,7 +283,6 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange('lastName', e.target.value)
                         }
-                        required
                       />
                     </Input.Wrapper>
                   </Input.Root>
@@ -477,7 +476,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                     </Select.Trigger>
                     <Select.Content>
                       {branchesLoading ? (
-                        <Select.Item value='' disabled>
+                        <Select.Item value='-' disabled>
                           Loading branches...
                         </Select.Item>
                       ) : (

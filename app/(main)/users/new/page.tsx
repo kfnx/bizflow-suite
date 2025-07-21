@@ -507,7 +507,7 @@ export default function CreateUserPage() {
                     </Select.Trigger>
                     <Select.Content>
                       {branchesLoading ? (
-                        <Select.Item value='' disabled>
+                        <Select.Item value='-' disabled>
                           Loading branches...
                         </Select.Item>
                       ) : (

@@ -7,6 +7,7 @@ import {
   RiCalendarLine,
   RiHashtag,
   RiMailLine,
+  RiMapPin2Line,
   RiPhoneLine,
   RiUserAddLine,
   RiUserLine,
@@ -15,6 +16,7 @@ import { useSession } from 'next-auth/react';
 
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { hasPermission } from '@/lib/permissions';
+import { useBranches } from '@/hooks/use-branches';
 import { usePermissions } from '@/hooks/use-permissions';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -35,6 +37,7 @@ interface CreateUserData {
   jobTitle: string;
   joinDate: string;
   type: string;
+  branchId: string;
   isAdmin: boolean;
 }
 
@@ -47,6 +50,7 @@ export default function CreateUserPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { getAvailableRolesForCreation } = usePermissions();
+  const { data: branchesData, isLoading: branchesLoading } = useBranches();
   const [formData, setFormData] = useState<CreateUserData>({
     email: '',
     firstName: '',
@@ -57,6 +61,7 @@ export default function CreateUserPage() {
     jobTitle: '',
     joinDate: new Date().toISOString().split('T')[0],
     type: 'full-time',
+    branchId: '',
     isAdmin: false,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +112,8 @@ export default function CreateUserPage() {
         return !value.trim() ? 'NIK is required' : null;
       case 'joinDate':
         return !value ? 'Join date is required' : null;
+      case 'branchId':
+        return !value.trim() ? 'Branch is required' : null;
       default:
         return null;
     }
@@ -484,6 +491,43 @@ export default function CreateUserPage() {
                   )}
                 </div>
 
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='branchId'>
+                    Branch <Label.Asterisk />
+                  </Label.Root>
+                  <Select.Root
+                    value={formData.branchId}
+                    onValueChange={(value) =>
+                      handleInputChange('branchId', value)
+                    }
+                  >
+                    <Select.Trigger>
+                      <Select.TriggerIcon as={RiMapPin2Line} />
+                      <Select.Value placeholder='Select branch' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {branchesLoading ? (
+                        <Select.Item value='' disabled>
+                          Loading branches...
+                        </Select.Item>
+                      ) : (
+                        branchesData?.data.map((branch) => (
+                          <Select.Item key={branch.id} value={branch.id}>
+                            {branch.name}
+                          </Select.Item>
+                        ))
+                      )}
+                    </Select.Content>
+                  </Select.Root>
+                  {validationErrors.branchId && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.branchId}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className='mt-6'>
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='isAdmin'>
                     Administrator Access

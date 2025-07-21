@@ -242,6 +242,7 @@ export async function POST(request: NextRequest) {
       role: validatedData.role,
       jobTitle: validatedData.jobTitle,
       type: validatedData.type || 'full-time',
+      branchId: validatedData.branchId,
       isAdmin: validatedData.isAdmin || false,
     });
 

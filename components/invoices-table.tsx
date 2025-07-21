@@ -288,58 +288,62 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
                 <RiMoreLine className='size-4' />
               </Button.Root>
             </Dropdown.Trigger>
-          <Dropdown.Content align='end'>
-            <Dropdown.Item
-              onClick={() => router.push(`/invoices/${row.original.id}`)}
-            >
-              <RiEyeLine className='size-4' />
-              View Details
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => onPreview?.(row.original.id)}>
-              <RiFileTextLine className='size-4' />
-              Quick View
-            </Dropdown.Item>
-            <Dropdown.Item
-              onClick={() => router.push(`/invoices/${row.original.id}/edit`)}
-            >
-              <RiEditLine className='size-4' />
-              Edit Invoice
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <RiBillLine className='size-4' />
-              Download PDF
-            </Dropdown.Item>
-            {row.original.status === 'draft' && (
-              <Dropdown.Item onClick={() => handleSendInvoice(row.original.id)}>
-                <RiMailSendLine className='size-4' />
-                Send Invoice
-              </Dropdown.Item>
-            )}
-            {row.original.status === 'sent' && (
-              <Dropdown.Item onClick={() => handleMarkAsPaid(row.original.id)}>
-                <RiMoneyDollarCircleLine className='size-4' />
-                Mark as Paid
-              </Dropdown.Item>
-            )}
-            {(row.original.status === 'draft' ||
-              row.original.status === 'sent') && (
+            <Dropdown.Content align='end'>
               <Dropdown.Item
-                onClick={() => handleVoidInvoice(row.original.id)}
+                onClick={() => router.push(`/invoices/${row.original.id}`)}
+              >
+                <RiEyeLine className='size-4' />
+                View Details
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => onPreview?.(row.original.id)}>
+                <RiFileTextLine className='size-4' />
+                Quick View
+              </Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => router.push(`/invoices/${row.original.id}/edit`)}
+              >
+                <RiEditLine className='size-4' />
+                Edit Invoice
+              </Dropdown.Item>
+              <Dropdown.Item>
+                <RiBillLine className='size-4' />
+                Download PDF
+              </Dropdown.Item>
+              {row.original.status === 'draft' && (
+                <Dropdown.Item
+                  onClick={() => handleSendInvoice(row.original.id)}
+                >
+                  <RiMailSendLine className='size-4' />
+                  Send Invoice
+                </Dropdown.Item>
+              )}
+              {row.original.status === 'sent' && (
+                <Dropdown.Item
+                  onClick={() => handleMarkAsPaid(row.original.id)}
+                >
+                  <RiMoneyDollarCircleLine className='size-4' />
+                  Mark as Paid
+                </Dropdown.Item>
+              )}
+              {(row.original.status === 'draft' ||
+                row.original.status === 'sent') && (
+                <Dropdown.Item
+                  onClick={() => handleVoidInvoice(row.original.id)}
+                  className='text-red-600'
+                >
+                  <RiFileTextLine className='size-4' />
+                  Void Invoice
+                </Dropdown.Item>
+              )}
+              <Dropdown.Separator />
+              <Dropdown.Item
+                onClick={() => handleDelete(row.original.id)}
                 className='text-red-600'
               >
-                <RiFileTextLine className='size-4' />
-                Void Invoice
+                Delete Invoice
               </Dropdown.Item>
-            )}
-            <Dropdown.Separator />
-            <Dropdown.Item
-              onClick={() => handleDelete(row.original.id)}
-              className='text-red-600'
-            >
-              Delete Invoice
-            </Dropdown.Item>
-          </Dropdown.Content>
-        </Dropdown.Root>
+            </Dropdown.Content>
+          </Dropdown.Root>
         </div>
       ),
     },
@@ -408,9 +412,9 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
         </Table.Header>
         <Table.Body>
           {table.getRowModel().rows.map((row) => (
-            <Table.Row 
+            <Table.Row
               key={row.id}
-              className="cursor-pointer hover:bg-bg-weak-50"
+              className='cursor-pointer hover:bg-bg-weak-50'
               onClick={() => onPreview?.(row.original.id)}
             >
               {row.getVisibleCells().map((cell) => (

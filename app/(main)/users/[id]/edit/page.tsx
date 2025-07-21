@@ -8,12 +8,14 @@ import {
   RiEditLine,
   RiHashtag,
   RiMailLine,
+  RiMapPin2Line,
   RiPhoneLine,
   RiUserLine,
 } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 
 import { hasPermission } from '@/lib/permissions';
+import { useBranches } from '@/hooks/use-branches';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useUpdateUser, useUser } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
@@ -36,6 +38,7 @@ interface EditUserData {
   joinDate: string;
   type: string;
   role: string;
+  branchId: string;
   isActive: boolean;
   isAdmin: boolean;
 }
@@ -50,6 +53,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { getAvailableRolesForCreation } = usePermissions();
+  const { data: branchesData, isLoading: branchesLoading } = useBranches();
   const {
     data: userData,
     isLoading: userLoading,
@@ -67,6 +71,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     joinDate: '',
     type: 'full-time',
     role: 'staff',
+    branchId: '',
     isActive: true,
     isAdmin: false,
   });
@@ -109,6 +114,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           : '',
         type: user.type || 'full-time',
         role: user.role || 'staff',
+        branchId: user.branchId || '',
         isActive: user.isActive ?? true,
         isAdmin: user.isAdmin ?? false,
       });
@@ -159,6 +165,9 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     if (!formData.joinDate) {
       errors.joinDate = 'Join date is required';
     }
+    if (!formData.branchId.trim()) {
+      errors.branchId = 'Branch is required';
+    }
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -178,6 +187,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           joinDate: formData.joinDate,
           type: formData.type as 'full-time' | 'contract' | 'resigned',
           role: formData.role as 'staff' | 'manager' | 'director',
+          branchId: formData.branchId,
           isActive: formData.isActive,
           isAdmin: formData.isAdmin,
         },
@@ -451,6 +461,43 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                   </Select.Root>
                 </div>
 
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='branchId'>
+                    Branch <Label.Asterisk />
+                  </Label.Root>
+                  <Select.Root
+                    value={formData.branchId}
+                    onValueChange={(value) =>
+                      handleInputChange('branchId', value)
+                    }
+                  >
+                    <Select.Trigger>
+                      <Select.TriggerIcon as={RiMapPin2Line} />
+                      <Select.Value placeholder='Select branch' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {branchesLoading ? (
+                        <Select.Item value='' disabled>
+                          Loading branches...
+                        </Select.Item>
+                      ) : (
+                        branchesData?.data.map((branch) => (
+                          <Select.Item key={branch.id} value={branch.id}>
+                            {branch.name}
+                          </Select.Item>
+                        ))
+                      )}
+                    </Select.Content>
+                  </Select.Root>
+                  {validationErrors.branchId && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.branchId}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-1'>
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='isActive'>Account Status</Label.Root>
                   <Select.Root

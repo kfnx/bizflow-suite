@@ -10,6 +10,7 @@ export const createUserSchema = z.object({
   joinDate: z.string().min(1, { message: 'Join date is required' }),
   type: z.enum(['full-time', 'contract', 'resigned']).optional(),
   role: z.enum(['staff', 'manager', 'director']),
+  branchId: z.string().min(1, { message: 'Branch is required' }),
   isAdmin: z.boolean().optional(),
 });
 
@@ -49,6 +50,7 @@ export const updateUserSchema = z.object({
   joinDate: z.string().min(1, { message: 'Join date is required' }),
   type: z.enum(['full-time', 'contract', 'resigned']).optional(),
   role: z.enum(['staff', 'manager', 'director']),
+  branchId: z.string().min(1, { message: 'Branch is required' }),
   isActive: z.boolean().optional(),
   isAdmin: z.boolean().optional(),
 });

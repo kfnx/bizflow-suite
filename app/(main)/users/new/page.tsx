@@ -18,6 +18,7 @@ import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { hasPermission } from '@/lib/permissions';
 import { useBranches } from '@/hooks/use-branches';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useCreateUser } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -51,6 +52,7 @@ export default function CreateUserPage() {
   const router = useRouter();
   const { getAvailableRolesForCreation } = usePermissions();
   const { data: branchesData, isLoading: branchesLoading } = useBranches();
+  const createUserMutation = useCreateUser();
   const [formData, setFormData] = useState<CreateUserData>({
     email: '',
     firstName: '',
@@ -64,7 +66,6 @@ export default function CreateUserPage() {
     branchId: '',
     isAdmin: false,
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -135,7 +136,6 @@ export default function CreateUserPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
     setValidationErrors({});
 
@@ -143,42 +143,15 @@ export default function CreateUserPage() {
     const clientErrors = validateForm();
     if (Object.keys(clientErrors).length > 0) {
       setValidationErrors(clientErrors);
-      setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.details && Array.isArray(data.details)) {
-          // Handle detailed validation errors from API
-          const serverErrors: Record<string, string> = {};
-          data.details.forEach((detail: ValidationError) => {
-            serverErrors[detail.field] = detail.message;
-          });
-          setValidationErrors(serverErrors);
-        } else {
-          // Handle general error
-          setError(data.error || 'Failed to create user');
-        }
-        return;
-      }
-
+      await createUserMutation.mutateAsync(formData);
       // Navigate back to users list
       router.push('/users');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -564,12 +537,12 @@ export default function CreateUserPage() {
               variant='neutral'
               mode='ghost'
               onClick={() => router.push('/users')}
-              disabled={isLoading}
+              disabled={createUserMutation.isPending}
             >
               Cancel
             </Button.Root>
-            <Button.Root type='submit' variant='primary' disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create User'}
+            <Button.Root type='submit' variant='primary' disabled={createUserMutation.isPending}>
+              {createUserMutation.isPending ? 'Creating...' : 'Create User'}
             </Button.Root>
           </div>
         </form>

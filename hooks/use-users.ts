@@ -1,8 +1,9 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-import { UpdateUserRequest } from '@/lib/validations/user';
+import { CreateUserRequest, UpdateUserRequest } from '@/lib/validations/user';
 
 export type User = {
   id: string;
@@ -112,6 +113,21 @@ const updatePassword = async (passwordData: {
   }
 };
 
+const createUser = async (userData: CreateUserRequest): Promise<void> => {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to create user');
+  }
+};
+
 const updateUser = async (
   userId: string,
   userData: UpdateUserRequest,
@@ -161,6 +177,10 @@ export function useResetUserPassword() {
       // Invalidate and refetch users after successful password reset
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      toast.success('Password reset successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to reset password');
     },
   });
 }
@@ -168,8 +188,29 @@ export function useResetUserPassword() {
 export function useUpdatePassword() {
   return useMutation({
     mutationFn: updatePassword,
-    onError: (error) => {
+    onSuccess: () => {
+      toast.success('Password updated successfully!');
+    },
+    onError: (error: Error) => {
       console.error('Password update error:', error);
+      toast.error(error.message || 'Failed to update password');
+    },
+  });
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      // Invalidate and refetch users after successful creation
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User created successfully!');
+    },
+    onError: (error: Error) => {
+      console.error('User creation error:', error);
+      toast.error(error.message || 'Failed to create user');
     },
   });
 }
@@ -189,9 +230,11 @@ export function useUpdateUser() {
       // Invalidate and refetch users after successful update
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['user', userId] });
+      toast.success('User updated successfully!');
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('User update error:', error);
+      toast.error(error.message || 'Failed to update user');
     },
   });
 }

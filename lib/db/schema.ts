@@ -509,13 +509,6 @@ export const deliveryNoteItems = mysqlTable(
 export const products = mysqlTable(
   'products',
   {
-    id: varchar('id', { length: 36 })
-      .primaryKey()
-      .notNull()
-      .default(sql`(UUID())`),
-    code: varchar('code', { length: 100 }).notNull().unique(),
-    category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
-
     /**
      * UNION Properties based on category
      *
@@ -543,35 +536,33 @@ export const products = mysqlTable(
      * modelOrPartNumber
      * batchOrLotNumber
      */
+
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    code: varchar('code', { length: 100 }).notNull().unique(), // unique identifier for user
+    name: varchar('name', { length: 100 }).notNull(),
+    description: text('description'),
+    category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
     machineTypeId: varchar('machine_type_id', { length: 36 }), // excavator, bulldozer, etc
     unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // kg, pcs, etc
-
-    // dynamic / union properties based on category
     modelOrPartNumber: varchar('model_number', { length: 100 }),
     machineNumber: varchar('machine_number', { length: 100 }),
     engineNumber: varchar('engine_number', { length: 100 }),
     batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
-
-    // shared properties between all category
     brandId: varchar('brand_id', { length: 36 }), // shantui, etc
-    name: varchar('name', { length: 100 }).notNull(),
-    description: text('description'),
-
-    // product details (based on old prototype)
     serialNumber: varchar('serial_number', { length: 100 }),
-    model: varchar('model', { length: 100 }),
-    year: int('year'),
-    condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
     status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
     price: decimal('price', { precision: 15, scale: 2 })
       .notNull()
       .default('0.00'),
-
-    // Product Specifications (based on old prototype)
+    model: varchar('model', { length: 100 }),
+    year: int('year'),
+    condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
     engineModel: varchar('engine_model', { length: 100 }),
     enginePower: varchar('engine_power', { length: 50 }), // e.g., "378 hp"
     operatingWeight: varchar('operating_weight', { length: 50 }), // e.g., "47,250 kg"
-
     warehouseId: varchar('warehouse_id', { length: 36 }),
     supplierId: varchar('supplier_id', { length: 36 }),
     importNotes: text('import_notes'),
@@ -580,6 +571,7 @@ export const products = mysqlTable(
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
   (table) => [
+    index('name_id_idx').on(table.name),
     index('brand_id_idx').on(table.brandId),
     index('category_idx').on(table.category),
     index('status_idx').on(table.status),

@@ -67,86 +67,18 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   } = useProduct(params.id);
   const updateProductMutation = useUpdateProduct();
 
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
-  const [unitOfMeasures, setUnitOfMeasures] = useState<UnitOfMeasure[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [isLoadingReference, setLoadingReference] = useState(false);
-
   const [formData, setFormData] = useState<UpdateProductData>({
     name: '',
     description: '',
-    category: PRODUCT_CATEGORY.SERIALIZED,
     condition: 'new',
-    brandId: '',
-    machineTypeId: '',
-    unitOfMeasureId: '',
-    modelOrPartNumber: '',
     machineNumber: '',
     engineNumber: '',
-    batchOrLotNumber: '',
-    supplierId: '',
-    warehouseId: '',
     year: undefined,
   });
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
-
-  // Load reference data
-  useEffect(() => {
-    const loadReferenceData = async () => {
-      try {
-        setLoadingReference(true);
-        const [
-          brandsRes,
-          machineTypesRes,
-          unitOfMeasuresRes,
-          suppliersRes,
-          warehousesRes,
-        ] = await Promise.all([
-          fetch('/api/brands'),
-          fetch('/api/machine-types'),
-          fetch('/api/unit-of-measures'),
-          fetch('/api/suppliers'),
-          fetch('/api/warehouses'),
-        ]);
-
-        if (brandsRes.ok) {
-          const brandsData = await brandsRes.json();
-          setBrands(brandsData.data || []);
-        }
-
-        if (machineTypesRes.ok) {
-          const machineTypesData = await machineTypesRes.json();
-          setMachineTypes(machineTypesData.data || []);
-        }
-
-        if (unitOfMeasuresRes.ok) {
-          const unitOfMeasuresData = await unitOfMeasuresRes.json();
-          setUnitOfMeasures(unitOfMeasuresData.data || []);
-        }
-
-        if (suppliersRes.ok) {
-          const suppliersData = await suppliersRes.json();
-          setSuppliers(suppliersData.data || []);
-        }
-
-        if (warehousesRes.ok) {
-          const warehousesData = await warehousesRes.json();
-          setWarehouses(warehousesData.data || []);
-        }
-      } catch (error) {
-        console.error('Error loading reference data:', error);
-      } finally {
-        setLoadingReference(false);
-      }
-    };
-
-    loadReferenceData();
-  }, []);
 
   // Load product data
   useEffect(() => {
@@ -185,14 +117,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
     // Client-side validation
     const errors: Record<string, string> = {};
-
-    if (!formData.name?.trim()) {
-      errors.name = 'Name is required';
-    }
-
-    if (!formData.category) {
-      errors.category = 'Category is required';
-    }
 
     if (!formData.condition) {
       errors.condition = 'Condition is required';
@@ -337,12 +261,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     );
   }
 
-  if (isLoadingReference) {
-    return (
-      <SimplePageLoading>Loading form reference data...</SimplePageLoading>
-    );
-  }
-
   return (
     <>
       <Header
@@ -392,38 +310,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='category'>
-                    Category <Label.Asterisk />
-                  </Label.Root>
-                  <Select.Root
-                    value={formData.category || ''}
-                    onValueChange={(value) =>
-                      handleInputChange('category', value)
-                    }
-                  >
-                    <Select.Trigger id='category'>
-                      <Select.Value placeholder='Select category' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value={PRODUCT_CATEGORY.SERIALIZED}>
-                        Serialized
-                      </Select.Item>
-                      <Select.Item value={PRODUCT_CATEGORY.NON_SERIALIZED}>
-                        Non-Serialized
-                      </Select.Item>
-                      <Select.Item value={PRODUCT_CATEGORY.BULK}>
-                        Bulk
-                      </Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                  {validationErrors.category && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.category}
-                    </div>
-                  )}
-                </div>
-
-                <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='condition'>
                     Condition <Label.Asterisk />
                   </Label.Root>
@@ -453,27 +339,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                       {validationErrors.condition}
                     </div>
                   )}
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='brandId'>Brand</Label.Root>
-                  <Select.Root
-                    value={formData.brandId || ''}
-                    onValueChange={(value) =>
-                      handleInputChange('brandId', value)
-                    }
-                  >
-                    <Select.Trigger id='brandId'>
-                      <Select.Value placeholder='Select brand' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {brands.map((brand) => (
-                        <Select.Item key={brand.id} value={brand.id}>
-                          {brand.name}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
                 </div>
 
                 <div className='flex flex-col gap-2'>
@@ -529,34 +394,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
               {formData.category === PRODUCT_CATEGORY.SERIALIZED && (
                 <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                  <div className='flex flex-col gap-2'>
-                    <Label.Root htmlFor='machineTypeId'>
-                      Machine Type <Label.Asterisk />
-                    </Label.Root>
-                    <Select.Root
-                      value={formData.machineTypeId || ''}
-                      onValueChange={(value) =>
-                        handleInputChange('machineTypeId', value)
-                      }
-                    >
-                      <Select.Trigger id='machineTypeId'>
-                        <Select.Value placeholder='Select machine type' />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {machineTypes.map((type) => (
-                          <Select.Item key={type.id} value={type.id}>
-                            {type.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Root>
-                    {validationErrors.machineTypeId && (
-                      <div className='text-xs text-red-600'>
-                        {validationErrors.machineTypeId}
-                      </div>
-                    )}
-                  </div>
-
                   <div className='flex flex-col gap-2'>
                     <Label.Root htmlFor='modelOrPartNumber'>
                       Model/Part Number
@@ -627,34 +464,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               {(formData.category === PRODUCT_CATEGORY.NON_SERIALIZED ||
                 formData.category === PRODUCT_CATEGORY.BULK) && (
                 <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                  <div className='flex flex-col gap-2'>
-                    <Label.Root htmlFor='unitOfMeasureId'>
-                      Unit of Measure <Label.Asterisk />
-                    </Label.Root>
-                    <Select.Root
-                      value={formData.unitOfMeasureId || ''}
-                      onValueChange={(value) =>
-                        handleInputChange('unitOfMeasureId', value)
-                      }
-                    >
-                      <Select.Trigger id='unitOfMeasureId'>
-                        <Select.Value placeholder='Select unit' />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {unitOfMeasures.map((unit) => (
-                          <Select.Item key={unit.id} value={unit.id}>
-                            {unit.name} ({unit.abbreviation})
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Root>
-                    {validationErrors.unitOfMeasureId && (
-                      <div className='text-xs text-red-600'>
-                        {validationErrors.unitOfMeasureId}
-                      </div>
-                    )}
-                  </div>
-
                   {formData.category === PRODUCT_CATEGORY.BULK && (
                     <>
                       <div className='flex flex-col gap-2'>

@@ -36,6 +36,13 @@
       "when": 1753076617786,
       "tag": "0004_lean_mother_askani",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1753177701498,
+      "tag": "0005_striped_the_leader",
+      "breakpoints": true
     }
   ]
 }

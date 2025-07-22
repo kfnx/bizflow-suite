@@ -122,7 +122,7 @@ export function BranchesTable({
         ),
       },
     ],
-    [handleDeleteClick],
+    [handleDeleteClick, router],
   );
 
   const pagination: PaginationInfo | undefined = data?.pagination

@@ -1,10 +1,20 @@
 import { QUOTATION_STATUS } from '../enum';
-import {
-  customerIds,
-  productIds,
-  quotationIds,
-  userIds,
-} from './seed-constants';
+import { branchIds } from './branches';
+import { customerIds } from './customers';
+import { productIds } from './products';
+import { userIds } from './users';
+
+export const quotationIds = {
+  quotation1: '50000001-0000-4000-a000-000000000001',
+  quotation2: '50000002-0000-4000-a000-000000000001',
+  quotation3: '50000003-0000-4000-a000-000000000001',
+  quotation4: '50000004-0000-4000-a000-000000000001',
+  quotation5: '50000005-0000-4000-a000-000000000001',
+  quotation6: '50000006-0000-4000-a000-000000000001',
+  quotation7: '50000007-0000-4000-a000-000000000001',
+  quotation8: '50000008-0000-4000-a000-000000000001',
+  quotation9: '50000009-0000-4000-a000-000000000001',
+};
 
 export const quotations = [
   {
@@ -15,7 +25,7 @@ export const quotations = [
     customerId: customerIds.customer1,
     approverBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '15000000.00',
     tax: '1500000.00',
@@ -33,7 +43,7 @@ export const quotations = [
     customerId: customerIds.customer2,
     approverBy: userIds.user3, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
-    branchId: 'kendari', // Created by Budi at Kendari branch
+    branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
     subtotal: '25000000.00',
     tax: '0.00',
@@ -51,7 +61,7 @@ export const quotations = [
     customerId: customerIds.customer3,
     approverBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '35000000.00',
     tax: '3500000.00',
@@ -69,7 +79,7 @@ export const quotations = [
     customerId: customerIds.customer4,
     approverBy: userIds.user3, // Director
     createdBy: userIds.user3, // Rizky - HO Jakarta
-    branchId: 'ho_jakarta', // Created by Rizky at HO Jakarta
+    branchId: branchIds.ho_jakarta, // Created by Rizky at HO Jakarta
     isIncludePPN: true,
     subtotal: '18000000.00',
     tax: '1800000.00',
@@ -87,7 +97,7 @@ export const quotations = [
     customerId: customerIds.customer5,
     approverBy: userIds.manager_kendari, // Manager
     createdBy: userIds.user4, // Rini - Balikpapan branch
-    branchId: 'balikpapan', // Created by Rini at Balikpapan branch
+    branchId: branchIds.balikpapan, // Created by Rini at Balikpapan branch
     isIncludePPN: true,
     subtotal: '42000000.00',
     tax: '4200000.00',
@@ -105,7 +115,7 @@ export const quotations = [
     customerId: customerIds.customer1,
     approverBy: userIds.user3, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
-    branchId: 'kendari', // Created by Budi at Kendari branch
+    branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
     subtotal: '28000000.00',
     tax: '0.00',
@@ -123,7 +133,7 @@ export const quotations = [
     customerId: customerIds.customer2,
     approverBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '32000000.00',
     tax: '3200000.00',
@@ -141,7 +151,7 @@ export const quotations = [
     customerId: customerIds.customer3,
     approverBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
     subtotal: '45000000.00',
     tax: '4500000.00',
@@ -159,7 +169,7 @@ export const quotations = [
     customerId: customerIds.customer4,
     approverBy: userIds.user3, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
-    branchId: 'kendari', // Created by Budi at Kendari branch
+    branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
     subtotal: '22000000.00',
     tax: '0.00',

@@ -1,6 +1,17 @@
 import { PRODUCT_CATEGORY } from '../enum';
 import { products as productsSchema } from '../schema';
-import { productIds, supplierIds, warehouseIds } from './seed-constants';
+import { supplierIds } from './suppliers';
+import { warehouseIds } from './warehouses';
+
+export const productIds = {
+  product1: '40000001-0000-4000-a000-000000000001',
+  product2: '40000002-0000-4000-a000-000000000001',
+  product3: '40000003-0000-4000-a000-000000000001',
+  product4: '40000004-0000-4000-a000-000000000001',
+  product5: '40000005-0000-4000-a000-000000000001',
+  product6: '40000006-0000-4000-a000-000000000001',
+  product7: '40000007-0000-4000-a000-000000000001',
+};
 
 export type NewProduct = typeof productsSchema.$inferInsert;
 

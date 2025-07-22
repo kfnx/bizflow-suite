@@ -341,7 +341,9 @@ export function NewInvoiceForm({ initialFormData }: InvoiceFormProps) {
                 </div>
 
                 <div className='col-span-6 flex flex-col gap-1 md:col-span-2'>
-                  <Label.Root htmlFor={`quantity-${index}`}>Quantity</Label.Root>
+                  <Label.Root htmlFor={`quantity-${index}`}>
+                    Quantity
+                  </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
                       <Input.Icon as={RiHashtag} />
@@ -472,4 +474,4 @@ export function NewInvoiceForm({ initialFormData }: InvoiceFormProps) {
       </div>
     </form>
   );
-} 
+}

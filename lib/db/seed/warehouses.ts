@@ -1,4 +1,9 @@
-import { warehouseIds } from './seed-constants';
+export const warehouseIds = {
+  warehouse1: '30000001-0000-4000-a000-000000000001',
+  warehouse2: '30000002-0000-4000-a000-000000000001',
+  warehouse3: '30000003-0000-4000-a000-000000000001',
+  warehouse4: '30000004-0000-4000-a000-000000000001',
+};
 
 export const warehouses = [
   {

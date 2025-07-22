@@ -1,4 +1,10 @@
-import { customerIds } from './seed-constants';
+export const customerIds = {
+  customer1: '10000001-0000-4000-a000-000000000001',
+  customer2: '10000002-0000-4000-a000-000000000001',
+  customer3: '10000003-0000-4000-a000-000000000001',
+  customer4: '10000004-0000-4000-a000-000000000001',
+  customer5: '10000005-0000-4000-a000-000000000001',
+};
 
 export const customerContactPersonIds = {
   customerContact1: 'd0000001-0000-4000-a000-000000000001',

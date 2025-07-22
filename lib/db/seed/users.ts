@@ -1,8 +1,17 @@
-import { userIds } from './seed-constants';
+import { branchIds } from './branches';
 
 // Use a fixed password hash for all users
 const hashedPassword =
   '$2b$12$Sr7vKhJv/7gfaeOrEghHFuYpHRe8ZgQ/3rMM9XFTNcw8bAkvY6paO'; // password123
+
+export const userIds = {
+  admin_ho_jakarta: '00000001-0000-4000-a000-000000000001',
+  staff_pekanbaru: '00000002-0000-4000-a000-000000000001',
+  manager_kendari: '00000003-0000-4000-a000-000000000001',
+  user3: '00000004-0000-4000-a000-000000000001',
+  user4: '00000005-0000-4000-a000-000000000001',
+  user5: '00000006-0000-4000-a000-000000000001',
+};
 
 export const users = [
   {
@@ -18,8 +27,8 @@ export const users = [
     type: 'full-time',
     phone: '+6281234567890',
     avatar: null,
-    role: 'manager',
-    branchId: 'ho_jakarta', // Admin at HO Jakarta
+    role: 'staff',
+    branchId: branchIds.ho_jakarta, // Admin at HO Jakarta
     signature: null,
     isActive: true,
     isAdmin: true,
@@ -38,7 +47,7 @@ export const users = [
     phone: '+6281234567890',
     avatar: null,
     role: 'staff',
-    branchId: 'pekanbaru', // Sales staff at Pekanbaru
+    branchId: branchIds.pekanbaru, // Sales staff at Pekanbaru
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -57,7 +66,7 @@ export const users = [
     phone: '+6281234567891',
     avatar: null,
     role: 'manager',
-    branchId: 'kendari', // Sales manager at Kendari
+    branchId: branchIds.kendari, // Sales manager at Kendari
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -76,7 +85,7 @@ export const users = [
     phone: '+6281234567892',
     avatar: null,
     role: 'director',
-    branchId: 'ho_jakarta', // Director at HO Jakarta
+    branchId: branchIds.ho_jakarta, // Director at HO Jakarta
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -95,7 +104,7 @@ export const users = [
     phone: '+6281234567893',
     avatar: null,
     role: 'staff',
-    branchId: 'balikpapan', // Sales staff at Balikpapan
+    branchId: branchIds.balikpapan, // Sales staff at Balikpapan
     signature: null,
     isActive: true,
     isAdmin: false,
@@ -114,7 +123,7 @@ export const users = [
     phone: '+6281234567894',
     avatar: null,
     role: 'import-manager',
-    branchId: 'ho_jakarta', // Import manager at HO Jakarta
+    branchId: branchIds.ho_jakarta, // Import manager at HO Jakarta
     signature: null,
     isActive: true,
     isAdmin: false,

@@ -1,12 +1,32 @@
 import { IMPORT_STATUS, PRODUCT_CATEGORY } from '../enum';
 import { InsertImport, InsertImportItem } from '../schema';
-import {
-  importIds,
-  importItemIds,
-  supplierIds,
-  userIds,
-  warehouseIds,
-} from './seed-constants';
+import { supplierIds } from './suppliers';
+import { userIds } from './users';
+import { warehouseIds } from './warehouses';
+
+export const importIds = {
+  import1: '80000001-0000-4000-a000-000000000001',
+  import2: '80000002-0000-4000-a000-000000000001',
+  import3: '80000003-0000-4000-a000-000000000001',
+  import4: '80000004-0000-4000-a000-000000000001',
+  import5: '80000005-0000-4000-a000-000000000001',
+  import6: '80000006-0000-4000-a000-000000000001',
+};
+
+export const importItemIds = {
+  importItem1: '90000001-0000-4000-a000-000000000001',
+  importItem2: '90000002-0000-4000-a000-000000000001',
+  importItem3: '90000003-0000-4000-a000-000000000001',
+  importItem4: '90000004-0000-4000-a000-000000000001',
+  importItem5: '90000005-0000-4000-a000-000000000001',
+  importItem6: '90000006-0000-4000-a000-000000000001',
+  importItem7: '90000007-0000-4000-a000-000000000001',
+  importItem8: '90000008-0000-4000-a000-000000000001',
+  importItem9: '90000009-0000-4000-a000-000000000001',
+  importItem10: '9000000a-0000-4000-a000-000000000001',
+  importItem11: '9000000b-0000-4000-a000-000000000001',
+  importItem12: '9000000c-0000-4000-a000-000000000001',
+};
 
 export const imports: InsertImport[] = [
   {

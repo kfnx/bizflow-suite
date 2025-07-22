@@ -1,12 +1,27 @@
 import { stockMovements as stockMovementsSchema } from '../schema';
-import {
-  deliveryNoteIds,
-  importIds,
-  invoiceIds,
-  productIds,
-  stockMovementIds,
-  warehouseIds,
-} from './seed-constants';
+import { deliveryNoteIds } from './delivery-notes';
+import { importIds } from './imports';
+import { invoiceIds } from './invoices';
+import { productIds } from './products';
+import { warehouseIds } from './warehouses';
+
+export const stockMovementIds = {
+  stockMovement1: 'a0000001-0000-4000-a000-000000000001',
+  stockMovement2: 'a0000002-0000-4000-a000-000000000001',
+  stockMovement3: 'a0000003-0000-4000-a000-000000000001',
+  stockMovement4: 'a0000004-0000-4000-a000-000000000001',
+  stockMovement5: 'a0000005-0000-4000-a000-000000000001',
+  stockMovement6: 'a0000006-0000-4000-a000-000000000001',
+  stockMovement7: 'a0000007-0000-4000-a000-000000000001',
+  stockMovement8: 'a0000008-0000-4000-a000-000000000001',
+  stockMovement9: 'a0000009-0000-4000-a000-000000000001',
+  stockMovement10: 'a000000a-0000-4000-a000-000000000001',
+  stockMovement11: 'a000000b-0000-4000-a000-000000000001',
+  stockMovement12: 'a000000c-0000-4000-a000-000000000001',
+  stockMovement13: 'a000000d-0000-4000-a000-000000000001',
+  stockMovement14: 'a000000e-0000-4000-a000-000000000001',
+  stockMovement15: 'a000000f-0000-4000-a000-000000000001',
+};
 
 export type NewStockMovement = typeof stockMovementsSchema.$inferInsert;
 

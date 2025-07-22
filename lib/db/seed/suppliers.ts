@@ -1,6 +1,11 @@
-import { supplierIds } from './seed-constants';
+export const supplierIds = {
+  supplier1: '20000001-0000-4000-a000-000000000001',
+  supplier2: '20000002-0000-4000-a000-000000000001',
+  supplier3: '20000003-0000-4000-a000-000000000001',
+  supplier4: '20000004-0000-4000-a000-000000000001',
+};
 
-export const contactPersonIds = {
+export const supplierContactPersonIds = {
   supplierContact1: 'e0000001-0000-4000-a000-000000000001',
   supplierContact2: 'e0000002-0000-4000-a000-000000000001',
   supplierContact3: 'e0000003-0000-4000-a000-000000000001',
@@ -9,28 +14,28 @@ export const contactPersonIds = {
 
 export const supplierContactPersons = [
   {
-    id: contactPersonIds.supplierContact1,
+    id: supplierContactPersonIds.supplierContact1,
     supplierId: supplierIds.supplier1,
     name: 'John Doe',
     email: 'contact@supplierutama.com',
     phone: '+6281234567893',
   },
   {
-    id: contactPersonIds.supplierContact2,
+    id: supplierContactPersonIds.supplierContact2,
     supplierId: supplierIds.supplier2,
     name: 'Jane Smith',
     email: 'info@suppliermitra.com',
     phone: '+6281234567894',
   },
   {
-    id: contactPersonIds.supplierContact3,
+    id: supplierContactPersonIds.supplierContact3,
     supplierId: supplierIds.supplier3,
     name: 'Ahmad Rizki',
     email: 'contact@supplierketiga.com',
     phone: '+6281234567895',
   },
   {
-    id: contactPersonIds.supplierContact4,
+    id: supplierContactPersonIds.supplierContact4,
     supplierId: supplierIds.supplier4,
     name: 'Agus Rizki',
     email: 'contact@supplierempat.com',

@@ -1,11 +1,18 @@
 import { INVOICE_STATUS } from '../enum';
-import {
-  customerIds,
-  invoiceIds,
-  productIds,
-  quotationIds,
-  userIds,
-} from './seed-constants';
+import { branchIds } from './branches';
+import { customerIds } from './customers';
+import { productIds } from './products';
+import { quotationIds } from './quotations';
+import { userIds } from './users';
+
+export const invoiceIds = {
+  invoice1: '60000001-0000-4000-a000-000000000001',
+  invoice2: '60000002-0000-4000-a000-000000000001',
+  invoice3: '60000003-0000-4000-a000-000000000001',
+  invoice4: '60000004-0000-4000-a000-000000000001',
+  invoice5: '60000005-0000-4000-a000-000000000001',
+  invoice6: '60000006-0000-4000-a000-000000000001',
+};
 
 export const invoices = [
   {
@@ -15,7 +22,7 @@ export const invoices = [
     invoiceDate: new Date('2025-04-30'),
     dueDate: new Date('2025-05-30'),
     customerId: customerIds.customer3,
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     subtotal: '35000000.00',
     tax: '3500000.00',
     total: '38500000.00',
@@ -32,7 +39,7 @@ export const invoices = [
     invoiceDate: new Date('2025-06-20'),
     dueDate: new Date('2025-07-20'),
     customerId: customerIds.customer2,
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     subtotal: '32000000.00',
     tax: '3200000.00',
     total: '35200000.00',
@@ -49,7 +56,7 @@ export const invoices = [
     invoiceDate: new Date('2025-07-15'),
     dueDate: new Date('2025-08-15'),
     customerId: customerIds.customer1,
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     subtotal: '18500000.00',
     tax: '1850000.00',
     total: '20350000.00',
@@ -66,7 +73,7 @@ export const invoices = [
     invoiceDate: new Date('2025-08-10'),
     dueDate: new Date('2025-09-10'),
     customerId: customerIds.customer4,
-    branchId: 'balikpapan', // Created by Rini at Balikpapan branch
+    branchId: branchIds.balikpapan, // Created by Rini at Balikpapan branch
     subtotal: '22000000.00',
     tax: '0.00',
     total: '22000000.00',
@@ -83,7 +90,7 @@ export const invoices = [
     invoiceDate: new Date('2025-09-05'),
     dueDate: new Date('2025-10-05'),
     customerId: customerIds.customer5,
-    branchId: 'kendari', // Created by Budi at Kendari branch
+    branchId: branchIds.kendari, // Created by Budi at Kendari branch
     subtotal: '42000000.00',
     tax: '4200000.00',
     total: '46200000.00',
@@ -100,7 +107,7 @@ export const invoices = [
     invoiceDate: new Date('2025-10-01'),
     dueDate: new Date('2025-11-01'),
     customerId: customerIds.customer3,
-    branchId: 'pekanbaru', // Created by Asep at Pekanbaru branch
+    branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     subtotal: '13500000.00',
     tax: '1350000.00',
     total: '14850000.00',

@@ -16,6 +16,7 @@ import { useSession } from 'next-auth/react';
 
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { hasPermission } from '@/lib/permissions';
+import { CreateUserRequest } from '@/lib/validations/user';
 import { useBranches } from '@/hooks/use-branches';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useCreateUser } from '@/hooks/use-users';
@@ -28,19 +29,6 @@ import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
-interface CreateUserData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  role: string;
-  NIK: string;
-  jobTitle: string;
-  joinDate: string;
-  type: string;
-  branchId: string;
-  isAdmin: boolean;
-}
 
 interface ValidationError {
   field: string;
@@ -53,16 +41,16 @@ export default function CreateUserPage() {
   const { getAvailableRolesForCreation } = usePermissions();
   const { data: branchesData, isLoading: branchesLoading } = useBranches();
   const createUserMutation = useCreateUser();
-  const [formData, setFormData] = useState<CreateUserData>({
+  const [formData, setFormData] = useState<CreateUserRequest>({
     email: '',
     firstName: '',
     lastName: '',
     phone: '',
-    role: 'staff',
+    role: 'staff' as const,
     NIK: '',
     jobTitle: '',
     joinDate: new Date().toISOString().split('T')[0],
-    type: 'full-time',
+    type: 'full-time' as const,
     branchId: '',
     isAdmin: false,
   });
@@ -98,7 +86,7 @@ export default function CreateUserPage() {
   }
 
   const validateField = (
-    field: keyof CreateUserData,
+    field: keyof CreateUserRequest,
     value: string,
   ): string | null => {
     switch (field) {
@@ -124,7 +112,7 @@ export default function CreateUserPage() {
     const errors: Record<string, string> = {};
 
     Object.keys(formData).forEach((key) => {
-      const field = key as keyof CreateUserData;
+      const field = key as keyof CreateUserRequest;
       const error = validateField(field, formData[field] as string);
       if (error) {
         errors[field] = error;
@@ -156,7 +144,7 @@ export default function CreateUserPage() {
   };
 
   const handleInputChange = (
-    field: keyof CreateUserData,
+    field: keyof CreateUserRequest,
     value: string | boolean,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -170,7 +158,7 @@ export default function CreateUserPage() {
     }
   };
 
-  const handleBooleanChange = (field: keyof CreateUserData, value: boolean) => {
+  const handleBooleanChange = (field: keyof CreateUserRequest, value: boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear validation errors when user changes value

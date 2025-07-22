@@ -18,7 +18,7 @@ export const users = [
     type: 'full-time',
     phone: '+6281234567890',
     avatar: null,
-    role: 'staff',
+    role: 'manager',
     branchId: 'ho_jakarta', // Admin at HO Jakarta
     signature: null,
     isActive: true,

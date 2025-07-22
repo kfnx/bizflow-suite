@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
     const body = await request.json();
 
     // Validate with Zod
@@ -173,7 +173,8 @@ export async function POST(request: NextRequest) {
     const validatedData = parsed.data;
 
     // Check if user can create the specified role
-    if (!canCreateRole(session.user.role, validatedData.role)) {
+    const isAdmin = session.user.isAdmin;
+    if (!isAdmin && !canCreateRole(session.user.role, validatedData.role)) {
       return NextResponse.json(
         {
           error:

@@ -19,7 +19,7 @@ export async function POST(
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
 
     // Check if user exists
     const existingUser = await db

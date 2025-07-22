@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  RiArrowLeftLine,
   RiEditLine,
+  RiErrorWarningLine,
   RiHashtag,
   RiInformationLine,
-  RiPriceTag3Line,
+  RiSearchLine,
   RiStoreLine,
 } from '@remixicon/react';
 
@@ -247,17 +249,90 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   }
 
   if (productError) {
+    const isNotFound =
+      productError.message.includes('not found') ||
+      productError.message.includes('404');
+    const isPermissionError =
+      productError.message.includes('Forbidden') ||
+      productError.message.includes('Unauthorized');
+
     return (
-      <div className='flex h-full w-full items-center justify-center text-red-600'>
-        Error loading product data
+      <div className='flex h-full w-full flex-col items-center justify-center p-8 text-center'>
+        <div className='mb-6 flex size-16 items-center justify-center rounded-full bg-red-50'>
+          <RiErrorWarningLine className='size-8 text-red-500' />
+        </div>
+
+        <h3 className='text-gray-900 text-xl mb-2 font-semibold'>
+          {isNotFound ? 'Product Not Found' : 'Error Loading Product'}
+        </h3>
+
+        <p className='text-gray-500 text-sm mb-6 max-w-md'>
+          {isNotFound
+            ? `The product with ID "${params.id}" could not be found. It may have been deleted or you may have an incorrect link.`
+            : isPermissionError
+              ? 'You do not have permission to access this product. Please contact your administrator if you believe this is an error.'
+              : productError.message ||
+                'An unexpected error occurred while loading the product data.'}
+        </p>
+
+        <div className='flex flex-col gap-3 sm:flex-row'>
+          <Button.Root
+            variant='neutral'
+            mode='ghost'
+            onClick={() => router.push('/products')}
+          >
+            <RiArrowLeftLine className='mr-2 size-4' />
+            Back to Products
+          </Button.Root>
+
+          {isNotFound && (
+            <Button.Root
+              variant='primary'
+              onClick={() => router.push('/products')}
+            >
+              <RiSearchLine className='mr-2 size-4' />
+              Browse Products
+            </Button.Root>
+          )}
+        </div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
-        Product not found
+      <div className='flex h-full w-full flex-col items-center justify-center p-8 text-center'>
+        <div className='bg-gray-50 mb-6 flex size-16 items-center justify-center rounded-full'>
+          <RiInformationLine className='text-gray-400 size-8' />
+        </div>
+
+        <h3 className='text-gray-900 text-xl mb-2 font-semibold'>
+          Product Not Found
+        </h3>
+
+        <p className='text-gray-500 text-sm mb-6 max-w-md'>
+          The product you&apos;re looking for doesn&apos;t exist or may have
+          been removed. Please check the URL or return to the products list.
+        </p>
+
+        <div className='flex flex-col gap-3 sm:flex-row'>
+          <Button.Root
+            variant='neutral'
+            mode='ghost'
+            onClick={() => router.push('/products')}
+          >
+            <RiArrowLeftLine className='mr-2 size-4' />
+            Back to Products
+          </Button.Root>
+
+          <Button.Root
+            variant='primary'
+            onClick={() => router.push('/products/new')}
+          >
+            <RiEditLine className='mr-2 size-4' />
+            Create New Product
+          </Button.Root>
+        </div>
       </div>
     );
   }

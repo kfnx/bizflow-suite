@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 // GET /api/health - Health check endpoint
 export async function GET() {
   try {
-    const db = await getDB();
+    const db = getDB();
 
     // Test database connection by running a simple query
     await db.execute('SELECT 1 as test');

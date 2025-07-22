@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
 
     const user = await db
       .select({

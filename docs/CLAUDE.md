@@ -115,16 +115,17 @@ Required environment variables (see `DATABASE_SETUP.md` for details):
 - Implement guard clauses for error handling and early returns
 - Use Zod schemas for validation (`/lib/validations/`)
 - Structure files: exported components, subcomponents, helpers, static content, types
+- Use sonner toast to give feedback on every tanstack mutation success and error
 
 ## Business Logic
 
 The application follows a standard business document workflow:
 
-1. **Product Management** - Add products with supplier information
-2. **Quotation Process** - Create quotations for customers with line items
-3. **Invoice Generation** - Convert quotations to invoices or create standalone invoices
-4. **Delivery Management** - Create delivery notes for shipments
-5. **Inventory Control** - Manage imports from suppliers and warehouse transfers
+1. **Quotation Process** - Create quotations for customers with line items
+2. **Invoice Generation** - Convert quotations to invoices or create standalone invoices
+3. **Delivery Management** - Create delivery notes for shipments
+4. **Product** - Products with supplier information, have 3 category: serialized, non-serialized and bulk
+5. **Inventory Control** - Products inventory controlled via imports from suppliers and warehouse transfers
 
 ## Testing and Quality
 

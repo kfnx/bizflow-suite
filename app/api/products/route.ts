@@ -114,6 +114,7 @@ export async function GET(request: NextRequest) {
       .select({
         id: products.id,
         name: products.name,
+        code: products.code,
         description: products.description,
         category: products.category,
         brandId: products.brandId,

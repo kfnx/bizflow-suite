@@ -12,7 +12,7 @@ import {
 
 // Utility function to get user with their documents
 export async function getUserWithDocuments(userId: string) {
-  const db = await getDB();
+  const db = getDB();
 
   const user = await db
     .select({
@@ -78,7 +78,7 @@ export async function getUserWithDocuments(userId: string) {
 
 // Utility function to get quotation with items
 export async function getQuotationWithItems(quotationId: string) {
-  const db = await getDB();
+  const db = getDB();
 
   const quotation = await db
     .select()
@@ -115,7 +115,7 @@ export async function getQuotationWithItems(quotationId: string) {
 
 // Utility function to get invoice with items
 export async function getInvoiceWithItems(invoiceId: string) {
-  const db = await getDB();
+  const db = getDB();
 
   const invoice = await db
     .select()
@@ -152,7 +152,7 @@ export async function getInvoiceWithItems(invoiceId: string) {
 
 // Utility function to get delivery note with items
 export async function getDeliveryNoteWithItems(deliveryNoteId: string) {
-  const db = await getDB();
+  const db = getDB();
 
   const deliveryNote = await db
     .select()
@@ -188,7 +188,7 @@ export async function getDeliveryNoteWithItems(deliveryNoteId: string) {
 
 // Utility function to get import with items
 export async function getImportWithItems(importId: string) {
-  const db = await getDB();
+  const db = getDB();
 
   const importDoc = await db
     .select()
@@ -226,7 +226,7 @@ export async function getImportWithItems(importId: string) {
 
 // Utility function to get product with supplier
 export async function getProductWithSupplier(productId: string) {
-  const db = await getDB();
+  const db = getDB();
 
   const product = await db
     .select({
@@ -252,7 +252,7 @@ export async function getProductWithSupplier(productId: string) {
 
 // Utility function to get document statistics
 export async function getDocumentStats(userId?: string) {
-  const db = await getDB();
+  const db = getDB();
 
   let whereConditions = [];
   if (userId) {

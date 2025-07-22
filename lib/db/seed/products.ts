@@ -1,5 +1,5 @@
 import { PRODUCT_CATEGORY } from '../enum';
-import { products as productsSchema } from '../schema';
+import { InsertProduct } from '../schema';
 import { supplierIds } from './suppliers';
 import { warehouseIds } from './warehouses';
 
@@ -13,9 +13,7 @@ export const productIds = {
   product7: '40000007-0000-4000-a000-000000000001',
 };
 
-export type NewProduct = typeof productsSchema.$inferInsert;
-
-export const products: NewProduct[] = [
+export const products: InsertProduct[] = [
   {
     id: productIds.product1,
     name: 'Shantui L36-B3 Wheel Loader',

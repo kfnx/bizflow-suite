@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
     const body = await request.json();
 
     // Validate with Zod

@@ -3,7 +3,11 @@ export type Permission =
   | 'users:read'
   | 'users:create'
   | 'users:update'
-  | 'approvers:read'
+  | 'users:delete'
+  | 'branches:read'
+  | 'branches:create'
+  | 'branches:update'
+  | 'branches:delete'
   | 'quotations:read'
   | 'quotations:create'
   | 'quotations:update'
@@ -89,6 +93,9 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'users:read',
     'users:create',
     'users:update',
+    'branches:read',
+    'branches:create',
+    'branches:update',
     'quotations:read',
     'quotations:create',
     'quotations:update',
@@ -123,6 +130,10 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'users:read',
     'users:create',
     'users:update',
+    'branches:read',
+    'branches:create',
+    'branches:update',
+    'branches:delete',
     'quotations:read',
     'quotations:create',
     'quotations:update',

@@ -19,7 +19,7 @@ export async function GET(
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
 
     const user = await db
       .select({
@@ -74,7 +74,7 @@ export async function PUT(
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
     const body = await request.json();
 
     // Validate with Zod
@@ -95,7 +95,8 @@ export async function PUT(
     const validatedData = parsed.data;
 
     // Check if user can assign the specified role
-    if (!canCreateRole(session.user.role, validatedData.role)) {
+    const isAdmin = session.user.isAdmin;
+    if (!isAdmin && !canCreateRole(session.user.role, validatedData.role)) {
       return NextResponse.json(
         { error: 'You can only assign roles equal to or lower than your own' },
         { status: 403 },

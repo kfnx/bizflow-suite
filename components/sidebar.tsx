@@ -126,8 +126,8 @@ export const navigationLinks: NavigationCategory[] = [
       },
       {
         icon: RiBuildingLine,
-        label: 'Branch',
-        href: '/branch',
+        label: 'Branches',
+        href: '/branches',
       },
     ],
   },

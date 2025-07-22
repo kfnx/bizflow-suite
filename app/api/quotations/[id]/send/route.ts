@@ -17,7 +17,7 @@ export async function POST(
   }
 
   try {
-    const db = await getDB();
+    const db = getDB();
     const { id } = params;
 
     // Check if quotation exists

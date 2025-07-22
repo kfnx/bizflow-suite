@@ -200,6 +200,11 @@ function ProductItemForm({
               ))}
             </Select.Content>
           </Select.Root>
+          {getFieldError('brandId') && (
+            <div className='text-xs text-red-600'>
+              {getFieldError('brandId')}
+            </div>
+          )}
         </div>
         <div className='flex flex-col gap-2'>
           <Label.Root htmlFor={`name-${index}`}>
@@ -260,6 +265,11 @@ function ProductItemForm({
                 ))}
               </Select.Content>
             </Select.Root>
+            {getFieldError('machineTypeId') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('machineTypeId')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`serialNumber-${index}`}>
@@ -277,6 +287,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('serialNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('serialNumber')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelNumber-${index}`}>
@@ -294,6 +309,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('modelNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('modelNumber')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`machineNumber-${index}`}>
@@ -311,6 +331,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('machineNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('machineNumber')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`engineNumber-${index}`}>
@@ -328,6 +353,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('engineNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('engineNumber')}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -352,6 +382,11 @@ function ProductItemForm({
                 ))}
               </Select.Content>
             </Select.Root>
+            {getFieldError('unitOfMeasureId') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('unitOfMeasureId')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`batchLotNumber-${index}`}>
@@ -369,6 +404,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('batchOrLotNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('batchOrLotNumber')}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -393,6 +433,11 @@ function ProductItemForm({
                 ))}
               </Select.Content>
             </Select.Root>
+            {getFieldError('unitOfMeasureId') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('unitOfMeasureId')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelPartNumber-${index}`}>
@@ -410,6 +455,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('modelOrPartNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('modelOrPartNumber')}
+              </div>
+            )}
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`batchLotNumberBulk-${index}`}>
@@ -427,6 +477,11 @@ function ProductItemForm({
                 />
               </Input.Wrapper>
             </Input.Root>
+            {getFieldError('batchOrLotNumber') && (
+              <div className='text-xs text-red-600'>
+                {getFieldError('batchOrLotNumber')}
+              </div>
+            )}
           </div>
         </div>
       )}

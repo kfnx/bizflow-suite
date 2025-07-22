@@ -113,6 +113,7 @@ export const branches = mysqlTable('branches', {
     .notNull()
     .default(sql`(UUID())`),
   name: varchar('name', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Customers table

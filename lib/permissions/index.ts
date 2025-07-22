@@ -1,3 +1,5 @@
+import { User } from 'next-auth';
+
 // Define permission types
 export type Permission =
   | 'users:read'
@@ -173,26 +175,37 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
 };
 
 // Permission checking utilities
-export function hasPermission(
-  userRole: string,
-  permission: Permission,
-): boolean {
+export function hasPermission(user: User, permission: Permission): boolean {
+  const isAdmin = user.isAdmin;
+  if (isAdmin) return true;
+
+  const userRole = user.role;
   const rolePermissions = ROLE_PERMISSIONS[userRole] || [];
   return rolePermissions.includes(permission);
 }
 
 export function hasAnyPermission(
-  userRole: string,
+  user: User,
   permissions: Permission[],
 ): boolean {
-  return permissions.some((permission) => hasPermission(userRole, permission));
+  const isAdmin = user.isAdmin;
+  if (isAdmin) return true;
+
+  return permissions.some((permission) => hasPermission(user, permission));
 }
 
 export function hasAllPermissions(
-  userRole: string,
+  user: User,
   permissions: Permission[],
 ): boolean {
-  return permissions.every((permission) => hasPermission(userRole, permission));
+  const isAdmin = user.isAdmin;
+  if (isAdmin) return true;
+
+  const userRole = user.role;
+  const rolePermissions = ROLE_PERMISSIONS[userRole] || [];
+  return permissions.every((permission) =>
+    rolePermissions.includes(permission),
+  );
 }
 
 // Role hierarchy for inheritance
@@ -214,7 +227,11 @@ export function hasRoleOrHigher(
 }
 
 // Check if user can create a specific role
-export function canCreateRole(userRole: string, targetRole: string): boolean {
+export function canCreateRole(user: User, targetRole: string): boolean {
+  const isAdmin = user.isAdmin;
+  if (isAdmin) return true;
+
+  const userRole = user.role;
   const roleOrder = ['staff', 'import-manager', 'manager', 'director'];
   const userRoleIndex = roleOrder.indexOf(userRole);
   const targetRoleIndex = roleOrder.indexOf(targetRole);

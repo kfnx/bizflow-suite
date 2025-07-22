@@ -39,10 +39,7 @@ export default function NewInvoicePage() {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(
-      session.user.role,
-      'invoices:create',
-    );
+    const userHasPermission = hasPermission(session.user, 'invoices:create');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;

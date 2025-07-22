@@ -14,19 +14,21 @@ import {
 export function usePermissions() {
   const { data: session } = useSession();
 
-  const userRole = session?.user?.role || 'guest';
+  const user = session?.user;
+  const userRole = user?.role || 'guest';
 
   return {
     // Check single permission
-    can: (permission: Permission) => hasPermission(userRole, permission),
+    can: (permission: Permission) =>
+      user ? hasPermission(user, permission) : false,
 
     // Check if user has any of the permissions
     canAny: (permissions: Permission[]) =>
-      hasAnyPermission(userRole, permissions),
+      user ? hasAnyPermission(user, permissions) : false,
 
     // Check if user has all permissions
     canAll: (permissions: Permission[]) =>
-      hasAllPermissions(userRole, permissions),
+      user ? hasAllPermissions(user, permissions) : false,
 
     // Check role
     hasRole: (role: string) => userRole === role,
@@ -35,10 +37,11 @@ export function usePermissions() {
     role: userRole,
 
     // Check if user is authenticated
-    isAuthenticated: !!session?.user,
+    isAuthenticated: !!user,
 
     // Check if user can create a specific role
-    canCreateRole: (targetRole: string) => canCreateRole(userRole, targetRole),
+    canCreateRole: (targetRole: string) =>
+      user ? canCreateRole(user, targetRole) : false,
 
     // Get available roles for creation
     getAvailableRolesForCreation: () => getAvailableRolesForCreation(userRole),

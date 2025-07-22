@@ -41,10 +41,7 @@ export default function CreateBranchPage() {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(
-      session.user.role,
-      'branches:create',
-    );
+    const userHasPermission = hasPermission(session.user, 'branches:create');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;

@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
 
     if (requiredPermissions) {
       const hasAccess = requiredPermissions.some((permission) =>
-        hasPermission(session.user.role, permission),
+        hasPermission(session.user, permission),
       );
 
       if (!hasAccess) {

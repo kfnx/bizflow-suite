@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MySTI Santraktor is a business document generation application built for PT San Traktor Indonesia. It's a Next.js application with MySQL database using Drizzle ORM, implementing a complete business document workflow for quotations, invoices, delivery notes, and inventory management.
+MySTI is a business document generation application built for PT San Traktor Indonesia. It's a Next.js application with MySQL database using Drizzle ORM, implementing a complete business document workflow for quotations, invoices, delivery notes, and inventory management.
 
 ## Development Commands
 

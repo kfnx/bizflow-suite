@@ -28,7 +28,7 @@ export async function requirePermission(
     return session;
   }
 
-  if (!hasPermission(session.user.role, permission)) {
+  if (!hasPermission(session.user, permission)) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient permissions' },
       { status: 403 },
@@ -49,7 +49,7 @@ export async function requireAnyPermission(
   }
 
   const hasAny = permissions.some((permission) =>
-    hasPermission(session.user.role, permission),
+    hasPermission(session.user, permission),
   );
 
   if (!hasAny) {

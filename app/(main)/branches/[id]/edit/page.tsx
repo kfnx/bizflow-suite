@@ -53,10 +53,7 @@ export default function EditBranchPage({ params }: EditBranchPageProps) {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(
-      session.user.role,
-      'branches:update',
-    );
+    const userHasPermission = hasPermission(session.user, 'branches:update');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;

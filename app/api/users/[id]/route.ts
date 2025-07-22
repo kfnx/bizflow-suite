@@ -95,8 +95,7 @@ export async function PUT(
     const validatedData = parsed.data;
 
     // Check if user can assign the specified role
-    const isAdmin = session.user.isAdmin;
-    if (!isAdmin && !canCreateRole(session.user.role, validatedData.role)) {
+    if (!canCreateRole(session.user, validatedData.role)) {
       return NextResponse.json(
         { error: 'You can only assign roles equal to or lower than your own' },
         { status: 403 },

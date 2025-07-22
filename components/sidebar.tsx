@@ -211,6 +211,8 @@ export function SidebarHeader({ collapsed }: { collapsed?: boolean }) {
 function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  if (!session?.user) return null;
+
   const userRole = session?.user?.role || 'guest';
 
   // Filter navigation links based on user permissions and roles
@@ -251,7 +253,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
         if (!requiredPermissions) return true; // No permission required
 
         return requiredPermissions.some((permission) =>
-          hasPermission(userRole, permission),
+          hasPermission(session.user, permission),
         );
       }),
     }))

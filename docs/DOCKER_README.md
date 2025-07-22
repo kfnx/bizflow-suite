@@ -1,6 +1,6 @@
-# Docker Setup for MySTI Santraktor
+# Docker Setup for MySTI
 
-This document explains how to run the MySTI Santraktor application using Docker and Docker Compose.
+This document explains how to run the MySTI application using Docker and Docker Compose.
 
 ## Prerequisites
 

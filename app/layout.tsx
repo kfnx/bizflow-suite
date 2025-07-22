@@ -16,8 +16,8 @@ const fontInter = FontSans({
 });
 
 export const metadata: Metadata = {
-  title: 'MySTI Santraktor',
-  description: 'MySTI Santraktor',
+  title: 'MySTI',
+  description: 'MySTI',
   // robots: {
   //   index: false,
   //   follow: false,

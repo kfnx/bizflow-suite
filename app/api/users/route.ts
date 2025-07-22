@@ -173,8 +173,7 @@ export async function POST(request: NextRequest) {
     const validatedData = parsed.data;
 
     // Check if user can create the specified role
-    const isAdmin = session.user.isAdmin;
-    if (!isAdmin && !canCreateRole(session.user.role, validatedData.role)) {
+    if (!canCreateRole(session.user, validatedData.role)) {
       return NextResponse.json(
         {
           error:

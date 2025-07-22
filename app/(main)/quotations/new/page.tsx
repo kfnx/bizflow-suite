@@ -40,10 +40,7 @@ export default function NewQuotationPage() {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(
-      session.user.role,
-      'quotations:create',
-    );
+    const userHasPermission = hasPermission(session.user, 'quotations:create');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;

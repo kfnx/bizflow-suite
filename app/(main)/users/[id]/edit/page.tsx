@@ -98,7 +98,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(session.user.role, 'users:update');
+    const userHasPermission = hasPermission(session.user, 'users:update');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;

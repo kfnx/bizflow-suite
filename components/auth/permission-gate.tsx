@@ -30,7 +30,7 @@ export function PermissionGate({
   }
 
   // check authorization
-  const isAllowed = hasPermission(session.user.role, permission);
+  const isAllowed = hasPermission(session.user, permission);
   if (!isAllowed) {
     return fallback;
   }
@@ -76,7 +76,7 @@ export function AnyPermissionGate({
   }
 
   const hasAny = permissions.some((permission) =>
-    hasPermission(session.user.role, permission),
+    hasPermission(session.user, permission),
   );
 
   if (!hasAny) {

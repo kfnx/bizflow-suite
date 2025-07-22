@@ -81,7 +81,7 @@ export default function CreateUserPage() {
     }
 
     // Check permission
-    const userHasPermission = hasPermission(session.user.role, 'users:create');
+    const userHasPermission = hasPermission(session.user, 'users:create');
     if (!userHasPermission) {
       router.push('/unauthorized');
       return;

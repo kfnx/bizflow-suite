@@ -202,7 +202,7 @@ export function SidebarHeader({ collapsed }: { collapsed?: boolean }) {
           'lg:px-2': collapsed,
         })}
       >
-        <div className='px-4 text-label-xl'>BizDocGen</div>
+        <div className='px-4 text-label-xl'>MySTI</div>
       </div>
     </Link>
   );

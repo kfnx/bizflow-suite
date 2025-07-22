@@ -10,7 +10,7 @@
 
 ## Introduction
 
-BizDocGen - PT San Traktor Indoneisa
+MySTI - PT San Traktor Indoneisa
 
 Using Next.js, Drizzle ORM, AlignUI
 

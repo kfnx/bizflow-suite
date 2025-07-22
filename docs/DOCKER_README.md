@@ -1,6 +1,6 @@
-# Docker Setup for BizDocGen Santraktor
+# Docker Setup for MySTI Santraktor
 
-This document explains how to run the BizDocGen Santraktor application using Docker and Docker Compose.
+This document explains how to run the MySTI Santraktor application using Docker and Docker Compose.
 
 ## Prerequisites
 

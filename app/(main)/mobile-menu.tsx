@@ -84,7 +84,7 @@ export default function MobileMenu() {
               </div>
             </div>
             {/* <CompanySwitchMobile /> */}
-            <div className='p-6 text-label-md'>BizDocGen</div>
+            <div className='p-6 text-label-md'>MySTI</div>
             <Divider.Root className='mb-6' />
             <div className='flex flex-1 flex-col gap-5'>
               {navigationLinks

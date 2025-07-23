@@ -155,12 +155,12 @@ export default function NewWarehousePage() {
                     </Select.Trigger>
                     <Select.Content>
                       {isLoadingManagers && (
-                        <Select.Item value='' disabled>
+                        <Select.Item value='loading' disabled>
                           Loading managers...
                         </Select.Item>
                       )}
                       {!isLoadingManagers && managers.length === 0 && (
-                        <Select.Item value='' disabled>
+                        <Select.Item value='no-managers' disabled>
                           No managers available
                         </Select.Item>
                       )}

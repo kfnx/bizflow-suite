@@ -247,6 +247,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           '/suppliers': ['suppliers:read'],
           '/customers': ['customers:read'],
           '/users': ['users:read'],
+          '/branches': ['branches:read'],
         };
 
         const requiredPermissions = routePermissions[link.href];

@@ -1096,6 +1096,18 @@ export default function NewImportPage() {
                   />
                 ))}
               </div>
+              <div className='mt-4 flex items-center justify-end'>
+                <Button.Root
+                  type='button'
+                  variant='neutral'
+                  mode='stroke'
+                  size='small'
+                  onClick={addProductItem}
+                >
+                  <RiAddLine className='mr-2 size-4' />
+                  Add item
+                </Button.Root>
+              </div>
 
               {/* Total Calculation */}
               <div className='mt-6 rounded-lg border border-stroke-soft-200 p-4'>

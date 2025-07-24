@@ -31,6 +31,7 @@ export async function GET(
     const productData = await db
       .select({
         id: products.id,
+        code: products.code,
         description: products.description,
         category: products.category,
         machineTypeId: products.machineTypeId,
@@ -59,6 +60,7 @@ export async function GET(
         supplierId: products.supplierId,
         supplierName: suppliers.name,
         supplierCode: suppliers.code,
+        importNotes: products.importNotes,
         isActive: products.isActive,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
@@ -86,16 +88,121 @@ export async function GET(
   }
 }
 
-export async function PUT(request: NextRequest) {
-  // Products can only be modified through imports workflow
-  return NextResponse.json(
-    {
-      error:
-        'Product modification not allowed. Products must be modified through the imports workflow.',
-      redirectTo: '/imports',
-    },
-    { status: 403 },
-  );
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  const session = await requirePermission(request, 'products:update');
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
+  try {
+    const { id } = params;
+    const body = await request.json();
+
+    // Only allow updating specific fields: condition and technical specifications
+    const allowedFields = [
+      'condition',
+      'engineModel',
+      'enginePower',
+      'operatingWeight',
+    ];
+
+    // Filter the update data to only include allowed fields
+    const updateData: any = {};
+    for (const field of allowedFields) {
+      if (field in body) {
+        updateData[field] = body[field];
+      }
+    }
+
+    // If no allowed fields are provided, return error
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        {
+          error: 'Only condition and technical specifications (engineModel, enginePower, operatingWeight) can be updated',
+        },
+        { status: 400 },
+      );
+    }
+
+    // Check if product exists
+    const existingProduct = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.id, id))
+      .limit(1);
+
+    if (existingProduct.length === 0) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Update the product
+    await db
+      .update(products)
+      .set({
+        ...updateData,
+        updatedAt: new Date(),
+      })
+      .where(eq(products.id, id));
+
+    // Fetch and return the updated product with relations
+    const updatedProductData = await db
+      .select({
+        id: products.id,
+        code: products.code,
+        description: products.description,
+        category: products.category,
+        machineTypeId: products.machineTypeId,
+        machineTypeName: machineTypes.name,
+        unitOfMeasureId: products.unitOfMeasureId,
+        unitOfMeasureName: unitOfMeasures.name,
+        unitOfMeasureAbbreviation: unitOfMeasures.abbreviation,
+        brandId: products.brandId,
+        brandName: brands.name,
+        modelOrPartNumber: products.modelOrPartNumber,
+        machineNumber: products.machineNumber,
+        engineNumber: products.engineNumber,
+        name: products.name,
+        batchOrLotNumber: products.batchOrLotNumber,
+        serialNumber: products.serialNumber,
+        model: products.model,
+        year: products.year,
+        condition: products.condition,
+        status: products.status,
+        price: products.price,
+        engineModel: products.engineModel,
+        enginePower: products.enginePower,
+        operatingWeight: products.operatingWeight,
+        warehouseId: products.warehouseId,
+        warehouseName: warehouses.name,
+        supplierId: products.supplierId,
+        supplierName: suppliers.name,
+        supplierCode: suppliers.code,
+        importNotes: products.importNotes,
+        isActive: products.isActive,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+      })
+      .from(products)
+      .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
+      .leftJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
+      .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
+      .leftJoin(warehouses, eq(products.warehouseId, warehouses.id))
+      .where(eq(products.id, id))
+      .limit(1);
+
+    return NextResponse.json({ data: updatedProductData[0] });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return NextResponse.json(
+      { error: 'Failed to update product' },
+      { status: 500 },
+    );
+  }
 }
 
 export async function DELETE(request: NextRequest) {

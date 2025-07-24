@@ -80,7 +80,9 @@ export function useDeleteSupplier() {
   });
 }
 
-const fetchSupplierDetail = async (supplierId: string): Promise<SupplierWithContactPersons> => {
+const fetchSupplierDetail = async (
+  supplierId: string,
+): Promise<SupplierWithContactPersons> => {
   const response = await fetch(`/api/suppliers/${supplierId}`);
   if (!response.ok) {
     throw new Error('Failed to fetch supplier details');

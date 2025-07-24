@@ -1,17 +1,19 @@
 import { InsertUnitOfMeasure } from '../schema';
 
-export const unitOfMeasuresObject: Record<string, string> = {
-  pcs: 'Pieces',
-  kg: 'Kilogram',
-  liter: 'Liter',
-  meter: 'Meter',
-  ton: 'Ton',
+export const unitOfMeasureIds = {
+  unit: 'unit',
+  pcs: 'pcs',
+  kg: 'kg',
+  liter: 'liter',
+  meter: 'meter',
+  ton: 'ton',
 };
 
-export const unitOfMeasures: InsertUnitOfMeasure[] = Object.entries(
-  unitOfMeasuresObject,
-).map(([id, name]) => ({
-  id,
-  abbreviation: id,
-  name,
-}));
+export const unitOfMeasures: InsertUnitOfMeasure[] = [
+  { id: unitOfMeasureIds.unit, abbreviation: 'unit', name: 'Unit' },
+  { id: unitOfMeasureIds.pcs, abbreviation: 'pcs', name: 'Pieces' },
+  { id: unitOfMeasureIds.kg, abbreviation: 'kg', name: 'Kilogram' },
+  { id: unitOfMeasureIds.liter, abbreviation: 'liter', name: 'Liter' },
+  { id: unitOfMeasureIds.meter, abbreviation: 'meter', name: 'Meter' },
+  { id: unitOfMeasureIds.ton, abbreviation: 'ton', name: 'Ton' },
+];

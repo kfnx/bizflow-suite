@@ -2,29 +2,19 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export type Supplier = {
-  id: string;
-  code: string;
-  name: string;
-  address?: string;
-  city?: string;
-  province?: string;
-  country?: string;
-  postalCode?: string;
-  transactionCurrency?: string;
-  isActive: boolean;
-  contactPersons?: Array<{
+import { Supplier } from '@/lib/db/schema';
+
+export type SupplierWithContactPersons = Supplier & {
+  contactPersons: Array<{
     id: string;
     name: string;
     email?: string;
     phone?: string;
   }>;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type SuppliersResponse = {
-  data: Supplier[];
+  data: SupplierWithContactPersons[];
   pagination?: {
     page: number;
     limit: number;

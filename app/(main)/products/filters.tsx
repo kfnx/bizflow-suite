@@ -1,39 +1,32 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   RiFilter3Fill,
   RiFilterLine,
-  RiSearch2Line,
+  RiSearchLine,
   RiSortDesc,
 } from '@remixicon/react';
 
 import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
-import * as Kbd from '@/components/ui/kbd';
-import * as SegmentedControl from '@/components/ui/segmented-control';
 import * as Select from '@/components/ui/select';
 
-import IconCmd from '~/icons/icon-cmd.svg';
-
 type ProductStatus = 'all' | 'in_stock' | 'out_of_stock' | 'discontinued';
-type ProductCategory =
-  | 'all'
-  | 'excavator'
-  | 'bulldozer'
-  | 'wheel_loader'
-  | 'backhoe_loader'
-  | 'compactor'
-  | 'forklift';
+type ProductCategory = 'all' | 'serialized' | 'non_serialized' | 'bulk';
 type ProductBrand =
   | 'all'
-  | 'Shantui'
-  | 'Caterpillar'
-  | 'Komatsu'
-  | 'Hitachi'
-  | 'Volvo'
-  | 'JCB';
+  | 'shantui'
+  | 'caterpillar'
+  | 'komatsu'
+  | 'hitachi'
+  | 'volvo'
+  | 'jcb'
+  | 'oliolio'
+  | 'spare_xyz'
+  | 'sparepart_abc';
 
 export interface ProductsFilters {
   search: string;
@@ -50,67 +43,79 @@ interface FiltersProps {
 }
 
 export function Filters({ onFiltersChange }: FiltersProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [filters, setFilters] = useState<ProductsFilters>({
-    search: '',
-    status: 'all',
-    category: 'all',
-    brand: 'all',
-    sortBy: 'newest-first',
-    page: 1,
-    limit: 10,
+    search: searchParams.get('search') || '',
+    status: (searchParams.get('status') as ProductStatus) || 'all',
+    category: (searchParams.get('category') as ProductCategory) || 'all',
+    brand: (searchParams.get('brand') as ProductBrand) || 'all',
+    sortBy: searchParams.get('sortBy') || 'newest-first',
+    page: parseInt(searchParams.get('page') || '1'),
+    limit: parseInt(searchParams.get('limit') || '10'),
   });
 
-  const handleFiltersChange = useCallback(
-    (newFilters: Partial<ProductsFilters>) => {
-      const updatedFilters = { ...filters, ...newFilters };
-      setFilters(updatedFilters);
-      onFiltersChange?.(updatedFilters);
+  const updateURL = useCallback(
+    (newFilters: ProductsFilters) => {
+      const params = new URLSearchParams();
+      if (newFilters.search) params.set('search', newFilters.search);
+      if (newFilters.status !== 'all') params.set('status', newFilters.status);
+      if (newFilters.category !== 'all')
+        params.set('category', newFilters.category);
+      if (newFilters.brand !== 'all') params.set('brand', newFilters.brand);
+      if (newFilters.sortBy !== 'newest-first')
+        params.set('sortBy', newFilters.sortBy);
+      if (newFilters.page && newFilters.page > 1)
+        params.set('page', newFilters.page.toString());
+      if (newFilters.limit && newFilters.limit !== 10)
+        params.set('limit', newFilters.limit.toString());
+
+      const newURL = params.toString() ? `?${params.toString()}` : '';
+      router.push(`/products${newURL}`);
     },
-    [filters, onFiltersChange],
+    [router],
   );
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ search: value, page: 1 });
-    },
-    [handleFiltersChange],
-  );
+  useEffect(() => {
+    updateURL(filters);
+    onFiltersChange?.(filters);
+  }, [filters, updateURL, onFiltersChange]);
 
-  const handleStatusChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ status: value as ProductStatus, page: 1 });
-    },
-    [handleFiltersChange],
-  );
+  const handleSearchChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, search: value, page: 1 }));
+  };
 
-  const handleCategoryChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ category: value as ProductCategory, page: 1 });
-    },
-    [handleFiltersChange],
-  );
+  const handleStatusChange = (value: ProductStatus) => {
+    setFilters((prev) => ({ ...prev, status: value, page: 1 }));
+  };
 
-  const handleBrandChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ brand: value as ProductBrand, page: 1 });
-    },
-    [handleFiltersChange],
-  );
+  const handleCategoryChange = (value: ProductCategory) => {
+    setFilters((prev) => ({ ...prev, category: value, page: 1 }));
+  };
 
-  const handleSortChange = useCallback(
-    (value: string) => {
-      handleFiltersChange({ sortBy: value, page: 1 });
-    },
-    [handleFiltersChange],
-  );
+  const handleBrandChange = (value: ProductBrand) => {
+    setFilters((prev) => ({ ...prev, brand: value, page: 1 }));
+  };
 
-  // Keyboard shortcut for search
+  const handleSortChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, sortBy: value, page: 1 }));
+  };
+
+  // Check if any filter is active (not default)
+  const filterActive =
+    filters.search ||
+    filters.status !== 'all' ||
+    filters.category !== 'all' ||
+    filters.brand !== 'all' ||
+    filters.sortBy !== 'newest-first';
+
+  // Handle Enter key press in search input
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-        event.preventDefault();
-        const searchInput = document.getElementById('search-input');
-        searchInput?.focus();
+      if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
+        const value = event.target.value;
+        handleSearchChange(value);
       }
     };
 
@@ -118,38 +123,25 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const filterActive =
-    filters.search ||
-    filters.status !== 'all' ||
-    filters.category !== 'all' ||
-    filters.brand !== 'all' ||
-    filters.sortBy !== 'newest-first' ||
-    filters.page !== 1 ||
-    filters.limit !== 10;
-
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col gap-4 rounded-xl bg-bg-white-0 p-4 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
       {/* Search Bar */}
       <div className='relative'>
         <Input.Root>
           <Input.Wrapper>
-            <Input.Icon as={RiSearch2Line} />
+            <Input.Icon as={RiSearchLine} />
             <Input.Input
-              id='search-input'
-              type='text'
-              placeholder='Search products by code, name, description, model, or supplier...'
+              placeholder='Search products by name, code, or description...'
               value={filters.search}
               onChange={(e) => handleSearchChange(e.target.value)}
+              className='pl-10'
             />
-            <Kbd.Root>
-              <IconCmd className='size-3' />K
-            </Kbd.Root>
           </Input.Wrapper>
         </Input.Root>
       </div>
 
-      {/* Filters */}
-      <div className='flex flex-wrap items-center justify-between gap-4'>
+      {/* Filters Row */}
+      <div className='flex flex-wrap items-center gap-4'>
         {/* Status Filter */}
         <div className='flex items-center gap-2'>
           <span className='text-paragraph-sm text-text-sub-600'>Status:</span>
@@ -183,12 +175,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             </Select.Trigger>
             <Select.Content>
               <Select.Item value='all'>All Categories</Select.Item>
-              <Select.Item value='excavator'>Excavator</Select.Item>
-              <Select.Item value='bulldozer'>Bulldozer</Select.Item>
-              <Select.Item value='wheel_loader'>Wheel Loader</Select.Item>
-              <Select.Item value='backhoe_loader'>Backhoe Loader</Select.Item>
-              <Select.Item value='compactor'>Compactor</Select.Item>
-              <Select.Item value='forklift'>Forklift</Select.Item>
+              <Select.Item value='serialized'>Serialized</Select.Item>
+              <Select.Item value='non_serialized'>Non-Serialized</Select.Item>
+              <Select.Item value='bulk'>Bulk</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>
@@ -199,16 +188,19 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           <Select.Root value={filters.brand} onValueChange={handleBrandChange}>
             <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
               <Select.TriggerIcon as={RiFilterLine} />
-              <Select.Value placeholder='Sort by' />
+              <Select.Value placeholder='Brand' />
             </Select.Trigger>
             <Select.Content>
               <Select.Item value='all'>All Brands</Select.Item>
-              <Select.Item value='Shantui'>Shantui</Select.Item>
-              <Select.Item value='Caterpillar'>Caterpillar</Select.Item>
-              <Select.Item value='Komatsu'>Komatsu</Select.Item>
-              <Select.Item value='Hitachi'>Hitachi</Select.Item>
-              <Select.Item value='Volvo'>Volvo</Select.Item>
-              <Select.Item value='JCB'>JCB</Select.Item>
+              <Select.Item value='shantui'>Shantui</Select.Item>
+              <Select.Item value='caterpillar'>Caterpillar</Select.Item>
+              <Select.Item value='komatsu'>Komatsu</Select.Item>
+              <Select.Item value='hitachi'>Hitachi</Select.Item>
+              <Select.Item value='volvo'>Volvo</Select.Item>
+              <Select.Item value='jcb'>JCB</Select.Item>
+              <Select.Item value='oliolio'>Oliolio</Select.Item>
+              <Select.Item value='spare_xyz'>Spare XYZ</Select.Item>
+              <Select.Item value='sparepart_abc'>Sparepart ABC</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>

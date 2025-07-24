@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1752728067791,
-      "tag": "0000_known_nova",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1752729691720,
-      "tag": "0001_faulty_lila_cheney",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1752730047381,
-      "tag": "0002_condemned_prism",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1753076413806,
-      "tag": "0003_unique_mysterio",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1753076617786,
-      "tag": "0004_lean_mother_askani",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1753177701498,
-      "tag": "0005_striped_the_leader",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1753325967023,
-      "tag": "0006_magical_vin_gonzales",
+      "when": 1753346936906,
+      "tag": "0000_last_firebrand",
       "breakpoints": true
     }
   ]

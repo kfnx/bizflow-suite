@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { asc, desc, like, or } from 'drizzle-orm';
+import { asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { brands } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
+
+// Helper function to create slug from name
+function createSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
 
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'products:read');
@@ -19,6 +27,7 @@ export async function GET(request: NextRequest) {
 
     // Parse query parameters
     const search = searchParams.get('search') || undefined;
+    const type = searchParams.get('type') || undefined;
     const sortBy = searchParams.get('sortBy') || undefined;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100'); // Default higher limit for dropdown usage
@@ -30,6 +39,10 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       conditions.push(like(brands.name, `%${search}%`));
+    }
+
+    if (type) {
+      conditions.push(eq(brands.type, type));
     }
 
     // Build order by clause
@@ -51,6 +64,7 @@ export async function GET(request: NextRequest) {
     const brandsData = await db
       .select({
         id: brands.id,
+        type: brands.type,
         name: brands.name,
       })
       .from(brands)
@@ -94,7 +108,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name } = body;
+    const { name, type } = body;
 
     // Basic validation
     if (!name?.trim()) {
@@ -104,9 +118,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create brand
+    if (!type || !['machine', 'sparepart'].includes(type)) {
+      return NextResponse.json(
+        {
+          error:
+            'Brand type is required and must be either "machine" or "sparepart"',
+        },
+        { status: 400 },
+      );
+    }
+
+    // Create brand with slugified ID
+    const brandId = createSlug(name.trim());
     const newBrand = {
-      id: crypto.randomUUID(),
+      id: brandId,
+      type: type,
       name: name.trim(),
     };
 

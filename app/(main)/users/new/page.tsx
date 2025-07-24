@@ -29,7 +29,6 @@ import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
-
 interface ValidationError {
   field: string;
   message: string;
@@ -158,7 +157,10 @@ export default function CreateUserPage() {
     }
   };
 
-  const handleBooleanChange = (field: keyof CreateUserRequest, value: boolean) => {
+  const handleBooleanChange = (
+    field: keyof CreateUserRequest,
+    value: boolean,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear validation errors when user changes value
@@ -529,7 +531,11 @@ export default function CreateUserPage() {
             >
               Cancel
             </Button.Root>
-            <Button.Root type='submit' variant='primary' disabled={createUserMutation.isPending}>
+            <Button.Root
+              type='submit'
+              variant='primary'
+              disabled={createUserMutation.isPending}
+            >
               {createUserMutation.isPending ? 'Creating...' : 'Create User'}
             </Button.Root>
           </div>

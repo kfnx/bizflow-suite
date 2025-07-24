@@ -41,20 +41,16 @@ export async function GET(
         unitOfMeasureAbbreviation: unitOfMeasures.abbreviation,
         brandId: products.brandId,
         brandName: brands.name,
-        modelOrPartNumber: products.modelOrPartNumber,
-        machineNumber: products.machineNumber,
+        partNumber: products.partNumber,
+        modelNumber: products.modelNumber,
         engineNumber: products.engineNumber,
         name: products.name,
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,
-        model: products.model,
-        year: products.year,
+        additionalSpecs: products.additionalSpecs,
         condition: products.condition,
         status: products.status,
         price: products.price,
-        engineModel: products.engineModel,
-        enginePower: products.enginePower,
-        operatingWeight: products.operatingWeight,
         warehouseId: products.warehouseId,
         warehouseName: warehouses.name,
         supplierId: products.supplierId,
@@ -102,49 +98,30 @@ export async function PUT(
     const { id } = params;
     const body = await request.json();
 
-    // Only allow updating specific fields: condition and technical specifications
-    const allowedFields = [
-      'condition',
-      'engineModel',
-      'enginePower',
-      'operatingWeight',
-    ];
-
-    // Filter the update data to only include allowed fields
-    const updateData: any = {};
-    for (const field of allowedFields) {
-      if (field in body) {
-        updateData[field] = body[field];
-      }
-    }
-
-    // If no allowed fields are provided, return error
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json(
-        {
-          error: 'Only condition and technical specifications (engineModel, enginePower, operatingWeight) can be updated',
-        },
-        { status: 400 },
-      );
-    }
-
-    // Check if product exists
-    const existingProduct = await db
-      .select({ id: products.id })
-      .from(products)
-      .where(eq(products.id, id))
-      .limit(1);
-
-    if (existingProduct.length === 0) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-
-    // Update the product
+    // Update product
     await db
       .update(products)
       .set({
-        ...updateData,
-        updatedAt: new Date(),
+        name: body.name,
+        code: body.code,
+        description: body.description,
+        category: body.category,
+        brandId: body.brandId,
+        machineTypeId: body.machineTypeId,
+        unitOfMeasureId: body.unitOfMeasureId,
+        modelNumber: body.modelNumber,
+        engineNumber: body.engineNumber,
+        serialNumber: body.serialNumber,
+        additionalSpecs: body.additionalSpecs,
+        partNumber: body.partNumber,
+        batchOrLotNumber: body.batchOrLotNumber,
+        condition: body.condition,
+        status: body.status,
+        price: body.price,
+        warehouseId: body.warehouseId,
+        supplierId: body.supplierId,
+        importNotes: body.importNotes,
+        isActive: body.isActive,
       })
       .where(eq(products.id, id));
 
@@ -162,20 +139,16 @@ export async function PUT(
         unitOfMeasureAbbreviation: unitOfMeasures.abbreviation,
         brandId: products.brandId,
         brandName: brands.name,
-        modelOrPartNumber: products.modelOrPartNumber,
-        machineNumber: products.machineNumber,
+        partNumber: products.partNumber,
+        modelNumber: products.modelNumber,
         engineNumber: products.engineNumber,
         name: products.name,
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,
-        model: products.model,
-        year: products.year,
+        additionalSpecs: products.additionalSpecs,
         condition: products.condition,
         status: products.status,
         price: products.price,
-        engineModel: products.engineModel,
-        enginePower: products.enginePower,
-        operatingWeight: products.operatingWeight,
         warehouseId: products.warehouseId,
         warehouseName: warehouses.name,
         supplierId: products.supplierId,

@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   RiBox3Line,
   RiCloseLine,
-  RiDeleteBinLine,
   RiEditLine,
   RiInformationLine,
   RiSaveLine,
@@ -15,33 +13,26 @@ import {
 import {
   useProduct,
   useUpdateProduct,
-  type ProductWithRelations,
 } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
-import * as Divider from '@/components/ui/divider';
-import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import * as TextArea from '@/components/ui/textarea';
+import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 
 interface ProductDetailProps {
   id: string;
 }
 
 export function ProductDetail({ id }: ProductDetailProps) {
-  const router = useRouter();
   const { data: productData, isLoading, error } = useProduct(id);
   const updateProductMutation = useUpdateProduct();
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isEditingCondition, setIsEditingCondition] = useState(false);
   const [isEditingTechnical, setIsEditingTechnical] = useState(false);
   const [editedCondition, setEditedCondition] = useState('');
-  const [editedTechnical, setEditedTechnical] = useState({
-    engineModel: '',
-    enginePower: '',
-    operatingWeight: '',
-  });
+  const [editedAdditionalSpecs, setEditedAdditionalSpecs] = useState('');
 
   const handleEditCondition = () => {
     setEditedCondition(productData?.condition || '');
@@ -49,11 +40,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
   };
 
   const handleEditTechnical = () => {
-    setEditedTechnical({
-      engineModel: productData?.engineModel || '',
-      enginePower: productData?.enginePower || '',
-      operatingWeight: productData?.operatingWeight || '',
-    });
+    setEditedAdditionalSpecs(productData?.additionalSpecs || '');
     setIsEditingTechnical(true);
   };
 
@@ -77,7 +64,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
     try {
       await updateProductMutation.mutateAsync({
         id: productData.id,
-        data: editedTechnical,
+        data: { additionalSpecs: editedAdditionalSpecs },
       });
       setIsEditingTechnical(false);
     } catch (error) {
@@ -92,11 +79,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
 
   const handleCancelTechnical = () => {
     setIsEditingTechnical(false);
-    setEditedTechnical({
-      engineModel: '',
-      enginePower: '',
-      operatingWeight: '',
-    });
+    setEditedAdditionalSpecs('');
   };
 
   const formatCurrency = (amount: number, currency: string = 'IDR') => {
@@ -239,29 +222,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 {productData.brandName || 'Not specified'}
               </div>
             </div>
-
-            {productData.model && (
-              <div>
-                <div className='text-subheading-xs uppercase text-text-soft-400'>
-                  Model
-                </div>
-                <div className='mt-1 text-label-sm text-text-strong-950'>
-                  {productData.model}
-                </div>
-              </div>
-            )}
-
-            {productData.year && (
-              <div>
-                <div className='text-subheading-xs uppercase text-text-soft-400'>
-                  Year
-                </div>
-                <div className='mt-1 text-label-sm text-text-strong-950'>
-                  {productData.year}
-                </div>
-              </div>
-            )}
-
             <div>
               <div className='flex items-center'>
                 <div className='text-subheading-xs uppercase text-text-soft-400'>
@@ -520,128 +480,71 @@ export function ProductDetail({ id }: ProductDetailProps) {
         )}
 
         {/* Technical Specifications */}
-        <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-          <div className='mb-4 flex items-center justify-between'>
-            <h3 className='text-lg text-gray-900 font-medium'>
-              Technical Specifications
-            </h3>
-            {!isEditingTechnical && (
-              <Button.Root
-                variant='neutral'
-                mode='ghost'
-                size='xsmall'
-                onClick={handleEditTechnical}
-                disabled={updateProductMutation.isPending}
-              >
-                <RiEditLine className='mr-1 size-4' />
-                Edit
-              </Button.Root>
-            )}
-            {isEditingTechnical && (
-              <div className='flex items-center gap-2'>
-                <Button.Root
-                  variant='primary'
-                  size='xsmall'
-                  onClick={handleSaveTechnical}
-                  disabled={updateProductMutation.isPending}
-                >
-                  <RiSaveLine className='mr-1 size-4' />
-                  Save
-                </Button.Root>
+        {productData.category === PRODUCT_CATEGORY.SERIALIZED && (
+          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
+            <div className='mb-4 flex items-center justify-between'>
+              <h3 className='text-lg text-gray-900 font-medium'>
+                Technical Specifications
+              </h3>
+              {!isEditingTechnical && (
                 <Button.Root
                   variant='neutral'
                   mode='ghost'
                   size='xsmall'
-                  onClick={handleCancelTechnical}
+                  onClick={handleEditTechnical}
                   disabled={updateProductMutation.isPending}
                 >
-                  <RiCloseLine className='mr-1 size-4' />
-                  Cancel
+                  <RiEditLine className='mr-1 size-4' />
+                  Edit
                 </Button.Root>
-              </div>
-            )}
-          </div>
-
-          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Engine Model
-              </div>
-              {isEditingTechnical ? (
-                <Input.Root className='mt-1'>
-                  <Input.Wrapper>
-                    <Input.Input
-                      value={editedTechnical.engineModel}
-                      onChange={(e) =>
-                        setEditedTechnical((prev) => ({
-                          ...prev,
-                          engineModel: e.target.value,
-                        }))
-                      }
-                      placeholder='Enter engine model'
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              ) : (
-                <div className='mt-1 text-label-sm text-text-strong-950'>
-                  {productData.engineModel || 'Not specified'}
+              )}
+              {isEditingTechnical && (
+                <div className='flex items-center gap-2'>
+                  <Button.Root
+                    variant='primary'
+                    size='xsmall'
+                    onClick={handleSaveTechnical}
+                    disabled={updateProductMutation.isPending}
+                  >
+                    <RiSaveLine className='mr-1 size-4' />
+                    Save
+                  </Button.Root>
+                  <Button.Root
+                    variant='neutral'
+                    mode='ghost'
+                    size='xsmall'
+                    onClick={handleCancelTechnical}
+                    disabled={updateProductMutation.isPending}
+                  >
+                    <RiCloseLine className='mr-1 size-4' />
+                    Cancel
+                  </Button.Root>
                 </div>
               )}
             </div>
 
-            <div>
+            <div className='flex flex-col gap-2'>
               <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Engine Power
+                Additional Specs
               </div>
               {isEditingTechnical ? (
-                <Input.Root className='mt-1'>
-                  <Input.Wrapper>
-                    <Input.Input
-                      value={editedTechnical.enginePower}
-                      onChange={(e) =>
-                        setEditedTechnical((prev) => ({
-                          ...prev,
-                          enginePower: e.target.value,
-                        }))
-                      }
-                      placeholder='e.g. 220 hp'
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
+                <TextArea.Root
+                  id='additionalSpecs'
+                  value={editedAdditionalSpecs}
+                  onChange={(e) =>
+                    setEditedAdditionalSpecs(e.target.value)
+                  }
+                  rows={3}
+                  placeholder='Enter additionalSpecs'
+                  className='mt-2 w-full'
+                />
               ) : (
-                <div className='mt-1 text-label-sm text-text-strong-950'>
-                  {productData.enginePower || 'Not specified'}
-                </div>
+                <pre className='mt-1 text-label-sm text-text-strong-950'>
+                  {productData.additionalSpecs || 'Not specified'}
+                </pre>
               )}
             </div>
-
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Operating Weight
-              </div>
-              {isEditingTechnical ? (
-                <Input.Root className='mt-1'>
-                  <Input.Wrapper>
-                    <Input.Input
-                      value={editedTechnical.operatingWeight}
-                      onChange={(e) =>
-                        setEditedTechnical((prev) => ({
-                          ...prev,
-                          operatingWeight: e.target.value,
-                        }))
-                      }
-                      placeholder='e.g. 18,500 kg'
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              ) : (
-                <div className='mt-1 text-label-sm text-text-strong-950'>
-                  {productData.operatingWeight || 'Not specified'}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+          </div>)}
 
         {/* Metadata */}
         <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>

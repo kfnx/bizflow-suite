@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d9942061-0b72-4625-9b45-78a9ffba15f0",
+  "id": "71def7a8-2856-4f10-ba0e-cfa742cf2091",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -107,6 +107,46 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "branches": {
+      "name": "branches",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(UUID())"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "branches_id": {
+          "name": "branches_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "brands": {
       "name": "brands",
       "columns": {
@@ -117,12 +157,27 @@
           "notNull": true,
           "autoincrement": false
         },
+        "type": {
+          "name": "type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "name": {
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
         }
       },
       "indexes": {},
@@ -324,14 +379,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "is_ppn": {
-          "name": "is_ppn",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
-        },
         "is_active": {
           "name": "is_active",
           "type": "boolean",
@@ -515,6 +562,13 @@
           "autoincrement": false,
           "default": "(UUID())"
         },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "delivery_number": {
           "name": "delivery_number",
           "type": "varchar(50)",
@@ -669,6 +723,19 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
+        "fk_delivery_notes_branch": {
+          "name": "fk_delivery_notes_branch",
+          "tableFrom": "delivery_notes",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "branch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "fk_delivery_notes_customer": {
           "name": "fk_delivery_notes_customer",
           "tableFrom": "delivery_notes",
@@ -779,6 +846,14 @@
           "notNull": true,
           "autoincrement": false,
           "default": 1
+        },
+        "total": {
+          "name": "total",
+          "type": "decimal(15,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'0.00'"
         },
         "notes": {
           "name": "notes",
@@ -1383,6 +1458,13 @@
           "autoincrement": false,
           "default": "(UUID())"
         },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "invoice_number": {
           "name": "invoice_number",
           "type": "varchar(50)",
@@ -1548,6 +1630,19 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
+        "fk_invoices_branch": {
+          "name": "fk_invoices_branch",
+          "tableFrom": "invoices",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "branch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "fk_invoices_created_by": {
           "name": "fk_invoices_created_by",
           "tableFrom": "invoices",
@@ -1596,6 +1691,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
         }
       },
       "indexes": {},
@@ -1629,62 +1732,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "category": {
-          "name": "category",
-          "type": "enum('serialized','non_serialized','bulk')",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "machine_type_id": {
-          "name": "machine_type_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "unit_of_measure_id": {
-          "name": "unit_of_measure_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "model_number": {
-          "name": "model_number",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "machine_number": {
-          "name": "machine_number",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "engine_number": {
-          "name": "engine_number",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "batch_or_lot_number": {
-          "name": "batch_or_lot_number",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "brand_id": {
-          "name": "brand_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "name": {
           "name": "name",
           "type": "varchar(100)",
@@ -1699,6 +1746,56 @@
           "notNull": false,
           "autoincrement": false
         },
+        "category": {
+          "name": "category",
+          "type": "enum('serialized','non_serialized','bulk')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unit_of_measure_id": {
+          "name": "unit_of_measure_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "brand_id": {
+          "name": "brand_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "machine_type_id": {
+          "name": "machine_type_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "model_number": {
+          "name": "model_number",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "engine_number": {
+          "name": "engine_number",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "serial_number": {
           "name": "serial_number",
           "type": "varchar(100)",
@@ -1706,27 +1803,26 @@
           "notNull": false,
           "autoincrement": false
         },
-        "model": {
-          "name": "model",
+        "additional_specs": {
+          "name": "additional_specs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "part_number": {
+          "name": "part_number",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "year": {
-          "name": "year",
-          "type": "int",
+        "batch_or_lot_number": {
+          "name": "batch_or_lot_number",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "condition": {
-          "name": "condition",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'new'"
         },
         "status": {
           "name": "status",
@@ -1744,26 +1840,13 @@
           "autoincrement": false,
           "default": "'0.00'"
         },
-        "engine_model": {
-          "name": "engine_model",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "engine_power": {
-          "name": "engine_power",
+        "condition": {
+          "name": "condition",
           "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
-        },
-        "operating_weight": {
-          "name": "operating_weight",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'new'"
         },
         "warehouse_id": {
           "name": "warehouse_id",
@@ -1775,6 +1858,13 @@
         "supplier_id": {
           "name": "supplier_id",
           "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "import_notes": {
+          "name": "import_notes",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1806,6 +1896,13 @@
         }
       },
       "indexes": {
+        "name_id_idx": {
+          "name": "name_id_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        },
         "brand_id_idx": {
           "name": "brand_id_idx",
           "columns": [
@@ -2055,6 +2152,13 @@
           "autoincrement": false,
           "default": "(UUID())"
         },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "quotation_number": {
           "name": "quotation_number",
           "type": "varchar(50)",
@@ -2271,6 +2375,19 @@
           "tableTo": "customers",
           "columnsFrom": [
             "customer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_quotations_branch": {
+          "name": "fk_quotations_branch",
+          "tableFrom": "quotations",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "branch_id"
           ],
           "columnsTo": [
             "id"
@@ -2763,6 +2880,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
         }
       },
       "indexes": {},
@@ -2876,6 +3001,13 @@
           "autoincrement": false,
           "default": "'staff'"
         },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "signature": {
           "name": "signature",
           "type": "varchar(500)",
@@ -2933,7 +3065,21 @@
           "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "fk_users_branch": {
+          "name": "fk_users_branch",
+          "tableFrom": "users",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "branch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",

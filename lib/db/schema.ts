@@ -510,34 +510,6 @@ export const deliveryNoteItems = mysqlTable(
 export const products = mysqlTable(
   'products',
   {
-    /**
-     * UNION Properties based on category
-     *
-     * serialized properties:
-     * unitOfMeasure NULL
-     * batchOrLotNumber NULL
-     * machineType
-     * modelOrPartNumber
-     * machineNumber
-     * engineNumber
-     *
-     * non_serialized properties:
-     * machineType NULL
-     * modelOrPartNumber NULL
-     * machineNumber NULL
-     * engineNumber NULL
-     * unitOfMeasure
-     * batchOrLotNumber
-     *
-     * bulk properties:
-     * machineType NULL
-     * machineNumber NULL
-     * engineNumber NULL
-     * unitOfMeasure
-     * modelOrPartNumber
-     * batchOrLotNumber
-     */
-
     id: varchar('id', { length: 36 })
       .primaryKey()
       .notNull()
@@ -546,24 +518,23 @@ export const products = mysqlTable(
     name: varchar('name', { length: 100 }).notNull(),
     description: text('description'),
     category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
-    machineTypeId: varchar('machine_type_id', { length: 36 }), // excavator, bulldozer, etc
-    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // kg, pcs, etc
-    modelOrPartNumber: varchar('model_number', { length: 100 }),
-    machineNumber: varchar('machine_number', { length: 100 }),
-    engineNumber: varchar('engine_number', { length: 100 }),
-    batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
+    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // unit, kg, pcs, etc
     brandId: varchar('brand_id', { length: 36 }), // shantui, etc
-    serialNumber: varchar('serial_number', { length: 100 }),
+    quantity: int('quantity').notNull().default(1),
+    // ================================
+    machineTypeId: varchar('machine_type_id', { length: 36 }), // [serialized]
+    modelNumber: varchar('model_number', { length: 100 }), // [serialized]
+    engineNumber: varchar('engine_number', { length: 100 }), // [serialized]
+    serialNumber: varchar('serial_number', { length: 100 }), // [serialized]
+    additionalSpecs: text('additional_specs'), // [serialized]
+    partNumber: varchar('part_number', { length: 100 }), // [non-serialized, bulk]
+    batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }), // [non-serialized, bulk]
+    // ================================
     status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
     price: decimal('price', { precision: 15, scale: 2 })
       .notNull()
       .default('0.00'),
-    model: varchar('model', { length: 100 }),
-    year: int('year'),
     condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
-    engineModel: varchar('engine_model', { length: 100 }),
-    enginePower: varchar('engine_power', { length: 50 }), // e.g., "378 hp"
-    operatingWeight: varchar('operating_weight', { length: 50 }), // e.g., "47,250 kg"
     warehouseId: varchar('warehouse_id', { length: 36 }),
     supplierId: varchar('supplier_id', { length: 36 }),
     importNotes: text('import_notes'),
@@ -608,6 +579,7 @@ export const products = mysqlTable(
 
 export const brands = mysqlTable('brands', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: shantui, toshiba, etc.
+  type: varchar('type', { length: 100 }).notNull(), // machine, sparepart
   name: varchar('name', { length: 100 }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
@@ -1241,6 +1213,7 @@ export interface StockMovementQueryParams {
 
 export interface BrandQueryParams {
   search?: string;
+  type?: 'machine' | 'sparepart';
   page?: number;
   limit?: number;
 }

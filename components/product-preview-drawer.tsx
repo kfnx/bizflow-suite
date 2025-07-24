@@ -84,7 +84,6 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               )}
               {product.brandName && `${product.brandName} • `}
               {product.category || 'Uncategorized'}
-              {product.year && ` • ${product.year}`}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
               {product.modelOrPartNumber &&
@@ -210,16 +209,6 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
                   </span>
                 </div>
               )}
-              {product.year && (
-                <div className='flex justify-between'>
-                  <span className='text-paragraph-sm text-text-sub-600'>
-                    Year:
-                  </span>
-                  <span className='text-label-sm text-text-strong-950'>
-                    {product.year}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -307,9 +296,7 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
         )}
 
         {/* Technical Specifications (common for all categories) */}
-        {(product.engineModel ||
-          product.enginePower ||
-          product.operatingWeight) && (
+        {product.additionalSpecs && (
           <>
             <Divider.Root variant='line-spacing' />
             <div>
@@ -317,33 +304,13 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
                 Technical Specifications
               </div>
               <div className='mt-1 space-y-2'>
-                {product.engineModel && (
+                {product.additionalSpecs && (
                   <div className='flex justify-between'>
                     <span className='text-paragraph-sm text-text-sub-600'>
                       Engine Model:
                     </span>
                     <span className='text-label-sm text-text-strong-950'>
-                      {product.engineModel}
-                    </span>
-                  </div>
-                )}
-                {product.enginePower && (
-                  <div className='flex justify-between'>
-                    <span className='text-paragraph-sm text-text-sub-600'>
-                      Engine Power:
-                    </span>
-                    <span className='text-label-sm text-text-strong-950'>
-                      {product.enginePower}
-                    </span>
-                  </div>
-                )}
-                {product.operatingWeight && (
-                  <div className='flex justify-between'>
-                    <span className='text-paragraph-sm text-text-sub-600'>
-                      Operating Weight:
-                    </span>
-                    <span className='text-label-sm text-text-strong-950'>
-                      {product.operatingWeight}
+                      {product.additionalSpecs}
                     </span>
                   </div>
                 )}

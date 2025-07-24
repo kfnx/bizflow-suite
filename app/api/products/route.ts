@@ -57,21 +57,17 @@ export async function GET(request: NextRequest) {
       conditions.push(
         or(
           like(products.name, `%${search}%`),
+          like(products.code, `%${search}%`),
           like(products.description, `%${search}%`),
-          like(products.model, `%${search}%`),
-          like(products.modelOrPartNumber, `%${search}%`),
-          like(products.machineNumber, `%${search}%`),
-          like(products.engineNumber, `%${search}%`),
+          like(products.modelNumber, `%${search}%`),
+          like(products.partNumber, `%${search}%`),
           like(products.serialNumber, `%${search}%`),
-          like(suppliers.name, `%${search}%`),
-          like(brands.name, `%${search}%`),
-          like(machineTypes.name, `%${search}%`),
         ),
       );
     }
 
     // Build order by clause
-    let orderByClause = desc(products.createdAt);
+    let orderByClause = desc(products.createdAt); // Default newest first
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':
@@ -79,6 +75,12 @@ export async function GET(request: NextRequest) {
           break;
         case 'name-desc':
           orderByClause = desc(products.name);
+          break;
+        case 'code-asc':
+          orderByClause = asc(products.code);
+          break;
+        case 'code-desc':
+          orderByClause = desc(products.code);
           break;
         case 'price-asc':
           orderByClause = asc(products.price);
@@ -91,12 +93,6 @@ export async function GET(request: NextRequest) {
           break;
         case 'category-desc':
           orderByClause = desc(products.category);
-          break;
-        case 'year-asc':
-          orderByClause = asc(products.year);
-          break;
-        case 'year-desc':
-          orderByClause = desc(products.year);
           break;
         case 'created-asc':
           orderByClause = asc(products.createdAt);
@@ -124,21 +120,17 @@ export async function GET(request: NextRequest) {
         unitOfMeasureId: products.unitOfMeasureId,
         unitOfMeasureName: unitOfMeasures.name,
         unitOfMeasureAbbreviation: unitOfMeasures.abbreviation,
-        modelOrPartNumber: products.modelOrPartNumber,
-        machineNumber: products.machineNumber,
+        partNumber: products.partNumber,
+        modelNumber: products.modelNumber,
         engineNumber: products.engineNumber,
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,
-        model: products.model,
-        year: products.year,
+        additionalSpecs: products.additionalSpecs,
         condition: products.condition,
         status: products.status,
         warehouseId: products.warehouseId,
         warehouseName: warehouses.name,
         price: products.price,
-        engineModel: products.engineModel,
-        enginePower: products.enginePower,
-        operatingWeight: products.operatingWeight,
         supplierId: products.supplierId,
         supplierName: suppliers.name,
         supplierCode: suppliers.code,

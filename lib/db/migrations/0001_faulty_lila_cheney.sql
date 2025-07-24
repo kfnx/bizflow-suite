@@ -1,1 +1,0 @@
-ALTER TABLE `import_items` ADD `total` decimal(15,2) DEFAULT '0.00';

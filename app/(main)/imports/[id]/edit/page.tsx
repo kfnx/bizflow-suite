@@ -29,6 +29,8 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
+import { useSuppliers } from '@/hooks/use-suppliers';
+import { useWarehouses } from '@/hooks/use-warehouses';
 
 interface ProductItem {
   id?: string;
@@ -534,8 +536,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   } = useImport(params.id);
   const updateImportMutation = useUpdateImport();
 
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
   const [unitOfMeasures, setUnitOfMeasures] = useState<UnitOfMeasure[]>([]);
@@ -591,28 +591,14 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       try {
         setLoadingReference(true);
         const [
-          suppliersRes,
-          warehousesRes,
           brandsRes,
           machineTypesRes,
           unitOfMeasuresRes,
         ] = await Promise.all([
-          fetch('/api/suppliers?includeInactive'),
-          fetch('/api/warehouses'),
           fetch('/api/brands'),
           fetch('/api/machine-types'),
           fetch('/api/unit-of-measures'),
         ]);
-
-        if (suppliersRes.ok) {
-          const suppliersData = await suppliersRes.json();
-          setSuppliers(suppliersData.data || []);
-        }
-
-        if (warehousesRes.ok) {
-          const warehousesData = await warehousesRes.json();
-          setWarehouses(warehousesData.data || []);
-        }
 
         if (brandsRes.ok) {
           const brandsData = await brandsRes.json();
@@ -868,6 +854,10 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     return subtotal * exchangeRate;
   };
 
+  const { data: suppliers } = useSuppliers();
+  const { data: warehouses } = useWarehouses();
+
+
   if (isLoadingImport) {
     return (
       <div className='flex h-full min-h-80 w-full items-center justify-center text-text-sub-600'>
@@ -952,18 +942,26 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                     onValueChange={(value) =>
                       handleInputChange('supplierId', value)
                     }
+                    disabled={!suppliers}
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiBuildingLine} />
                       <Select.Value placeholder='Select supplier' />
                     </Select.Trigger>
-                    <Select.Content>
-                      {suppliers.map((supplier) => (
-                        <Select.Item key={supplier.id} value={supplier.id}>
-                          {supplier.name} ({supplier.code})
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
+                    {suppliers?.data.length && (
+                      <Select.Content>
+                        {suppliers.data.map((supplier) => (
+                          <Select.Item
+                            key={supplier.id}
+                            value={supplier.id}
+                            disabled={!supplier.isActive}
+                          >
+                            {supplier.name} ({supplier.code}){' '}
+                            {!supplier.isActive && '(Inactive)'}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    )}
                   </Select.Root>
                   {validationErrors.supplierId && (
                     <div className='text-xs text-red-600'>
@@ -981,18 +979,25 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                     onValueChange={(value) =>
                       handleInputChange('warehouseId', value)
                     }
+                    disabled={!warehouses}
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiStoreLine} />
                       <Select.Value placeholder='Select warehouse' />
                     </Select.Trigger>
-                    <Select.Content>
-                      {warehouses.map((warehouse) => (
-                        <Select.Item key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
+                    {warehouses?.data.length && (
+                      <Select.Content>
+                        {warehouses.data.map((warehouse) => (
+                          <Select.Item
+                            key={warehouse.id}
+                            value={warehouse.id}
+                            disabled={!warehouse.isActive}
+                          >
+                            {warehouse.name} {!warehouse.isActive && '(Inactive)'}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    )}
                   </Select.Root>
                   {validationErrors.warehouseId && (
                     <div className='text-xs text-red-600'>

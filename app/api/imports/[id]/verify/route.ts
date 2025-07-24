@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { IMPORT_STATUS } from '@/lib/db/enum';
-import {
-  importItems,
-  imports,
-  InsertProduct,
-  products,
-  stockMovements,
-  suppliers,
-  users,
-  warehouses,
-} from '@/lib/db/schema';
+import { importItems, imports, products, users } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,205 +20,126 @@ export async function POST(
 
   try {
     const { id } = params;
+    const body = await request.json();
+    const { items } = body;
 
-    // Check if import exists and is in pending status
-    const existingImport = await db
-      .select({
-        id: imports.id,
-        status: imports.status,
-        warehouseId: imports.warehouseId,
-        invoiceNumber: imports.invoiceNumber,
-        supplierId: imports.supplierId,
-        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
-      })
+    // Check if import exists and is pending
+    const importData = await db
+      .select()
       .from(imports)
       .where(eq(imports.id, id))
       .limit(1);
 
-    if (existingImport.length === 0) {
+    if (importData.length === 0) {
       return NextResponse.json({ error: 'Import not found' }, { status: 404 });
     }
 
-    const importRecord = existingImport[0];
-
-    if (importRecord.status !== IMPORT_STATUS.PENDING) {
+    if (importData[0].status !== IMPORT_STATUS.PENDING) {
       return NextResponse.json(
-        { error: 'Import is not in pending status and cannot be verified' },
+        { error: 'Import is not in pending status' },
         { status: 400 },
       );
     }
 
-    // Verify import and create stock movements in a transaction
-    await db.transaction(async (tx) => {
-      // Update import status to verified
-      const verifiedBy = session.user.id;
-      const verifiedAt = new Date();
+    // Process each import item
+    for (const item of items) {
+      if (item.category === 'serialized') {
+        // For serialized products, check for duplicates
+        const existingProduct = await db
+          .select()
+          .from(products)
+          .where(eq(products.serialNumber, item.serialNumber))
+          .limit(1);
 
-      await tx
-        .update(imports)
-        .set({
-          status: IMPORT_STATUS.VERIFIED,
-          verifiedBy,
-          verifiedAt,
-        })
-        .where(eq(imports.id, id));
-
-      // Get all import items for this import with complete product data
-      const items = await tx
-        .select()
-        .from(importItems)
-        .where(eq(importItems.importId, id));
-
-      // Process each item: create/update products and stock movements
-      for (const item of items) {
-        let productId = item.productId;
-
-        if (!productId) {
-          // Check for existing product by machineNumber (for serialized items)
-          if (item.category === 'serialized' && item.machineNumber) {
-            const existingProduct = await tx
-              .select({ id: products.id })
-              .from(products)
-              .where(eq(products.machineNumber, item.machineNumber))
-              .limit(1);
-
-            if (existingProduct.length > 0) {
-              productId = existingProduct[0].id;
-
-              // Update existing product with new data
-              await tx
-                .update(products)
-                .set({
-                  name: item.name,
-                  description: item.description,
-                  category: item.category,
-                  brandId: item.brandId,
-                  condition: item.condition,
-                  year: item.year,
-                  machineTypeId: item.machineTypeId,
-                  unitOfMeasureId: item.unitOfMeasureId,
-                  modelOrPartNumber: item.modelOrPartNumber,
-                  engineNumber: item.engineNumber,
-                  serialNumber: item.serialNumber,
-                  model: item.model,
-                  engineModel: item.engineModel,
-                  enginePower: item.enginePower,
-                  operatingWeight: item.operatingWeight,
-                  batchOrLotNumber: item.batchOrLotNumber,
-                  supplierId: importRecord.supplierId,
-                  warehouseId: importRecord.warehouseId,
-                  price: (
-                    parseFloat(item.priceRMB) *
-                    parseFloat(String(importRecord.exchangeRateRMBtoIDR))
-                  ).toFixed(2),
-                  updatedAt: new Date(),
-                })
-                .where(eq(products.id, productId));
-            }
-          }
-
-          // Create new product if no existing product found
-          if (!productId) {
-            // Generate product code
-            const productCode =
-              item.machineNumber ||
-              item.modelOrPartNumber ||
-              item.name ||
-              `IMPORT-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
-            const productData: InsertProduct = {
-              code: productCode,
-              name: item.name,
-              description: item.description,
-              category: item.category,
-              brandId: item.brandId,
-              condition: item.condition,
-              year: item.year,
-              machineTypeId: item.machineTypeId,
-              unitOfMeasureId: item.unitOfMeasureId,
-              modelOrPartNumber: item.modelOrPartNumber,
-              machineNumber: item.machineNumber,
-              engineNumber: item.engineNumber,
-              serialNumber: item.serialNumber,
-              model: item.model,
-              engineModel: item.engineModel,
-              enginePower: item.enginePower,
-              operatingWeight: item.operatingWeight,
-              batchOrLotNumber: item.batchOrLotNumber,
-              supplierId: importRecord.supplierId,
-              warehouseId: importRecord.warehouseId,
-              price: (
-                parseFloat(item.priceRMB) *
-                parseFloat(String(importRecord.exchangeRateRMBtoIDR))
-              ).toFixed(2),
-              importNotes: item.notes,
-              isActive: true,
-            };
-
-            await tx.insert(products).values(productData);
-
-            const newProduct = await tx
-              .select({ id: products.id })
-              .from(products)
-              .where(eq(products.code, productCode))
-              .limit(1);
-
-            productId = newProduct[0].id;
-
-            // Update import item with created product ID
-            await tx
-              .update(importItems)
-              .set({ productId })
-              .where(eq(importItems.id, item.id));
-          }
+        if (existingProduct.length > 0) {
+          return NextResponse.json(
+            {
+              error: `Product with serial number ${item.serialNumber} already exists`,
+            },
+            { status: 409 },
+          );
         }
 
-        // Create stock movement for the import
-        await tx.insert(stockMovements).values({
-          warehouseIdFrom: null, // null because it's a new import
-          warehouseIdTo: importRecord.warehouseId,
-          productId: productId!,
-          quantity: item.quantity,
-          invoiceId: importRecord.invoiceNumber,
-          movementType: 'in',
-          notes: `Import verified from ${importRecord.invoiceNumber}`,
+        // Create new serialized product
+        const additionalSpecs = {
+          engineModel: item.engineModel,
+          enginePower: item.enginePower,
+          operatingWeight: item.operatingWeight,
+          year: item.year,
+        };
+
+        await db.insert(products).values({
+          name: item.name,
+          code: item.serialNumber, // Use serial number as code for serialized products
+          description: item.description,
+          category: item.category,
+          brandId: item.brandId,
+          machineTypeId: item.machineTypeId,
+          modelNumber: item.modelOrPartNumber,
+          serialNumber: item.serialNumber,
+          engineNumber: item.engineNumber,
+          additionalSpecs: JSON.stringify(additionalSpecs),
+          condition: item.condition,
+          status: 'in_stock',
+          price: '0.00', // Will be set later
+          warehouseId: importData[0].warehouseId,
+          supplierId: importData[0].supplierId,
+          isActive: true,
+        });
+      } else {
+        // For non-serialized/bulk products, check for duplicates by part number
+        const existingProduct = await db
+          .select()
+          .from(products)
+          .where(eq(products.partNumber, item.modelOrPartNumber))
+          .limit(1);
+
+        if (existingProduct.length > 0) {
+          return NextResponse.json(
+            {
+              error: `Product with part number ${item.modelOrPartNumber} already exists`,
+            },
+            { status: 409 },
+          );
+        }
+
+        // Create new non-serialized product
+        const additionalSpecs = {
+          year: item.year,
+        };
+
+        await db.insert(products).values({
+          name: item.name,
+          code: item.modelOrPartNumber, // Use part number as code for non-serialized products
+          description: item.description,
+          category: item.category,
+          brandId: item.brandId,
+          unitOfMeasureId: item.unitOfMeasureId,
+          partNumber: item.modelOrPartNumber,
+          batchOrLotNumber: item.batchOrLotNumber,
+          additionalSpecs: JSON.stringify(additionalSpecs),
+          condition: item.condition,
+          status: 'in_stock',
+          price: '0.00', // Will be set later
+          warehouseId: importData[0].warehouseId,
+          supplierId: importData[0].supplierId,
+          isActive: true,
         });
       }
-    });
+    }
 
-    // Fetch updated import with verification details
-    const verifiedImport = await db
-      .select({
-        id: imports.id,
-        supplierId: imports.supplierId,
-        supplierName: suppliers.name,
-        warehouseId: imports.warehouseId,
-        warehouseName: warehouses.name,
-        importDate: imports.importDate,
-        invoiceNumber: imports.invoiceNumber,
-        invoiceDate: imports.invoiceDate,
-        exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
-
-        total: imports.total,
-        status: imports.status,
-        notes: imports.notes,
-        createdBy: imports.createdBy,
-        verifiedBy: imports.verifiedBy,
-        verifiedAt: imports.verifiedAt,
-        verifiedByUser: users.firstName,
-        createdAt: imports.createdAt,
-        updatedAt: imports.updatedAt,
+    // Update import status to verified
+    await db
+      .update(imports)
+      .set({
+        status: IMPORT_STATUS.VERIFIED,
+        verifiedBy: session.user.id,
+        verifiedAt: new Date(),
       })
-      .from(imports)
-      .leftJoin(suppliers, eq(imports.supplierId, suppliers.id))
-      .leftJoin(warehouses, eq(imports.warehouseId, warehouses.id))
-      .leftJoin(users, eq(imports.verifiedBy, users.id))
-      .where(eq(imports.id, id))
-      .limit(1);
+      .where(eq(imports.id, id));
 
     return NextResponse.json({
-      message:
-        'Import verified successfully. Stock movements have been created.',
-      data: verifiedImport[0],
+      message: 'Import verified successfully',
     });
   } catch (error) {
     console.error('Error verifying import:', error);

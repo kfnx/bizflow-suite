@@ -43,6 +43,13 @@
       "when": 1753177701498,
       "tag": "0005_striped_the_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1753325967023,
+      "tag": "0006_magical_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

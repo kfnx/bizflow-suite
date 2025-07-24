@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
-    const sortBy = searchParams.get('sortBy') || 'name-asc';
+    const sortBy = searchParams.get('sortBy') || 'created-desc';
     const offset = (page - 1) * limit;
 
     // Build where conditions
@@ -44,14 +44,21 @@ export async function GET(request: NextRequest) {
       case 'name-desc':
         orderBy = desc(branches.name);
         break;
+      case 'created-asc':
+        orderBy = branches.createdAt;
+        break;
+      case 'created-desc':
+        orderBy = desc(branches.createdAt);
+        break;
       default:
-        orderBy = branches.name;
+        orderBy = desc(branches.createdAt);
     }
 
     const branchesData = await db
       .select({
         id: branches.id,
         name: branches.name,
+        createdAt: branches.createdAt,
       })
       .from(branches)
       .where(whereCondition)

@@ -609,17 +609,20 @@ export const products = mysqlTable(
 export const brands = mysqlTable('brands', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: shantui, toshiba, etc.
   name: varchar('name', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 export const machineTypes = mysqlTable('machine_types', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: 'excavator', 'bulldozer', 'loader', 'motor_grader', 'roller'
   name: varchar('name', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 export const unitOfMeasures = mysqlTable('unit_of_measures', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(), // using non UUID: kg, pcs, etc.
   abbreviation: varchar('abbreviation', { length: 10 }).notNull(), // kg, pcs
   name: varchar('name', { length: 100 }).notNull(), // Kilogram, Pieces
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Imports table

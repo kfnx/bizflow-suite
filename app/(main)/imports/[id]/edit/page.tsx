@@ -597,7 +597,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
           machineTypesRes,
           unitOfMeasuresRes,
         ] = await Promise.all([
-          fetch('/api/suppliers'),
+          fetch('/api/suppliers?includeInactive'),
           fetch('/api/warehouses'),
           fetch('/api/brands'),
           fetch('/api/machine-types'),

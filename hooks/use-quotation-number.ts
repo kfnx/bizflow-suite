@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 async function fetchQuotationNumber(): Promise<string> {
-  const response = await fetch(`/api/quotations/preview-number`, {
+  const response = await fetch(`/api/quotations/latest-number`, {
     cache: 'no-store',
   });
 

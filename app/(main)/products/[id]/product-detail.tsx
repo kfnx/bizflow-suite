@@ -10,17 +10,14 @@ import {
   RiSettings3Line,
 } from '@remixicon/react';
 
-import {
-  useProduct,
-  useUpdateProduct,
-} from '@/hooks/use-products';
+import { PRODUCT_CATEGORY } from '@/lib/db/enum';
+import { useProduct, useUpdateProduct } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Select from '@/components/ui/select';
+import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import * as TextArea from '@/components/ui/textarea';
-import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 
 interface ProductDetailProps {
   id: string;
@@ -207,6 +204,15 @@ export function ProductDetail({ id }: ProductDetailProps) {
 
             <div>
               <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Quantity
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {productData.quantity?.toLocaleString() || '0'}
+              </div>
+            </div>
+
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
                 Supplier
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
@@ -336,6 +342,17 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 </div>
               )}
 
+              {productData.modelNumber && (
+                <div>
+                  <div className='text-subheading-xs uppercase text-text-soft-400'>
+                    Model Number
+                  </div>
+                  <div className='mt-1 text-label-sm text-text-strong-950'>
+                    {productData.modelNumber}
+                  </div>
+                </div>
+              )}
+
               {productData.modelOrPartNumber && (
                 <div>
                   <div className='text-subheading-xs uppercase text-text-soft-400'>
@@ -343,6 +360,17 @@ export function ProductDetail({ id }: ProductDetailProps) {
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
                     {productData.modelOrPartNumber}
+                  </div>
+                </div>
+              )}
+
+              {productData.partNumber && (
+                <div>
+                  <div className='text-subheading-xs uppercase text-text-soft-400'>
+                    Part Number
+                  </div>
+                  <div className='mt-1 text-label-sm text-text-strong-950'>
+                    {productData.partNumber}
                   </div>
                 </div>
               )}
@@ -427,6 +455,17 @@ export function ProductDetail({ id }: ProductDetailProps) {
                   </div>
                 </div>
               )}
+
+              {productData.partNumber && (
+                <div>
+                  <div className='text-subheading-xs uppercase text-text-soft-400'>
+                    Part Number
+                  </div>
+                  <div className='mt-1 text-label-sm text-text-strong-950'>
+                    {productData.partNumber}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -461,6 +500,17 @@ export function ProductDetail({ id }: ProductDetailProps) {
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
                     {productData.modelOrPartNumber}
+                  </div>
+                </div>
+              )}
+
+              {productData.partNumber && (
+                <div>
+                  <div className='text-subheading-xs uppercase text-text-soft-400'>
+                    Part Number
+                  </div>
+                  <div className='mt-1 text-label-sm text-text-strong-950'>
+                    {productData.partNumber}
                   </div>
                 </div>
               )}
@@ -531,9 +581,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 <TextArea.Root
                   id='additionalSpecs'
                   value={editedAdditionalSpecs}
-                  onChange={(e) =>
-                    setEditedAdditionalSpecs(e.target.value)
-                  }
+                  onChange={(e) => setEditedAdditionalSpecs(e.target.value)}
                   rows={3}
                   placeholder='Enter additionalSpecs'
                   className='mt-2 w-full'
@@ -544,7 +592,8 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 </pre>
               )}
             </div>
-          </div>)}
+          </div>
+        )}
 
         {/* Metadata */}
         <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>

@@ -167,7 +167,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             : isPermissionError
               ? 'You do not have permission to access this product. Please contact your administrator if you believe this is an error.'
               : productError.message ||
-              'An unexpected error occurred while loading the product data.'}
+                'An unexpected error occurred while loading the product data.'}
         </p>
 
         <div className='flex flex-col gap-3 sm:flex-row'>
@@ -409,70 +409,45 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
               {(formData.category === PRODUCT_CATEGORY.NON_SERIALIZED ||
                 formData.category === PRODUCT_CATEGORY.BULK) && (
-                  <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                    {formData.category === PRODUCT_CATEGORY.BULK && (
-                      <>
-                        <div className='flex flex-col gap-2'>
-                          <Label.Root htmlFor='modelOrPartNumberBulk'>
-                            Model/Part Number <Label.Asterisk />
-                          </Label.Root>
-                          <Input.Root>
-                            <Input.Wrapper>
-                              <Input.Icon as={RiHashtag} />
-                              <Input.Input
-                                id='modelOrPartNumberBulk'
-                                value={formData.modelOrPartNumber || ''}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    'modelOrPartNumber',
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder='Enter model or part number'
-                              />
-                            </Input.Wrapper>
-                          </Input.Root>
-                          {validationErrors.modelOrPartNumber && (
-                            <div className='text-xs text-red-600'>
-                              {validationErrors.modelOrPartNumber}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className='flex flex-col gap-2'>
-                          <Label.Root htmlFor='batchOrLotNumber'>
-                            Batch/Lot Number
-                          </Label.Root>
-                          <Input.Root>
-                            <Input.Wrapper>
-                              <Input.Icon as={RiHashtag} />
-                              <Input.Input
-                                id='batchOrLotNumber'
-                                value={formData.batchOrLotNumber || ''}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    'batchOrLotNumber',
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder='Enter batch or lot number'
-                              />
-                            </Input.Wrapper>
-                          </Input.Root>
-                        </div>
-                      </>
-                    )}
-
-                    {formData.category === PRODUCT_CATEGORY.NON_SERIALIZED && (
+                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                  {formData.category === PRODUCT_CATEGORY.BULK && (
+                    <>
                       <div className='flex flex-col gap-2'>
-                        <Label.Root htmlFor='batchOrLotNumberNonSer'>
+                        <Label.Root htmlFor='modelOrPartNumberBulk'>
+                          Model/Part Number <Label.Asterisk />
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiHashtag} />
+                            <Input.Input
+                              id='modelOrPartNumberBulk'
+                              value={formData.modelOrPartNumber || ''}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  'modelOrPartNumber',
+                                  e.target.value,
+                                )
+                              }
+                              placeholder='Enter model or part number'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                        {validationErrors.modelOrPartNumber && (
+                          <div className='text-xs text-red-600'>
+                            {validationErrors.modelOrPartNumber}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor='batchOrLotNumber'>
                           Batch/Lot Number
                         </Label.Root>
                         <Input.Root>
                           <Input.Wrapper>
                             <Input.Icon as={RiHashtag} />
                             <Input.Input
-                              id='batchOrLotNumberNonSer'
+                              id='batchOrLotNumber'
                               value={formData.batchOrLotNumber || ''}
                               onChange={(e) =>
                                 handleInputChange(
@@ -485,9 +460,34 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                           </Input.Wrapper>
                         </Input.Root>
                       </div>
-                    )}
-                  </div>
-                )}
+                    </>
+                  )}
+
+                  {formData.category === PRODUCT_CATEGORY.NON_SERIALIZED && (
+                    <div className='flex flex-col gap-2'>
+                      <Label.Root htmlFor='batchOrLotNumberNonSer'>
+                        Batch/Lot Number
+                      </Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Icon as={RiHashtag} />
+                          <Input.Input
+                            id='batchOrLotNumberNonSer'
+                            value={formData.batchOrLotNumber || ''}
+                            onChange={(e) =>
+                              handleInputChange(
+                                'batchOrLotNumber',
+                                e.target.value,
+                              )
+                            }
+                            placeholder='Enter batch or lot number'
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

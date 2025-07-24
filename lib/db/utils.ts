@@ -1,6 +1,6 @@
 import { and, eq, sql } from 'drizzle-orm';
 
-import { getDB } from './index';
+import { db } from './index';
 import {
   deliveryNotes,
   imports,
@@ -12,8 +12,6 @@ import {
 
 // Utility function to get user with their documents
 export async function getUserWithDocuments(userId: string) {
-  const db = getDB();
-
   const user = await db
     .select({
       id: users.id,
@@ -78,8 +76,6 @@ export async function getUserWithDocuments(userId: string) {
 
 // Utility function to get quotation with items
 export async function getQuotationWithItems(quotationId: string) {
-  const db = getDB();
-
   const quotation = await db
     .select()
     .from(quotations)
@@ -115,8 +111,6 @@ export async function getQuotationWithItems(quotationId: string) {
 
 // Utility function to get invoice with items
 export async function getInvoiceWithItems(invoiceId: string) {
-  const db = getDB();
-
   const invoice = await db
     .select()
     .from(invoices)
@@ -152,8 +146,6 @@ export async function getInvoiceWithItems(invoiceId: string) {
 
 // Utility function to get delivery note with items
 export async function getDeliveryNoteWithItems(deliveryNoteId: string) {
-  const db = getDB();
-
   const deliveryNote = await db
     .select()
     .from(deliveryNotes)
@@ -188,8 +180,6 @@ export async function getDeliveryNoteWithItems(deliveryNoteId: string) {
 
 // Utility function to get import with items
 export async function getImportWithItems(importId: string) {
-  const db = getDB();
-
   const importDoc = await db
     .select()
     .from(imports)
@@ -226,8 +216,6 @@ export async function getImportWithItems(importId: string) {
 
 // Utility function to get product with supplier
 export async function getProductWithSupplier(productId: string) {
-  const db = getDB();
-
   const product = await db
     .select({
       id: products.id,
@@ -252,8 +240,6 @@ export async function getProductWithSupplier(productId: string) {
 
 // Utility function to get document statistics
 export async function getDocumentStats(userId?: string) {
-  const db = getDB();
-
   let whereConditions = [];
   if (userId) {
     whereConditions.push(eq(quotations.createdBy, userId));

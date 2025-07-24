@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/health - Health check endpoint
 export async function GET() {
   try {
-    const db = getDB();
-
     // Test database connection by running a simple query
     await db.execute('SELECT 1 as test');
 

@@ -19,11 +19,14 @@ import {
   formatNumberWithDots,
   parseNumberFromDots,
 } from '@/utils/number-formatter';
+import { useBrands, type Brand as BrandType } from '@/hooks/use-brands';
 import {
   useCreateImport,
   type CreateImportData,
   type ImportItem,
 } from '@/hooks/use-imports';
+import { useSuppliers } from '@/hooks/use-suppliers';
+import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
@@ -32,8 +35,6 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { useSuppliers } from '@/hooks/use-suppliers';
-import { useWarehouses } from '@/hooks/use-warehouses';
 
 interface ProductItem {
   id?: string;
@@ -89,11 +90,6 @@ interface Warehouse {
   name: string;
 }
 
-interface Brand {
-  id: string;
-  name: string;
-}
-
 interface MachineType {
   id: string;
   name: string;
@@ -110,12 +106,13 @@ interface ProductItemFormProps {
   index: number;
   onUpdate: (item: ProductItem) => void;
   onRemove: () => void;
-  brands: Brand[];
+  brands: BrandType[];
   machineTypes: MachineType[];
   unitOfMeasures: UnitOfMeasure[];
   canRemove: boolean;
   validationErrors: Record<string, string>;
   exchangeRateRMBtoIDR: string;
+  brandsLoading?: boolean;
 }
 
 function ProductItemForm({
@@ -129,6 +126,7 @@ function ProductItemForm({
   canRemove,
   validationErrors,
   exchangeRateRMBtoIDR,
+  brandsLoading = false,
 }: ProductItemFormProps) {
   const handleFieldChange = (field: keyof ProductItem, value: any) => {
     // Handle category changes - reset quantity to 1 only when changing category
@@ -190,9 +188,14 @@ function ProductItemForm({
           <Select.Root
             value={item.brandId || ''}
             onValueChange={(value) => handleFieldChange('brandId', value)}
+            disabled={brandsLoading}
           >
             <Select.Trigger id={`brandInput-${index}`}>
-              <Select.Value placeholder='Select brand' />
+              <Select.Value
+                placeholder={
+                  brandsLoading ? 'Loading brands...' : 'Select brand'
+                }
+              />
             </Select.Trigger>
             <Select.Content>
               {brands.map((brand) => (
@@ -240,6 +243,43 @@ function ProductItemForm({
               />
             </Input.Wrapper>
           </Input.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`unit-${index}`}>Unit</Label.Root>
+          <Select.Root
+            value={item.unitOfMeasureId || ''}
+            onValueChange={(value) =>
+              handleFieldChange('unitOfMeasureId', value)
+            }
+          >
+            <Select.Trigger id={`unit-${index}`}>
+              <Select.Value placeholder='Select unit' />
+            </Select.Trigger>
+            {item.category === 'serialized' ? (
+              <Select.Content>
+                {unitOfMeasures
+                  .filter((unit) => unit.abbreviation === 'unit')
+                  .map((unit) => (
+                    <Select.Item key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </Select.Item>
+                  ))}
+              </Select.Content>
+            ) : (
+              <Select.Content>
+                {unitOfMeasures.map((unit) => (
+                  <Select.Item key={unit.id} value={unit.id}>
+                    {unit.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            )}
+          </Select.Root>
+          {getFieldError('unitOfMeasureId') && (
+            <div className='text-xs text-red-600'>
+              {getFieldError('unitOfMeasureId')}
+            </div>
+          )}
         </div>
       </div>
 
@@ -365,31 +405,6 @@ function ProductItemForm({
       )}
       {item.category === 'non_serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`unit-${index}`}>Unit</Label.Root>
-            <Select.Root
-              value={item.unitOfMeasureId || ''}
-              onValueChange={(value) =>
-                handleFieldChange('unitOfMeasureId', value)
-              }
-            >
-              <Select.Trigger id={`unit-${index}`}>
-                <Select.Value placeholder='Select unit' />
-              </Select.Trigger>
-              <Select.Content>
-                {unitOfMeasures.map((unit) => (
-                  <Select.Item key={unit.id} value={unit.id}>
-                    {unit.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-            {getFieldError('unitOfMeasureId') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('unitOfMeasureId')}
-              </div>
-            )}
-          </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`batchLotNumber-${index}`}>
               Batch/Lot Number
@@ -599,7 +614,6 @@ function ProductItemForm({
 export default function NewImportPage() {
   const router = useRouter();
   const createImportMutation = useCreateImport();
-  const [brands, setBrands] = useState<Brand[]>([]);
   const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
   const [unitOfMeasures, setUnitOfMeasures] = useState<UnitOfMeasure[]>([]);
 
@@ -640,20 +654,10 @@ export default function NewImportPage() {
   useEffect(() => {
     const loadReferenceData = async () => {
       try {
-        const [
-          brandsRes,
-          machineTypesRes,
-          unitOfMeasuresRes,
-        ] = await Promise.all([
-          fetch('/api/brands'),
+        const [machineTypesRes, unitOfMeasuresRes] = await Promise.all([
           fetch('/api/machine-types'),
           fetch('/api/unit-of-measures'),
         ]);
-
-        if (brandsRes.ok) {
-          const brandsData = await brandsRes.json();
-          setBrands(brandsData.data || []);
-        }
 
         if (machineTypesRes.ok) {
           const machineTypesData = await machineTypesRes.json();
@@ -868,6 +872,23 @@ export default function NewImportPage() {
   const { data: suppliers } = useSuppliers();
   const { data: warehouses } = useWarehouses();
 
+  // Get all brands for filtering
+  const { data: allBrands, isLoading: brandsLoading } = useBrands();
+
+  // Helper function to get filtered brands based on product category
+  const getFilteredBrands = (
+    category: 'serialized' | 'non_serialized' | 'bulk',
+  ) => {
+    if (!allBrands?.data) return [];
+
+    if (category === 'serialized') {
+      return allBrands.data.filter((brand) => brand.type === 'machine');
+    } else {
+      // For non_serialized and bulk, use sparepart brands
+      return allBrands.data.filter((brand) => brand.type === 'sparepart');
+    }
+  };
+
   return (
     <>
       <Header
@@ -952,7 +973,8 @@ export default function NewImportPage() {
                             value={warehouse.id}
                             disabled={!warehouse.isActive}
                           >
-                            {warehouse.name} {!warehouse.isActive && '(Inactive)'}
+                            {warehouse.name}{' '}
+                            {!warehouse.isActive && '(Inactive)'}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -1091,12 +1113,13 @@ export default function NewImportPage() {
                       updateProductItem(index, updatedItem)
                     }
                     onRemove={() => removeProductItem(index)}
-                    brands={brands}
+                    brands={getFilteredBrands(item.category)}
                     machineTypes={machineTypes}
                     unitOfMeasures={unitOfMeasures}
                     canRemove={formData.items.length > 1}
                     validationErrors={validationErrors}
                     exchangeRateRMBtoIDR={formData.exchangeRateRMBtoIDR}
+                    brandsLoading={brandsLoading}
                   />
                 ))}
               </div>

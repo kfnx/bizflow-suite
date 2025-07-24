@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
 import { requireAdmin } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { users } from '@/lib/db/schema';
 
@@ -19,8 +19,6 @@ export async function POST(
   }
 
   try {
-    const db = getDB();
-
     // Check if user exists
     const existingUser = await db
       .select()

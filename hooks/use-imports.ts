@@ -308,7 +308,7 @@ const verifyImport = async (importId: string): Promise<Import> => {
   }
 
   const result = await response.json();
-  return result.data;
+  return result; // The API returns the message directly, not wrapped in data
 };
 
 export function useImports(filters: ImportsFilters = {}) {

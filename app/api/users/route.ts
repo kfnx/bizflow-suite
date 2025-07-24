@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { and, desc, eq, like, or } from 'drizzle-orm';
 
 import { requireAuth } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { branches, users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -153,7 +152,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
     const body = await request.json();
 
     // Validate with Zod

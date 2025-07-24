@@ -85,8 +85,7 @@ export default function EditSupplierPage({ params }: EditSupplierPageProps) {
         country: supplierData.country || '',
         postalCode: supplierData.postalCode || '',
         transactionCurrency: supplierData.transactionCurrency || 'USD',
-        isActive:
-          supplierData.isActive !== undefined ? supplierData.isActive : true,
+        isActive: supplierData.isActive ?? true,
         contactPersons:
           supplierData.contactPersons && supplierData.contactPersons.length > 0
             ? supplierData.contactPersons.map((cp) => ({

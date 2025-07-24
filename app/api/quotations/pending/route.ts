@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, eq, isNull } from 'drizzle-orm';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import {
   customers,
@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');

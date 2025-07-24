@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { branches, users } from '@/lib/db/schema';
 
 // GET /api/branches/[id] - Get a specific branch
@@ -17,8 +17,6 @@ export async function GET(
   }
 
   try {
-    const db = getDB();
-
     const branch = await db
       .select({
         id: branches.id,
@@ -54,7 +52,6 @@ export async function PUT(
   }
 
   try {
-    const db = getDB();
     const body = await request.json();
 
     // Validate input
@@ -122,8 +119,6 @@ export async function DELETE(
   }
 
   try {
-    const db = getDB();
-
     // Check if branch exists
     const existingBranch = await db
       .select()

@@ -27,9 +27,5 @@ export async function createConnection() {
   return await mysql.createConnection(connectionConfig);
 }
 
-export function getDB() {
-  return db;
-}
-
 // Export schema for migrations
 export * from './schema';

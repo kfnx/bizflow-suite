@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, desc, eq, like } from 'drizzle-orm';
 
 import { requireAuth, requirePermission } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { branches } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -99,7 +98,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
     const body = await request.json();
 
     // Validate input

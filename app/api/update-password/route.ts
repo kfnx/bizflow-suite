@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
 import { requireAuth } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { updatePasswordSchema } from '@/lib/validations/user';
 
@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
     const body = await request.json();
 
     // Validate with Zod

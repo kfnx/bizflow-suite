@@ -44,6 +44,7 @@ export async function GET(
         partNumber: products.partNumber,
         modelNumber: products.modelNumber,
         engineNumber: products.engineNumber,
+        quantity: products.quantity,
         name: products.name,
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,

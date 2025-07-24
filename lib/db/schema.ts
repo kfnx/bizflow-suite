@@ -660,7 +660,6 @@ export const importItems = mysqlTable(
       .notNull()
       .default(sql`(UUID())`),
     importId: varchar('import_id', { length: 36 }).notNull(),
-    productId: varchar('product_id', { length: 36 }), // nullable - only set if updating existing product
 
     // Pricing & Quantity
     priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).notNull(),
@@ -669,26 +668,23 @@ export const importItems = mysqlTable(
     notes: text('notes'),
 
     // Product Creation Data - Core fields
+    productId: varchar('product_id', { length: 36 }), // nullable - only set if updating existing product
     category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
     name: varchar('name', { length: 100 }).notNull(),
     description: text('description'),
     brandId: varchar('brand_id', { length: 36 }),
     condition: varchar('condition', { length: 50 }).default('new'),
-    year: int('year'),
+    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }),
 
     // Category-specific fields
-    machineTypeId: varchar('machine_type_id', { length: 36 }), // for serialized
-    unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // for non-serialized/bulk
-    modelOrPartNumber: varchar('model_or_part_number', { length: 100 }),
-    machineNumber: varchar('machine_number', { length: 100 }),
-    engineNumber: varchar('engine_number', { length: 100 }),
-    serialNumber: varchar('serial_number', { length: 100 }),
-    model: varchar('model', { length: 100 }),
-    engineModel: varchar('engine_model', { length: 100 }),
-    enginePower: varchar('engine_power', { length: 50 }),
-    operatingWeight: varchar('operating_weight', { length: 50 }),
-    batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
-    modelNumber: varchar('model_number', { length: 100 }),
+    machineTypeId: varchar('machine_type_id', { length: 36 }), // [serialized]
+    modelNumber: varchar('model_number', { length: 100 }), // [serialized]
+    machineNumber: varchar('machine_number', { length: 100 }), // [serialized]
+    engineNumber: varchar('engine_number', { length: 100 }), // [serialized]
+    serialNumber: varchar('serial_number', { length: 100 }).unique(), // [serialized]
+    additionalSpecs: text('additional_specs'), // [serialized]
+    partNumber: varchar('part_number', { length: 100 }), // [non-serialized, bulk]
+    batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }), // [non-serialized, bulk]
 
     createdAt: timestamp('created_at').defaultNow(),
   },

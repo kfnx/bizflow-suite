@@ -3,7 +3,7 @@ import { eq, like } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { requireAuth } from '@/lib/auth/authorization';
-import { db, getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { INVOICE_STATUS, QUOTATION_STATUS } from '@/lib/db/enum';
 import { invoices, quotations } from '@/lib/db/schema';
 
@@ -49,7 +49,6 @@ export async function POST(
   }
 
   try {
-    const db = getDB();
     const { id } = params;
 
     // Parse request body

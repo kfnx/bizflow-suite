@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { quotations } from '@/lib/db/schema';
 
@@ -27,7 +27,6 @@ export async function POST(
   }
 
   try {
-    const db = getDB();
     const { id } = params;
     const body = await request.json();
 

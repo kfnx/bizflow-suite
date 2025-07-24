@@ -1,0 +1,1 @@
+ALTER TABLE `import_items` ADD `additional_specs` text;

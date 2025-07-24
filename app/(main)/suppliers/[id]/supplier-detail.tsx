@@ -328,7 +328,7 @@ export function SupplierDetail({ id }: SupplierDetailProps) {
                 Created Date
               </div>
               <div className='text-paragraph-sm text-text-strong-950'>
-                {formatDate(supplier.createdAt)}
+                {supplier.createdAt ? formatDate(supplier.createdAt) : 'N/A'}
               </div>
             </div>
 

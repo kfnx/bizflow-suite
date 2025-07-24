@@ -2,13 +2,13 @@ import { z } from 'zod';
 
 // Base product schema for different categories
 const baseProductSchema = z.object({
+  id: z.string().uuid().optional(), // For updating existing items
   productId: z.string().uuid().optional(), // If provided, update existing product
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   category: z.enum(['serialized', 'non_serialized', 'bulk']),
   brandId: z.string().optional(),
   condition: z.enum(['new', 'used', 'refurbished']).default('new'),
-  year: z.number().int().min(1900).max(2100).optional(),
   priceRMB: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid RMB price'),
   quantity: z.number().int().positive('Quantity must be a positive integer'),
   notes: z.string().optional(),
@@ -20,21 +20,15 @@ const serializedProductSchema = baseProductSchema.extend({
   machineTypeId: z
     .string()
     .min(1, 'Machine type is required for serialized products'),
-  unitOfMeasureId: z
-    .string()
-    .transform((str) => (str === '' ? null : str))
-    .nullish(), // NULL for serialized
-  modelOrPartNumber: z.string().max(100).optional(),
+  unitOfMeasureId: z.string().nullish(), // NULL for serialized
+  modelNumber: z.string().max(100).optional(),
+  partNumber: z.string().max(100).nullish(),
   machineNumber: z.string().max(100).optional(),
   engineNumber: z.string().max(100).optional(),
   serialNumber: z.string().max(100),
-  model: z.string().max(100).optional(),
-  engineModel: z.string().max(100).optional(),
-  enginePower: z.string().max(50).optional(),
-  operatingWeight: z.string().max(50).optional(),
+  additionalSpecs: z.string().max(100).optional(),
   // These should be null for serialized
   batchOrLotNumber: z.string().nullish(),
-  id: z.string().uuid().optional(), // For updating existing items
 });
 
 // Non-serialized product schema
@@ -46,15 +40,12 @@ const nonSerializedProductSchema = baseProductSchema.extend({
   batchOrLotNumber: z.string().max(100).optional(),
   // These should be null for non-serialized
   machineTypeId: z.string().nullish(),
-  modelOrPartNumber: z.string().nullish(),
+  partNumber: z.string().max(100).optional(),
+  modelNumber: z.string().nullish(),
   machineNumber: z.string().nullish(),
   engineNumber: z.string().nullish(),
   serialNumber: z.string().nullish(),
-  model: z.string().nullish(),
-  engineModel: z.string().nullish(),
-  enginePower: z.string().nullish(),
-  operatingWeight: z.string().nullish(),
-  id: z.string().uuid().optional(), // For updating existing items
+  additionalSpecs: z.string().max(100).nullish(),
 });
 
 // Bulk product schema
@@ -63,18 +54,15 @@ const bulkProductSchema = baseProductSchema.extend({
   unitOfMeasureId: z
     .string()
     .min(1, 'Unit of measure is required for bulk products'),
-  modelOrPartNumber: z.string().max(100).optional(),
+  partNumber: z.string().max(100).optional(),
+  modelNumber: z.string().nullish(),
   batchOrLotNumber: z.string().max(100).optional(),
   // These should be null for bulk
   machineTypeId: z.string().nullish(),
   machineNumber: z.string().nullish(),
   engineNumber: z.string().nullish(),
   serialNumber: z.string().nullish(),
-  model: z.string().nullish(),
-  engineModel: z.string().nullish(),
-  enginePower: z.string().nullish(),
-  operatingWeight: z.string().nullish(),
-  id: z.string().uuid().optional(), // For updating existing items
+  additionalSpecs: z.string().max(100).nullish(),
 });
 
 // Discriminated union for product types

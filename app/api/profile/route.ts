@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { requireAuth } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { branches, users } from '@/lib/db/schema';
 
 // GET /api/profile - Get current user's profile
@@ -14,8 +14,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const db = getDB();
-
     const user = await db
       .select({
         id: users.id,

@@ -8,7 +8,6 @@ import {
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
   RiArrowUpSFill,
-  RiBuildingLine,
   RiExpandUpDownFill,
   RiFileTextLine,
   RiMapPinLine,
@@ -23,15 +22,11 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 
-import {
-  useSuppliers,
-  type Supplier,
-  type SuppliersResponse,
-} from '@/hooks/use-suppliers';
+import { Supplier } from '@/lib/db/schema';
+import { useSuppliers } from '@/hooks/use-suppliers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
-import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
 
@@ -148,7 +143,7 @@ export function SuppliersTable({
       ),
       cell: ({ row }) => (
         <div className='text-paragraph-sm text-text-sub-600'>
-          {new Date(row.original.createdAt).toLocaleDateString()}
+          {new Date(row.original.createdAt || '').toLocaleDateString()}
         </div>
       ),
     },

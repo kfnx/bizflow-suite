@@ -21,6 +21,8 @@ import {
   parseNumberFromDots,
 } from '@/utils/number-formatter';
 import { useImport, useUpdateImport } from '@/hooks/use-imports';
+import { useSuppliers } from '@/hooks/use-suppliers';
+import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
@@ -29,8 +31,6 @@ import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { useSuppliers } from '@/hooks/use-suppliers';
-import { useWarehouses } from '@/hooks/use-warehouses';
 
 interface ProductItem {
   id?: string;
@@ -590,15 +590,12 @@ export default function EditImportPage({ params }: EditImportPageProps) {
     const loadReferenceData = async () => {
       try {
         setLoadingReference(true);
-        const [
-          brandsRes,
-          machineTypesRes,
-          unitOfMeasuresRes,
-        ] = await Promise.all([
-          fetch('/api/brands'),
-          fetch('/api/machine-types'),
-          fetch('/api/unit-of-measures'),
-        ]);
+        const [brandsRes, machineTypesRes, unitOfMeasuresRes] =
+          await Promise.all([
+            fetch('/api/brands'),
+            fetch('/api/machine-types'),
+            fetch('/api/unit-of-measures'),
+          ]);
 
         if (brandsRes.ok) {
           const brandsData = await brandsRes.json();
@@ -857,7 +854,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   const { data: suppliers } = useSuppliers();
   const { data: warehouses } = useWarehouses();
 
-
   if (isLoadingImport) {
     return (
       <div className='flex h-full min-h-80 w-full items-center justify-center text-text-sub-600'>
@@ -993,7 +989,8 @@ export default function EditImportPage({ params }: EditImportPageProps) {
                             value={warehouse.id}
                             disabled={!warehouse.isActive}
                           >
-                            {warehouse.name} {!warehouse.isActive && '(Inactive)'}
+                            {warehouse.name}{' '}
+                            {!warehouse.isActive && '(Inactive)'}
                           </Select.Item>
                         ))}
                       </Select.Content>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { requireAnyRole, requireAuth } from '@/lib/auth/authorization';
-import { getDB } from '@/lib/db';
+import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { quotations } from '@/lib/db/schema';
 
@@ -23,7 +23,6 @@ export async function POST(
   }
 
   try {
-    const db = getDB();
     const { id } = params;
 
     // Check if quotation exists and is assigned to the current user as approver

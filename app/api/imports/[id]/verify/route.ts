@@ -4,7 +4,13 @@ import { eq } from 'drizzle-orm';
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { IMPORT_STATUS } from '@/lib/db/enum';
-import { importItems, imports, products, users } from '@/lib/db/schema';
+import {
+  importItems,
+  imports,
+  InsertProduct,
+  products,
+  users,
+} from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,8 +26,6 @@ export async function POST(
 
   try {
     const { id } = params;
-    const body = await request.json();
-    const { items } = body;
 
     // Check if import exists and is pending
     const importData = await db
@@ -41,10 +45,23 @@ export async function POST(
       );
     }
 
+    // Get import items from database
+    const items = await db
+      .select()
+      .from(importItems)
+      .where(eq(importItems.importId, id));
+
     // Process each import item
     for (const item of items) {
       if (item.category === 'serialized') {
         // For serialized products, check for duplicates
+        if (!item.serialNumber) {
+          return NextResponse.json(
+            { error: 'Serial number is required for serialized products' },
+            { status: 400 },
+          );
+        }
+
         const existingProduct = await db
           .select()
           .from(products)
@@ -60,71 +77,72 @@ export async function POST(
           );
         }
 
-        // Create new serialized product
-        const additionalSpecs = {
-          engineModel: item.engineModel,
-          enginePower: item.enginePower,
-          operatingWeight: item.operatingWeight,
-          year: item.year,
-        };
-
-        await db.insert(products).values({
+        const insertData: InsertProduct = {
           name: item.name,
           code: item.serialNumber, // Use serial number as code for serialized products
           description: item.description,
           category: item.category,
           brandId: item.brandId,
           machineTypeId: item.machineTypeId,
-          modelNumber: item.modelOrPartNumber,
+          modelNumber: item.modelNumber,
           serialNumber: item.serialNumber,
           engineNumber: item.engineNumber,
-          additionalSpecs: JSON.stringify(additionalSpecs),
+          additionalSpecs: item.additionalSpecs,
           condition: item.condition,
           status: 'in_stock',
-          price: '0.00', // Will be set later
+          price: (
+            Number(item.priceRMB) * Number(importData[0].exchangeRateRMBtoIDR)
+          ).toFixed(2),
           warehouseId: importData[0].warehouseId,
           supplierId: importData[0].supplierId,
           isActive: true,
-        });
+        };
+        await db.insert(products).values(insertData);
       } else {
         // For non-serialized/bulk products, check for duplicates by part number
+        if (!item.partNumber) {
+          return NextResponse.json(
+            { error: 'Part number is required for non-serialized products' },
+            { status: 400 },
+          );
+        }
+
         const existingProduct = await db
           .select()
           .from(products)
-          .where(eq(products.partNumber, item.modelOrPartNumber))
+          .where(eq(products.partNumber, item.partNumber))
           .limit(1);
 
         if (existingProduct.length > 0) {
           return NextResponse.json(
             {
-              error: `Product with part number ${item.modelOrPartNumber} already exists`,
+              error: `Product with part number ${item.partNumber} already exists`,
             },
             { status: 409 },
           );
         }
 
         // Create new non-serialized product
-        const additionalSpecs = {
-          year: item.year,
-        };
-
-        await db.insert(products).values({
+        const insertData: InsertProduct = {
           name: item.name,
-          code: item.modelOrPartNumber, // Use part number as code for non-serialized products
+          code: item.partNumber, // Use part number as code for non-serialized products
           description: item.description,
           category: item.category,
           brandId: item.brandId,
           unitOfMeasureId: item.unitOfMeasureId,
-          partNumber: item.modelOrPartNumber,
+          partNumber: item.partNumber,
           batchOrLotNumber: item.batchOrLotNumber,
-          additionalSpecs: JSON.stringify(additionalSpecs),
+          additionalSpecs: item.additionalSpecs,
           condition: item.condition,
           status: 'in_stock',
-          price: '0.00', // Will be set later
+          price: (
+            Number(item.priceRMB) * Number(importData[0].exchangeRateRMBtoIDR)
+          ).toFixed(2),
           warehouseId: importData[0].warehouseId,
           supplierId: importData[0].supplierId,
           isActive: true,
-        });
+        };
+        await db.insert(products).values(insertData);
       }
     }
 

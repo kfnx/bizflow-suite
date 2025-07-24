@@ -273,21 +273,17 @@ export async function POST(request: NextRequest) {
           description: item.description,
           brandId: item.brandId,
           condition: item.condition,
-          year: item.year,
 
           // Category-specific fields
           machineTypeId: item.machineTypeId,
           unitOfMeasureId: item.unitOfMeasureId,
-          modelOrPartNumber: item.modelOrPartNumber,
+          modelNumber: item.modelNumber,
+          partNumber: item.partNumber,
           machineNumber: item.machineNumber,
           engineNumber: item.engineNumber,
-          serialNumber: item.serialNumber,
-          model: item.model,
-          engineModel: item.engineModel,
-          enginePower: item.enginePower,
-          operatingWeight: item.operatingWeight,
           batchOrLotNumber: item.batchOrLotNumber,
-          modelNumber: item.modelOrPartNumber,
+          serialNumber: item.serialNumber,
+          additionalSpecs: item.additionalSpecs,
         };
 
         await tx.insert(importItems).values(importItemData);

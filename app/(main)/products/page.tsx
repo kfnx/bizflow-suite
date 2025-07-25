@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { RiBox1Line } from '@remixicon/react';
 
 import Header from '@/components/header';
@@ -44,7 +44,9 @@ export default function PageProducts() {
       />
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
-        <Filters onFiltersChange={handleFiltersChange} />
+        <Suspense fallback={<div>Loading filters...</div>}>
+          <Filters onFiltersChange={handleFiltersChange} />
+        </Suspense>
         <ProductsTable
           filters={filters}
           onPageChange={handlePageChange}

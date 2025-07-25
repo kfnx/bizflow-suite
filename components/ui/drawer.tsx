@@ -52,7 +52,7 @@ const DrawerContent = React.forwardRef<
           ref={forwardedRef}
           className={cnExt(
             // base
-            'size-full max-w-[400px] overflow-y-auto',
+            'size-full max-w-[720px] overflow-y-auto',
             'border-l border-stroke-soft-200 bg-bg-white-0',
             // animation
             'data-[state=open]:duration-200 data-[state=open]:ease-out data-[state=open]:animate-in',

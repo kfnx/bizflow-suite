@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import {
   RiBuildingLine,
   RiExternalLinkLine,
@@ -305,14 +304,9 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               </div>
               <div className='mt-1 space-y-2'>
                 {product.additionalSpecs && (
-                  <div className='flex justify-between'>
-                    <span className='text-paragraph-sm text-text-sub-600'>
-                      Engine Model:
-                    </span>
-                    <span className='text-label-sm text-text-strong-950'>
-                      {product.additionalSpecs}
-                    </span>
-                  </div>
+                  <pre className='text-paragraph-sm text-text-sub-600'>
+                    {product.additionalSpecs}
+                  </pre>
                 )}
               </div>
             </div>

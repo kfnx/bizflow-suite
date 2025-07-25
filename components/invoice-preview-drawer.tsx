@@ -2,15 +2,12 @@
 
 import React from 'react';
 import {
-  RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
   RiLoader4Line,
-  RiMailSendLine,
   RiMoneyDollarCircleLine,
 } from '@remixicon/react';
 
-import { INVOICE_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
 import { useInvoiceDetail, type InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';

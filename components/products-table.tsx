@@ -246,15 +246,6 @@ export function ProductsTable({
             <Dropdown.Item
               onClick={(e) => {
                 e.stopPropagation();
-                setQuickViewProduct(row.original);
-              }}
-            >
-              <RiEyeLine className='mr-2 size-4' />
-              Quick View
-            </Dropdown.Item>
-            <Dropdown.Item
-              onClick={(e) => {
-                e.stopPropagation();
                 window.open(`/products/${row.original.id}`, '_blank');
               }}
             >

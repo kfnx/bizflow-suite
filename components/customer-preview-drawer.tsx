@@ -3,13 +3,9 @@
 import React from 'react';
 import {
   RiBuildingLine,
-  RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
   RiLoader4Line,
-  RiMailLine,
-  RiMapPinLine,
-  RiPhoneLine,
   RiUserLine,
 } from '@remixicon/react';
 

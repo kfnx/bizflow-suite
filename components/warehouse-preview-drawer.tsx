@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   RiEditLine,
   RiExternalLinkLine,
@@ -41,34 +41,6 @@ export function WarehousePreviewDrawer({
   const [warehouse, setWarehouse] = useState<Warehouse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [open, handleKeyDown]);
 
   useEffect(() => {
     const fetchWarehouse = async () => {
@@ -105,7 +77,7 @@ export function WarehousePreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
+      <Drawer.Content>
         <Drawer.Header>
           <Drawer.Title>Warehouse Details</Drawer.Title>
         </Drawer.Header>

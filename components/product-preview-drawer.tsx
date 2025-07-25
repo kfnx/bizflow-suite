@@ -384,40 +384,11 @@ export function ProductPreviewDrawer({
   open,
   onClose,
 }: ProductPreviewDrawerProps) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [open, handleKeyDown]);
-
   if (!open || !product) return null;
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
+      <Drawer.Content>
         <Drawer.Header>
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>

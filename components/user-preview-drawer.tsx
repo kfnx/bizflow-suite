@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import {
   RiEditLine,
   RiLoader4Line,
@@ -292,41 +292,13 @@ export function UserPreviewDrawer({
   open,
   onClose,
 }: UserPreviewDrawerProps) {
-  const [isMobile, setIsMobile] = useState(false);
   const { data, isLoading, error } = useUser(userId || '');
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [open, handleKeyDown]);
 
   if (!open || !userId) return null;
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
+      <Drawer.Content>
         {/* Header */}
         <Drawer.Header>
           <Drawer.Title>User Preview</Drawer.Title>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   RiArrowRightLine,
   RiBox3Line,
@@ -64,34 +64,6 @@ export function TransferPreviewDrawer({
   const [transfer, setTransfer] = useState<StockMovement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [open, handleKeyDown]);
 
   useEffect(() => {
     const fetchTransfer = async () => {
@@ -127,7 +99,7 @@ export function TransferPreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
+      <Drawer.Content>
         <Drawer.Header>
           <Drawer.Title>Stock Movement Details</Drawer.Title>
         </Drawer.Header>

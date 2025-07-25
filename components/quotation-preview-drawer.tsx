@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import router from 'next/router';
 import {
   RiBillLine,
@@ -363,41 +363,13 @@ export function QuotationPreviewDrawer({
   open,
   onClose,
 }: QuotationPreviewDrawerProps) {
-  const [isMobile, setIsMobile] = useState(false);
   const { data, isLoading, error } = useQuotationDetail(quotationId || '');
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [open, handleKeyDown]);
 
   if (!open || !quotationId) return null;
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content className={isMobile ? 'max-w-full' : 'max-w-md'}>
+      <Drawer.Content>
         {/* Header */}
         <Drawer.Header>
           <Drawer.Title>Quick Preview</Drawer.Title>

@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  RiArrowDownSLine,
   RiArrowRightSLine,
   RiBillLine,
   RiBox1Line,
@@ -14,6 +15,8 @@ import {
   RiHeadphoneLine,
   RiImportLine,
   RiLayoutGridLine,
+  RiMenuFoldLine,
+  RiMenuUnfoldLine,
   RiSettings2Line,
   RiStoreLine,
   RiTeamLine,
@@ -139,16 +142,21 @@ function useCollapsedState({
   defaultCollapsed?: boolean;
 }): {
   collapsed: boolean;
+  toggleCollapsed: () => void;
   sidebarRef: React.RefObject<HTMLDivElement>;
 } {
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
   const sidebarRef = React.useRef<HTMLDivElement>(null);
 
+  const toggleCollapsed = React.useCallback(() => {
+    setCollapsed((prev) => !prev);
+  }, []);
+
   useHotkeys(
     ['ctrl+b', 'meta+b'],
-    () => setCollapsed((prev) => !prev),
+    toggleCollapsed,
     { preventDefault: true },
-    [collapsed],
+    [toggleCollapsed],
   );
 
   React.useEffect(() => {
@@ -191,29 +199,69 @@ function useCollapsedState({
     };
   }, [collapsed]);
 
-  return { collapsed, sidebarRef };
+  return { collapsed, toggleCollapsed, sidebarRef };
 }
 
-export function SidebarHeader({ collapsed }: { collapsed?: boolean }) {
+export function SidebarHeader({
+  collapsed,
+  onToggleCollapse
+}: {
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
   return (
-    <Link href='/'>
-      <div
-        className={cn('lg:p-3', {
-          'lg:px-2': collapsed,
-        })}
-      >
-        <div className='px-4 text-label-xl'>MySTI</div>
-      </div>
-    </Link>
+    <div className={cn('flex justify-between lg:p-3', {
+      'lg:px-2 flex-col': collapsed,
+      'items-center': !collapsed
+    })}>
+      <Link href='/'>
+        <div>
+          {collapsed ? <div className='px-5 text-label-md'>STI</div> : <div className='px-4 text-label-xl'>MySTI</div>}
+        </div>
+      </Link>
+      {onToggleCollapse && (
+        <button
+          onClick={onToggleCollapse}
+          className={cn(
+            'flex size-8 items-center justify-center rounded-lg text-text-soft-400 transition-colors hover:bg-bg-weak-50 hover:text-text-sub-600',
+            {
+              'mx-4 mt-2': collapsed,
+              'mr-2': !collapsed,
+            }
+          )}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? (
+            <RiMenuUnfoldLine className='size-4' />
+          ) : (
+            <RiMenuFoldLine className='size-4' />
+          )}
+        </button>
+      )}
+    </div>
   );
 }
 
 function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [collapsedGroups, setCollapsedGroups] = React.useState<Set<string>>(new Set());
+
   if (!session?.user) return null;
 
   const userRole = session?.user?.role || 'guest';
+
+  const toggleGroup = (groupLabel: string) => {
+    setCollapsedGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupLabel)) {
+        newSet.delete(groupLabel);
+      } else {
+        newSet.add(groupLabel);
+      }
+      return newSet;
+    });
+  };
 
   // Filter navigation links based on user permissions and roles
   const filteredNavigationLinks = navigationLinks
@@ -260,65 +308,88 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
     }))
     .filter((category) => category.links.length > 0);
 
-  return filteredNavigationLinks.map(({ label, links }) => (
-    <div key={label} className='space-y-2'>
-      <div
-        className={cn('p-1 text-subheading-xs uppercase text-text-soft-400', {
-          '-mx-2.5 w-14 px-0 text-center': collapsed,
-        })}
-      >
-        {label}
-      </div>
-      <div className='space-y-1'>
-        {links.map(({ icon: Icon, label, href, disabled }, i) => (
-          <Link
-            key={i}
-            href={href}
-            aria-current={pathname === href ? 'page' : undefined}
-            aria-disabled={disabled}
-            className={cn(
-              'group relative flex items-center gap-2 whitespace-nowrap rounded-lg py-2 text-text-sub-600 hover:bg-bg-weak-50',
-              'transition-default',
-              'aria-[current=page]:bg-bg-weak-50',
-              'aria-disabled:pointer-events-none aria-disabled:opacity-50',
-              {
-                'w-9 px-2': collapsed,
-                'w-full px-3': !collapsed,
-              },
-            )}
-          >
-            <div
-              className={cn(
-                'transition-default absolute top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
-                {
-                  '-left-[22px]': collapsed,
-                  '-left-5': !collapsed,
-                  'scale-100': pathname === href,
-                  'scale-0': pathname !== href,
-                },
-              )}
-            />
-            <Icon
-              className={cn(
-                'transition-default size-5 shrink-0 text-text-sub-600',
-                'group-aria-[current=page]:text-primary-base',
-              )}
-            />
+  return filteredNavigationLinks.map(({ label, links }) => {
+    const isGroupCollapsed = collapsedGroups.has(label);
+    const hasActiveLink = links.some(link => pathname === link.href);
 
-            <div
-              className='flex w-[180px] shrink-0 items-center gap-2'
-              data-hide-collapsed
-            >
-              <div className='flex-1 text-label-sm'>{label}</div>
-              {pathname === href && (
-                <RiArrowRightSLine className='size-5 text-text-sub-600' />
+    return (
+      <div key={label} className='space-y-2'>
+        <button
+          onClick={() => toggleGroup(label)}
+          className={cn(
+            'flex w-full items-center justify-between p-1 text-subheading-xs uppercase text-text-soft-400 transition-colors hover:text-text-sub-600',
+            {
+              '-mx-2.5 w-14 px-0 justify-center': collapsed,
+            }
+          )}
+        >
+          <span className={cn({ 'sr-only': collapsed })}>{label}</span>
+          {!collapsed && (
+            <div className='flex items-center'>
+              {isGroupCollapsed ? (
+                <RiArrowRightSLine className='size-4' />
+              ) : (
+                <RiArrowDownSLine className='size-4' />
               )}
             </div>
-          </Link>
-        ))}
+          )}
+        </button>
+        <div
+          className={cn('space-y-1 overflow-hidden transition-all duration-200', {
+            'max-h-0 opacity-0': isGroupCollapsed && !collapsed,
+            'max-h-96 opacity-100': !isGroupCollapsed || collapsed,
+          })}
+        >
+          {links.map(({ icon: Icon, label: linkLabel, href, disabled }, i) => (
+            <Link
+              key={i}
+              href={href}
+              aria-current={pathname === href ? 'page' : undefined}
+              aria-disabled={disabled}
+              className={cn(
+                'group relative flex items-center gap-2 whitespace-nowrap rounded-lg py-2 text-text-sub-600 hover:bg-bg-weak-50',
+                'transition-default',
+                'aria-[current=page]:bg-bg-weak-50',
+                'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+                {
+                  'w-9 px-2': collapsed,
+                  'w-full px-3': !collapsed,
+                },
+              )}
+            >
+              <div
+                className={cn(
+                  'transition-default absolute top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
+                  {
+                    '-left-[22px]': collapsed,
+                    '-left-5': !collapsed,
+                    'scale-100': pathname === href,
+                    'scale-0': pathname !== href,
+                  },
+                )}
+              />
+              <Icon
+                className={cn(
+                  'transition-default size-5 shrink-0 text-text-sub-600',
+                  'group-aria-[current=page]:text-primary-base',
+                )}
+              />
+
+              <div
+                className='flex w-[180px] shrink-0 items-center gap-2'
+                data-hide-collapsed
+              >
+                <div className='flex-1 text-label-sm'>{linkLabel}</div>
+                {pathname === href && (
+                  <RiArrowRightSLine className='size-5 text-text-sub-600' />
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
-  ));
+    );
+  });
 }
 
 function SettingsAndSupport({ collapsed }: { collapsed: boolean }) {
@@ -436,7 +507,7 @@ export default function Sidebar({
 }: {
   defaultCollapsed?: boolean;
 }) {
-  const { collapsed, sidebarRef } = useCollapsedState({ defaultCollapsed });
+  const { collapsed, toggleCollapsed, sidebarRef } = useCollapsedState({ defaultCollapsed });
 
   return (
     <>
@@ -454,9 +525,13 @@ export default function Sidebar({
       >
         <div
           ref={sidebarRef}
-          className='flex h-full w-[272px] min-w-[272px] flex-col overflow-auto'
+          className='flex h-full w-[272px] min-w-[272px] flex-col overflow-auto [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stroke-soft-200 hover:[&::-webkit-scrollbar-thumb]:bg-text-soft-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1'
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'hsl(var(--stroke-soft-200)) transparent'
+          }}
         >
-          <SidebarHeader collapsed={collapsed} />
+          <SidebarHeader collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
 
           <SidebarDivider collapsed={collapsed} />
 

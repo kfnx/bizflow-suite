@@ -1,8 +1,7 @@
 'use client';
 
 import { RiBarChart2Line } from '@remixicon/react';
-
-import { ActionButton } from '@/components/action-button';
+import SplitText from '@/components/split-text';
 import Header from '@/components/header';
 
 export default function PageHome() {
@@ -14,25 +13,23 @@ export default function PageHome() {
             <RiBarChart2Line className='size-6 text-text-sub-600' />
           </div>
         }
-        title='Documents Overview'
+        title='Document Overview'
         description='Welcome back 👋🏻'
       />
-      <div>
-        {/* <ActionButton
-          className='hidden lg:flex'
-          label='New Quotation'
-          href='/quotations/new'
+      <div className='flex h-screen flex-col items-center'>
+        <SplitText
+          text="Hello, Welcome to MySTI!"
+          className="pt-12 text-center text-title-h1 font-semibold"
+          delay={75}
+          duration={1}
+          ease="bounce.out"
+          splitType="chars"
+          from={{ opacity: 0, y: 40 }}
+          to={{ opacity: 1, y: 0 }}
+          threshold={0.1}
+          rootMargin="-100px"
+          textAlign="center"
         />
-        <ActionButton
-          className='hidden lg:flex'
-          label='New Invoice'
-          href='/invoices/new'
-        />
-        <ActionButton
-          className='hidden lg:flex'
-          label='New Delivery Note'
-          href='/delivery-notes/new'
-        /> */}
       </div>
     </>
   );

@@ -65,27 +65,15 @@ export default function MobileMenu() {
               main navigation links, favorite projects, search, and user
               settings.
             </DialogPrimitives.Description>
-            <div className='flex h-[60px] w-full shrink-0 items-center border-b border-stroke-soft-200 px-4'>
-              <div className='relative flex-1'>
-                <RiSearch2Line className='absolute left-0 top-1/2 size-6 -translate-y-1/2 text-text-soft-400' />
-                <input
-                  type='text'
-                  placeholder='Search...'
-                  className='h-6 w-full pl-9 text-paragraph-md outline-none placeholder:text-text-sub-600 focus:outline-none'
-                />
-              </div>
-              <div className='flex gap-3'>
-                <div className='flex w-1 shrink-0 items-center before:h-full before:w-px before:bg-stroke-soft-200' />
-                <DialogPrimitives.Close asChild>
-                  <TopbarItemButton.Root>
-                    <TopbarItemButton.Icon as={RiCloseFill} />
-                  </TopbarItemButton.Root>
-                </DialogPrimitives.Close>
-              </div>
+            <div className='flex items-center justify-between pr-4'>
+              <div className='px-6 py-4 text-label-md'>MySTI</div>
+              <DialogPrimitives.Close asChild>
+                <TopbarItemButton.Root>
+                  <TopbarItemButton.Icon as={RiCloseFill} />
+                </TopbarItemButton.Root>
+              </DialogPrimitives.Close>
             </div>
-            {/* <CompanySwitchMobile /> */}
-            <div className='p-6 text-label-md'>MySTI</div>
-            <Divider.Root className='mb-6' />
+            <Divider.Root className='mb-4' />
             <div className='flex flex-1 flex-col gap-5'>
               {navigationLinks
                 .flatMap((item) => item.links)
@@ -117,7 +105,7 @@ export default function MobileMenu() {
                   </Link>
                 ))}
             </div>
-            <Divider.Root />
+            <Divider.Root className='mt-4' />
             <div className='p-2'>
               <UserButtonMobile />
             </div>

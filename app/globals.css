@@ -358,6 +358,35 @@
     @apply text-text-strong-950;
   }
 
+  /* Global thin scrollbar styling */
+  * {
+    /* Webkit browsers (Chrome, Safari, Edge) */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--stroke-soft-200)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--stroke-soft-200));
+    border-radius: 2px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--text-soft-400));
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   /*#region San Traktor Indonesia Specific Colors */
   :root {
     --illustration-white-0: var(--neutral-0);

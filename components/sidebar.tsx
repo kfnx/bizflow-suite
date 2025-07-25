@@ -525,11 +525,7 @@ export default function Sidebar({
       >
         <div
           ref={sidebarRef}
-          className='flex h-full w-[272px] min-w-[272px] flex-col overflow-auto [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stroke-soft-200 hover:[&::-webkit-scrollbar-thumb]:bg-text-soft-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1'
-          style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: 'hsl(var(--stroke-soft-200)) transparent'
-          }}
+          className='flex h-full w-[272px] min-w-[272px] flex-col overflow-auto'
         >
           <SidebarHeader collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
 

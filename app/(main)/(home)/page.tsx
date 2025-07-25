@@ -1,8 +1,9 @@
 'use client';
 
 import { RiBarChart2Line } from '@remixicon/react';
-import SplitText from '@/components/split-text';
+
 import Header from '@/components/header';
+import SplitText from '@/components/split-text';
 
 export default function PageHome() {
   return (
@@ -18,17 +19,17 @@ export default function PageHome() {
       />
       <div className='flex h-screen flex-col items-center'>
         <SplitText
-          text="Hello, Welcome to MySTI!"
-          className="pt-12 text-center text-title-h1 font-semibold"
+          text='Hello, Welcome to MySTI!'
+          className='mt-20 text-center text-title-h1 font-semibold'
           delay={75}
           duration={1}
-          ease="bounce.out"
-          splitType="chars"
+          ease='bounce.out'
+          splitType='chars'
           from={{ opacity: 0, y: 40 }}
           to={{ opacity: 1, y: 0 }}
           threshold={0.1}
-          rootMargin="-100px"
-          textAlign="center"
+          rootMargin='-100px'
+          textAlign='center'
         />
       </div>
     </>

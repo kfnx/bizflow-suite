@@ -152,12 +152,9 @@ function useCollapsedState({
     setCollapsed((prev) => !prev);
   }, []);
 
-  useHotkeys(
-    ['ctrl+b', 'meta+b'],
+  useHotkeys(['ctrl+b', 'meta+b'], toggleCollapsed, { preventDefault: true }, [
     toggleCollapsed,
-    { preventDefault: true },
-    [toggleCollapsed],
-  );
+  ]);
 
   React.useEffect(() => {
     if (!sidebarRef.current) return;
@@ -204,19 +201,25 @@ function useCollapsedState({
 
 export function SidebarHeader({
   collapsed,
-  onToggleCollapse
+  onToggleCollapse,
 }: {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
 }) {
   return (
-    <div className={cn('flex justify-between lg:p-3', {
-      'lg:px-2 flex-col': collapsed,
-      'items-center': !collapsed
-    })}>
+    <div
+      className={cn('flex justify-between lg:p-3', {
+        'lg:px-2 flex-col': collapsed,
+        'items-center': !collapsed,
+      })}
+    >
       <Link href='/'>
         <div>
-          {collapsed ? <div className='px-5 text-label-md'>STI</div> : <div className='px-4 text-label-xl'>MySTI</div>}
+          {collapsed ? (
+            <div className='px-5 text-label-md'>STI</div>
+          ) : (
+            <div className='px-4 text-label-xl'>MySTI</div>
+          )}
         </div>
       </Link>
       {onToggleCollapse && (
@@ -227,7 +230,7 @@ export function SidebarHeader({
             {
               'mx-4 mt-2': collapsed,
               'mr-2': !collapsed,
-            }
+            },
           )}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
@@ -245,14 +248,16 @@ export function SidebarHeader({
 function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [collapsedGroups, setCollapsedGroups] = React.useState<Set<string>>(new Set());
+  const [collapsedGroups, setCollapsedGroups] = React.useState<Set<string>>(
+    new Set(),
+  );
 
   if (!session?.user) return null;
 
   const userRole = session?.user?.role || 'guest';
 
   const toggleGroup = (groupLabel: string) => {
-    setCollapsedGroups(prev => {
+    setCollapsedGroups((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(groupLabel)) {
         newSet.delete(groupLabel);
@@ -310,7 +315,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
 
   return filteredNavigationLinks.map(({ label, links }) => {
     const isGroupCollapsed = collapsedGroups.has(label);
-    const hasActiveLink = links.some(link => pathname === link.href);
+    const hasActiveLink = links.some((link) => pathname === link.href);
 
     return (
       <div key={label} className='space-y-2'>
@@ -320,7 +325,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
             'flex w-full items-center justify-between p-1 text-subheading-xs uppercase text-text-soft-400 transition-colors hover:text-text-sub-600',
             {
               '-mx-2.5 w-14 px-0 justify-center': collapsed,
-            }
+            },
           )}
         >
           <span className={cn({ 'sr-only': collapsed })}>{label}</span>
@@ -335,10 +340,13 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           )}
         </button>
         <div
-          className={cn('space-y-1 overflow-hidden transition-all duration-200', {
-            'max-h-0 opacity-0': isGroupCollapsed && !collapsed,
-            'max-h-96 opacity-100': !isGroupCollapsed || collapsed,
-          })}
+          className={cn(
+            'space-y-1 overflow-hidden transition-all duration-200',
+            {
+              'max-h-0 opacity-0': isGroupCollapsed && !collapsed,
+              'max-h-96 opacity-100': !isGroupCollapsed || collapsed,
+            },
+          )}
         >
           {links.map(({ icon: Icon, label: linkLabel, href, disabled }, i) => (
             <Link
@@ -507,7 +515,9 @@ export default function Sidebar({
 }: {
   defaultCollapsed?: boolean;
 }) {
-  const { collapsed, toggleCollapsed, sidebarRef } = useCollapsedState({ defaultCollapsed });
+  const { collapsed, toggleCollapsed, sidebarRef } = useCollapsedState({
+    defaultCollapsed,
+  });
 
   return (
     <>
@@ -527,7 +537,10 @@ export default function Sidebar({
           ref={sidebarRef}
           className='flex h-full w-[272px] min-w-[272px] flex-col overflow-auto'
         >
-          <SidebarHeader collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
+          <SidebarHeader
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapsed}
+          />
 
           <SidebarDivider collapsed={collapsed} />
 

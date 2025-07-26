@@ -322,7 +322,9 @@ function ProductItemForm({
       {item.category === 'non_serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`unit-${index}`}>Unit</Label.Root>
+            <Label.Root htmlFor={`unit-${index}`}>
+              Unit of Measurement <Label.Asterisk />
+            </Label.Root>
             <Select.Root
               value={item.unitOfMeasureId || ''}
               onValueChange={(value) =>
@@ -330,7 +332,7 @@ function ProductItemForm({
               }
             >
               <Select.Trigger id={`unit-${index}`}>
-                <Select.Value placeholder='Select unit' />
+                <Select.Value placeholder='Select UoM' />
               </Select.Trigger>
               <Select.Content>
                 {unitOfMeasures.map((unit) => (

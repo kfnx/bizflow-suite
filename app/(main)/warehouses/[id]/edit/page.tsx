@@ -82,6 +82,7 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
     }
   }, [warehouseData]);
 
+
   if (warehouseLoading) {
     return (
       <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
@@ -250,16 +251,22 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
                   <Label.Root htmlFor='branchId'>
                     Branch <Label.Asterisk />
                   </Label.Root>
-                  {branchesData?.data.length === 0 ? (
+                  {isLoadingBranches ? (
                     <Input.Root>
                       <Input.Wrapper>
                         <Input.Input
                           disabled
-                          value={
-                            isLoadingBranches
-                              ? 'Loading branches...'
-                              : 'No branches available'
-                          }
+                          value='Loading branches...'
+                          readOnly
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  ) : branchesData?.data.length === 0 ? (
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Input
+                          disabled
+                          value='No branches available'
                           readOnly
                         />
                       </Input.Wrapper>
@@ -270,7 +277,6 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
                       onValueChange={(value) =>
                         handleInputChange('branchId', value)
                       }
-                      disabled={isLoadingBranches}
                     >
                       <Select.Trigger>
                         <Select.TriggerIcon as={RiMapPinLine} />

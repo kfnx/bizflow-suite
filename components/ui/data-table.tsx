@@ -267,7 +267,7 @@ export function DataTable<TData>({
                   <Table.Row
                     data-state={row.getIsSelected() && 'selected'}
                     className={cn(
-                      'hover:bg-gray-50',
+                      'hover:bg-bg-soft-100',
                       onRowClick && 'cursor-pointer',
                     )}
                     onClick={() => onRowClick?.(row.original)}

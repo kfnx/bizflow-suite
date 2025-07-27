@@ -222,7 +222,7 @@ export default function EditBranchPage({ params }: EditBranchPageProps) {
             )}
 
             {/* Branch Information */}
-            <div>
+            <div className='flex flex-col gap-4'>
               <h3 className='text-lg text-gray-900 mb-4 font-medium'>
                 Branch Information
               </h3>
@@ -365,14 +365,6 @@ export default function EditBranchPage({ params }: EditBranchPageProps) {
                   </div>
                 )}
               </div>
-            </div>
-
-            <div className='text-sm text-gray-600 pt-4'>
-              <p>
-                * Updating the branch name will affect all users currently
-                assigned to this branch. The change will be reflected in their
-                profiles and system records.
-              </p>
             </div>
           </div>
 

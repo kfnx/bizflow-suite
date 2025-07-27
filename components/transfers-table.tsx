@@ -211,7 +211,7 @@ const createColumns = (
     accessorKey: 'quantity',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
-        Quantity
+        Qty
         <button
           type='button'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}

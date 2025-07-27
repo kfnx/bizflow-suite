@@ -175,7 +175,7 @@ export default function CreateBranchPage() {
             )}
 
             {/* Branch Information */}
-            <div>
+            <div className='flex flex-col gap-4'>
               <h3 className='text-lg text-gray-900 mb-4 font-medium'>
                 Branch Information
               </h3>
@@ -318,14 +318,6 @@ export default function CreateBranchPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            <div className='text-sm text-gray-600 pt-4'>
-              <p>
-                * The branch will be assigned a unique ID automatically when
-                created. This branch can then be assigned to users in the
-                system.
-              </p>
             </div>
           </div>
 

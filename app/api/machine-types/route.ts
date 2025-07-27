@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build order by clause
-    let orderByClause = asc(machineTypes.name); // Default alphabetical order
+    let orderByClause = desc(machineTypes.createdAt); // Default newest first
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':
@@ -42,8 +42,14 @@ export async function GET(request: NextRequest) {
         case 'name-desc':
           orderByClause = desc(machineTypes.name);
           break;
+        case 'created-asc':
+          orderByClause = asc(machineTypes.createdAt);
+          break;
+        case 'created-desc':
+          orderByClause = desc(machineTypes.createdAt);
+          break;
         default:
-          orderByClause = asc(machineTypes.name);
+          orderByClause = desc(machineTypes.createdAt);
       }
     }
 

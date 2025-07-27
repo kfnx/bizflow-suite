@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build order by clause
-    let orderByClause = asc(brands.name); // Default alphabetical order
+    let orderByClause = desc(brands.createdAt); // Default newest first
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':
@@ -55,8 +55,14 @@ export async function GET(request: NextRequest) {
         case 'name-desc':
           orderByClause = desc(brands.name);
           break;
+        case 'created-asc':
+          orderByClause = asc(brands.createdAt);
+          break;
+        case 'created-desc':
+          orderByClause = desc(brands.createdAt);
+          break;
         default:
-          orderByClause = asc(brands.name);
+          orderByClause = desc(brands.createdAt);
       }
     }
 

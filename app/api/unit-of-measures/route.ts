@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build order by clause
-    let orderByClause = asc(unitOfMeasures.name); // Default alphabetical order
+    let orderByClause = desc(unitOfMeasures.createdAt); // Default newest first
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':
@@ -53,8 +53,14 @@ export async function GET(request: NextRequest) {
         case 'abbreviation-desc':
           orderByClause = desc(unitOfMeasures.abbreviation);
           break;
+        case 'created-asc':
+          orderByClause = asc(unitOfMeasures.createdAt);
+          break;
+        case 'created-desc':
+          orderByClause = desc(unitOfMeasures.createdAt);
+          break;
         default:
-          orderByClause = asc(unitOfMeasures.name);
+          orderByClause = desc(unitOfMeasures.createdAt);
       }
     }
 

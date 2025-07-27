@@ -615,6 +615,8 @@ export const imports = mysqlTable(
     importDate: date('import_date').notNull(),
     invoiceNumber: varchar('invoice_number', { length: 50 }).notNull(),
     invoiceDate: date('invoice_date').notNull(),
+    billOfLadingNumber: varchar('bill_of_lading_number', { length: 50 }),
+    billOfLadingDate: date('bill_of_lading_date'),
     exchangeRateRMBtoIDR: decimal('exchange_rate_rmb_to_idr', {
       precision: 15,
       scale: 2,
@@ -738,6 +740,8 @@ export const warehouses = mysqlTable(
     address: text('address'),
     managerId: varchar('manager_id', { length: 36 }),
     branchId: varchar('branch_id', { length: 36 }).notNull(),
+    billOfLadingNumber: varchar('bill_of_lading_number', { length: 100 }),
+    billOfLadingDate: date('bill_of_lading_date'),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -791,44 +795,89 @@ export const warehouseStocks = mysqlTable(
   ],
 );
 
-// Stock Movements table aka transfer
-export const stockMovements = mysqlTable(
-  'stock_movements',
+// Transfers table (header for multi-product transfers)
+export const transfers = mysqlTable(
+  'transfers',
   {
     id: varchar('id', { length: 36 })
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
+    transferNumber: varchar('transfer_number', { length: 50 })
+      .notNull()
+      .unique(),
     warehouseIdFrom: varchar('warehouse_id_from', { length: 36 }), // NULL for import
     warehouseIdTo: varchar('warehouse_id_to', { length: 36 }).notNull(),
-    productId: varchar('product_id', { length: 36 }).notNull(),
-    quantity: int('quantity').notNull(),
     movementType: varchar('movement_type', { length: 20 }).notNull(), // in, out, transfer, adjustment
+    status: varchar('status', { length: 20 }).default('pending'), // pending, in_transit, completed, cancelled
+    transferDate: date('transfer_date').notNull(),
     invoiceId: varchar('invoice_id', { length: 50 }),
     deliveryId: varchar('delivery_id', { length: 50 }),
     notes: text('notes'),
+    createdBy: varchar('created_by', { length: 36 }).notNull(),
+    approvedBy: varchar('approved_by', { length: 36 }),
+    approvedAt: timestamp('approved_at'),
+    completedAt: timestamp('completed_at'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
   (table) => [
+    index('transfer_number_idx').on(table.transferNumber),
     index('warehouse_id_from_idx').on(table.warehouseIdFrom),
     index('warehouse_id_to_idx').on(table.warehouseIdTo),
-    index('product_id_idx').on(table.productId),
     index('movement_type_idx').on(table.movementType),
+    index('status_idx').on(table.status),
+    index('created_by_idx').on(table.createdBy),
     foreignKey({
       columns: [table.warehouseIdFrom],
       foreignColumns: [warehouses.id],
-      name: 'fk_stock_movements_warehouse_from',
+      name: 'fk_transfers_warehouse_from',
     }),
     foreignKey({
       columns: [table.warehouseIdTo],
       foreignColumns: [warehouses.id],
-      name: 'fk_stock_movements_warehouse_to',
+      name: 'fk_transfers_warehouse_to',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_transfers_created_by',
+    }),
+    foreignKey({
+      columns: [table.approvedBy],
+      foreignColumns: [users.id],
+      name: 'fk_transfers_approved_by',
+    }),
+  ],
+);
+
+// Transfer Items table
+export const transferItems = mysqlTable(
+  'transfer_items',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    transferId: varchar('transfer_id', { length: 36 }).notNull(),
+    productId: varchar('product_id', { length: 36 }).notNull(),
+    quantity: int('quantity').notNull(),
+    quantityTransferred: int('quantity_transferred').default(0),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => [
+    index('transfer_id_idx').on(table.transferId),
+    index('product_id_idx').on(table.productId),
+    foreignKey({
+      columns: [table.transferId],
+      foreignColumns: [transfers.id],
+      name: 'fk_transfer_items_transfer',
     }),
     foreignKey({
       columns: [table.productId],
       foreignColumns: [products.id],
-      name: 'fk_stock_movements_product',
+      name: 'fk_transfer_items_product',
     }),
   ],
 );
@@ -905,7 +954,6 @@ export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
   }),
   imports: many(imports),
   warehouseStocks: many(warehouseStocks),
-  stockMovements: many(stockMovements),
   products: many(products),
 }));
 
@@ -927,7 +975,6 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   deliveryNoteItems: many(deliveryNoteItems),
   imports: many(imports),
   warehouseStocks: many(warehouseStocks),
-  stockMovements: many(stockMovements),
 }));
 
 export const quotationsRelations = relations(quotations, ({ one, many }) => ({
@@ -1084,21 +1131,39 @@ export const warehouseStocksRelations = relations(
       fields: [warehouseStocks.productId],
       references: [products.id],
     }),
-    stockMovements: many(stockMovements),
   }),
 );
 
-export const stockMovementsRelations = relations(stockMovements, ({ one }) => ({
+export const transfersRelations = relations(transfers, ({ one, many }) => ({
   warehouseFrom: one(warehouses, {
-    fields: [stockMovements.warehouseIdFrom],
+    fields: [transfers.warehouseIdFrom],
     references: [warehouses.id],
+    relationName: 'transfersFrom',
   }),
   warehouseTo: one(warehouses, {
-    fields: [stockMovements.warehouseIdTo],
+    fields: [transfers.warehouseIdTo],
     references: [warehouses.id],
+    relationName: 'transfersTo',
+  }),
+  createdBy: one(users, {
+    fields: [transfers.createdBy],
+    references: [users.id],
+  }),
+  approvedBy: one(users, {
+    fields: [transfers.approvedBy],
+    references: [users.id],
+    relationName: 'transferApprover',
+  }),
+  transferItems: many(transferItems),
+}));
+
+export const transferItemsRelations = relations(transferItems, ({ one }) => ({
+  transfer: one(transfers, {
+    fields: [transferItems.transferId],
+    references: [transfers.id],
   }),
   product: one(products, {
-    fields: [stockMovements.productId],
+    fields: [transferItems.productId],
     references: [products.id],
   }),
 }));
@@ -1213,16 +1278,6 @@ export interface WarehouseStockQueryParams {
   limit?: number;
 }
 
-export interface StockMovementQueryParams {
-  warehouseId?: string;
-  productId?: string;
-  movementType?: 'in' | 'out' | 'transfer' | 'adjustment';
-  dateFrom?: Date;
-  dateTo?: Date;
-  page?: number;
-  limit?: number;
-}
-
 export interface BrandQueryParams {
   search?: string;
   type?: 'machine' | 'sparepart';
@@ -1273,5 +1328,8 @@ export type ImportItem = typeof importItems.$inferSelect;
 export type InsertImportItem = typeof importItems.$inferInsert;
 export type WarehouseStock = typeof warehouseStocks.$inferSelect;
 export type InsertWarehouseStock = typeof warehouseStocks.$inferInsert;
-export type StockMovement = typeof stockMovements.$inferSelect;
-export type InsertStockMovement = typeof stockMovements.$inferInsert;
+
+export type Transfer = typeof transfers.$inferSelect;
+export type InsertTransfer = typeof transfers.$inferInsert;
+export type TransferItem = typeof transferItems.$inferSelect;
+export type InsertTransferItem = typeof transferItems.$inferInsert;

@@ -24,6 +24,8 @@ interface Warehouse {
   managerLastName?: string;
   branchId: string;
   branchName?: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -187,6 +189,37 @@ function WarehousePreviewContent({ warehouse }: { warehouse: Warehouse }) {
         </div>
 
         <Divider.Root variant='line-spacing' />
+
+        {warehouse.billOfLadingNumber && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Bill of Lading Number
+              </div>
+              <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
+                <RiStoreLine className='size-4 text-text-soft-400' />
+                {warehouse.billOfLadingNumber}
+              </div>
+            </div>
+
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
+
+        {warehouse.billOfLadingDate && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Bill of Lading Date
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {formatDate(warehouse.billOfLadingDate)}
+              </div>
+            </div>
+
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
 
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>

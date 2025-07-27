@@ -11,8 +11,8 @@ import { invoiceItems, invoices } from './invoices';
 import { machineTypes } from './machine-types';
 import { products } from './products';
 import { quotationItems, quotations } from './quotations';
-import { stockMovements } from './stock-movements';
 import { supplierContactPersons, suppliers } from './suppliers';
+import { transferItems, transfers } from './transfers';
 import { unitOfMeasures } from './unit-of-measures';
 import { users } from './users';
 import { warehouses } from './warehouses';
@@ -83,8 +83,11 @@ async function main() {
   await db.insert(schema.importItems).values(importItems);
   console.log(`✅ Seeded ${importItems.length} import items`);
 
-  await db.insert(schema.stockMovements).values(stockMovements);
-  console.log(`✅ Seeded ${stockMovements.length} stock movements`);
+  await db.insert(schema.transfers).values(transfers);
+  console.log(`✅ Seeded ${transfers.length} transfers`);
+
+  await db.insert(schema.transferItems).values(transferItems);
+  console.log(`✅ Seeded ${transferItems.length} transfer items`);
 
   await connection.end();
   console.log('🎉 Database seeded successfully with complete sample data!');

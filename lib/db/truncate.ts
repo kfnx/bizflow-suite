@@ -43,10 +43,17 @@ async function main() {
   }
 
   try {
-    await db.delete(schema.stockMovements);
-    console.log('✅ Truncated stockMovements');
+    await db.delete(schema.transferItems);
+    console.log('✅ Truncated transferItems');
   } catch (error) {
-    console.error('⚠️ Error truncating stockMovements:', error);
+    console.error('⚠️ Error truncating transferItems:', error);
+  }
+
+  try {
+    await db.delete(schema.transfers);
+    console.log('✅ Truncated transfers');
+  } catch (error) {
+    console.error('⚠️ Error truncating transfers:', error);
   }
 
   try {

@@ -3,7 +3,7 @@ import { and, asc, desc, eq, like, or, sql } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { products, stockMovements, warehouses } from '@/lib/db/schema';
+import { transfers, transferItems, users, warehouses, products } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,146 +20,122 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const search = searchParams.get('search') || undefined;
     const movementType = searchParams.get('movementType') || undefined;
-    const warehouseIdFrom = searchParams.get('warehouseIdFrom') || undefined;
-    const warehouseIdTo = searchParams.get('warehouseIdTo') || undefined;
+    const warehouseFrom = searchParams.get('warehouseFrom') || undefined;
+    const warehouseTo = searchParams.get('warehouseTo') || undefined;
     const productId = searchParams.get('productId') || undefined;
     const dateFrom = searchParams.get('dateFrom') || undefined;
     const dateTo = searchParams.get('dateTo') || undefined;
     const sortBy = searchParams.get('sortBy') || undefined;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-
     const offset = (page - 1) * limit;
 
     // Build query conditions
     const conditions = [];
 
     if (movementType && movementType !== 'all') {
-      conditions.push(eq(stockMovements.movementType, movementType));
+      conditions.push(eq(transfers.movementType, movementType));
     }
 
-    if (warehouseIdFrom) {
-      conditions.push(eq(stockMovements.warehouseIdFrom, warehouseIdFrom));
+    if (warehouseFrom) {
+      conditions.push(eq(transfers.warehouseIdFrom, warehouseFrom));
     }
 
-    if (warehouseIdTo) {
-      conditions.push(eq(stockMovements.warehouseIdTo, warehouseIdTo));
-    }
-
-    if (productId) {
-      conditions.push(eq(stockMovements.productId, productId));
+    if (warehouseTo) {
+      conditions.push(eq(transfers.warehouseIdTo, warehouseTo));
     }
 
     if (dateFrom) {
-      conditions.push(
-        sql`${stockMovements.createdAt} >= ${new Date(dateFrom)}`,
-      );
+      conditions.push(sql`${transfers.transferDate} >= ${dateFrom}`);
     }
 
     if (dateTo) {
-      conditions.push(sql`${stockMovements.createdAt} <= ${new Date(dateTo)}`);
+      conditions.push(sql`${transfers.transferDate} <= ${dateTo}`);
     }
 
     if (search) {
       conditions.push(
         or(
-          like(products.name, `%${search}%`),
-          like(stockMovements.notes, `%${search}%`),
-          like(stockMovements.invoiceId, `%${search}%`),
-          like(stockMovements.deliveryId, `%${search}%`),
+          like(transfers.transferNumber, `%${search}%`),
+          like(transfers.notes, `%${search}%`),
         ),
       );
     }
 
     // Build order by clause
-    let orderByClause = desc(stockMovements.createdAt);
+    let orderByClause = desc(transfers.createdAt);
     if (sortBy) {
       switch (sortBy) {
-        case 'date-asc':
-          orderByClause = asc(stockMovements.createdAt);
+        case 'transferNumber-asc':
+          orderByClause = asc(transfers.transferNumber);
           break;
-        case 'date-desc':
-          orderByClause = desc(stockMovements.createdAt);
+        case 'transferNumber-desc':
+          orderByClause = desc(transfers.transferNumber);
           break;
-        case 'movement-type-asc':
-          orderByClause = asc(stockMovements.movementType);
+        case 'transferDate-asc':
+          orderByClause = asc(transfers.transferDate);
           break;
-        case 'movement-type-desc':
-          orderByClause = desc(stockMovements.movementType);
-          break;
-        case 'product-asc':
-          orderByClause = asc(products.name);
-          break;
-        case 'product-desc':
-          orderByClause = desc(products.name);
-          break;
-        case 'quantity-asc':
-          orderByClause = asc(stockMovements.quantity);
-          break;
-        case 'quantity-desc':
-          orderByClause = desc(stockMovements.quantity);
+        case 'transferDate-desc':
+          orderByClause = desc(transfers.transferDate);
           break;
         default:
-          orderByClause = desc(stockMovements.createdAt);
+          orderByClause = desc(transfers.createdAt);
       }
     }
 
-    // Alias for warehouse tables to avoid conflicts
-    const warehouseFrom = warehouses;
-    const warehouseTo = warehouses;
-
-    // Fetch stock movements with related data
-    const stockMovementsData = await db
+    // Fetch transfers with related data
+    const transfersData = await db
       .select({
-        id: stockMovements.id,
-        warehouseIdFrom: stockMovements.warehouseIdFrom,
-        warehouseFromName: sql<string>`wf.name`,
-        warehouseIdTo: stockMovements.warehouseIdTo,
-        warehouseToName: sql<string>`wt.name`,
-        productId: stockMovements.productId,
-        name: products.name,
-        quantity: stockMovements.quantity,
-        movementType: stockMovements.movementType,
-        invoiceId: stockMovements.invoiceId,
-        deliveryId: stockMovements.deliveryId,
-        notes: stockMovements.notes,
-        createdAt: stockMovements.createdAt,
-        updatedAt: stockMovements.updatedAt,
+        id: transfers.id,
+        transferNumber: transfers.transferNumber,
+        warehouseIdFrom: transfers.warehouseIdFrom,
+        warehouseFromName: sql<string>`${warehouses}.name`.as('warehouseFromName'),
+        warehouseIdTo: transfers.warehouseIdTo,
+        warehouseToName: sql<string>`w2.name`.as('warehouseToName'),
+        movementType: transfers.movementType,
+        status: transfers.status,
+        transferDate: transfers.transferDate,
+        invoiceId: transfers.invoiceId,
+        deliveryId: transfers.deliveryId,
+        notes: transfers.notes,
+        createdBy: transfers.createdBy,
+        createdByName: sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as('createdByName'),
+        approvedBy: transfers.approvedBy,
+        approvedByName: sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as('approvedByName'),
+        approvedAt: transfers.approvedAt,
+        completedAt: transfers.completedAt,
+        createdAt: transfers.createdAt,
+        updatedAt: transfers.updatedAt,
+        itemCount: sql<number>`COUNT(${transferItems}.id)`.as('itemCount'),
+        totalQuantity: sql<number>`SUM(${transferItems}.quantity)`.as('totalQuantity'),
       })
-      .from(stockMovements)
-      .leftJoin(products, eq(stockMovements.productId, products.id))
-      .leftJoin(
-        sql`warehouses wf`,
-        sql`${stockMovements.warehouseIdFrom} = wf.id`,
-      )
-      .leftJoin(
-        sql`warehouses wt`,
-        sql`${stockMovements.warehouseIdTo} = wt.id`,
-      )
+      .from(transfers)
+      .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
+      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(users, eq(transfers.createdBy, users.id))
+      .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
+      .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .groupBy(transfers.id)
       .orderBy(orderByClause)
       .limit(limit)
       .offset(offset);
 
     // Get total count for pagination
     const totalCountResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(stockMovements)
-      .leftJoin(products, eq(stockMovements.productId, products.id))
-      .leftJoin(
-        sql`warehouses wf`,
-        sql`${stockMovements.warehouseIdFrom} = wf.id`,
-      )
-      .leftJoin(
-        sql`warehouses wt`,
-        sql`${stockMovements.warehouseIdTo} = wt.id`,
-      )
+      .select({ count: sql<number>`COUNT(DISTINCT ${transfers.id})`.as('count') })
+      .from(transfers)
+      .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
+      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(users, eq(transfers.createdBy, users.id))
+      .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
+      .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     const totalCount = totalCountResult[0]?.count || 0;
 
     return NextResponse.json({
-      data: stockMovementsData,
+      data: transfersData,
       pagination: {
         page,
         limit,
@@ -168,9 +144,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching stock movements:', error);
+    console.error('Error fetching transfers:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch stock movements' },
+      { error: 'Failed to fetch transfers' },
       { status: 500 },
     );
   }
@@ -186,20 +162,21 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
+      transferNumber,
       warehouseIdFrom,
       warehouseIdTo,
-      productId,
-      quantity,
       movementType,
+      transferDate,
       invoiceId,
       deliveryId,
       notes,
+      items = [],
     } = body;
 
     // Basic validation
-    if (!warehouseIdFrom) {
+    if (!transferNumber?.trim()) {
       return NextResponse.json(
-        { error: 'Source warehouse is required' },
+        { error: 'Transfer number is required' },
         { status: 400 },
       );
     }
@@ -211,20 +188,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!productId) {
-      return NextResponse.json(
-        { error: 'Product is required' },
-        { status: 400 },
-      );
-    }
-
-    if (!quantity || quantity <= 0) {
-      return NextResponse.json(
-        { error: 'Quantity must be greater than 0' },
-        { status: 400 },
-      );
-    }
-
     if (!movementType) {
       return NextResponse.json(
         { error: 'Movement type is required' },
@@ -232,69 +195,91 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create stock movement
-    const newStockMovement = {
-      warehouseIdFrom,
+    if (!transferDate) {
+      return NextResponse.json(
+        { error: 'Transfer date is required' },
+        { status: 400 },
+      );
+    }
+
+    if (!items || items.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one item is required' },
+        { status: 400 },
+      );
+    }
+
+    // Create transfer
+    const newTransfer = {
+      transferNumber: transferNumber.trim(),
+      warehouseIdFrom: warehouseIdFrom || null,
       warehouseIdTo,
-      productId,
-      quantity: parseInt(quantity),
       movementType,
-      invoiceId: invoiceId || null,
-      deliveryId: deliveryId || null,
+      status: 'pending',
+      transferDate: new Date(transferDate),
+      invoiceId: invoiceId?.trim() || null,
+      deliveryId: deliveryId?.trim() || null,
       notes: notes?.trim() || null,
+      createdBy: session.user.id,
     };
 
-    await db.insert(stockMovements).values(newStockMovement);
+    const [createdTransfer] = await db.insert(transfers).values(newTransfer);
 
-    // Get the created stock movement with related data
-    const createdMovement = await db
+    // Create transfer items
+    const transferItemsData = items.map((item: any) => ({
+      transferId: createdTransfer.insertId,
+      productId: item.productId,
+      quantity: item.quantity,
+      quantityTransferred: 0,
+      notes: item.notes?.trim() || null,
+    }));
+
+    await db.insert(transferItems).values(transferItemsData);
+
+    // Get the created transfer with related data
+    const createdTransferData = await db
       .select({
-        id: stockMovements.id,
-        warehouseIdFrom: stockMovements.warehouseIdFrom,
-        warehouseFromName: sql<string>`wf.name`,
-        warehouseIdTo: stockMovements.warehouseIdTo,
-        warehouseToName: sql<string>`wt.name`,
-        productId: stockMovements.productId,
-        name: products.name,
-        quantity: stockMovements.quantity,
-        movementType: stockMovements.movementType,
-        invoiceId: stockMovements.invoiceId,
-        deliveryId: stockMovements.deliveryId,
-        notes: stockMovements.notes,
-        createdAt: stockMovements.createdAt,
-        updatedAt: stockMovements.updatedAt,
+        id: transfers.id,
+        transferNumber: transfers.transferNumber,
+        warehouseIdFrom: transfers.warehouseIdFrom,
+        warehouseFromName: warehouses.name,
+        warehouseIdTo: transfers.warehouseIdTo,
+        warehouseToName: sql<string>`w2.name`.as('warehouseToName'),
+        movementType: transfers.movementType,
+        status: transfers.status,
+        transferDate: transfers.transferDate,
+        invoiceId: transfers.invoiceId,
+        deliveryId: transfers.deliveryId,
+        notes: transfers.notes,
+        createdBy: transfers.createdBy,
+        createdByName: sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as('createdByName'),
+        approvedBy: transfers.approvedBy,
+        approvedByName: sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as('approvedByName'),
+        approvedAt: transfers.approvedAt,
+        completedAt: transfers.completedAt,
+        createdAt: transfers.createdAt,
+        updatedAt: transfers.updatedAt,
       })
-      .from(stockMovements)
-      .leftJoin(products, eq(stockMovements.productId, products.id))
-      .leftJoin(
-        sql`warehouses wf`,
-        sql`${stockMovements.warehouseIdFrom} = wf.id`,
-      )
-      .leftJoin(
-        sql`warehouses wt`,
-        sql`${stockMovements.warehouseIdTo} = wt.id`,
-      )
-      .where(
-        and(
-          eq(stockMovements.warehouseIdFrom, warehouseIdFrom),
-          eq(stockMovements.warehouseIdTo, warehouseIdTo),
-          eq(stockMovements.productId, productId),
-        ),
-      )
-      .orderBy(desc(stockMovements.createdAt))
+      .from(transfers)
+      .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
+      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(users, eq(transfers.createdBy, users.id))
+      .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
+      .where(eq(transfers.transferNumber, transferNumber.trim()))
+      .orderBy(desc(transfers.createdAt))
       .limit(1);
 
     return NextResponse.json(
       {
-        message: 'Stock movement created successfully',
-        data: createdMovement[0],
+        message: 'Transfer created successfully',
+        data: createdTransferData[0],
       },
       { status: 201 },
     );
   } catch (error) {
-    console.error('Error creating stock movement:', error);
+    console.error('Error creating transfer:', error);
     return NextResponse.json(
-      { error: 'Failed to create stock movement' },
+      { error: 'Failed to create transfer' },
       { status: 500 },
     );
   }

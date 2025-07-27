@@ -75,6 +75,8 @@ export async function GET(request: NextRequest) {
         managerLastName: users.lastName,
         branchId: warehouses.branchId,
         branchName: branches.name,
+        billOfLadingNumber: warehouses.billOfLadingNumber,
+        billOfLadingDate: warehouses.billOfLadingDate,
         isActive: warehouses.isActive,
         createdAt: warehouses.createdAt,
         updatedAt: warehouses.updatedAt,
@@ -123,7 +125,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, address, managerId, branchId } = body;
+    const {
+      name,
+      address,
+      managerId,
+      branchId,
+      billOfLadingNumber,
+      billOfLadingDate,
+    } = body;
 
     // Basic validation
     if (!name?.trim()) {
@@ -146,6 +155,8 @@ export async function POST(request: NextRequest) {
       address: address?.trim() || null,
       managerId: managerId || null,
       branchId: branchId,
+      billOfLadingNumber: billOfLadingNumber?.trim() || null,
+      billOfLadingDate: billOfLadingDate || null,
       isActive: true,
     };
 
@@ -162,6 +173,8 @@ export async function POST(request: NextRequest) {
         managerLastName: users.lastName,
         branchId: warehouses.branchId,
         branchName: branches.name,
+        billOfLadingNumber: warehouses.billOfLadingNumber,
+        billOfLadingDate: warehouses.billOfLadingDate,
         isActive: warehouses.isActive,
         createdAt: warehouses.createdAt,
         updatedAt: warehouses.updatedAt,

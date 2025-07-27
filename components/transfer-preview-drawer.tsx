@@ -1,39 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import {
   RiArrowRightLine,
   RiBox3Line,
+  RiCalendarLine,
   RiExchangeFundsLine,
   RiExternalLinkLine,
   RiReceiptLine,
   RiStoreLine,
   RiTruckLine,
+  RiUserLine,
 } from '@remixicon/react';
 
 import { formatDate } from '@/utils/date-formatter';
+import {
+  useTransfer,
+  type Transfer,
+  type TransferItem,
+} from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
-
-interface StockMovement {
-  id: string;
-  warehouseIdFrom: string;
-  warehouseFromName: string;
-  warehouseIdTo: string;
-  warehouseToName: string;
-  productId: string;
-  name: string;
-  productCode: string;
-  quantity: number;
-  movementType: string;
-  invoiceId?: string;
-  deliveryId?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import * as Table from '@/components/ui/table';
 
 interface TransferPreviewDrawerProps {
   transferId: string | null;
@@ -56,40 +45,27 @@ const getMovementTypeColor = (type: string) => {
   }
 };
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'yellow';
+    case 'approved':
+      return 'blue';
+    case 'completed':
+      return 'green';
+    case 'cancelled':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
 export function TransferPreviewDrawer({
   transferId,
   open,
   onClose,
 }: TransferPreviewDrawerProps) {
-  const [transfer, setTransfer] = useState<StockMovement | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchTransfer = async () => {
-      if (!transferId) return;
-
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/transfers/${transferId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch transfer details');
-        }
-        const data = await response.json();
-        setTransfer(data.data || data);
-      } catch (err) {
-        console.error('Error fetching transfer:', err);
-        setError('Failed to load transfer details');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (transferId && open) {
-      fetchTransfer();
-    }
-  }, [transferId, open]);
+  const { data: transfer, isLoading, error } = useTransfer(transferId);
 
   if (!open) return null;
 
@@ -101,7 +77,7 @@ export function TransferPreviewDrawer({
     <Drawer.Root open={open} onOpenChange={onClose}>
       <Drawer.Content>
         <Drawer.Header>
-          <Drawer.Title>Stock Movement Details</Drawer.Title>
+          <Drawer.Title>Transfer Details</Drawer.Title>
         </Drawer.Header>
 
         <Drawer.Body>
@@ -115,7 +91,9 @@ export function TransferPreviewDrawer({
 
           {error && (
             <div className='flex items-center justify-center py-8'>
-              <div className='text-paragraph-sm text-red-600'>{error}</div>
+              <div className='text-paragraph-sm text-red-600'>
+                {error.message || 'Failed to load transfer details'}
+              </div>
             </div>
           )}
 
@@ -136,59 +114,119 @@ export function TransferPreviewDrawer({
   );
 }
 
-function TransferPreviewContent({ transfer }: { transfer: StockMovement }) {
+function TransferPreviewContent({ transfer }: { transfer: Transfer }) {
   const formatQuantity = (quantity: number) => {
     return new Intl.NumberFormat('id-ID').format(quantity);
   };
 
   return (
     <>
-      <Divider.Root variant='solid-text'>Movement Info</Divider.Root>
+      <Divider.Root variant='solid-text'>Transfer Info</Divider.Root>
 
       <div className='p-5'>
         <div className='mb-3 flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
             <div className='text-title-h4 text-text-strong-950'>
-              Stock Movement
+              {transfer.transferNumber}
+            </div>
+            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+              {transfer.items && transfer.items.length > 1
+                ? `${transfer.items.length} products`
+                : transfer.name || 'Transfer'}
             </div>
           </div>
-          <div className='ml-4'>
+          <div className='ml-4 flex flex-col items-end gap-2'>
             <Badge.Root
               variant='light'
               color={getMovementTypeColor(transfer.movementType)}
             >
               {transfer.movementType.toUpperCase()}
             </Badge.Root>
+            <Badge.Root variant='light' color={getStatusColor(transfer.status)}>
+              {transfer.status.toUpperCase()}
+            </Badge.Root>
           </div>
         </div>
       </div>
 
-      <Divider.Root variant='solid-text'>Product</Divider.Root>
-
-      <div className='flex flex-col gap-3 p-5'>
-        <div className='flex items-center gap-3'>
-          <div className='bg-gray-50 ring-gray-200 flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset'>
-            <RiBox3Line className='text-gray-600 size-5' />
+      {/* Products Section */}
+      {transfer.items && transfer.items.length > 0 ? (
+        <>
+          <Divider.Root variant='solid-text'>
+            Products ({transfer.items.length})
+          </Divider.Root>
+          <div className='p-5'>
+            <Table.Root>
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head>Product</Table.Head>
+                  <Table.Head>Quantity</Table.Head>
+                  <Table.Head>Notes</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {transfer.items.map((item) => (
+                  <Table.Row key={item.id}>
+                    <Table.Cell>
+                      <div className='flex items-center gap-3'>
+                        <div className='bg-gray-50 ring-gray-200 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset'>
+                          <RiBox3Line className='text-gray-600 size-4' />
+                        </div>
+                        <div>
+                          <div className='text-label-sm font-medium text-text-strong-950'>
+                            {item.productName}
+                          </div>
+                          <div className='text-paragraph-xs text-text-sub-600'>
+                            {item.productCode}
+                          </div>
+                        </div>
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className='text-label-sm font-medium text-text-strong-950'>
+                        {formatQuantity(item.quantity)}
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className='text-paragraph-xs text-text-sub-600'>
+                        {item.notes || '-'}
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
           </div>
-          <div>
-            <div className='text-label-md font-medium text-text-strong-950'>
-              {transfer.name}
+        </>
+      ) : transfer.name ? (
+        // Fallback for legacy single-product transfers
+        <>
+          <Divider.Root variant='solid-text'>Product</Divider.Root>
+          <div className='flex flex-col gap-3 p-5'>
+            <div className='flex items-center gap-3'>
+              <div className='bg-gray-50 ring-gray-200 flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset'>
+                <RiBox3Line className='text-gray-600 size-5' />
+              </div>
+              <div>
+                <div className='text-label-md font-medium text-text-strong-950'>
+                  {transfer.name}
+                </div>
+                <div className='text-paragraph-sm text-text-sub-600'>
+                  {transfer.productCode}
+                </div>
+              </div>
             </div>
-            <div className='text-paragraph-sm text-text-sub-600'>
-              {transfer.productCode}
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Quantity
+              </div>
+              <div className='mt-1 text-label-lg font-medium text-text-strong-950'>
+                {formatQuantity(transfer.quantity || 0)}
+              </div>
             </div>
           </div>
-        </div>
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Quantity
-          </div>
-          <div className='mt-1 text-label-lg font-medium text-text-strong-950'>
-            {formatQuantity(transfer.quantity)}
-          </div>
-        </div>
-      </div>
+        </>
+      ) : null}
 
       <Divider.Root variant='solid-text'>Warehouses</Divider.Root>
 
@@ -197,7 +235,7 @@ function TransferPreviewContent({ transfer }: { transfer: StockMovement }) {
           <div className='flex items-center gap-2'>
             <RiStoreLine className='text-text-sub-400 size-4' />
             <span className='text-label-sm text-text-strong-950'>
-              {transfer.warehouseFromName}
+              {transfer.warehouseFromName || 'External Source'}
             </span>
           </div>
           <RiArrowRightLine className='text-text-sub-400 size-4' />
@@ -208,6 +246,25 @@ function TransferPreviewContent({ transfer }: { transfer: StockMovement }) {
             </span>
           </div>
         </div>
+      </div>
+
+      <Divider.Root variant='solid-text'>Transfer Details</Divider.Root>
+
+      <div className='flex flex-col gap-3 p-5'>
+        <div className='flex items-center gap-2'>
+          <RiCalendarLine className='text-text-sub-400 size-4' />
+          <span className='text-label-sm text-text-strong-950'>
+            Transfer Date: {formatDate(transfer.transferDate)}
+          </span>
+        </div>
+        {transfer.createdByName && (
+          <div className='flex items-center gap-2'>
+            <RiUserLine className='text-text-sub-400 size-4' />
+            <span className='text-label-sm text-text-strong-950'>
+              Created by: {transfer.createdByName}
+            </span>
+          </div>
+        )}
       </div>
 
       {(transfer.invoiceId || transfer.deliveryId) && (
@@ -244,35 +301,11 @@ function TransferPreviewContent({ transfer }: { transfer: StockMovement }) {
           </div>
         </>
       )}
-
-      <Divider.Root variant='solid-text'>Metadata</Divider.Root>
-
-      <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(transfer.createdAt)}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Last Updated
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(transfer.updatedAt)}
-          </div>
-        </div>
-      </div>
     </>
   );
 }
 
-function TransferPreviewFooter({ transfer }: { transfer: StockMovement }) {
+function TransferPreviewFooter({ transfer }: { transfer: Transfer }) {
   const handleViewFull = () => {
     window.open(`/transfers/${transfer.id}`, '_blank');
   };

@@ -26,6 +26,8 @@ export async function GET(
         managerLastName: users.lastName,
         branchId: warehouses.branchId,
         branchName: branches.name,
+        billOfLadingNumber: warehouses.billOfLadingNumber,
+        billOfLadingDate: warehouses.billOfLadingDate,
         isActive: warehouses.isActive,
         createdAt: warehouses.createdAt,
         updatedAt: warehouses.updatedAt,
@@ -65,7 +67,15 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name, address, managerId, branchId, isActive } = body;
+    const {
+      name,
+      address,
+      managerId,
+      branchId,
+      billOfLadingNumber,
+      billOfLadingDate,
+      isActive,
+    } = body;
 
     // Check if warehouse exists
     const existingWarehouse = await db
@@ -89,6 +99,8 @@ export async function PUT(
         address,
         managerId,
         branchId,
+        billOfLadingNumber,
+        billOfLadingDate,
         isActive,
         updatedAt: new Date(),
       })

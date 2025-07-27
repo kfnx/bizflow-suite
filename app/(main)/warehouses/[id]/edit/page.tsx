@@ -28,6 +28,8 @@ interface EditWarehouseData {
   address: string;
   managerId: string;
   branchId: string;
+  billOfLadingNumber: string;
+  billOfLadingDate: string;
   isActive: boolean;
 }
 
@@ -59,6 +61,8 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
     address: '',
     managerId: '',
     branchId: '',
+    billOfLadingNumber: '',
+    billOfLadingDate: '',
     isActive: true,
   });
   const [error, setError] = useState<string | null>(null);
@@ -76,12 +80,13 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
         address: warehouseData.address || '',
         managerId: warehouseData.managerId || '',
         branchId: warehouseData.branchId || '',
+        billOfLadingNumber: warehouseData.billOfLadingNumber || '',
+        billOfLadingDate: warehouseData.billOfLadingDate || '',
         isActive:
           warehouseData.isActive !== undefined ? warehouseData.isActive : true,
       });
     }
   }, [warehouseData]);
-
 
   if (warehouseLoading) {
     return (
@@ -154,6 +159,8 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
       address: formData.address.trim() || undefined,
       managerId: formData.managerId || undefined,
       branchId: formData.branchId,
+      billOfLadingNumber: formData.billOfLadingNumber.trim() || undefined,
+      billOfLadingDate: formData.billOfLadingDate || undefined,
       isActive: formData.isActive,
     };
 
@@ -382,6 +389,67 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
                     {validationErrors.address}
                   </div>
                 )}
+              </div>
+            </div>
+
+            <Divider.Root />
+
+            {/* Bill of Lading Information */}
+            <div>
+              <h3 className='text-lg text-gray-900 mb-4 font-medium'>
+                Bill of Lading Information
+              </h3>
+
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='billOfLadingNumber'>
+                    Bill of Lading Number
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Input
+                        id='billOfLadingNumber'
+                        type='text'
+                        value={formData.billOfLadingNumber}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange(
+                            'billOfLadingNumber',
+                            e.target.value,
+                          )
+                        }
+                        placeholder='Enter bill of lading number (optional)'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.billOfLadingNumber && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.billOfLadingNumber}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='billOfLadingDate'>
+                    Bill of Lading Date
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Input
+                        id='billOfLadingDate'
+                        type='date'
+                        value={formData.billOfLadingDate}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('billOfLadingDate', e.target.value)
+                        }
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.billOfLadingDate && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.billOfLadingDate}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

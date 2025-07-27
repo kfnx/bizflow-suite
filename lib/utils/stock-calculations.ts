@@ -1,7 +1,12 @@
 import { and, eq, sql } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { products, stockMovements, warehouses } from '@/lib/db/schema';
+import {
+  products,
+  transferItems,
+  transfers,
+  warehouses,
+} from '@/lib/db/schema';
 
 export interface StockQuantity {
   productId: string;
@@ -36,14 +41,15 @@ export async function calculateProductWarehouseStock(
 ): Promise<number> {
   const result = await db
     .select({
-      totalIn: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'in' THEN quantity ELSE 0 END), 0)`,
-      totalOut: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'out' THEN quantity ELSE 0 END), 0)`,
+      totalIn: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'in' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
+      totalOut: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'out' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
     })
-    .from(stockMovements)
+    .from(transfers)
+    .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
     .where(
       and(
-        eq(stockMovements.productId, productId),
-        eq(stockMovements.warehouseIdTo, warehouseId),
+        eq(transferItems.productId, productId),
+        eq(transfers.warehouseIdTo, warehouseId),
       ),
     );
 
@@ -59,24 +65,25 @@ export async function calculateWarehouseStock(
 ): Promise<StockQuantity[]> {
   const result = await db
     .select({
-      productId: stockMovements.productId,
+      productId: transferItems.productId,
       name: products.name,
-      totalIn: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'in' THEN quantity ELSE 0 END), 0)`,
-      totalOut: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'out' THEN quantity ELSE 0 END), 0)`,
+      totalIn: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'in' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
+      totalOut: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'out' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
     })
-    .from(stockMovements)
-    .leftJoin(products, eq(stockMovements.productId, products.id))
-    .where(eq(stockMovements.warehouseIdTo, warehouseId))
-    .groupBy(stockMovements.productId, products.name);
+    .from(transfers)
+    .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
+    .leftJoin(products, eq(transferItems.productId, products.id))
+    .where(eq(transfers.warehouseIdTo, warehouseId))
+    .groupBy(transferItems.productId, products.name);
 
   return result
     .map((row) => ({
-      productId: row.productId,
+      productId: row.productId || '',
       warehouseId,
       quantity: row.totalIn - row.totalOut,
       name: row.name || undefined,
     }))
-    .filter((stock) => stock.quantity > 0); // Only return products with positive stock
+    .filter((stock) => stock.quantity > 0 && stock.productId); // Only return products with positive stock
 }
 
 /**
@@ -87,15 +94,16 @@ export async function calculateProductStock(
 ): Promise<StockQuantity[]> {
   const result = await db
     .select({
-      warehouseId: stockMovements.warehouseIdTo,
+      warehouseId: transfers.warehouseIdTo,
       warehouseName: warehouses.name,
-      totalIn: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'in' THEN quantity ELSE 0 END), 0)`,
-      totalOut: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'out' THEN quantity ELSE 0 END), 0)`,
+      totalIn: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'in' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
+      totalOut: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'out' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
     })
-    .from(stockMovements)
-    .leftJoin(warehouses, eq(stockMovements.warehouseIdTo, warehouses.id))
-    .where(eq(stockMovements.productId, productId))
-    .groupBy(stockMovements.warehouseIdTo, warehouses.name);
+    .from(transfers)
+    .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
+    .leftJoin(warehouses, eq(transfers.warehouseIdTo, warehouses.id))
+    .where(eq(transferItems.productId, productId))
+    .groupBy(transfers.warehouseIdTo, warehouses.name);
 
   return result
     .map((row) => ({
@@ -171,33 +179,37 @@ export async function getLowStockAlerts(
 ): Promise<StockQuantity[]> {
   const allStocks = await db
     .select({
-      productId: stockMovements.productId,
-      warehouseId: stockMovements.warehouseIdTo,
+      productId: transferItems.productId,
+      warehouseId: transfers.warehouseIdTo,
       name: products.name,
       warehouseName: warehouses.name,
-      totalIn: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'in' THEN quantity ELSE 0 END), 0)`,
-      totalOut: sql<number>`COALESCE(SUM(CASE WHEN movement_type = 'out' THEN quantity ELSE 0 END), 0)`,
+      totalIn: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'in' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
+      totalOut: sql<number>`COALESCE(SUM(CASE WHEN ${transfers.movementType} = 'out' THEN ${transferItems.quantity} ELSE 0 END), 0)`,
     })
-    .from(stockMovements)
-    .leftJoin(products, eq(stockMovements.productId, products.id))
-    .leftJoin(warehouses, eq(stockMovements.warehouseIdTo, warehouses.id))
+    .from(transfers)
+    .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
+    .leftJoin(products, eq(transferItems.productId, products.id))
+    .leftJoin(warehouses, eq(transfers.warehouseIdTo, warehouses.id))
     .groupBy(
-      stockMovements.productId,
-      stockMovements.warehouseIdTo,
+      transferItems.productId,
+      transfers.warehouseIdTo,
       products.name,
       warehouses.name,
     );
 
   return allStocks
     .map((row) => ({
-      productId: row.productId,
+      productId: row.productId || '',
       warehouseId: row.warehouseId,
       quantity: row.totalIn - row.totalOut,
       name: row.name || undefined,
       warehouseName: row.warehouseName || undefined,
     }))
     .filter(
-      (stock) => stock.quantity > 0 && stock.quantity <= minimumThreshold,
+      (stock) =>
+        stock.quantity > 0 &&
+        stock.quantity <= minimumThreshold &&
+        stock.productId,
     );
 }
 

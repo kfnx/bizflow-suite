@@ -73,10 +73,8 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
       </div>
     ),
     cell: ({ row }) => (
-      <div className='flex items-center gap-3'>
-        <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-inset ring-blue-200'>
-          <RiStoreLine className='size-5 text-blue-600' />
-        </div>
+      <div className='flex items-center gap-2'>
+        <RiStoreLine className='size-5 text-primary-base' />
         <div className='flex flex-col'>
           <div className='text-paragraph-sm text-text-strong-950'>
             {row.original.name}
@@ -141,6 +139,31 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
             ? `${row.original.managerFirstName} ${row.original.managerLastName || ''}`
             : 'No manager assigned'}
         </span>
+      </div>
+    ),
+  },
+  {
+    id: 'billOfLading',
+    accessorKey: 'billOfLadingNumber',
+    header: 'Bill of Lading',
+    cell: ({ row }) => (
+      <div className='flex flex-col gap-1'>
+        {row.original.billOfLadingNumber ? (
+          <>
+            <span className='text-paragraph-sm text-text-sub-600'>
+              {row.original.billOfLadingNumber}
+            </span>
+            {row.original.billOfLadingDate && (
+              <span className='text-paragraph-sm text-text-soft-400'>
+                {formatDate(row.original.billOfLadingDate)}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className='text-text-sub-400 text-paragraph-sm'>
+            No B/L info
+          </span>
+        )}
       </div>
     ),
   },

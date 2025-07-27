@@ -12,6 +12,8 @@ export type Warehouse = {
   managerLastName?: string;
   branchId: string;
   branchName?: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +42,8 @@ export type CreateWarehouseData = {
   address?: string;
   managerId?: string;
   branchId: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
 };
 
 export type UpdateWarehouseData = {
@@ -47,6 +51,8 @@ export type UpdateWarehouseData = {
   address?: string;
   managerId?: string;
   branchId: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
   isActive: boolean;
 };
 

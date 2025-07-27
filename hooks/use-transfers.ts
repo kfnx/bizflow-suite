@@ -2,22 +2,47 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export interface Transfer {
+export interface TransferItem {
   id: string;
-  warehouseIdFrom: string;
-  warehouseFromName: string;
-  warehouseIdTo: string;
-  warehouseToName: string;
   productId: string;
-  name: string;
+  productName: string;
   productCode: string;
   quantity: number;
+  quantityTransferred?: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface Transfer {
+  id: string;
+  transferNumber: string;
+  warehouseIdFrom?: string;
+  warehouseFromName?: string;
+  warehouseIdTo: string;
+  warehouseToName: string;
   movementType: 'in' | 'out' | 'transfer' | 'adjustment';
+  status: string;
+  transferDate: string;
   invoiceId?: string;
   deliveryId?: string;
   notes?: string;
+  createdBy: string;
+  createdByName?: string;
+  approvedBy?: string;
+  approvedByName?: string;
+  approvedAt?: string;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
+  // For V2 transfers with multiple products
+  items?: TransferItem[];
+  itemCount?: number;
+  totalQuantity?: number;
+  // Legacy fields for backward compatibility with single-product transfers
+  productId?: string;
+  name?: string;
+  productCode?: string;
+  quantity?: number;
 }
 
 interface TransfersResponse {

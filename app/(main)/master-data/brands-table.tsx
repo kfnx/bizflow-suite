@@ -7,6 +7,8 @@ import {
   RiDeleteBinLine,
   RiEditLine,
   RiSaveLine,
+  RiSettings3Line,
+  RiToolsLine,
 } from '@remixicon/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -256,8 +258,18 @@ export function BrandsTable() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='machine'>Machine</SelectItem>
-                      <SelectItem value='sparepart'>Sparepart</SelectItem>
+                      <SelectItem value='machine'>
+                        <div className='flex items-center gap-2'>
+                          <RiSettings3Line className='size-4' />
+                          Machine
+                        </div>
+                      </SelectItem>
+                      <SelectItem value='sparepart'>
+                        <div className='flex items-center gap-2'>
+                          <RiToolsLine className='size-4' />
+                          Sparepart
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </Table.Cell>
@@ -313,8 +325,18 @@ export function BrandsTable() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='machine'>Machine</SelectItem>
-                      <SelectItem value='sparepart'>Sparepart</SelectItem>
+                      <SelectItem value='machine'>
+                        <div className='flex items-center gap-2'>
+                          <RiSettings3Line className='size-4' />
+                          Machine
+                        </div>
+                      </SelectItem>
+                      <SelectItem value='sparepart'>
+                        <div className='flex items-center gap-2'>
+                          <RiToolsLine className='size-4' />
+                          Sparepart
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (

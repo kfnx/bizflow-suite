@@ -135,11 +135,11 @@ const createColumns = (
   onPreview?: (id: string) => void,
 ): ColumnDef<Transfer>[] => [
   {
-    id: 'product',
-    accessorKey: 'name',
+    id: 'transfer',
+    accessorKey: 'transferNumber',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
-        Product
+        Transfer
         <button
           type='button'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -154,11 +154,17 @@ const createColumns = (
           <RiBox3Line className='size-5 text-blue-600' />
         </div>
         <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-strong-950'>
-            {row.original.name}
+          <div className='text-paragraph-sm font-medium text-text-strong-950'>
+            {row.original.transferNumber}
           </div>
           <div className='text-paragraph-xs text-text-sub-600'>
-            {row.original.productCode}
+            {row.original.items && row.original.items.length > 0
+              ? row.original.items.length > 1
+                ? `${row.original.items.length} products`
+                : `${row.original.items[0].productName} (${row.original.items[0].productCode})`
+              : row.original.name
+                ? `${row.original.name} (${row.original.productCode})`
+                : 'No products'}
           </div>
         </div>
       </div>
@@ -208,10 +214,10 @@ const createColumns = (
   },
   {
     id: 'quantity',
-    accessorKey: 'quantity',
+    accessorKey: 'totalQuantity',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
-        Qty
+        Total Qty
         <button
           type='button'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -220,11 +226,26 @@ const createColumns = (
         </button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className='text-paragraph-sm font-medium text-text-strong-950'>
-        {row.original.quantity.toLocaleString()}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const totalQty = row.original.totalQuantity || row.original.quantity || 0;
+      const itemCount =
+        row.original.itemCount ||
+        row.original.items?.length ||
+        (row.original.quantity ? 1 : 0);
+
+      return (
+        <div className='flex flex-col'>
+          <div className='text-paragraph-sm font-medium text-text-strong-950'>
+            {totalQty.toLocaleString()}
+          </div>
+          {itemCount > 1 && (
+            <div className='text-paragraph-xs text-text-sub-600'>
+              {itemCount} items
+            </div>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: 'references',
@@ -250,8 +271,62 @@ const createColumns = (
     ),
   },
   {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
+    id: 'status',
+    accessorKey: 'status',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Status
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const status = row.original.status || 'pending';
+      const getStatusBadge = (status: string) => {
+        switch (status) {
+          case 'pending':
+            return (
+              <Badge.Root color='yellow' variant='lighter'>
+                Pending
+              </Badge.Root>
+            );
+          case 'approved':
+            return (
+              <Badge.Root color='blue' variant='lighter'>
+                Approved
+              </Badge.Root>
+            );
+          case 'completed':
+            return (
+              <Badge.Root color='green' variant='lighter'>
+                Completed
+              </Badge.Root>
+            );
+          case 'cancelled':
+            return (
+              <Badge.Root color='red' variant='lighter'>
+                Cancelled
+              </Badge.Root>
+            );
+          default:
+            return (
+              <Badge.Root color='gray' variant='lighter'>
+                {status}
+              </Badge.Root>
+            );
+        }
+      };
+
+      return getStatusBadge(status);
+    },
+  },
+  {
+    id: 'transferDate',
+    accessorKey: 'transferDate',
     header: ({ column }) => (
       <div className='flex items-center gap-0.5'>
         Date
@@ -265,7 +340,7 @@ const createColumns = (
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.createdAt)}
+        {formatDate(row.original.transferDate || row.original.createdAt)}
       </div>
     ),
   },

@@ -243,7 +243,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                 </div>
                 <div className='flex items-center gap-2'>
                   <span className='text-paragraph-lg font-semibold text-text-strong-950'>
-                    {transfer.quantity.toLocaleString()}
+                    {transfer.totalQuantity?.toLocaleString() || '0'}
                   </span>
                   <span className='text-paragraph-sm text-text-sub-600'>
                     units

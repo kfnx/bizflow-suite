@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  RiArrowRightLine,
+  RiAddLine,
   RiBox1Line,
+  RiCalendarLine,
+  RiDeleteBinLine,
   RiEditLine,
   RiExchangeLine,
   RiFileTextLine,
@@ -15,7 +17,7 @@ import {
 import { toast } from 'sonner';
 
 import { useProducts } from '@/hooks/use-products';
-import { useTransfer, useUpdateTransfer } from '@/hooks/use-transfers';
+import { useTransfer, useUpdateTransfer, type UpdateTransferData } from '@/hooks/use-transfers';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -62,7 +64,7 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
   } = useTransfer(params.id);
   const updateTransferMutation = useUpdateTransfer();
 
-  const { data: productsData, isLoading: isLoadingProducts } = useProducts({
+  const { data: productsData } = useProducts({
     limit: 1000,
     status: 'in_stock',
   });
@@ -176,10 +178,6 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
     // Client-side validation
     const errors: Record<string, string> = {};
 
-    if (!formData.productId) {
-      errors.productId = 'Product is required';
-    }
-
     if (!formData.warehouseIdTo) {
       errors.warehouseIdTo = 'Destination warehouse is required';
     }
@@ -188,9 +186,23 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
       errors.warehouseIdFrom = 'Source warehouse is required for transfers';
     }
 
-    if (!formData.quantity || parseInt(formData.quantity) <= 0) {
-      errors.quantity = 'Quantity must be greater than 0';
+    if (!formData.transferDate) {
+      errors.transferDate = 'Transfer date is required';
     }
+
+    if (formData.items.length === 0) {
+      errors.items = 'At least one product item is required';
+    }
+
+    // Validate each item
+    formData.items.forEach((item, index) => {
+      if (!item.productId) {
+        errors[`items.${index}.productId`] = 'Product is required';
+      }
+      if (!item.quantity || item.quantity <= 0) {
+        errors[`items.${index}.quantity`] = 'Quantity must be greater than 0';
+      }
+    });
 
     if (
       formData.warehouseIdFrom &&
@@ -206,15 +218,22 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
       return;
     }
 
-    const submitData = {
-      productId: formData.productId,
+    const submitData: UpdateTransferData = {
+      transferNumber: formData.transferNumber,
       warehouseIdFrom: formData.warehouseIdFrom || undefined,
       warehouseIdTo: formData.warehouseIdTo,
-      quantity: parseInt(formData.quantity),
       movementType: formData.movementType,
+      status: formData.status,
+      transferDate: formData.transferDate,
       invoiceId: formData.invoiceId.trim() || undefined,
       deliveryId: formData.deliveryId.trim() || undefined,
       notes: formData.notes.trim() || undefined,
+      items: formData.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        quantityTransferred: item.quantityTransferred || 0,
+        notes: item.notes?.trim() || undefined,
+      })),
     };
 
     try {
@@ -235,7 +254,7 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
     }
   };
 
-  const handleInputChange = (field: keyof EditTransferData, value: string) => {
+  const handleInputChange = (field: keyof Omit<EditTransferData, 'items'>, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -248,6 +267,39 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
     if (error) {
       setError(null);
     }
+  };
+
+  const handleAddItem = () => {
+    const newItem: TransferItemData = {
+      productId: '',
+      quantity: 1,
+      quantityTransferred: 0,
+      notes: '',
+    };
+    setFormData((prev) => ({
+      ...prev,
+      items: [...prev.items, newItem],
+    }));
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleItemChange = (
+    index: number,
+    field: keyof TransferItemData,
+    value: string | number,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
+    }));
   };
 
   const isLoading = updateTransferMutation.isPending;
@@ -276,7 +328,7 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
           </div>
         }
         title='Edit Transfer'
-        description={`Update transfer #${transferData.id.slice(-8)}.`}
+        description={`Update transfer ${transferData.transferNumber}.`}
       >
         <BackButton href={`/transfers/${params.id}`} label='Back to Transfer' />
       </Header>
@@ -365,84 +417,215 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
 
             <Divider.Root />
 
-            {/* Product Selection */}
+            {/* Transfer Date */}
             <div>
               <h3 className='text-lg text-gray-900 mb-4 font-medium'>
-                Product Information
+                Transfer Information
               </h3>
 
               <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='product'>
-                    Product <Label.Asterisk />
+                  <Label.Root htmlFor='transferDate'>
+                    Transfer Date <Label.Asterisk />
                   </Label.Root>
-                  <Select.Root
-                    value={formData.productId}
-                    onValueChange={(value) =>
-                      handleInputChange('productId', value)
-                    }
-                  >
-                    <Select.Trigger>
-                      <Select.TriggerIcon as={RiBox1Line} />
-                      <Select.Value placeholder='Select a product' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {isLoadingProducts && (
-                        <Select.Item value='loading' disabled>
-                          Loading products...
-                        </Select.Item>
-                      )}
-                      {!isLoadingProducts && products.length === 0 && (
-                        <Select.Item value='no-products' disabled>
-                          No products available
-                        </Select.Item>
-                      )}
-                      {products.map((product) => (
-                        <Select.Item key={product.id} value={product.id}>
-                          <div>
-                            <div className='font-medium'>{product.name}</div>
-                            <div className='text-xs text-text-sub-600'>
-                              {product.code}
-                            </div>
-                          </div>
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
-                  {validationErrors.productId && (
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiCalendarLine} />
+                      <Input.Input
+                        id='transferDate'
+                        type='date'
+                        value={formData.transferDate}
+                        onChange={(e) =>
+                          handleInputChange('transferDate', e.target.value)
+                        }
+                        required
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.transferDate && (
                     <div className='text-xs text-red-600'>
-                      {validationErrors.productId}
+                      {validationErrors.transferDate}
                     </div>
                   )}
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='quantity'>
-                    Quantity <Label.Asterisk />
+                  <Label.Root htmlFor='status'>
+                    Status
                   </Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiHashtag} />
-                      <Input.Input
-                        id='quantity'
-                        type='number'
-                        min='1'
-                        value={formData.quantity}
-                        onChange={(e) =>
-                          handleInputChange('quantity', e.target.value)
-                        }
-                        placeholder='Enter quantity'
-                        required
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                  {validationErrors.quantity && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.quantity}
-                    </div>
-                  )}
+                  <Select.Root
+                    value={formData.status}
+                    onValueChange={(value) =>
+                      handleInputChange('status', value)
+                    }
+                  >
+                    <Select.Trigger>
+                      <Select.Value placeholder='Select status' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value='pending'>Pending</Select.Item>
+                      <Select.Item value='in_transit'>In Transit</Select.Item>
+                      <Select.Item value='completed'>Completed</Select.Item>
+                      <Select.Item value='cancelled'>Cancelled</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
                 </div>
               </div>
+            </div>
+
+            <Divider.Root />
+
+            {/* Transfer Items */}
+            <div>
+              <div className='mb-4 flex items-center justify-between'>
+                <h3 className='text-lg text-gray-900 font-medium'>
+                  Transfer Items
+                </h3>
+                <Button.Root
+                  type='button'
+                  variant='primary'
+                  size='small'
+                  onClick={handleAddItem}
+                >
+                  <RiAddLine className='size-4' />
+                  Add Item
+                </Button.Root>
+              </div>
+
+              {validationErrors.items && (
+                <div className='text-sm mb-4 text-red-600'>
+                  {validationErrors.items}
+                </div>
+              )}
+
+              {formData.items.length === 0 ? (
+                <div className='text-gray-500 py-8 text-center'>
+                  No items added yet. Click &quot;Add Item&quot; to start.
+                </div>
+              ) : (
+                <div className='space-y-4'>
+                  {formData.items.map((item, index) => (
+                    <div
+                      key={index}
+                      className='rounded-lg border border-stroke-soft-200 p-4'
+                    >
+                      <div className='mb-4 flex items-center justify-between'>
+                        <h4 className='text-gray-900 font-medium'>
+                          Item {index + 1}
+                        </h4>
+                        <Button.Root
+                          type='button'
+                          variant='neutral'
+                          mode='ghost'
+                          size='small'
+                          onClick={() => handleRemoveItem(index)}
+                        >
+                          <RiDeleteBinLine className='size-4' />
+                          Remove
+                        </Button.Root>
+                      </div>
+
+                      <div className='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+                        <div className='flex flex-col gap-2 sm:col-span-2'>
+                          <Label.Root htmlFor={`product-${index}`}>
+                            Product <Label.Asterisk />
+                          </Label.Root>
+                          <Select.Root
+                            value={item.productId}
+                            onValueChange={(value) =>
+                              handleItemChange(index, 'productId', value)
+                            }
+                          >
+                            <Select.Trigger>
+                              <Select.TriggerIcon as={RiBox1Line} />
+                              <Select.Value placeholder='Select product' />
+                            </Select.Trigger>
+                            <Select.Content>
+                              {products.map((product) => (
+                                <Select.Item key={product.id} value={product.id}>
+                                  {product.code} - {product.name}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select.Root>
+                          {validationErrors[`items.${index}.productId`] && (
+                            <div className='text-xs text-red-600'>
+                              {validationErrors[`items.${index}.productId`]}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className='flex flex-col gap-2'>
+                          <Label.Root htmlFor={`quantity-${index}`}>
+                            Quantity <Label.Asterisk />
+                          </Label.Root>
+                          <Input.Root>
+                            <Input.Wrapper>
+                              <Input.Icon as={RiHashtag} />
+                              <Input.Input
+                                id={`quantity-${index}`}
+                                type='number'
+                                min='1'
+                                value={item.quantity}
+                                onChange={(e) =>
+                                  handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)
+                                }
+                                placeholder='Enter quantity'
+                              />
+                            </Input.Wrapper>
+                          </Input.Root>
+                          {validationErrors[`items.${index}.quantity`] && (
+                            <div className='text-xs text-red-600'>
+                              {validationErrors[`items.${index}.quantity`]}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className='flex flex-col gap-2'>
+                          <Label.Root htmlFor={`transferred-${index}`}>
+                            Transferred
+                          </Label.Root>
+                          <Input.Root>
+                            <Input.Wrapper>
+                              <Input.Icon as={RiHashtag} />
+                              <Input.Input
+                                id={`transferred-${index}`}
+                                type='number'
+                                min='0'
+                                max={item.quantity}
+                                value={item.quantityTransferred || 0}
+                                onChange={(e) =>
+                                  handleItemChange(index, 'quantityTransferred', parseInt(e.target.value) || 0)
+                                }
+                                placeholder='Transferred qty'
+                              />
+                            </Input.Wrapper>
+                          </Input.Root>
+                        </div>
+                      </div>
+
+                      <div className='mt-4 flex flex-col gap-2'>
+                        <Label.Root htmlFor={`notes-${index}`}>
+                          Item Notes
+                        </Label.Root>
+                        <Input.Root>
+                          <Input.Wrapper>
+                            <Input.Icon as={RiFileTextLine} />
+                            <Input.Input
+                              id={`notes-${index}`}
+                              value={item.notes || ''}
+                              onChange={(e) =>
+                                handleItemChange(index, 'notes', e.target.value)
+                              }
+                              placeholder='Enter item notes (optional)'
+                            />
+                          </Input.Wrapper>
+                        </Input.Root>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <Divider.Root />

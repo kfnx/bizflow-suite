@@ -139,6 +139,27 @@ export const useCreateTransfer = () => {
   });
 };
 
+export interface UpdateTransferData {
+  transferNumber?: string;
+  warehouseIdFrom?: string;
+  warehouseIdTo?: string;
+  movementType?: 'in' | 'out' | 'transfer' | 'adjustment';
+  status?: string;
+  transferDate?: string;
+  invoiceId?: string;
+  deliveryId?: string;
+  notes?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  completedAt?: string;
+  items?: {
+    productId: string;
+    quantity: number;
+    quantityTransferred?: number;
+    notes?: string;
+  }[];
+}
+
 export const useUpdateTransfer = () => {
   const queryClient = useQueryClient();
 
@@ -148,7 +169,7 @@ export const useUpdateTransfer = () => {
       data,
     }: {
       id: string;
-      data: Partial<Transfer>;
+      data: UpdateTransferData;
     }) => {
       const response = await fetch(`/api/transfers/${id}`, {
         method: 'PUT',

@@ -152,7 +152,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
             <MovementIcon className='size-6 text-text-sub-600' />
           </div>
         }
-        title={`${movementConfig.label} #${transfer.id.slice(-8)}`}
+        title={`${movementConfig.label} ${transfer.transferNumber}`}
         description='Transfer details and movement information.'
       >
         <div className='flex items-center gap-3'>
@@ -187,7 +187,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
               Movement Information
             </h3>
 
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
               <div>
                 <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
                   Movement Type
@@ -202,55 +202,145 @@ export function TransferDetail({ id }: TransferDetailProps) {
                   {movementConfig.description}
                 </p>
               </div>
+
+              <div>
+                <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
+                  Status
+                </div>
+                <div className='flex items-center gap-2'>
+                  <Badge.Root
+                    variant='light'
+                    color={
+                      transfer.status === 'completed'
+                        ? 'green'
+                        : transfer.status === 'cancelled'
+                          ? 'red'
+                          : 'yellow'
+                    }
+                  >
+                    {transfer.status === 'completed' && (
+                      <RiCheckLine className='mr-2 size-4' />
+                    )}
+                    {transfer.status === 'cancelled' && (
+                      <RiCloseLine className='mr-2 size-4' />
+                    )}
+                    {transfer.status === 'pending' && (
+                      <RiCalendarLine className='mr-2 size-4' />
+                    )}
+                    {transfer.status?.charAt(0).toUpperCase() +
+                      transfer.status?.slice(1)}
+                  </Badge.Root>
+                </div>
+              </div>
+
+              <div>
+                <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
+                  Transfer Date
+                </div>
+                <div className='flex items-center gap-2'>
+                  <RiCalendarLine className='size-4 text-text-sub-600' />
+                  <span className='text-paragraph-sm text-text-strong-950'>
+                    {formatDate(transfer.transferDate)}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
           <Divider.Root />
 
-          {/* Product Information */}
+          {/* Transfer Items */}
           <div>
-            <h3 className='text-lg text-gray-900 mb-4 font-medium'>
-              Product Information
-            </h3>
-
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-              <div>
-                <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
-                  Product Name
-                </div>
-                <div className='flex items-center gap-2'>
-                  <RiBox1Line className='size-4 text-text-sub-600' />
-                  <span className='text-paragraph-sm text-text-strong-950'>
-                    {transfer.name}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
-                  Product Code
-                </div>
-                <div className='flex items-center gap-2'>
-                  <span className='font-mono text-paragraph-sm text-text-sub-600'>
-                    {transfer.productCode}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
-                  Quantity
-                </div>
-                <div className='flex items-center gap-2'>
-                  <span className='text-paragraph-lg font-semibold text-text-strong-950'>
-                    {transfer.totalQuantity?.toLocaleString() || '0'}
-                  </span>
-                  <span className='text-paragraph-sm text-text-sub-600'>
-                    units
-                  </span>
-                </div>
+            <div className='mb-4 flex items-center justify-between'>
+              <h3 className='text-lg text-gray-900 font-medium'>
+                Transfer Items
+              </h3>
+              <div className='flex items-center gap-2'>
+                <Badge.Root variant='light' color='blue'>
+                  {transfer.itemCount || 0}{' '}
+                  {(transfer.itemCount || 0) === 1 ? 'item' : 'items'}
+                </Badge.Root>
+                <Badge.Root variant='light' color='green'>
+                  {transfer.totalQuantity?.toLocaleString() || '0'} total units
+                </Badge.Root>
               </div>
             </div>
+
+            {transfer.items && transfer.items.length > 0 ? (
+              <div className='space-y-4'>
+                {transfer.items.map((item, index) => (
+                  <div
+                    key={item.id || index}
+                    className='rounded-lg border border-stroke-soft-200 p-4'
+                  >
+                    <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+                      <div className='md:col-span-2'>
+                        <div className='text-sm mb-1 font-medium uppercase tracking-wide text-text-soft-400'>
+                          Product
+                        </div>
+                        <div className='flex items-center gap-2'>
+                          <RiBox1Line className='size-4 text-text-sub-600' />
+                          <div>
+                            <div className='text-paragraph-sm font-medium text-text-strong-950'>
+                              {item.productName}
+                            </div>
+                            <div className='text-xs font-mono text-text-sub-600'>
+                              {item.productCode}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className='text-sm mb-1 font-medium uppercase tracking-wide text-text-soft-400'>
+                          Requested
+                        </div>
+                        <div className='flex items-center gap-2'>
+                          <RiHashtag className='size-4 text-text-sub-600' />
+                          <span className='text-paragraph-sm font-semibold text-text-strong-950'>
+                            {item.quantity.toLocaleString()}
+                          </span>
+                          <span className='text-xs text-text-sub-600'>
+                            units
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className='text-sm mb-1 font-medium uppercase tracking-wide text-text-soft-400'>
+                          Transferred
+                        </div>
+                        <div className='flex items-center gap-2'>
+                          <RiCheckLine className='size-4 text-green-600' />
+                          <span className='text-paragraph-sm font-semibold text-green-700'>
+                            {item.quantityTransferred?.toLocaleString() || '0'}
+                          </span>
+                          <span className='text-xs text-text-sub-600'>
+                            units
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {item.notes && (
+                      <div className='mt-3 border-t border-stroke-soft-200 pt-3'>
+                        <div className='text-sm mb-1 font-medium uppercase tracking-wide text-text-soft-400'>
+                          Item Notes
+                        </div>
+                        <p className='text-paragraph-sm text-text-sub-600'>
+                          {item.notes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className='py-8 text-center text-text-sub-600'>
+                <RiBox1Line className='mx-auto mb-4 size-12 text-text-soft-400' />
+                <p>No items found for this transfer.</p>
+              </div>
+            )}
           </div>
 
           <Divider.Root />
@@ -359,15 +449,53 @@ export function TransferDetail({ id }: TransferDetailProps) {
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <div>
                 <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
-                  Created Date
+                  Created By
                 </div>
                 <div className='flex items-center gap-2'>
                   <RiCalendarLine className='size-4 text-text-sub-600' />
-                  <span className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(transfer.createdAt)}
-                  </span>
+                  <div>
+                    <div className='text-paragraph-sm text-text-strong-950'>
+                      {transfer.createdByName || 'Unknown'}
+                    </div>
+                    <div className='text-xs text-text-sub-600'>
+                      {formatDate(transfer.createdAt)}
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {transfer.approvedBy && (
+                <div>
+                  <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
+                    Approved By
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <RiCheckLine className='size-4 text-green-600' />
+                    <div>
+                      <div className='text-paragraph-sm text-text-strong-950'>
+                        {transfer.approvedByName || 'Unknown'}
+                      </div>
+                      <div className='text-xs text-text-sub-600'>
+                        {transfer.approvedAt && formatDate(transfer.approvedAt)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {transfer.completedAt && (
+                <div>
+                  <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
+                    Completed Date
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <RiCheckLine className='size-4 text-green-600' />
+                    <span className='text-paragraph-sm text-text-strong-950'>
+                      {formatDate(transfer.completedAt)}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>

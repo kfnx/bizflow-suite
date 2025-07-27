@@ -48,7 +48,7 @@ export type ImportItem = {
   // Category-specific fields
   machineTypeId?: string; // for serialized
   unitOfMeasureId?: string; // for non-serialized/bulk
-  modelOrPartNumber?: string;
+  partNumber?: string;
   machineNumber?: string;
   engineNumber?: string;
   serialNumber?: string;

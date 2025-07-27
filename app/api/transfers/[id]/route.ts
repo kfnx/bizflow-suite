@@ -3,7 +3,13 @@ import { eq, sql } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { transfers, transferItems, users, warehouses, products } from '@/lib/db/schema';
+import {
+  products,
+  transferItems,
+  transfers,
+  users,
+  warehouses,
+} from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,9 +42,15 @@ export async function GET(
         deliveryId: transfers.deliveryId,
         notes: transfers.notes,
         createdBy: transfers.createdBy,
-        createdByName: sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as('createdByName'),
+        createdByName:
+          sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as(
+            'createdByName',
+          ),
         approvedBy: transfers.approvedBy,
-        approvedByName: sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as('approvedByName'),
+        approvedByName:
+          sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as(
+            'approvedByName',
+          ),
         approvedAt: transfers.approvedAt,
         completedAt: transfers.completedAt,
         createdAt: transfers.createdAt,
@@ -46,7 +58,10 @@ export async function GET(
       })
       .from(transfers)
       .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
-      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(
+        sql`${warehouses} AS w2`,
+        sql`${transfers.warehouseIdTo} = w2.id`,
+      )
       .leftJoin(users, eq(transfers.createdBy, users.id))
       .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
       .where(eq(transfers.id, id))
@@ -139,18 +154,25 @@ export async function PUT(
     // Update transfer
     const updateData: any = {};
 
-    if (transferNumber !== undefined) updateData.transferNumber = transferNumber?.trim();
-    if (warehouseIdFrom !== undefined) updateData.warehouseIdFrom = warehouseIdFrom;
+    if (transferNumber !== undefined)
+      updateData.transferNumber = transferNumber?.trim();
+    if (warehouseIdFrom !== undefined)
+      updateData.warehouseIdFrom = warehouseIdFrom;
     if (warehouseIdTo !== undefined) updateData.warehouseIdTo = warehouseIdTo;
     if (movementType !== undefined) updateData.movementType = movementType;
     if (status !== undefined) updateData.status = status;
-    if (transferDate !== undefined) updateData.transferDate = new Date(transferDate);
-    if (invoiceId !== undefined) updateData.invoiceId = invoiceId?.trim() || null;
-    if (deliveryId !== undefined) updateData.deliveryId = deliveryId?.trim() || null;
+    if (transferDate !== undefined)
+      updateData.transferDate = new Date(transferDate);
+    if (invoiceId !== undefined)
+      updateData.invoiceId = invoiceId?.trim() || null;
+    if (deliveryId !== undefined)
+      updateData.deliveryId = deliveryId?.trim() || null;
     if (notes !== undefined) updateData.notes = notes?.trim() || null;
     if (approvedBy !== undefined) updateData.approvedBy = approvedBy;
-    if (approvedAt !== undefined) updateData.approvedAt = approvedAt ? new Date(approvedAt) : null;
-    if (completedAt !== undefined) updateData.completedAt = completedAt ? new Date(completedAt) : null;
+    if (approvedAt !== undefined)
+      updateData.approvedAt = approvedAt ? new Date(approvedAt) : null;
+    if (completedAt !== undefined)
+      updateData.completedAt = completedAt ? new Date(completedAt) : null;
 
     await db.update(transfers).set(updateData).where(eq(transfers.id, id));
 
@@ -187,9 +209,15 @@ export async function PUT(
         deliveryId: transfers.deliveryId,
         notes: transfers.notes,
         createdBy: transfers.createdBy,
-        createdByName: sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as('createdByName'),
+        createdByName:
+          sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as(
+            'createdByName',
+          ),
         approvedBy: transfers.approvedBy,
-        approvedByName: sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as('approvedByName'),
+        approvedByName:
+          sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as(
+            'approvedByName',
+          ),
         approvedAt: transfers.approvedAt,
         completedAt: transfers.completedAt,
         createdAt: transfers.createdAt,
@@ -197,7 +225,10 @@ export async function PUT(
       })
       .from(transfers)
       .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
-      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(
+        sql`${warehouses} AS w2`,
+        sql`${transfers.warehouseIdTo} = w2.id`,
+      )
       .leftJoin(users, eq(transfers.createdBy, users.id))
       .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
       .where(eq(transfers.id, id))

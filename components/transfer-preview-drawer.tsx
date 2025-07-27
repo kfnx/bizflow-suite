@@ -4,7 +4,6 @@ import {
   RiArrowRightLine,
   RiBox3Line,
   RiCalendarLine,
-  RiExchangeFundsLine,
   RiExternalLinkLine,
   RiReceiptLine,
   RiStoreLine,
@@ -16,7 +15,6 @@ import { formatDate } from '@/utils/date-formatter';
 import {
   useTransfer,
   type Transfer,
-  type TransferItem,
 } from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -68,10 +66,6 @@ export function TransferPreviewDrawer({
   const { data: transfer, isLoading, error } = useTransfer(transferId);
 
   if (!open) return null;
-
-  const formatQuantity = (quantity: number) => {
-    return new Intl.NumberFormat('id-ID').format(quantity);
-  };
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>

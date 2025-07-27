@@ -1,6 +1,7 @@
 # Proposed import_items Schema Enhancement
 
 ## Current Schema Issues
+
 The current `import_items` table only stores basic pricing/quantity data but lacks all product specification fields needed for product creation during verification.
 
 ## Proposed Solution: Expand import_items Table
@@ -11,12 +12,12 @@ export const importItems = mysqlTable(
   {
     id: varchar('id', { length: 36 }).primaryKey().notNull().default(sql`(UUID())`),
     importId: varchar('import_id', { length: 36 }).notNull(),
-    
+
     // Pricing & Quantity (existing)
     priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).notNull(),
     quantity: int('quantity').notNull().default(1),
     notes: text('notes'),
-    
+
     // Product Creation Data (NEW)
     // Core product fields
     category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
@@ -25,11 +26,11 @@ export const importItems = mysqlTable(
     brandId: varchar('brand_id', { length: 36 }),
     condition: varchar('condition', { length: 50 }).default('new'),
     year: int('year'),
-    
+
     // Category-specific fields
     machineTypeId: varchar('machine_type_id', { length: 36 }), // for serialized
     unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // for non-serialized/bulk
-    modelOrPartNumber: varchar('model_or_part_number', { length: 100 }),
+    partNumber: varchar('model_or_part_number', { length: 100 }),
     machineNumber: varchar('machine_number', { length: 100 }),
     engineNumber: varchar('engine_number', { length: 100 }),
     serialNumber: varchar('serial_number', { length: 100 }),
@@ -39,10 +40,10 @@ export const importItems = mysqlTable(
     operatingWeight: varchar('operating_weight', { length: 50 }),
     batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }),
     modelNumber: varchar('model_number', { length: 100 }),
-    
+
     // Reference to existing product (for updates)
     productId: varchar('product_id', { length: 36 }), // nullable - only set if updating existing product
-    
+
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
@@ -104,7 +105,7 @@ ALTER TABLE import_items ADD COLUMN description TEXT;
 1. Check if productId exists (updating existing product)
    - Update product with new data
    - Create stock movement for quantity difference
-   
+
 2. If no productId (new product):
    - Check for existing product by machineNumber (for serialized)
    - If exists: link and update
@@ -115,14 +116,17 @@ ALTER TABLE import_items ADD COLUMN description TEXT;
 ## Alternative Solutions Considered
 
 **Option 2: Separate import_product_data table**
+
 - More normalized but adds complexity
 - Requires additional joins
 
 **Option 3: JSON column for product specs**
+
 - Less structured, harder to query/validate
 - Database-specific features
 
 **Option 4: Pre-create products in draft state**
+
 - Complicates product queries (need to filter drafts)
 - More complex state management
 

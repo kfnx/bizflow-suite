@@ -26,15 +26,25 @@ import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 
-interface EditTransferData {
+interface TransferItemData {
+  id?: string;
   productId: string;
+  quantity: number;
+  quantityTransferred?: number;
+  notes?: string;
+}
+
+interface EditTransferData {
+  transferNumber: string;
   warehouseIdFrom: string;
   warehouseIdTo: string;
-  quantity: string;
   movementType: 'in' | 'out' | 'transfer' | 'adjustment';
+  status: string;
+  transferDate: string;
   invoiceId: string;
   deliveryId: string;
   notes: string;
+  items: TransferItemData[];
 }
 
 interface EditTransferPageProps {
@@ -64,14 +74,16 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
     });
 
   const [formData, setFormData] = useState<EditTransferData>({
-    productId: '',
+    transferNumber: '',
     warehouseIdFrom: '',
     warehouseIdTo: '',
-    quantity: '',
     movementType: 'transfer',
+    status: 'pending',
+    transferDate: '',
     invoiceId: '',
     deliveryId: '',
     notes: '',
+    items: [],
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -86,14 +98,25 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
   useEffect(() => {
     if (transferData) {
       setFormData({
-        productId: transferData.productId || '',
+        transferNumber: transferData.transferNumber || '',
         warehouseIdFrom: transferData.warehouseIdFrom || '',
         warehouseIdTo: transferData.warehouseIdTo || '',
-        quantity: transferData.quantity?.toString() || '',
         movementType: transferData.movementType || 'transfer',
+        status: transferData.status || 'pending',
+        transferDate: transferData.transferDate
+          ? transferData.transferDate.split('T')[0]
+          : '',
         invoiceId: transferData.invoiceId || '',
         deliveryId: transferData.deliveryId || '',
         notes: transferData.notes || '',
+        items:
+          transferData.items?.map((item) => ({
+            id: item.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            quantityTransferred: item.quantityTransferred,
+            notes: item.notes,
+          })) || [],
       });
     }
   }, [transferData]);

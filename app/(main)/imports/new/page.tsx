@@ -54,7 +54,7 @@ interface ProductItem {
   // Category-specific fields
   machineTypeId?: string;
   unitOfMeasureId?: string;
-  modelOrPartNumber?: string;
+  partNumber?: string;
   machineNumber?: string;
   engineNumber?: string;
   serialNumber?: string;
@@ -460,23 +460,23 @@ function ProductItemForm({
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelPartNumber-${index}`}>
-              Model/Part Number
+              Part Number
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
                   id={`modelPartNumber-${index}`}
-                  value={item.modelOrPartNumber || ''}
+                  value={item.partNumber || ''}
                   onChange={(e) =>
-                    handleFieldChange('modelOrPartNumber', e.target.value)
+                    handleFieldChange('partNumber', e.target.value)
                   }
                   placeholder='Part Number'
                 />
               </Input.Wrapper>
             </Input.Root>
-            {getFieldError('modelOrPartNumber') && (
+            {getFieldError('partNumber') && (
               <div className='text-xs text-red-600'>
-                {getFieldError('modelOrPartNumber')}
+                {getFieldError('partNumber')}
               </div>
             )}
           </div>
@@ -648,7 +648,7 @@ export default function NewImportPage() {
       brandId: '',
       unitOfMeasureId: '',
       batchOrLotNumber: '',
-      modelOrPartNumber: '',
+      partNumber: '',
     };
   }
 
@@ -798,9 +798,9 @@ export default function NewImportPage() {
             errors[`items.${index}.unitOfMeasureId`] =
               'Unit of measure is required';
           }
-          if (!item.modelOrPartNumber?.trim()) {
-            errors[`items.${index}.modelOrPartNumber`] =
-              'Model/Part number is required for bulk products';
+          if (!item.partNumber?.trim()) {
+            errors[`items.${index}.partNumber`] =
+              'Part Number is required for bulk products';
           }
           if (!item.batchOrLotNumber?.trim()) {
             errors[`items.${index}.batchOrLotNumber`] =
@@ -831,12 +831,12 @@ export default function NewImportPage() {
       code:
         item.modelNumber ||
         item.name ||
-        item.modelOrPartNumber ||
+        item.partNumber ||
         `ITEM-${Date.now()}`,
       name:
         item.name ||
         item.modelNumber ||
-        item.modelOrPartNumber ||
+        item.partNumber ||
         `Product ${Date.now()}`,
     }));
 

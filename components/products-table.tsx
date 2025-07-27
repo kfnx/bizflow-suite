@@ -136,8 +136,7 @@ export function ProductsTable({
           <div className='text-paragraph-xs text-text-soft-400'>
             {row.original.brandName && `${row.original.brandName} • `}
             {row.original.category || 'Uncategorized'}
-            {row.original.modelOrPartNumber &&
-              ` • ${row.original.modelOrPartNumber}`}
+            {row.original.partNumber && ` • ${row.original.partNumber}`}
           </div>
         </div>
       ),

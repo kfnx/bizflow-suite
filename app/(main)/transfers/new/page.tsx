@@ -4,27 +4,22 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
-  RiArrowRightLine,
-  RiBox1Line,
   RiCalendarLine,
   RiDeleteBinLine,
-  RiExchangeLine,
   RiFileTextLine,
   RiHashtag,
-  RiStoreLine,
   RiTruckLine,
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
 import { useProducts } from '@/hooks/use-products';
+import { useTransferNumber } from '@/hooks/use-transfer-number';
 import { useCreateTransfer } from '@/hooks/use-transfers';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
-import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
-import * as Table from '@/components/ui/table';
 import { Root as TextareaRoot } from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
@@ -48,6 +43,7 @@ interface TransferFormData {
 }
 
 interface CreateTransferData {
+  transferNumber: string;
   warehouseIdFrom?: string;
   warehouseIdTo: string;
   movementType: 'in' | 'out' | 'transfer' | 'adjustment';
@@ -65,6 +61,9 @@ interface CreateTransferData {
 export default function NewTransferPage() {
   const router = useRouter();
   const createTransferMutation = useCreateTransfer();
+
+  const { data: transferNumber, isLoading: isLoadingTransferNumber } =
+    useTransferNumber();
 
   const { data: productsData, isLoading: isLoadingProducts } = useProducts({
     limit: 1000,
@@ -138,6 +137,7 @@ export default function NewTransferPage() {
 
     try {
       const submitData: CreateTransferData = {
+        transferNumber: transferNumber!,
         warehouseIdFrom: formData.warehouseIdFrom || undefined,
         warehouseIdTo: formData.warehouseIdTo,
         movementType: formData.movementType,
@@ -221,12 +221,34 @@ export default function NewTransferPage() {
     }
   };
 
-  const getSelectedProductName = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
-    return product ? `${product.code} - ${product.name}` : '';
-  };
+  const TransferNumberDisplay = ({
+    transferNumber,
+  }: {
+    transferNumber: string;
+  }) => (
+    <div className='mb-4 rounded-lg border border-stroke-soft-200 bg-bg-weak-50 p-4'>
+      <div className='flex items-center gap-3'>
+        <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-bg-white-0 ring-1 ring-inset ring-stroke-soft-200'>
+          <RiHashtag className='size-5 text-text-sub-600' />
+        </div>
+        <div>
+          <div className='text-sm font-medium text-text-strong-950'>
+            Transfer Number
+          </div>
+          <div className='text-lg font-semibold text-text-strong-950'>
+            {transferNumber}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
-  if (isLoadingProducts || isLoadingWarehouses) {
+  if (
+    isLoadingProducts ||
+    isLoadingWarehouses ||
+    isLoadingTransferNumber ||
+    !transferNumber
+  ) {
     return (
       <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
         Loading...
@@ -258,6 +280,8 @@ export default function NewTransferPage() {
             <h3 className='text-lg text-gray-900 font-medium'>
               Transfer Information
             </h3>
+
+            <TransferNumberDisplay transferNumber={transferNumber} />
 
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div className='flex flex-col gap-2'>
@@ -371,7 +395,7 @@ export default function NewTransferPage() {
 
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='invoiceId'>Invoice ID</Label.Root>
+                <Label.Root htmlFor='invoiceId'>Invoice Number</Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Icon as={RiFileTextLine} />
@@ -381,14 +405,14 @@ export default function NewTransferPage() {
                       onChange={(e) =>
                         handleInputChange('invoiceId', e.target.value)
                       }
-                      placeholder='Enter invoice ID (optional)'
+                      placeholder='Enter invoice number (optional)'
                     />
                   </Input.Wrapper>
                 </Input.Root>
               </div>
 
               <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='deliveryId'>Delivery ID</Label.Root>
+                <Label.Root htmlFor='deliveryId'>Delivery Number</Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
                     <Input.Icon as={RiTruckLine} />
@@ -398,7 +422,7 @@ export default function NewTransferPage() {
                       onChange={(e) =>
                         handleInputChange('deliveryId', e.target.value)
                       }
-                      placeholder='Enter delivery ID (optional)'
+                      placeholder='Enter delivery number (optional)'
                     />
                   </Input.Wrapper>
                 </Input.Root>

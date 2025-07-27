@@ -353,13 +353,13 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 </div>
               )}
 
-              {productData.modelOrPartNumber && (
+              {productData.partNumber && (
                 <div>
                   <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Model/Part Number
+                    Part Number
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.modelOrPartNumber}
+                    {productData.partNumber}
                   </div>
                 </div>
               )}
@@ -445,13 +445,13 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 </div>
               )}
 
-              {productData.modelOrPartNumber && (
+              {productData.partNumber && (
                 <div>
                   <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Model/Part Number
+                    Part Number
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.modelOrPartNumber}
+                    {productData.partNumber}
                   </div>
                 </div>
               )}
@@ -493,13 +493,13 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 </div>
               )}
 
-              {productData.modelOrPartNumber && (
+              {productData.partNumber && (
                 <div>
                   <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Model/Part Number
+                    Part Number
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.modelOrPartNumber}
+                    {productData.partNumber}
                   </div>
                 </div>
               )}

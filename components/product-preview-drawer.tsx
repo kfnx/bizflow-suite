@@ -85,8 +85,7 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               {product.category || 'Uncategorized'}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {product.modelOrPartNumber &&
-                `Model: ${product.modelOrPartNumber}`}
+              {product.partNumber && `Model: ${product.partNumber}`}
               {product.machineNumber && ` • Machine: ${product.machineNumber}`}
             </div>
           </div>
@@ -168,13 +167,13 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
                   </span>
                 </div>
               )}
-              {product.modelOrPartNumber && (
+              {product.partNumber && (
                 <div className='flex justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
-                    Model/Part Number:
+                    Part Number:
                   </span>
                   <span className='text-label-sm text-text-strong-950'>
-                    {product.modelOrPartNumber}
+                    {product.partNumber}
                   </span>
                 </div>
               )}
@@ -239,13 +238,13 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
                   </span>
                 </div>
               )}
-              {product.modelOrPartNumber && (
+              {product.partNumber && (
                 <div className='flex justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
-                    Model/Part Number:
+                    Part Number:
                   </span>
                   <span className='text-label-sm text-text-strong-950'>
-                    {product.modelOrPartNumber}
+                    {product.partNumber}
                   </span>
                 </div>
               )}
@@ -270,13 +269,13 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
                   </span>
                 </div>
               )}
-              {product.modelOrPartNumber && (
+              {product.partNumber && (
                 <div className='flex justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
-                    Model/Part Number:
+                    Part Number:
                   </span>
                   <span className='text-label-sm text-text-strong-950'>
-                    {product.modelOrPartNumber}
+                    {product.partNumber}
                   </span>
                 </div>
               )}

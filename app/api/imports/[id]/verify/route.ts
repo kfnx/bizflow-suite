@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { desc, eq, like } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -9,6 +9,8 @@ import {
   imports,
   InsertProduct,
   products,
+  transferItems,
+  transfers,
   users,
 } from '@/lib/db/schema';
 
@@ -50,6 +52,13 @@ export async function POST(
       .select()
       .from(importItems)
       .where(eq(importItems.importId, id));
+
+    // Keep track of created products for transfer creation
+    const createdProducts: {
+      productId: string;
+      quantity: number;
+      notes?: string;
+    }[] = [];
 
     // Process each import item
     for (const item of items) {
@@ -98,6 +107,22 @@ export async function POST(
           isActive: true,
         };
         await db.insert(products).values(insertData);
+
+        // Get the created product ID by serial number
+        const createdProduct = await db
+          .select({ id: products.id })
+          .from(products)
+          .where(eq(products.serialNumber, item.serialNumber))
+          .orderBy(desc(products.createdAt))
+          .limit(1);
+
+        if (createdProduct.length > 0) {
+          createdProducts.push({
+            productId: createdProduct[0].id,
+            quantity: 1, // Serialized products are always quantity 1
+            notes: `Import from ${importData[0].id} - ${item.serialNumber}`,
+          });
+        }
       } else {
         // For non-serialized/bulk products, check for duplicates by part number
         if (!item.partNumber) {
@@ -143,6 +168,80 @@ export async function POST(
           isActive: true,
         };
         await db.insert(products).values(insertData);
+
+        // Get the created product ID by part number
+        const createdProduct = await db
+          .select({ id: products.id })
+          .from(products)
+          .where(eq(products.partNumber, item.partNumber))
+          .orderBy(desc(products.createdAt))
+          .limit(1);
+
+        if (createdProduct.length > 0) {
+          createdProducts.push({
+            productId: createdProduct[0].id,
+            quantity: item.quantity || 1,
+            notes: `Import from ${importData[0].id} - ${item.partNumber}`,
+          });
+        }
+      }
+    }
+
+    // Create transfer IN record for the imported products
+    if (createdProducts.length > 0) {
+      // Generate transfer number (TRF/YYYY/MM/XXX format)
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+      // Get count of transfers this month to generate sequence number
+      const monthTransfers = await db
+        .select({ count: transfers.id })
+        .from(transfers)
+        .where(like(transfers.transferNumber, `TRF/${year}/${month}/%`));
+
+      const sequence = (monthTransfers.length + 1).toString().padStart(3, '0');
+      const transferNumber = `TRF/${year}/${month}/${sequence}`;
+
+      // Create transfer record
+      const newTransfer = {
+        transferNumber,
+        warehouseIdFrom: null, // Import from external source
+        warehouseIdTo: importData[0].warehouseId,
+        movementType: 'in' as const,
+        status: 'completed',
+        transferDate: new Date(),
+        invoiceId: importData[0].invoiceNumber || null,
+        notes: `Auto-generated transfer for import verification: ${importData[0].id}`,
+        createdBy: session.user.id,
+        approvedBy: session.user.id,
+        approvedAt: new Date(),
+        completedAt: new Date(),
+      };
+
+      await db.insert(transfers).values(newTransfer);
+
+      // Get the created transfer to obtain the auto-generated ID
+      const createdTransferRecord = await db
+        .select({ id: transfers.id })
+        .from(transfers)
+        .where(eq(transfers.transferNumber, transferNumber))
+        .orderBy(desc(transfers.createdAt))
+        .limit(1);
+
+      if (createdTransferRecord.length > 0) {
+        const transferId = createdTransferRecord[0].id;
+
+        // Create transfer items
+        const transferItemsData = createdProducts.map((product) => ({
+          transferId,
+          productId: product.productId,
+          quantity: product.quantity,
+          quantityTransferred: product.quantity, // Mark as fully transferred since import is complete
+          notes: product.notes,
+        }));
+
+        await db.insert(transferItems).values(transferItemsData);
       }
     }
 

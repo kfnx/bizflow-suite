@@ -40,7 +40,7 @@ const nonSerializedProductSchema = baseProductSchema.extend({
   batchOrLotNumber: z.string().max(100).optional(),
   // These should be null for non-serialized
   machineTypeId: z.string().nullish(),
-  partNumber: z.string().max(100).optional(),
+  partNumber: z.string().max(100),
   modelNumber: z.string().nullish(),
   machineNumber: z.string().nullish(),
   engineNumber: z.string().nullish(),
@@ -54,7 +54,7 @@ const bulkProductSchema = baseProductSchema.extend({
   unitOfMeasureId: z
     .string()
     .min(1, 'Unit of measure is required for bulk products'),
-  partNumber: z.string().max(100).optional(),
+  partNumber: z.string().max(100),
   modelNumber: z.string().nullish(),
   batchOrLotNumber: z.string().max(100).optional(),
   // These should be null for bulk

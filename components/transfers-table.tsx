@@ -131,9 +131,7 @@ function ActionCell({ row }: { row: any }) {
   );
 }
 
-const createColumns = (
-  onPreview?: (id: string) => void,
-): ColumnDef<Transfer>[] => [
+const createColumns = (): ColumnDef<Transfer>[] => [
   {
     id: 'transfer',
     accessorKey: 'transferNumber',
@@ -149,10 +147,8 @@ const createColumns = (
       </div>
     ),
     cell: ({ row }) => (
-      <div className='flex items-center gap-3'>
-        <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-inset ring-blue-200'>
-          <RiBox3Line className='size-5 text-blue-600' />
-        </div>
+      <div className='flex items-center gap-2'>
+        <RiBox3Line className='size-5 text-primary-base' />
         <div className='flex flex-col'>
           <div className='text-paragraph-sm font-medium text-text-strong-950'>
             {row.original.transferNumber}
@@ -195,14 +191,18 @@ const createColumns = (
     id: 'warehouses',
     header: 'Warehouses',
     cell: ({ row }) => (
-      <div className='flex items-center gap-2'>
-        <div className='flex items-center gap-1'>
-          <RiStoreLine className='text-text-sub-400 size-4' />
-          <span className='text-paragraph-sm text-text-sub-600'>
-            {row.original.warehouseFromName}
-          </span>
-        </div>
-        <RiArrowRightLine className='text-text-sub-400 size-4' />
+      <div className='flex items-center justify-start gap-2'>
+        {row.original.warehouseFromName && (
+          <>
+            <div className='flex items-center gap-1'>
+              <RiStoreLine className='text-text-sub-400 size-4' />
+              <span className='text-paragraph-sm text-text-sub-600'>
+                {row.original.warehouseFromName}
+              </span>
+            </div>
+            <RiArrowRightLine className='text-text-sub-400 size-4' />
+          </>
+        )}
         <div className='flex items-center gap-1'>
           <RiStoreLine className='text-text-sub-400 size-4' />
           <span className='text-paragraph-sm text-text-sub-600'>
@@ -263,7 +263,7 @@ const createColumns = (
           </div>
         )}
         {!row.original.invoiceId && !row.original.deliveryId && (
-          <div className='text-text-sub-400 text-paragraph-xs'>
+          <div className='text-paragraph-xs text-text-sub-600'>
             No references
           </div>
         )}
@@ -377,8 +377,8 @@ export function TransfersTable({
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const columns = React.useMemo(
-    () => createColumns(onTransferSelect),
-    [onTransferSelect],
+    () => createColumns(),
+    [],
   );
 
   const table = useReactTable({

@@ -50,7 +50,7 @@ interface ProductItem {
   // Category-specific fields
   machineTypeId?: string;
   unitOfMeasureId?: string;
-  modelOrPartNumber?: string;
+  partNumber?: string;
   machineNumber?: string;
   engineNumber?: string;
   serialNumber?: string;
@@ -386,15 +386,15 @@ function ProductItemForm({
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelPartNumber-${index}`}>
-              Model/Part Number
+              Part Number
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
                   id={`modelPartNumber-${index}`}
-                  value={item.modelOrPartNumber || ''}
+                  value={item.partNumber || ''}
                   onChange={(e) =>
-                    handleFieldChange('modelOrPartNumber', e.target.value)
+                    handleFieldChange('partNumber', e.target.value)
                   }
                   placeholder='Part Number'
                 />
@@ -583,7 +583,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       machineTypeId: '', // Add this for serialized products
       unitOfMeasureId: '',
       batchOrLotNumber: '',
-      modelOrPartNumber: '',
+      partNumber: '',
     };
   }
 
@@ -649,7 +649,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
             year: item.year?.toString() || '',
             machineTypeId: item.machineTypeId || '',
             unitOfMeasureId: item.unitOfMeasureId || '',
-            modelOrPartNumber: item.modelOrPartNumber || '',
+            partNumber: item.partNumber || '',
             machineNumber: item.machineNumber || '',
             engineNumber: item.engineNumber || '',
             serialNumber: item.serialNumber || '',
@@ -771,9 +771,9 @@ export default function EditImportPage({ params }: EditImportPageProps) {
           'Unit of measure is required';
       }
       if (item.category === 'bulk') {
-        if (!item.modelOrPartNumber?.trim()) {
-          errors[`items.${index}.modelOrPartNumber`] =
-            'Model/Part number is required for bulk products';
+        if (!item.partNumber?.trim()) {
+          errors[`items.${index}.partNumber`] =
+            'Part number is required for bulk products';
         }
         // Note: batchOrLotNumber, description, and brandId are optional for bulk products
       }
@@ -807,7 +807,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       year: item.year && item.year.trim() ? parseInt(item.year) : undefined,
       machineTypeId: item.machineTypeId?.trim() || undefined,
       unitOfMeasureId: item.unitOfMeasureId?.trim() || undefined,
-      modelOrPartNumber: item.modelOrPartNumber?.trim() || undefined,
+      partNumber: item.partNumber?.trim() || undefined,
       machineNumber: item.machineNumber?.trim() || undefined,
       engineNumber: item.engineNumber?.trim() || undefined,
       serialNumber: item.serialNumber?.trim() || undefined,

@@ -3,7 +3,7 @@ import { and, asc, desc, eq, like, or, sql } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { transfers, transferItems, users, warehouses, products } from '@/lib/db/schema';
+import { transferItems, transfers, users, warehouses } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     const movementType = searchParams.get('movementType') || undefined;
     const warehouseFrom = searchParams.get('warehouseFrom') || undefined;
     const warehouseTo = searchParams.get('warehouseTo') || undefined;
-    const productId = searchParams.get('productId') || undefined;
     const dateFrom = searchParams.get('dateFrom') || undefined;
     const dateTo = searchParams.get('dateTo') || undefined;
     const sortBy = searchParams.get('sortBy') || undefined;
@@ -89,7 +88,9 @@ export async function GET(request: NextRequest) {
         id: transfers.id,
         transferNumber: transfers.transferNumber,
         warehouseIdFrom: transfers.warehouseIdFrom,
-        warehouseFromName: sql<string>`${warehouses}.name`.as('warehouseFromName'),
+        warehouseFromName: sql<string>`${warehouses}.name`.as(
+          'warehouseFromName',
+        ),
         warehouseIdTo: transfers.warehouseIdTo,
         warehouseToName: sql<string>`w2.name`.as('warehouseToName'),
         movementType: transfers.movementType,
@@ -99,19 +100,30 @@ export async function GET(request: NextRequest) {
         deliveryId: transfers.deliveryId,
         notes: transfers.notes,
         createdBy: transfers.createdBy,
-        createdByName: sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as('createdByName'),
+        createdByName:
+          sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as(
+            'createdByName',
+          ),
         approvedBy: transfers.approvedBy,
-        approvedByName: sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as('approvedByName'),
+        approvedByName:
+          sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as(
+            'approvedByName',
+          ),
         approvedAt: transfers.approvedAt,
         completedAt: transfers.completedAt,
         createdAt: transfers.createdAt,
         updatedAt: transfers.updatedAt,
         itemCount: sql<number>`COUNT(${transferItems}.id)`.as('itemCount'),
-        totalQuantity: sql<number>`SUM(${transferItems}.quantity)`.as('totalQuantity'),
+        totalQuantity: sql<number>`SUM(${transferItems}.quantity)`.as(
+          'totalQuantity',
+        ),
       })
       .from(transfers)
       .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
-      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(
+        sql`${warehouses} AS w2`,
+        sql`${transfers.warehouseIdTo} = w2.id`,
+      )
       .leftJoin(users, eq(transfers.createdBy, users.id))
       .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
       .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
@@ -123,10 +135,15 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     const totalCountResult = await db
-      .select({ count: sql<number>`COUNT(DISTINCT ${transfers.id})`.as('count') })
+      .select({
+        count: sql<number>`COUNT(DISTINCT ${transfers.id})`.as('count'),
+      })
       .from(transfers)
       .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
-      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(
+        sql`${warehouses} AS w2`,
+        sql`${transfers.warehouseIdTo} = w2.id`,
+      )
       .leftJoin(users, eq(transfers.createdBy, users.id))
       .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
       .leftJoin(transferItems, eq(transfers.id, transferItems.transferId))
@@ -223,11 +240,25 @@ export async function POST(request: NextRequest) {
       createdBy: session.user.id,
     };
 
-    const [createdTransfer] = await db.insert(transfers).values(newTransfer);
+    await db.insert(transfers).values(newTransfer);
+
+    // Get the created transfer to obtain the auto-generated ID
+    const createdTransferRecord = await db
+      .select({ id: transfers.id })
+      .from(transfers)
+      .where(eq(transfers.transferNumber, transferNumber.trim()))
+      .orderBy(desc(transfers.createdAt))
+      .limit(1);
+
+    if (createdTransferRecord.length === 0) {
+      throw new Error('Failed to retrieve created transfer');
+    }
+
+    const transferId = createdTransferRecord[0].id;
 
     // Create transfer items
     const transferItemsData = items.map((item: any) => ({
-      transferId: createdTransfer.insertId,
+      transferId,
       productId: item.productId,
       quantity: item.quantity,
       quantityTransferred: 0,
@@ -252,9 +283,15 @@ export async function POST(request: NextRequest) {
         deliveryId: transfers.deliveryId,
         notes: transfers.notes,
         createdBy: transfers.createdBy,
-        createdByName: sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as('createdByName'),
+        createdByName:
+          sql<string>`CONCAT(${users}.first_name, ' ', COALESCE(${users}.last_name, ''))`.as(
+            'createdByName',
+          ),
         approvedBy: transfers.approvedBy,
-        approvedByName: sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as('approvedByName'),
+        approvedByName:
+          sql<string>`CONCAT(u2.first_name, ' ', COALESCE(u2.last_name, ''))`.as(
+            'approvedByName',
+          ),
         approvedAt: transfers.approvedAt,
         completedAt: transfers.completedAt,
         createdAt: transfers.createdAt,
@@ -262,7 +299,10 @@ export async function POST(request: NextRequest) {
       })
       .from(transfers)
       .leftJoin(warehouses, eq(transfers.warehouseIdFrom, warehouses.id))
-      .leftJoin(sql`${warehouses} AS w2`, sql`${transfers.warehouseIdTo} = w2.id`)
+      .leftJoin(
+        sql`${warehouses} AS w2`,
+        sql`${transfers.warehouseIdTo} = w2.id`,
+      )
       .leftJoin(users, eq(transfers.createdBy, users.id))
       .leftJoin(sql`${users} AS u2`, sql`${transfers.approvedBy} = u2.id`)
       .where(eq(transfers.transferNumber, transferNumber.trim()))

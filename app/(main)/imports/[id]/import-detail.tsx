@@ -8,6 +8,7 @@ import {
   RiImportLine,
   RiVerifiedBadgeLine,
 } from '@remixicon/react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
 import {
@@ -29,6 +30,7 @@ interface ImportDetailProps {
 
 export function ImportDetail({ id }: ImportDetailProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: importData, isLoading, error } = useImport(id);
   const deleteImportMutation = useDeleteImport();
   const verifyImportMutation = useVerifyImport();
@@ -65,7 +67,10 @@ export function ImportDetail({ id }: ImportDetailProps) {
     setIsVerifying(true);
     try {
       await verifyImportMutation.mutateAsync(id);
-      router.refresh();
+      // Invalidate the specific import query to refresh the page data
+      queryClient.invalidateQueries({ queryKey: ['import', id] });
+      // Also invalidate transfers queries since new transfer records were created
+      queryClient.invalidateQueries({ queryKey: ['transfers'] });
     } catch (error) {
       console.error('Error verifying import:', error);
     } finally {
@@ -385,10 +390,10 @@ export function ImportDetail({ id }: ImportDetailProps) {
                           {item.batchOrLotNumber}
                         </div>
                       )}
-                      {item.modelOrPartNumber && (
+                      {item.partNumber && (
                         <div>
                           <span className='font-medium'>Part Number:</span>{' '}
-                          {item.modelOrPartNumber}
+                          {item.partNumber}
                         </div>
                       )}
                       {item.brand && (

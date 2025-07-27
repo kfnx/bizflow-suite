@@ -14,7 +14,7 @@ export type ProductWithRelations = Product & {
   unitOfMeasureId?: string | null;
   unitOfMeasureName?: string | null;
   unitOfMeasureAbbreviation?: string | null;
-  modelOrPartNumber?: string | null;
+  partNumber?: string | null;
   machineNumber?: string | null;
   engineNumber?: string | null;
   batchOrLotNumber?: string | null;

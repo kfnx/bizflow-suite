@@ -63,7 +63,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         brandId: product.brandId || '',
         machineTypeId: product.machineTypeId || '',
         unitOfMeasureId: product.unitOfMeasureId || '',
-        modelOrPartNumber: product.modelOrPartNumber || '',
+        partNumber: product.partNumber || '',
         machineNumber: product.machineNumber || '',
         engineNumber: product.engineNumber || '',
         batchOrLotNumber: product.batchOrLotNumber || '',
@@ -115,9 +115,8 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     }
 
     if (formData.category === 'bulk') {
-      if (!formData.modelOrPartNumber?.trim()) {
-        errors.modelOrPartNumber =
-          'Model/Part number is required for bulk products';
+      if (!formData.partNumber?.trim()) {
+        errors.partNumber = 'Part Number is required for bulk products';
       }
     }
 
@@ -341,20 +340,15 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               {formData.category === PRODUCT_CATEGORY.SERIALIZED && (
                 <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
                   <div className='flex flex-col gap-2'>
-                    <Label.Root htmlFor='modelOrPartNumber'>
-                      Model/Part Number
-                    </Label.Root>
+                    <Label.Root htmlFor='partNumber'>Part Number</Label.Root>
                     <Input.Root>
                       <Input.Wrapper>
                         <Input.Icon as={RiHashtag} />
                         <Input.Input
-                          id='modelOrPartNumber'
-                          value={formData.modelOrPartNumber || ''}
+                          id='partNumber'
+                          value={formData.partNumber || ''}
                           onChange={(e) =>
-                            handleInputChange(
-                              'modelOrPartNumber',
-                              e.target.value,
-                            )
+                            handleInputChange('partNumber', e.target.value)
                           }
                           placeholder='Enter model or part number'
                         />
@@ -413,28 +407,25 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   {formData.category === PRODUCT_CATEGORY.BULK && (
                     <>
                       <div className='flex flex-col gap-2'>
-                        <Label.Root htmlFor='modelOrPartNumberBulk'>
-                          Model/Part Number <Label.Asterisk />
+                        <Label.Root htmlFor='partNumberBulk'>
+                          Part Number <Label.Asterisk />
                         </Label.Root>
                         <Input.Root>
                           <Input.Wrapper>
                             <Input.Icon as={RiHashtag} />
                             <Input.Input
-                              id='modelOrPartNumberBulk'
-                              value={formData.modelOrPartNumber || ''}
+                              id='partNumberBulk'
+                              value={formData.partNumber || ''}
                               onChange={(e) =>
-                                handleInputChange(
-                                  'modelOrPartNumber',
-                                  e.target.value,
-                                )
+                                handleInputChange('partNumber', e.target.value)
                               }
                               placeholder='Enter model or part number'
                             />
                           </Input.Wrapper>
                         </Input.Root>
-                        {validationErrors.modelOrPartNumber && (
+                        {validationErrors.partNumber && (
                           <div className='text-xs text-red-600'>
-                            {validationErrors.modelOrPartNumber}
+                            {validationErrors.partNumber}
                           </div>
                         )}
                       </div>

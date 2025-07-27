@@ -2,12 +2,17 @@
 
 import { useCallback, useState } from 'react';
 
-import { Root as TabMenuHorizontal, Trigger as TabMenuTrigger, List as TabMenuList, Content as TabMenuContent } from '@/components/ui/tab-menu-horizontal';
+import {
+  Content as TabMenuContent,
+  Root as TabMenuHorizontal,
+  List as TabMenuList,
+  Trigger as TabMenuTrigger,
+} from '@/components/ui/tab-menu-horizontal';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
 import { BrandsTable } from './brands-table';
-import { UnitOfMeasuresTable } from './unit-of-measures-table';
 import { MachineTypesTable } from './machine-types-table';
+import { UnitOfMeasuresTable } from './unit-of-measures-table';
 
 export default function MasterDataPage() {
   const [activeTab, setActiveTab] = useState('brands');
@@ -32,22 +37,24 @@ export default function MasterDataPage() {
       <TabMenuHorizontal value={activeTab} onValueChange={handleTabChange}>
         <TabMenuList>
           <TabMenuTrigger value='brands'>Brands</TabMenuTrigger>
-          <TabMenuTrigger value='unit-of-measures'>Unit of Measures</TabMenuTrigger>
+          <TabMenuTrigger value='unit-of-measures'>
+            Unit of Measures
+          </TabMenuTrigger>
           <TabMenuTrigger value='machine-types'>Machine Types</TabMenuTrigger>
         </TabMenuList>
-        
+
         <TabMenuContent value='brands'>
           <PermissionGate permission='products:read'>
             <BrandsTable />
           </PermissionGate>
         </TabMenuContent>
-        
+
         <TabMenuContent value='unit-of-measures'>
           <PermissionGate permission='products:read'>
             <UnitOfMeasuresTable />
           </PermissionGate>
         </TabMenuContent>
-        
+
         <TabMenuContent value='machine-types'>
           <PermissionGate permission='products:read'>
             <MachineTypesTable />

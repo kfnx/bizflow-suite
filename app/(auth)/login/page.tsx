@@ -135,7 +135,7 @@ export default function PageLogin() {
                   <Input.Input
                     id='email'
                     type='email'
-                    placeholder='staff@bizdocgen.com'
+                    placeholder='staff@sti.com'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiBuildingLine, RiMapPin2Line } from '@remixicon/react';
+import {
+  RiBuildingLine,
+  RiMailLine,
+  RiMapPin2Line,
+  RiPhoneLine,
+} from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 
 import { hasPermission } from '@/lib/permissions';
@@ -17,6 +22,11 @@ import Header from '@/components/header';
 
 interface CreateBranchData {
   name: string;
+  address?: string;
+  postalCode?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
 }
 
 export default function CreateBranchPage() {
@@ -26,6 +36,11 @@ export default function CreateBranchPage() {
 
   const [formData, setFormData] = useState<CreateBranchData>({
     name: '',
+    address: '',
+    postalCode: '',
+    phone: '',
+    fax: '',
+    email: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
@@ -63,6 +78,11 @@ export default function CreateBranchPage() {
     switch (field) {
       case 'name':
         return !value.trim() ? 'Branch name is required' : null;
+      case 'email':
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return 'Invalid email format';
+        }
+        return null;
       default:
         return null;
     }
@@ -73,7 +93,8 @@ export default function CreateBranchPage() {
 
     Object.keys(formData).forEach((key) => {
       const field = key as keyof CreateBranchData;
-      const error = validateField(field, formData[field]);
+      const value = formData[field] || '';
+      const error = validateField(field, value);
       if (error) {
         errors[field] = error;
       }
@@ -159,26 +180,141 @@ export default function CreateBranchPage() {
                 Branch Information
               </h3>
 
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='name'>
+                    Branch Name <Label.Asterisk />
+                  </Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiBuildingLine} />
+                      <Input.Input
+                        id='name'
+                        value={formData.name}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('name', e.target.value)
+                        }
+                        placeholder='Enter branch name (e.g., Jakarta HQ, Surabaya Office)'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.name && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.name}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='postalCode'>Postal Code</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiMapPin2Line} />
+                      <Input.Input
+                        id='postalCode'
+                        value={formData.postalCode || ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('postalCode', e.target.value)
+                        }
+                        placeholder='Enter postal code'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.postalCode && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.postalCode}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='name'>
-                  Branch Name <Label.Asterisk />
-                </Label.Root>
+                <Label.Root htmlFor='address'>Address</Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
-                    <Input.Icon as={RiBuildingLine} />
+                    <Input.Icon as={RiMapPin2Line} />
                     <Input.Input
-                      id='name'
-                      value={formData.name}
+                      id='address'
+                      value={formData.address || ''}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleInputChange('name', e.target.value)
+                        handleInputChange('address', e.target.value)
                       }
-                      placeholder='Enter branch name (e.g., Jakarta HQ, Surabaya Office)'
+                      placeholder='Enter complete address'
                     />
                   </Input.Wrapper>
                 </Input.Root>
-                {validationErrors.name && (
+                {validationErrors.address && (
                   <div className='text-xs text-red-600'>
-                    {validationErrors.name}
+                    {validationErrors.address}
+                  </div>
+                )}
+              </div>
+
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='phone'>Phone</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiPhoneLine} />
+                      <Input.Input
+                        id='phone'
+                        value={formData.phone || ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('phone', e.target.value)
+                        }
+                        placeholder='Enter phone number'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.phone && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.phone}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='fax'>Fax</Label.Root>
+                  <Input.Root>
+                    <Input.Wrapper>
+                      <Input.Icon as={RiPhoneLine} />
+                      <Input.Input
+                        id='fax'
+                        value={formData.fax || ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange('fax', e.target.value)
+                        }
+                        placeholder='Enter fax number'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                  {validationErrors.fax && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.fax}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='email'>Email</Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Icon as={RiMailLine} />
+                    <Input.Input
+                      id='email'
+                      type='email'
+                      value={formData.email || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('email', e.target.value)
+                      }
+                      placeholder='Enter email address'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+                {validationErrors.email && (
+                  <div className='text-xs text-red-600'>
+                    {validationErrors.email}
                   </div>
                 )}
               </div>

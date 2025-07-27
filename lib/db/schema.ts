@@ -113,6 +113,11 @@ export const branches = mysqlTable('branches', {
     .notNull()
     .default(sql`(UUID())`),
   name: varchar('name', { length: 100 }).notNull(),
+  address: text('address'),
+  postalCode: varchar('postal_code', { length: 20 }),
+  phone: varchar('phone', { length: 20 }),
+  fax: varchar('fax', { length: 20 }),
+  email: varchar('email', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -732,6 +737,7 @@ export const warehouses = mysqlTable(
     name: varchar('name', { length: 255 }).notNull(),
     address: text('address'),
     managerId: varchar('manager_id', { length: 36 }),
+    branchId: varchar('branch_id', { length: 36 }).notNull(),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -739,10 +745,16 @@ export const warehouses = mysqlTable(
   (table) => [
     index('name_idx').on(table.name),
     index('manager_id_idx').on(table.managerId),
+    index('branch_id_idx').on(table.branchId),
     foreignKey({
       columns: [table.managerId],
       foreignColumns: [users.id],
       name: 'fk_warehouses_manager',
+    }),
+    foreignKey({
+      columns: [table.branchId],
+      foreignColumns: [branches.id],
+      name: 'fk_warehouses_branch',
     }),
   ],
 );
@@ -886,6 +898,10 @@ export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
   manager: one(users, {
     fields: [warehouses.managerId],
     references: [users.id],
+  }),
+  branch: one(branches, {
+    fields: [warehouses.branchId],
+    references: [branches.id],
   }),
   imports: many(imports),
   warehouseStocks: many(warehouseStocks),

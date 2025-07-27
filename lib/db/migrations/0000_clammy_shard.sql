@@ -16,6 +16,11 @@ CREATE TABLE `accounts` (
 CREATE TABLE `branches` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`name` varchar(100) NOT NULL,
+	`address` text,
+	`postal_code` varchar(20),
+	`phone` varchar(20),
+	`fax` varchar(20),
+	`email` varchar(255),
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `branches_id` PRIMARY KEY(`id`)
 );
@@ -95,31 +100,28 @@ CREATE TABLE `delivery_notes` (
 CREATE TABLE `import_items` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`import_id` varchar(36) NOT NULL,
-	`product_id` varchar(36),
 	`price_rmb` decimal(15,2) NOT NULL,
 	`quantity` int NOT NULL DEFAULT 1,
 	`total` decimal(15,2) DEFAULT '0.00',
 	`notes` text,
+	`product_id` varchar(36),
 	`category` enum('serialized','non_serialized','bulk') NOT NULL,
 	`name` varchar(100) NOT NULL,
 	`description` text,
 	`brand_id` varchar(36),
 	`condition` varchar(50) DEFAULT 'new',
-	`year` int,
-	`machine_type_id` varchar(36),
 	`unit_of_measure_id` varchar(36),
-	`model_or_part_number` varchar(100),
+	`machine_type_id` varchar(36),
+	`model_number` varchar(100),
 	`machine_number` varchar(100),
 	`engine_number` varchar(100),
 	`serial_number` varchar(100),
-	`model` varchar(100),
-	`engine_model` varchar(100),
-	`engine_power` varchar(50),
-	`operating_weight` varchar(50),
+	`additional_specs` text,
+	`part_number` varchar(100),
 	`batch_or_lot_number` varchar(100),
-	`model_number` varchar(100),
 	`created_at` timestamp DEFAULT (now()),
-	CONSTRAINT `import_items_id` PRIMARY KEY(`id`)
+	CONSTRAINT `import_items_id` PRIMARY KEY(`id`),
+	CONSTRAINT `import_items_serial_number_unique` UNIQUE(`serial_number`)
 );
 --> statement-breakpoint
 CREATE TABLE `imports` (
@@ -362,6 +364,7 @@ CREATE TABLE `warehouses` (
 	`name` varchar(255) NOT NULL,
 	`address` text,
 	`manager_id` varchar(36),
+	`branch_id` varchar(36) NOT NULL,
 	`is_active` boolean DEFAULT true,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -410,6 +413,7 @@ ALTER TABLE `users` ADD CONSTRAINT `fk_users_branch` FOREIGN KEY (`branch_id`) R
 ALTER TABLE `warehouse_stocks` ADD CONSTRAINT `fk_warehouse_stocks_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `warehouse_stocks` ADD CONSTRAINT `fk_warehouse_stocks_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `warehouses` ADD CONSTRAINT `fk_warehouses_manager` FOREIGN KEY (`manager_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `warehouses` ADD CONSTRAINT `fk_warehouses_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `userId_idx` ON `accounts` (`userId`);--> statement-breakpoint
 CREATE INDEX `customer_id_idx` ON `customer_contact_persons` (`customer_id`);--> statement-breakpoint
 CREATE INDEX `code_idx` ON `customers` (`code`);--> statement-breakpoint
@@ -461,4 +465,5 @@ CREATE INDEX `warehouse_id_idx` ON `warehouse_stocks` (`warehouse_id`);--> state
 CREATE INDEX `product_id_idx` ON `warehouse_stocks` (`product_id`);--> statement-breakpoint
 CREATE INDEX `condition_idx` ON `warehouse_stocks` (`condition`);--> statement-breakpoint
 CREATE INDEX `name_idx` ON `warehouses` (`name`);--> statement-breakpoint
-CREATE INDEX `manager_id_idx` ON `warehouses` (`manager_id`);
+CREATE INDEX `manager_id_idx` ON `warehouses` (`manager_id`);--> statement-breakpoint
+CREATE INDEX `branch_id_idx` ON `warehouses` (`branch_id`);

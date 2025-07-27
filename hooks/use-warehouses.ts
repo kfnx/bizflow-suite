@@ -10,6 +10,8 @@ export type Warehouse = {
   managerId?: string;
   managerFirstName?: string;
   managerLastName?: string;
+  branchId: string;
+  branchName?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -37,12 +39,14 @@ export type CreateWarehouseData = {
   name: string;
   address?: string;
   managerId?: string;
+  branchId: string;
 };
 
 export type UpdateWarehouseData = {
   name: string;
   address?: string;
   managerId?: string;
+  branchId: string;
   isActive: boolean;
 };
 

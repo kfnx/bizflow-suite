@@ -22,6 +22,8 @@ interface Warehouse {
   managerId?: string;
   managerFirstName?: string;
   managerLastName?: string;
+  branchId: string;
+  branchName?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -169,6 +171,18 @@ function WarehousePreviewContent({ warehouse }: { warehouse: Warehouse }) {
               warehouse.managerFirstName,
               warehouse.managerLastName,
             )}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Branch
+          </div>
+          <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
+            <RiMapPinLine className='size-4 text-text-soft-400' />
+            {warehouse.branchName || 'No branch assigned'}
           </div>
         </div>
 

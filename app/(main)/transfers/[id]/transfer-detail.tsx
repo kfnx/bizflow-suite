@@ -277,13 +277,6 @@ export function TransferDetail({ id }: TransferDetailProps) {
                 </div>
               </div>
 
-              {/* Arrow */}
-              {transfer.movementType === 'transfer' && (
-                <div className='flex items-center justify-center'>
-                  <RiArrowRightLine className='text-text-sub-400 size-6' />
-                </div>
-              )}
-
               {/* To Warehouse */}
               <div className='flex-1'>
                 <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>

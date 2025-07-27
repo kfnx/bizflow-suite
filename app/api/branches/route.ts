@@ -57,6 +57,11 @@ export async function GET(request: NextRequest) {
       .select({
         id: branches.id,
         name: branches.name,
+        address: branches.address,
+        postalCode: branches.postalCode,
+        phone: branches.phone,
+        fax: branches.fax,
+        email: branches.email,
         createdAt: branches.createdAt,
       })
       .from(branches)
@@ -124,10 +129,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create branch
-    await db.insert(branches).values({
+    // Create branch with all fields
+    const newBranch = {
       name: name,
-    });
+      address: body.address?.trim() || null,
+      postalCode: body.postalCode?.trim() || null,
+      phone: body.phone?.trim() || null,
+      fax: body.fax?.trim() || null,
+      email: body.email?.trim() || null,
+    };
+
+    await db.insert(branches).values(newBranch);
 
     const createdBranch = await db
       .select()

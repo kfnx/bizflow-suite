@@ -107,6 +107,19 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
     ),
   },
   {
+    id: 'branch',
+    accessorKey: 'branchName',
+    header: 'Branch',
+    cell: ({ row }) => (
+      <div className='flex items-center gap-2'>
+        <RiMapPinLine className='text-text-sub-400 size-4' />
+        <span className='text-paragraph-sm text-text-sub-600'>
+          {row.original.branchName || 'No branch assigned'}
+        </span>
+      </div>
+    ),
+  },
+  {
     id: 'manager',
     accessorKey: 'managerFirstName',
     header: ({ column }) => (

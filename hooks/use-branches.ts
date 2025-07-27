@@ -11,6 +11,12 @@ import type {
 export type Branch = {
   id: string;
   name: string;
+  address?: string;
+  postalCode?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  createdAt: string;
 };
 
 export type BranchesFilters = {

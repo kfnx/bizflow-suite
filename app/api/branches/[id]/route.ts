@@ -21,6 +21,12 @@ export async function GET(
       .select({
         id: branches.id,
         name: branches.name,
+        address: branches.address,
+        postalCode: branches.postalCode,
+        phone: branches.phone,
+        fax: branches.fax,
+        email: branches.email,
+        createdAt: branches.createdAt,
       })
       .from(branches)
       .where(eq(branches.id, params.id))
@@ -89,11 +95,16 @@ export async function PUT(
       );
     }
 
-    // Update branch
+    // Update branch with all fields
     await db
       .update(branches)
       .set({
         name: name,
+        address: body.address?.trim() || null,
+        postalCode: body.postalCode?.trim() || null,
+        phone: body.phone?.trim() || null,
+        fax: body.fax?.trim() || null,
+        email: body.email?.trim() || null,
       })
       .where(eq(branches.id, params.id));
 

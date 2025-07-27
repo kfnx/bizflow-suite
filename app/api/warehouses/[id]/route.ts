@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { users, warehouses } from '@/lib/db/schema';
+import { branches, users, warehouses } from '@/lib/db/schema';
 
 export async function GET(
   request: NextRequest,
@@ -24,12 +24,15 @@ export async function GET(
         managerId: warehouses.managerId,
         managerFirstName: users.firstName,
         managerLastName: users.lastName,
+        branchId: warehouses.branchId,
+        branchName: branches.name,
         isActive: warehouses.isActive,
         createdAt: warehouses.createdAt,
         updatedAt: warehouses.updatedAt,
       })
       .from(warehouses)
       .leftJoin(users, eq(warehouses.managerId, users.id))
+      .leftJoin(branches, eq(warehouses.branchId, branches.id))
       .where(eq(warehouses.id, params.id))
       .limit(1);
 
@@ -62,7 +65,7 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name, address, managerId, isActive } = body;
+    const { name, address, managerId, branchId, isActive } = body;
 
     // Check if warehouse exists
     const existingWarehouse = await db
@@ -85,6 +88,7 @@ export async function PUT(
         name,
         address,
         managerId,
+        branchId,
         isActive,
         updatedAt: new Date(),
       })

@@ -3,7 +3,7 @@ import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { users, warehouses } from '@/lib/db/schema';
+import { branches, users, warehouses } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch warehouses with manager data
+    // Fetch warehouses with manager and branch data
     const warehousesData = await db
       .select({
         id: warehouses.id,
@@ -73,12 +73,15 @@ export async function GET(request: NextRequest) {
         managerId: warehouses.managerId,
         managerFirstName: users.firstName,
         managerLastName: users.lastName,
+        branchId: warehouses.branchId,
+        branchName: branches.name,
         isActive: warehouses.isActive,
         createdAt: warehouses.createdAt,
         updatedAt: warehouses.updatedAt,
       })
       .from(warehouses)
       .leftJoin(users, eq(warehouses.managerId, users.id))
+      .leftJoin(branches, eq(warehouses.branchId, branches.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(orderByClause)
       .limit(limit)
@@ -120,7 +123,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, address, managerId } = body;
+    const { name, address, managerId, branchId } = body;
 
     // Basic validation
     if (!name?.trim()) {
@@ -130,17 +133,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!branchId) {
+      return NextResponse.json(
+        { error: 'Branch ID is required' },
+        { status: 400 },
+      );
+    }
+
     // Create warehouse
     const newWarehouse = {
       name: name.trim(),
       address: address?.trim() || null,
       managerId: managerId || null,
+      branchId: branchId,
       isActive: true,
     };
 
     await db.insert(warehouses).values(newWarehouse);
 
-    // Get the created warehouse with manager data
+    // Get the created warehouse with manager and branch data
     const createdWarehouse = await db
       .select({
         id: warehouses.id,
@@ -149,12 +160,15 @@ export async function POST(request: NextRequest) {
         managerId: warehouses.managerId,
         managerFirstName: users.firstName,
         managerLastName: users.lastName,
+        branchId: warehouses.branchId,
+        branchName: branches.name,
         isActive: warehouses.isActive,
         createdAt: warehouses.createdAt,
         updatedAt: warehouses.updatedAt,
       })
       .from(warehouses)
       .leftJoin(users, eq(warehouses.managerId, users.id))
+      .leftJoin(branches, eq(warehouses.branchId, branches.id))
       .where(eq(warehouses.name, name.trim()))
       .orderBy(desc(warehouses.createdAt))
       .limit(1);

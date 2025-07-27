@@ -10,6 +10,7 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { useBranches } from '@/hooks/use-branches';
 import { useUsers } from '@/hooks/use-users';
 import { useUpdateWarehouse, useWarehouse } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
@@ -26,6 +27,7 @@ interface EditWarehouseData {
   name: string;
   address: string;
   managerId: string;
+  branchId: string;
   isActive: boolean;
 }
 
@@ -48,11 +50,15 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
     status: 'active',
     limit: 100,
   });
+  const { data: branchesData, isLoading: isLoadingBranches } = useBranches({
+    limit: 100,
+  });
 
   const [formData, setFormData] = useState<EditWarehouseData>({
     name: '',
     address: '',
     managerId: '',
+    branchId: '',
     isActive: true,
   });
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +75,7 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
         name: warehouseData.name || '',
         address: warehouseData.address || '',
         managerId: warehouseData.managerId || '',
+        branchId: warehouseData.branchId || '',
         isActive:
           warehouseData.isActive !== undefined ? warehouseData.isActive : true,
       });
@@ -132,6 +139,9 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
     if (!formData.name.trim()) {
       errors.name = 'Warehouse name is required';
     }
+    if (!formData.branchId) {
+      errors.branchId = 'Branch is required';
+    }
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -142,6 +152,7 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
       name: formData.name.trim(),
       address: formData.address.trim() || undefined,
       managerId: formData.managerId || undefined,
+      branchId: formData.branchId,
       isActive: formData.isActive,
     };
 
@@ -231,6 +242,52 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
                   {validationErrors.name && (
                     <div className='text-xs text-red-600'>
                       {validationErrors.name}
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <Label.Root htmlFor='branchId'>
+                    Branch <Label.Asterisk />
+                  </Label.Root>
+                  {branchesData?.data.length === 0 ? (
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Input
+                          disabled
+                          value={
+                            isLoadingBranches
+                              ? 'Loading branches...'
+                              : 'No branches available'
+                          }
+                          readOnly
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  ) : (
+                    <Select.Root
+                      value={formData.branchId}
+                      onValueChange={(value) =>
+                        handleInputChange('branchId', value)
+                      }
+                      disabled={isLoadingBranches}
+                    >
+                      <Select.Trigger>
+                        <Select.TriggerIcon as={RiMapPinLine} />
+                        <Select.Value placeholder='Select branch' />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {branchesData?.data.map((branch) => (
+                          <Select.Item key={branch.id} value={branch.id}>
+                            {branch.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                  )}
+                  {validationErrors.branchId && (
+                    <div className='text-xs text-red-600'>
+                      {validationErrors.branchId}
                     </div>
                   )}
                 </div>

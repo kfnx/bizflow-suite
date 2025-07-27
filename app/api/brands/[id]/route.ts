@@ -17,7 +17,7 @@ function createSlug(name: string): string {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const session = await requirePermission(request, 'products:update');
 
@@ -55,10 +55,7 @@ export async function PUT(
       .limit(1);
 
     if (existingBrand.length === 0) {
-      return NextResponse.json(
-        { error: 'Brand not found' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
     }
 
     // Update brand
@@ -67,10 +64,7 @@ export async function PUT(
       name: name.trim(),
     };
 
-    await db
-      .update(brands)
-      .set(updatedBrand)
-      .where(eq(brands.id, params.id));
+    await db.update(brands).set(updatedBrand).where(eq(brands.id, params.id));
 
     return NextResponse.json({
       message: 'Brand updated successfully',
@@ -87,7 +81,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const session = await requirePermission(request, 'products:delete');
 
@@ -104,10 +98,7 @@ export async function DELETE(
       .limit(1);
 
     if (existingBrand.length === 0) {
-      return NextResponse.json(
-        { error: 'Brand not found' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
     }
 
     // Delete brand

@@ -188,6 +188,18 @@ export function WarehouseDetail({ id }: WarehouseDetailProps) {
                 </div>
               </div>
 
+              <div>
+                <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
+                  Branch
+                </div>
+                <div className='flex items-center gap-2'>
+                  <RiMapPinLine className='size-4 text-text-sub-600' />
+                  <span className='text-paragraph-sm text-text-strong-950'>
+                    {warehouse.branchName || 'No branch assigned'}
+                  </span>
+                </div>
+              </div>
+
               {warehouse.address && (
                 <div className='md:col-span-2'>
                   <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>

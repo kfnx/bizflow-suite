@@ -486,13 +486,6 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
                   )}
                 </div>
 
-                {/* Arrow for transfer */}
-                {formData.movementType === 'transfer' && (
-                  <div className='mt-8 flex items-center justify-center'>
-                    <RiArrowRightLine className='text-text-sub-400 size-6' />
-                  </div>
-                )}
-
                 {/* To Warehouse */}
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='warehouseTo'>

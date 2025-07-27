@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import {
   RiDeleteBin6Line,
   RiEditLine,
+  RiMailLine,
   RiMapPin2Line,
   RiMore2Fill,
+  RiPhoneLine,
 } from '@remixicon/react';
 import { type ColumnDef } from '@tanstack/react-table';
 
@@ -73,6 +75,45 @@ export function BranchesTable({
           <div className='flex items-center gap-2'>
             <RiMapPin2Line className='text-gray-400 size-4' />
             <span className='font-medium'>{row.original.name}</span>
+          </div>
+        ),
+      },
+      {
+        id: 'address',
+        accessorKey: 'address',
+        header: 'Address',
+        cell: ({ row }) => (
+          <div className='max-w-xs'>
+            {row.original.address ? (
+              <span className='text-sm text-gray-600 line-clamp-2'>
+                {row.original.address} {row.original.postalCode}
+              </span>
+            ) : (
+              <span className='text-sm text-gray-400'>No address</span>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'contact',
+        header: 'Contact',
+        cell: ({ row }) => (
+          <div className='space-y-1'>
+            {row.original.phone && (
+              <div className='text-sm text-gray-600 flex items-center gap-1'>
+                <RiPhoneLine className='size-3' />
+                <span>{row.original.phone}</span>
+              </div>
+            )}
+            {row.original.email && (
+              <div className='text-sm text-gray-600 flex items-center gap-1'>
+                <RiMailLine className='size-3' />
+                <span>{row.original.email}</span>
+              </div>
+            )}
+            {!row.original.phone && !row.original.email && (
+              <span className='text-sm text-gray-400'>No contact info</span>
+            )}
           </div>
         ),
       },

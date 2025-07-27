@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1753346936906,
-      "tag": "0000_last_firebrand",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1753359202683,
-      "tag": "0001_watery_blue_blade",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1753360520220,
-      "tag": "0002_fancy_reavers",
+      "when": 1753616342492,
+      "tag": "0000_clammy_shard",
       "breakpoints": true
     }
   ]

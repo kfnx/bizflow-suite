@@ -341,6 +341,11 @@ export function BrandsTable() {
                   </Select>
                 ) : (
                   <span className='text-sm text-gray-600 capitalize'>
+                    {brand.type === 'machine' ? (
+                      <RiSettings3Line className='size-4' />
+                    ) : (
+                      <RiToolsLine className='size-4' />
+                    )}
                     {brand.type}
                   </span>
                 )}

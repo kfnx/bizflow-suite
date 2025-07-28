@@ -69,6 +69,10 @@ export async function requireRole(request: NextRequest, requiredRole: string) {
     return session;
   }
 
+  if (session.user.isAdmin) {
+    return session;
+  }
+
   if (session.user.role !== requiredRole) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient role' },
@@ -86,6 +90,10 @@ export async function requireAnyRole(
   const session = await requireAuth(request);
 
   if (session instanceof NextResponse) {
+    return session;
+  }
+
+  if (session.user.isAdmin) {
     return session;
   }
 

@@ -340,14 +340,14 @@ export function BrandsTable() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <span className='text-sm text-gray-600 capitalize'>
+                  <div className='flex items-center gap-2 text-sm text-gray-600 capitalize'>
                     {brand.type === 'machine' ? (
-                      <RiSettings3Line className='size-4' />
+                      <RiSettings3Line className='size-5' />
                     ) : (
-                      <RiToolsLine className='size-4' />
+                      <RiToolsLine className='size-5' />
                     )}
                     {brand.type}
-                  </span>
+                  </div>
                 )}
               </Table.Cell>
               <Table.Cell>

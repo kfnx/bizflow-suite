@@ -236,7 +236,7 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <Badge variant='light' color={row.original.isAdmin ? 'purple' : 'gray'}>
+      <Badge variant='lighter' color={row.original.isAdmin ? 'purple' : 'gray'}>
         {row.original.isAdmin ? 'Admin' : 'User'}
       </Badge>
     ),
@@ -257,7 +257,7 @@ const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => (
       <Badge
-        variant='light'
+        variant='lighter'
         color={getTypeColor(row.original.type || 'full-time')}
       >
         {row.original.type || 'full-time'}
@@ -299,7 +299,7 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <Badge variant='light' color={row.original.isActive ? 'green' : 'red'}>
+      <Badge variant='lighter' color={row.original.isActive ? 'green' : 'red'}>
         {row.original.isActive ? 'Active' : 'Inactive'}
       </Badge>
     ),
@@ -410,7 +410,7 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
             <React.Fragment key={row.id}>
               <Table.Row
                 data-state={row.getIsSelected() && 'selected'}
-                className='hover:bg-gray-50 cursor-pointer'
+                className='cursor-pointer hover:bg-bg-soft-200'
                 onClick={() => onUserClick?.(row.original.id)}
               >
                 {row.getVisibleCells().map((cell) => (

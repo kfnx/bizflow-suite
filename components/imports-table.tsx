@@ -57,12 +57,12 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
 const statusConfig = {
   pending: {
     label: 'Pending',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'orange' as const,
   },
   verified: {
     label: 'Verified',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
 };
@@ -402,7 +402,7 @@ export function ImportsTable({
             {table.getRowModel().rows.map((row) => (
               <Table.Row
                 key={row.id}
-                className='hover:bg-gray-50 cursor-pointer'
+                className='cursor-pointer hover:bg-bg-soft-200'
                 onClick={() => onImportClick?.(row.original.id)}
               >
                 {row.getVisibleCells().map((cell) => (

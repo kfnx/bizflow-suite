@@ -59,11 +59,11 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
         </div>
 
         <div className='flex items-center gap-2'>
-          <Badge.Root variant='light' color={config?.color}>
+          <Badge.Root variant='lighter' color={config?.color}>
             {config?.label || customer.type}
           </Badge.Root>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={customer.isActive ? 'green' : 'gray'}
           >
             {customer.isActive ? 'Active' : 'Inactive'}

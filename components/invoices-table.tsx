@@ -53,31 +53,31 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case 'draft':
       return (
-        <Badge.Root variant='light' color='gray'>
+        <Badge.Root variant='lighter' color='gray'>
           Draft
         </Badge.Root>
       );
     case 'sent':
       return (
-        <Badge.Root variant='light' color='orange'>
+        <Badge.Root variant='lighter' color='orange'>
           Sent
         </Badge.Root>
       );
     case 'paid':
       return (
-        <Badge.Root variant='light' color='green'>
+        <Badge.Root variant='lighter' color='green'>
           Paid
         </Badge.Root>
       );
     case 'void':
       return (
-        <Badge.Root variant='light' color='red'>
+        <Badge.Root variant='lighter' color='red'>
           Void
         </Badge.Root>
       );
     default:
       return (
-        <Badge.Root variant='light' color='gray'>
+        <Badge.Root variant='lighter' color='gray'>
           {status}
         </Badge.Root>
       );

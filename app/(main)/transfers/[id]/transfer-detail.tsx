@@ -193,7 +193,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                   Movement Type
                 </div>
                 <div className='flex items-center gap-2'>
-                  <Badge.Root variant='light' color={movementConfig.color}>
+                  <Badge.Root variant='lighter' color={movementConfig.color}>
                     <MovementIcon className='mr-2 size-4' />
                     {movementConfig.label}
                   </Badge.Root>
@@ -209,7 +209,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                 </div>
                 <div className='flex items-center gap-2'>
                   <Badge.Root
-                    variant='light'
+                    variant='lighter'
                     color={
                       transfer.status === 'completed'
                         ? 'green'
@@ -256,11 +256,11 @@ export function TransferDetail({ id }: TransferDetailProps) {
                 Transfer Items
               </h3>
               <div className='flex items-center gap-2'>
-                <Badge.Root variant='light' color='blue'>
+                <Badge.Root variant='lighter' color='blue'>
                   {transfer.itemCount || 0}{' '}
                   {(transfer.itemCount || 0) === 1 ? 'item' : 'items'}
                 </Badge.Root>
-                <Badge.Root variant='light' color='green'>
+                <Badge.Root variant='lighter' color='green'>
                   {transfer.totalQuantity?.toLocaleString() || '0'} total units
                 </Badge.Root>
               </div>

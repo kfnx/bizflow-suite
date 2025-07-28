@@ -70,21 +70,21 @@ function UserPreviewContent({ user }: { user: any }) {
           </div>
           <div className='flex flex-col gap-2'>
             <Badge.Root
-              variant='light'
+              variant='lighter'
               color={getRoleColor(user.role)}
               size='medium'
             >
               {user.role}
             </Badge.Root>
             <Badge.Root
-              variant='light'
+              variant='lighter'
               color={getTypeColor(user.type || 'full-time')}
               size='medium'
             >
               {user.type || 'full-time'}
             </Badge.Root>
             <Badge.Root
-              variant='light'
+              variant='lighter'
               color={user.isAdmin ? 'purple' : 'gray'}
               size='medium'
             >
@@ -147,7 +147,7 @@ function UserPreviewContent({ user }: { user: any }) {
           </div>
           <div className='mt-1'>
             <Badge.Root
-              variant='light'
+              variant='lighter'
               color={user.isActive ? 'green' : 'red'}
               size='small'
             >

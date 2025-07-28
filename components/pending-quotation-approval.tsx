@@ -59,7 +59,7 @@ function PendingQuotationCard({
             <h3 className='text-xl font-semibold text-text-sub-600'>
               {quotation.quotationNumber}
             </h3>
-            <Badge.Root variant='light' color='blue' size='medium'>
+            <Badge.Root variant='lighter' color='blue' size='medium'>
               Pending Approval
             </Badge.Root>
           </div>

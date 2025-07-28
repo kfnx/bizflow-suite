@@ -3,27 +3,27 @@ import * as Badge from '@/components/ui/badge';
 export const invoiceStatusConfig = {
   draft: {
     label: 'Draft',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'gray' as const,
   },
   sent: {
     label: 'Sent',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'blue' as const,
   },
   paid: {
     label: 'Paid',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
   void: {
     label: 'Void',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'red' as const,
   },
   overdue: {
     label: 'Overdue',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'red' as const,
   },
 } as const;

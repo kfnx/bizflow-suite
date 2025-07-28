@@ -137,7 +137,7 @@ function WarehousePreviewContent({ warehouse }: { warehouse: Warehouse }) {
           </div>
           <div className='ml-4'>
             <Badge.Root
-              variant='light'
+              variant='lighter'
               color={warehouse.isActive ? 'green' : 'red'}
             >
               {warehouse.isActive ? 'Active' : 'Inactive'}

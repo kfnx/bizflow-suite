@@ -37,37 +37,37 @@ interface QuotationHeaderProps {
 const statusConfig = {
   draft: {
     label: 'Draft',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'gray' as const,
   },
   submitted: {
     label: 'Submitted',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'blue' as const,
   },
   approved: {
     label: 'Approved',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
   sent: {
     label: 'Sent',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'blue' as const,
   },
   accepted: {
     label: 'Accepted',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
   rejected: {
     label: 'Rejected',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'red' as const,
   },
   revised: {
     label: 'Revised',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'orange' as const,
   },
 };
@@ -337,7 +337,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
           </Badge.Root>
           {isQuotationInvoiced(quotation) && (
             <div className='flex items-center gap-2'>
-              <Badge.Root variant='light' color='blue' size='medium'>
+              <Badge.Root variant='lighter' color='blue' size='medium'>
                 Invoiced
               </Badge.Root>
               {quotation.invoiceId && (

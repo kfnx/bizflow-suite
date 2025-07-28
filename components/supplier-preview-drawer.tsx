@@ -40,13 +40,13 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
         </div>
         <div className='flex items-center gap-2'>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={supplier.isActive ? 'green' : 'gray'}
           >
             {supplier.isActive ? 'Active' : 'Inactive'}
           </Badge.Root>
           {supplier.transactionCurrency && (
-            <Badge.Root variant='light' color='blue'>
+            <Badge.Root variant='lighter' color='blue'>
               {supplier.transactionCurrency}
             </Badge.Root>
           )}

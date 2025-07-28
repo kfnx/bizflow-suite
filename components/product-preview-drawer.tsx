@@ -23,17 +23,17 @@ interface ProductPreviewDrawerProps {
 const statusConfig = {
   in_stock: {
     label: 'In Stock',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
   out_of_stock: {
     label: 'Out of Stock',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'red' as const,
   },
   discontinued: {
     label: 'Discontinued',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'gray' as const,
   },
 };
@@ -41,17 +41,17 @@ const statusConfig = {
 const conditionConfig = {
   new: {
     label: 'New',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
   used: {
     label: 'Used',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'orange' as const,
   },
   refurbished: {
     label: 'Refurbished',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'blue' as const,
   },
 };

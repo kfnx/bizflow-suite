@@ -135,7 +135,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
       >
         <div className='flex items-center gap-3'>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={getStatusBadgeVariant(importData.status as IMPORT_STATUS)}
           >
             {importData.status}

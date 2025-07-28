@@ -47,12 +47,12 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
 const typeConfig = {
   individual: {
     label: 'Individual',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'blue' as const,
   },
   company: {
     label: 'Company',
-    variant: 'light' as const,
+    variant: 'lighter' as const,
     color: 'green' as const,
   },
 };
@@ -169,7 +169,7 @@ export function CustomersTable({
       ),
       cell: ({ row }) => (
         <Badge.Root
-          variant='light'
+          variant='lighter'
           color={row.original.isActive ? 'green' : 'gray'}
         >
           {row.original.isActive ? 'Active' : 'Inactive'}
@@ -293,7 +293,7 @@ export function CustomersTable({
             {table.getRowModel().rows.map((row) => (
               <Table.Row
                 key={row.id}
-                className='hover:bg-gray-50 cursor-pointer'
+                className='cursor-pointer hover:bg-bg-soft-200'
                 onClick={() => onCustomerClick?.(row.original.id)}
               >
                 {row.getVisibleCells().map((cell) => (

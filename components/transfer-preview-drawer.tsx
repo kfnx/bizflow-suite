@@ -12,10 +12,7 @@ import {
 } from '@remixicon/react';
 
 import { formatDate } from '@/utils/date-formatter';
-import {
-  useTransfer,
-  type Transfer,
-} from '@/hooks/use-transfers';
+import { useTransfer, type Transfer } from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -131,12 +128,15 @@ function TransferPreviewContent({ transfer }: { transfer: Transfer }) {
           </div>
           <div className='ml-4 flex flex-col items-end gap-2'>
             <Badge.Root
-              variant='light'
+              variant='lighter'
               color={getMovementTypeColor(transfer.movementType)}
             >
               {transfer.movementType.toUpperCase()}
             </Badge.Root>
-            <Badge.Root variant='light' color={getStatusColor(transfer.status)}>
+            <Badge.Root
+              variant='lighter'
+              color={getStatusColor(transfer.status)}
+            >
               {transfer.status.toUpperCase()}
             </Badge.Root>
           </div>

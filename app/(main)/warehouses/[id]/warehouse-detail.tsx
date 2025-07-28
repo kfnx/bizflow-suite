@@ -152,7 +152,7 @@ export function WarehouseDetail({ id }: WarehouseDetailProps) {
                 </div>
                 <div className='flex items-center gap-2'>
                   <Badge.Root
-                    variant='light'
+                    variant='lighter'
                     color={warehouse.isActive ? 'green' : 'red'}
                   >
                     {warehouse.isActive ? (

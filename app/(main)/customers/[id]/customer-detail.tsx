@@ -117,12 +117,12 @@ export function CustomerDetail({ id }: CustomerDetailProps) {
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         {/* Status and Type Badges */}
         <div className='flex flex-wrap items-center gap-2'>
-          <Badge.Root variant='light' color={config?.color}>
+          <Badge.Root variant='lighter' color={config?.color}>
             <Icon className='size-3' />
             {config?.label || customer.type}
           </Badge.Root>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={customer.isActive ? 'green' : 'gray'}
           >
             {customer.isActive ? 'Active' : 'Inactive'}
@@ -300,7 +300,7 @@ export function CustomerDetail({ id }: CustomerDetailProps) {
                         {contact.name}
                         {index === 0 && (
                           <Badge.Root
-                            variant='light'
+                            variant='lighter'
                             color='blue'
                             className='ml-2'
                           >

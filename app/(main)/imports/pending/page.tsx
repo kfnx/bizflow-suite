@@ -117,7 +117,7 @@ export default function PendingImportsPage() {
                         <h3 className='text-lg font-medium text-text-strong-950'>
                           Import #{importItem.invoiceNumber}
                         </h3>
-                        <Badge.Root variant='light' size='small'>
+                        <Badge.Root variant='lighter' size='small'>
                           Pending Verification
                         </Badge.Root>
                       </div>

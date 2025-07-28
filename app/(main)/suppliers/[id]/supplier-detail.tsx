@@ -102,18 +102,18 @@ export function SupplierDetail({ id }: SupplierDetailProps) {
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
         {/* Status and Currency Badges */}
         <div className='flex flex-wrap items-center gap-2'>
-          <Badge.Root variant='light' color='green'>
+          <Badge.Root variant='lighter' color='green'>
             <RiBuildingLine className='size-3' />
             Supplier
           </Badge.Root>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={supplier.isActive ? 'green' : 'gray'}
           >
             {supplier.isActive ? 'Active' : 'Inactive'}
           </Badge.Root>
           {supplier.transactionCurrency && (
-            <Badge.Root variant='light' color='blue'>
+            <Badge.Root variant='lighter' color='blue'>
               <RiMoneyDollarCircleLine className='size-3' />
               {supplier.transactionCurrency}
             </Badge.Root>
@@ -252,7 +252,7 @@ export function SupplierDetail({ id }: SupplierDetailProps) {
                         {contact.name}
                         {index === 0 && (
                           <Badge.Root
-                            variant='light'
+                            variant='lighter'
                             color='blue'
                             className='ml-2'
                           >

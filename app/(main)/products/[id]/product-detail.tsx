@@ -149,13 +149,13 @@ export function ProductDetail({ id }: ProductDetailProps) {
       >
         <div className='flex items-center gap-3'>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={getStatusBadgeColor(productData.status as string)}
           >
             {productData.status?.replace('_', ' ').toUpperCase()}
           </Badge.Root>
           <Badge.Root
-            variant='light'
+            variant='lighter'
             color={getConditionBadgeColor(productData.condition as string)}
           >
             {productData.condition?.toUpperCase()}
@@ -630,7 +630,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
               </div>
               <div className='mt-1'>
                 <Badge.Root
-                  variant='light'
+                  variant='lighter'
                   color={getStatusBadgeColor(productData.status as string)}
                 >
                   {productData.status?.replace('_', ' ').toUpperCase()}

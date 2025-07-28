@@ -447,7 +447,7 @@ export function QuotationsTable({ filters, onPreview }: QuotationsTableProps) {
             <React.Fragment key={row.id}>
               <Table.Row
                 data-state={row.getIsSelected() && 'selected'}
-                className='hover:bg-gray-50 cursor-pointer'
+                className='cursor-pointer hover:bg-bg-soft-200'
                 onClick={() => handleRowClick(row.original.id)}
               >
                 {row.getVisibleCells().map((cell) => (

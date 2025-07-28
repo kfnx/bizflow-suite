@@ -120,7 +120,7 @@ export function SuppliersTable({
       header: 'Status',
       cell: ({ row }) => (
         <Badge.Root
-          variant='light'
+          variant='lighter'
           color={row.original.isActive ? 'green' : 'gray'}
         >
           {row.original.isActive ? 'Active' : 'Inactive'}
@@ -244,7 +244,7 @@ export function SuppliersTable({
             {table.getRowModel().rows.map((row) => (
               <Table.Row
                 key={row.id}
-                className='hover:bg-gray-50 cursor-pointer'
+                className='cursor-pointer hover:bg-bg-soft-200'
                 onClick={() => onSupplierClick?.(row.original.id)}
               >
                 {row.getVisibleCells().map((cell) => (

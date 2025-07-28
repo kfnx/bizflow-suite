@@ -49,25 +49,25 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case 'pending':
       return (
-        <Badge.Root variant='light' color='orange'>
+        <Badge.Root variant='lighter' color='orange'>
           Pending
         </Badge.Root>
       );
     case 'delivered':
       return (
-        <Badge.Root variant='light' color='green'>
+        <Badge.Root variant='lighter' color='green'>
           Delivered
         </Badge.Root>
       );
     case 'canceled':
       return (
-        <Badge.Root variant='light' color='red'>
+        <Badge.Root variant='lighter' color='red'>
           Canceled
         </Badge.Root>
       );
     default:
       return (
-        <Badge.Root variant='light' color='gray'>
+        <Badge.Root variant='lighter' color='gray'>
           {status}
         </Badge.Root>
       );

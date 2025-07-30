@@ -26,7 +26,7 @@ import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
-import { CustomerSelectWithAdd } from '@/components/customer-select-with-add';
+import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 
 interface InvoiceEditFormProps {
   id: string;

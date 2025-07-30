@@ -161,7 +161,10 @@ export async function PUT(
       if (validatedData.items && validatedData.items.length > 0) {
         let subtotal = 0;
         validatedData.items.forEach((item) => {
-          subtotal += item.quantity * item.unitPrice;
+          // Remove formatting (periods as thousand separators) and convert to number
+          const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
+          const unitPrice = parseFloat(cleanPrice) || 0;
+          subtotal += item.quantity * unitPrice;
         });
 
         const taxAmount = validatedData.isIncludePPN ? subtotal * 0.11 : 0;
@@ -176,14 +179,19 @@ export async function PUT(
           .delete(quotationItems)
           .where(eq(quotationItems.quotationId, id));
 
-        const itemsToInsert = validatedData.items.map((item) => ({
-          quotationId: id,
-          productId: item.productId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice.toString(),
-          total: (item.quantity * item.unitPrice).toString(),
-          notes: item.notes || null,
-        }));
+        const itemsToInsert = validatedData.items.map((item) => {
+          // Remove formatting (periods as thousand separators) and convert to number
+          const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
+          const unitPrice = parseFloat(cleanPrice) || 0;
+          return {
+            quotationId: id,
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: unitPrice.toString(),
+            total: (item.quantity * unitPrice).toString(),
+            notes: item.notes || null,
+          };
+        });
 
         await tx.insert(quotationItems).values(itemsToInsert);
       }

@@ -4,11 +4,11 @@ import { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useInvoices } from '@/hooks/use-invoices';
-import { InvoicePreviewDrawer } from '@/components/invoice-preview-drawer';
+import { InvoicePreviewDrawer } from '@/components/invoices/invoice-preview-drawer';
 import {
   InvoicesTable,
   InvoicesTablePagination,
-} from '@/components/invoices-table';
+} from '@/components/invoices/invoices-table';
 
 import { Filters, type InvoicesFilters } from './filters';
 

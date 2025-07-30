@@ -5,7 +5,7 @@ import { RiImportLine } from '@remixicon/react';
 
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { ImportForm } from '@/components/import-form';
+import { ImportForm } from '@/components/imports/import-form';
 
 export default function NewImportPage() {
   const router = useRouter();

@@ -11,7 +11,7 @@ import { QuotationFormData } from '@/lib/validations/quotation';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { NewQuotationForm } from '@/components/quotations/new-quotation-form';
+import { QuotationForm } from '@/components/quotations/quotation-form';
 
 const initialFormData: QuotationFormData = {
   quotationNumber: '', // Will be populated by the form component
@@ -67,7 +67,10 @@ export default function NewQuotationPage() {
         <BackButton href='/quotations' label='Back to Quotations' />
       </Header>
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <NewQuotationForm initialFormData={initialFormData} />
+        <QuotationForm
+          mode='create'
+          initialFormData={initialFormData}
+        />
       </div>
     </PermissionGate>
   );

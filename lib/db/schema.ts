@@ -152,6 +152,7 @@ export const users = mysqlTable(
       .notNull()
       .default(sql`(UUID())`),
     code: varchar('code', { length: 50 }).notNull().unique(),
+    prefix: varchar('prefix', { length: 50 }).default('Bapak'),
     firstName: varchar('first_name', { length: 100 }).notNull(),
     lastName: varchar('last_name', { length: 100 }),
     NIK: varchar('nik', { length: 50 }).notNull().unique(),

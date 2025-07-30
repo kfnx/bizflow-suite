@@ -37,7 +37,7 @@ import * as Dropdown from '@/components/ui/dropdown';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
-import { QuotationStatusBadge } from '@/components/quotation-status-badge';
+import { QuotationStatusBadge } from '@/components/quotations/quotation-status-badge';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -155,207 +155,207 @@ function ActionCell({
 const createColumns = (
   onPreview?: (id: string) => void,
 ): ColumnDef<Quotation>[] => [
-  {
-    id: 'quotation',
-    accessorKey: 'quotationNumber',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Quotation
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='flex items-center gap-3'>
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.quotationNumber}
-          </div>
-          {row.original.notes && (
-            <div className='line-clamp-1 text-paragraph-xs text-text-soft-400'>
-              {row.original.notes}
+    {
+      id: 'quotation',
+      accessorKey: 'quotationNumber',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Quotation
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className='flex items-center gap-3'>
+          <div className='flex flex-col'>
+            <div className='text-paragraph-sm text-text-sub-600'>
+              {row.original.quotationNumber}
             </div>
-          )}
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'customer',
-    accessorKey: 'customerName',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Customer
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='flex items-center gap-2'>
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.customerName}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            {row.original.customerCode}
+            {row.original.notes && (
+              <div className='line-clamp-1 text-paragraph-xs text-text-soft-400'>
+                {row.original.notes}
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    ),
-  },
-  {
-    id: 'branch',
-    accessorKey: 'branchName',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Branch
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>
-        {row.original.branchName || '—'}
-      </div>
-    ),
-  },
-  {
-    id: 'quotationDate',
-    accessorKey: 'quotationDate',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Date
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.quotationDate)}
-      </div>
-    ),
-  },
-  {
-    id: 'validUntil',
-    accessorKey: 'validUntil',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Valid Until
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.validUntil)}
-      </div>
-    ),
-  },
-  {
-    id: 'total',
-    accessorKey: 'total',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5 text-right'>
-        Total
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className='text-right'>
-        <div className='flex flex-col'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(row.original.total, 'IDR')}
-          </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
-            {formatCurrency(row.original.subtotal, 'IDR')}
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Status
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => {
-      return (
-        <QuotationStatusBadge
-          status={row.original.status as any}
-          size='medium'
-        />
-      );
+      ),
     },
-  },
-  {
-    id: 'createdBy',
-    accessorKey: 'createdByUser',
-    header: ({ column }) => (
-      <div className='flex items-center gap-0.5'>
-        Created By
-        <button
-          type='button'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {getSortingIcon(column.getIsSorted())}
-        </button>
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div>
+    {
+      id: 'customer',
+      accessorKey: 'customerName',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Customer
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className='flex items-center gap-2'>
+          <div className='flex flex-col'>
+            <div className='text-paragraph-sm text-text-sub-600'>
+              {row.original.customerName}
+            </div>
+            <div className='text-paragraph-xs text-text-soft-400'>
+              {row.original.customerCode}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'branch',
+      accessorKey: 'branchName',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Branch
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
         <div className='text-paragraph-sm text-text-sub-600'>
-          {row.original.createdByUser}
+          {row.original.branchName || '—'}
         </div>
-        <div className='text-paragraph-xs text-text-soft-400'>
-          {formatDate(row.original.createdAt)}
-        </div>
-      </div>
-    ),
-  },
-
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => <ActionCell row={row} onPreview={onPreview} />,
-    meta: {
-      className: 'px-5 w-0',
+      ),
     },
-  },
-];
+    {
+      id: 'quotationDate',
+      accessorKey: 'quotationDate',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Date
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {formatDate(row.original.quotationDate)}
+        </div>
+      ),
+    },
+    {
+      id: 'validUntil',
+      accessorKey: 'validUntil',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Valid Until
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {formatDate(row.original.validUntil)}
+        </div>
+      ),
+    },
+    {
+      id: 'total',
+      accessorKey: 'total',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5 text-right'>
+          Total
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className='text-right'>
+          <div className='flex flex-col'>
+            <div className='text-paragraph-sm text-text-sub-600'>
+              {formatCurrency(row.original.total, 'IDR')}
+            </div>
+            <div className='text-paragraph-xs text-text-soft-400'>
+              {formatCurrency(row.original.subtotal, 'IDR')}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Status
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <QuotationStatusBadge
+            status={row.original.status as any}
+            size='medium'
+          />
+        );
+      },
+    },
+    {
+      id: 'createdBy',
+      accessorKey: 'createdByUser',
+      header: ({ column }) => (
+        <div className='flex items-center gap-0.5'>
+          Created By
+          <button
+            type='button'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            {getSortingIcon(column.getIsSorted())}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div>
+          <div className='text-paragraph-sm text-text-sub-600'>
+            {row.original.createdByUser}
+          </div>
+          <div className='text-paragraph-xs text-text-soft-400'>
+            {formatDate(row.original.createdAt)}
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => <ActionCell row={row} onPreview={onPreview} />,
+      meta: {
+        className: 'px-5 w-0',
+      },
+    },
+  ];
 
 interface QuotationsTableProps {
   filters?: {
@@ -446,9 +446,9 @@ export function QuotationsTable({ filters, onPreview }: QuotationsTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
                 </Table.Head>
               );
             })}

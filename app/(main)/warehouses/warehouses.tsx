@@ -3,9 +3,9 @@
 import { useState } from 'react';
 
 import { useWarehouses } from '@/hooks/use-warehouses';
-import { WarehousePreviewDrawer } from '@/components/warehouse-preview-drawer';
-import { WarehousesFilters } from '@/components/warehouses-filters';
-import { WarehousesTable } from '@/components/warehouses-table';
+import { WarehousePreviewDrawer } from '@/components/warehouses/warehouse-preview-drawer';
+import { WarehousesFilters } from '@/components/warehouses/warehouses-filters';
+import { WarehousesTable } from '@/components/warehouses/warehouses-table';
 
 interface WarehousesProps {
   initialFilters: {

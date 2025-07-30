@@ -7,7 +7,7 @@ import { RiEditLine } from '@remixicon/react';
 import { useWarehouse } from '@/hooks/use-warehouses';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { WarehouseForm } from '@/components/warehouse-form';
+import { WarehouseForm } from '@/components/warehouses/warehouse-form';
 
 interface EditWarehousePageProps {
   params: {

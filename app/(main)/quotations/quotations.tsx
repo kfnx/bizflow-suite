@@ -4,11 +4,11 @@ import { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQuotations } from '@/hooks/use-quotations';
-import { QuotationPreviewDrawer } from '@/components/quotation-preview-drawer';
+import { QuotationPreviewDrawer } from '@/components/quotations/quotation-preview-drawer';
 import {
   QuotationsTable,
   QuotationTablePagination,
-} from '@/components/quotations-table';
+} from '@/components/quotations/quotations-table';
 
 import { Filters, type QuotationsFilters } from './filters';
 

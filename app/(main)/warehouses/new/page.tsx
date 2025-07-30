@@ -5,7 +5,7 @@ import { RiStoreLine } from '@remixicon/react';
 
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { WarehouseForm } from '@/components/warehouse-form';
+import { WarehouseForm } from '@/components/warehouses/warehouse-form';
 
 export default function NewWarehousePage() {
   const router = useRouter();

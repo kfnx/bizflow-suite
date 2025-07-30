@@ -4,8 +4,8 @@ import { useCallback, useState } from 'react';
 import { RiUserLine } from '@remixicon/react';
 
 import { ActionButton } from '@/components/action-button';
-import { CustomerPreviewDrawer } from '@/components/customer-preview-drawer';
-import { CustomersTable } from '@/components/customers-table';
+import { CustomerPreviewDrawer } from '@/components/customers/customer-preview-drawer';
+import { CustomersTable } from '@/components/customers/customers-table';
 import Header from '@/components/header';
 
 import { Filters, type CustomersFilters } from './filters';

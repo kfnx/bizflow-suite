@@ -1,22 +1,35 @@
 'use client';
 
 import React from 'react';
+import router from 'next/router';
 import {
+  RiBillLine,
+  RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
   RiLoader4Line,
-  RiMoneyDollarCircleLine,
+  RiMailSendLine,
+  RiSendPlaneLine,
 } from '@remixicon/react';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
-import { useInvoiceDetail, type InvoiceDetail } from '@/hooks/use-invoices';
+import {
+  useMarkQuotationAsInvoiced,
+  useQuotationDetail,
+  useSendQuotation,
+  useSubmitQuotation,
+  type QuotationDetail,
+} from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
-import { InvoiceStatusBadge } from '@/components/invoice-status-badge';
+import { QuotationStatusBadge } from '@/components/quotations/quotation-status-badge';
 
-interface InvoicePreviewDrawerProps {
-  invoiceId: string | null;
+import { Asterisk } from '../ui/label';
+
+interface QuotationPreviewDrawerProps {
+  quotationId: string | null;
   open: boolean;
   onClose: () => void;
 }
@@ -30,26 +43,40 @@ const formatCurrency = (amount: string, currency: string) => {
   }).format(numAmount);
 };
 
-function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
+function QuotationPreviewContent({
+  quotation,
+}: {
+  quotation: QuotationDetail;
+}) {
   return (
     <>
-      <Divider.Root variant='solid-text'>Invoice Info</Divider.Root>
+      <Divider.Root variant='solid-text'>Quotation Info</Divider.Root>
 
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
             <div className='text-title-h4 text-text-strong-950'>
-              {invoice.invoiceNumber}
+              {quotation.quotationNumber}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {invoice.customerName} • {formatDate(invoice.invoiceDate)}
+              {quotation.customerName} • {formatDate(quotation.quotationDate)}
             </div>
           </div>
-          <InvoiceStatusBadge status={invoice.status as any} size='medium' />
+          <QuotationStatusBadge
+            status={quotation.status as any}
+            size='medium'
+          />
         </div>
 
+        {quotation.status === QUOTATION_STATUS.SUBMITTED && (
+          <div className='mb-4 text-paragraph-sm italic text-text-sub-600'>
+            <Asterisk />
+            pending approval
+          </div>
+        )}
+
         <div className='text-title-h4 text-text-strong-950'>
-          {formatCurrency(invoice.total, invoice.currency)}
+          {formatCurrency(quotation.total, 'IDR')}
         </div>
         <div className='mt-1 text-paragraph-sm text-text-sub-600'>
           Total Amount
@@ -61,10 +88,10 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
       <div className='flex flex-col gap-3 p-5'>
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Due Date
+            Valid Until
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(invoice.dueDate)}
+            {formatDate(quotation.validUntil)}
           </div>
         </div>
 
@@ -75,7 +102,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             Branch
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.branchName || '—'}
+            {quotation.branchName || '—'}
           </div>
         </div>
 
@@ -86,7 +113,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             Items
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.items.length} items
+            {quotation.items.length} items
           </div>
         </div>
 
@@ -97,9 +124,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             Created By
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.createdByUser
-              ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
-              : 'Unknown'}
+            {quotation.createdByUser}
           </div>
         </div>
 
@@ -110,11 +135,11 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(invoice.createdAt)}
+            {formatDate(quotation.createdAt)}
           </div>
         </div>
 
-        {invoice.notes && (
+        {quotation.notes && (
           <>
             <Divider.Root variant='line-spacing' />
             <div>
@@ -122,19 +147,19 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
                 Notes
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
-                {invoice.notes}
+                {quotation.notes}
               </div>
             </div>
           </>
         )}
       </div>
 
-      {invoice.items.length > 0 && (
+      {quotation.items.length > 0 && (
         <>
-          <Divider.Root variant='solid-text'>Items Preview</Divider.Root>
+          <Divider.Root variant='solid-text'>Items</Divider.Root>
           <div className='p-5'>
             <div className='space-y-3'>
-              {invoice.items.slice(0, 3).map((item) => (
+              {quotation.items.slice(0, 3).map((item) => (
                 <div
                   key={item.id}
                   className='flex items-center justify-between'
@@ -150,18 +175,18 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
                   <div className='ml-4 text-right'>
                     <div className='text-label-sm text-text-strong-950'>
                       {parseFloat(item.quantity)} ×{' '}
-                      {formatCurrency(item.unitPrice, invoice.currency)}
+                      {formatCurrency(item.unitPrice, 'IDR')}
                     </div>
                     <div className='text-paragraph-sm text-text-sub-600'>
-                      {formatCurrency(item.total, invoice.currency)}
+                      {formatCurrency(item.total, 'IDR')}
                     </div>
                   </div>
                 </div>
               ))}
 
-              {invoice.items.length > 3 && (
+              {quotation.items.length > 3 && (
                 <div className='text-center text-paragraph-sm text-text-sub-600'>
-                  +{invoice.items.length - 3} more items
+                  +{quotation.items.length - 3} more items
                 </div>
               )}
             </div>
@@ -172,41 +197,96 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
   );
 }
 
-function InvoicePreviewFooter({ invoice }: { invoice: InvoiceDetail }) {
+function QuotationPreviewFooter({ quotation }: { quotation: QuotationDetail }) {
+  const sendQuotationMutation = useSendQuotation();
+  const submitQuotationMutation = useSubmitQuotation();
+  const markAsInvoiceMutation = useMarkQuotationAsInvoiced();
+
   const handleViewFull = () => {
-    window.location.href = `/invoices/${invoice.id}`;
+    window.location.href = `/quotations/${quotation.id}`;
   };
 
   const handleEdit = () => {
-    if (invoice.status !== 'draft') {
-      alert('Only draft invoices can be edited');
+    if (quotation.status !== QUOTATION_STATUS.DRAFT) {
+      alert('Only draft quotations can be edited');
       return;
     }
-    window.location.href = `/invoices/${invoice.id}/edit`;
+    window.location.href = `/quotations/${quotation.id}/edit`;
   };
 
-  const handleMarkAsPaid = async () => {
-    if (invoice.status === 'paid') {
-      alert('Invoice is already marked as paid');
+  const handleSubmit = async () => {
+    if (quotation.status !== QUOTATION_STATUS.DRAFT) {
+      alert('Only draft quotations can be submitted');
       return;
     }
 
     if (
       !confirm(
-        `Are you sure you want to mark invoice ${invoice.invoiceNumber} as paid?`,
+        `Are you sure you want to submit quotation ${quotation.quotationNumber} for approval?`,
       )
     ) {
       return;
     }
 
     try {
-      // TODO: Implement mark as paid API call
-      alert('Invoice marked as paid successfully!');
+      await submitQuotationMutation.mutateAsync(quotation.id);
+      alert('Quotation submitted successfully!');
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to submit quotation',
+      );
+    }
+  };
+
+  const handleSend = async () => {
+    if (quotation.status !== QUOTATION_STATUS.APPROVED) {
+      alert('Only approved quotations can be sent');
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to send quotation ${quotation.quotationNumber} to the customer?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await sendQuotationMutation.mutateAsync(quotation.id);
+      alert('Quotation sent successfully!');
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to send quotation',
+      );
+    }
+  };
+
+  const handleMarkAsInvoice = async () => {
+    if (quotation.status !== QUOTATION_STATUS.ACCEPTED) {
+      alert('Only accepted quotations can be marked as invoice');
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to mark quotation ${quotation.quotationNumber} as invoice?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await markAsInvoiceMutation.mutateAsync({
+        quotationId: quotation.id,
+      });
+      alert('Quotation marked as invoice successfully!');
+      // router.push(`/invoices/${invoiceId}`);
     } catch (error) {
       alert(
         error instanceof Error
           ? error.message
-          : 'Failed to mark invoice as paid',
+          : 'Failed to mark quotation as invoice',
       );
     }
   };
@@ -224,41 +304,68 @@ function InvoicePreviewFooter({ invoice }: { invoice: InvoiceDetail }) {
         View Full
       </Button.Root>
 
-      {invoice.status === 'sent' && (
+      {quotation.status === QUOTATION_STATUS.DRAFT && (
+        <>
+          <Button.Root
+            variant='neutral'
+            mode='stroke'
+            size='medium'
+            className='w-full'
+            onClick={handleEdit}
+          >
+            <Button.Icon as={RiEditLine} />
+            Edit
+          </Button.Root>
+          <Button.Root
+            variant='primary'
+            size='medium'
+            className='w-full'
+            onClick={handleSubmit}
+            disabled={submitQuotationMutation.isPending}
+          >
+            <Button.Icon as={RiSendPlaneLine} />
+            {submitQuotationMutation.isPending ? 'Submitting...' : 'Submit'}
+          </Button.Root>
+        </>
+      )}
+
+      {quotation.status === QUOTATION_STATUS.APPROVED && (
         <Button.Root
           variant='primary'
           size='medium'
           className='w-full'
-          onClick={handleMarkAsPaid}
+          onClick={handleSend}
+          disabled={sendQuotationMutation.isPending}
         >
-          <Button.Icon as={RiMoneyDollarCircleLine} />
-          Mark as Paid
+          <Button.Icon as={RiMailSendLine} />
+          {sendQuotationMutation.isPending ? 'Sending...' : 'Send'}
         </Button.Root>
       )}
 
-      {invoice.status === 'draft' && (
+      {quotation.status === QUOTATION_STATUS.ACCEPTED && (
         <Button.Root
           variant='primary'
           size='medium'
           className='w-full'
-          onClick={handleEdit}
+          onClick={handleMarkAsInvoice}
+          disabled={markAsInvoiceMutation.isPending}
         >
-          <Button.Icon as={RiEditLine} />
-          Edit
+          <Button.Icon as={RiBillLine} />
+          {markAsInvoiceMutation.isPending ? 'Marking...' : 'Mark as Invoice'}
         </Button.Root>
       )}
     </Drawer.Footer>
   );
 }
 
-export function InvoicePreviewDrawer({
-  invoiceId,
+export function QuotationPreviewDrawer({
+  quotationId,
   open,
   onClose,
-}: InvoicePreviewDrawerProps) {
-  const { data, isLoading, error } = useInvoiceDetail(invoiceId || '');
+}: QuotationPreviewDrawerProps) {
+  const { data, isLoading, error } = useQuotationDetail(quotationId || '');
 
-  if (!open || !invoiceId) return null;
+  if (!open || !quotationId) return null;
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
@@ -283,12 +390,12 @@ export function InvoicePreviewDrawer({
           )}
 
           {data?.data && !isLoading && !error && (
-            <InvoicePreviewContent invoice={data.data} />
+            <QuotationPreviewContent quotation={data.data} />
           )}
         </Drawer.Body>
 
         {data?.data && !isLoading && !error && (
-          <InvoicePreviewFooter invoice={data.data} />
+          <QuotationPreviewFooter quotation={data.data} />
         )}
       </Drawer.Content>
     </Drawer.Root>

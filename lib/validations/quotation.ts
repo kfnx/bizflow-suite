@@ -35,6 +35,7 @@ export const createQuotationRequestSchema = z.object({
   quotationDate: z.string().min(1, 'Quotation date is required'),
   validUntil: z.string().min(1, 'Valid until date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
+  branchId: z.string().optional(),
   isIncludePPN: z.boolean().optional().default(false),
   notes: z.string().optional(),
   termsAndConditions: z.string().optional(),
@@ -47,7 +48,7 @@ export const createQuotationRequestSchema = z.object({
         productId: z.string().min(1, 'Product ID is required'),
         name: z.string().min(1, 'Product name is required'),
         quantity: z.number().positive('Quantity must be positive'),
-        unitPrice: z.number().nonnegative('Unit price must be non-negative'),
+        unitPrice: z.string().min(1, 'Unit price is required'),
         notes: z.string().optional(),
       }),
     )
@@ -76,7 +77,7 @@ export const createQuotationDraftRequestSchema = z.object({
       z.object({
         productId: z.string().min(1, 'Product ID is required'),
         quantity: z.number().positive('Quantity must be positive'),
-        unitPrice: z.number().nonnegative('Unit price must be non-negative'),
+        unitPrice: z.string().min(1, 'Unit price is required'),
         notes: z.string().optional(),
       }),
     )
@@ -90,7 +91,7 @@ export const updateQuotationSchema = createQuotationRequestSchema.partial();
 export interface QuotationItem {
   productId: string;
   quantity: number;
-  unitPrice: number;
+  unitPrice: string;
   notes?: string;
 }
 
@@ -98,7 +99,7 @@ export interface QuotationItem {
   productId: string;
   name: string;
   quantity: number;
-  unitPrice: number;
+  unitPrice: string;
   notes?: string;
 }
 

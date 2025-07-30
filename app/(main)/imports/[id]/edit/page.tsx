@@ -9,7 +9,7 @@ import { IMPORT_STATUS } from '@/lib/db/enum';
 import { useImport } from '@/hooks/use-imports';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { ImportForm } from '@/components/import-form';
+import { ImportForm } from '@/components/imports/import-form';
 
 interface EditImportPageProps {
   params: {

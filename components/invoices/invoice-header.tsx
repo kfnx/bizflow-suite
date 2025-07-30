@@ -18,7 +18,7 @@ import { InvoiceDetail } from '@/hooks/use-invoices';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
-import { InvoiceStatusBadge } from '@/components/invoice-status-badge';
+import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
 
 interface InvoiceHeaderProps {
   invoice: InvoiceDetail;

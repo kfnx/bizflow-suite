@@ -37,8 +37,11 @@ export async function POST(request: NextRequest) {
     // Calculate totals from items
     let subtotal = 0;
     validatedData.items.forEach(
-      (item: { quantity: number; unitPrice: number }) => {
-        subtotal += item.quantity * item.unitPrice;
+      (item: { quantity: number; unitPrice: string }) => {
+        // Remove formatting (periods as thousand separators) and convert to number
+        const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
+        const unitPrice = parseFloat(cleanPrice) || 0;
+        subtotal += item.quantity * unitPrice;
       },
     );
 
@@ -49,6 +52,7 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
+      const branchId = session.user.branchId;
       const { quotationNumber } = validatedData;
       // Create quotation (ID will be auto-generated)
       const quotationData = {
@@ -63,6 +67,7 @@ export async function POST(request: NextRequest) {
         status: QUOTATION_STATUS.DRAFT,
         notes: validatedData.notes || null, // Handle optional text fields
         termsAndConditions: validatedData.termsAndConditions || null, // Handle optional text fields
+        branchId,
         createdBy,
       };
 
@@ -83,16 +88,23 @@ export async function POST(request: NextRequest) {
           (item: {
             productId: string;
             quantity: number;
-            unitPrice: number;
+            unitPrice: string;
             notes?: string;
-          }) => ({
-            quotationId,
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice.toString(),
-            total: (item.quantity * item.unitPrice).toString(),
-            notes: item.notes,
-          }),
+          }) => {
+            // Remove formatting (periods as thousand separators) and convert to number
+            const cleanPrice = item.unitPrice
+              .replace(/\./g, '')
+              .replace(',', '.');
+            const unitPrice = parseFloat(cleanPrice) || 0;
+            return {
+              quotationId,
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: unitPrice.toString(),
+              total: (item.quantity * unitPrice).toString(),
+              notes: item.notes,
+            };
+          },
         );
 
         await tx.insert(quotationItems).values(itemsToInsert);

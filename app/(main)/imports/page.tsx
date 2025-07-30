@@ -1,13 +1,12 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { RiCheckLine, RiImportLine } from '@remixicon/react';
+import { RiImportLine } from '@remixicon/react';
 
-import * as Button from '@/components/ui/button';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
-import { ImportPreviewDrawer } from '@/components/import-preview-drawer';
-import { ImportsTable } from '@/components/imports-table';
+import { ImportPreviewDrawer } from '@/components/imports/import-preview-drawer';
+import { ImportsTable } from '@/components/imports/imports-table';
 
 import { Filters, type ImportsFilters } from './filters';
 

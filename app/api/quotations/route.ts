@@ -38,8 +38,19 @@ export async function GET(request: NextRequest) {
     const conditions = [];
 
     // Branch-based access control
-    // HO users (ho_*) can see all branches, others can only see their own branch
-    if (session.user.branchId && !session.user.branchId.startsWith('ho_')) {
+    // HO users see all branches, others can only see their own branch
+
+    // get branch name from branchId
+    const branchName = session.user.branchId
+      ? await db
+          .select({ name: branches.name })
+          .from(branches)
+          .where(eq(branches.id, session.user.branchId))
+          .limit(1)
+          .then((result) => result[0]?.name || null)
+          .catch(() => null)
+      : null;
+    if (branchName && !branchName.startsWith('HO') && session.user.branchId) {
       conditions.push(eq(quotations.branchId, session.user.branchId));
     }
     if (status && status !== 'all') {
@@ -221,8 +232,11 @@ export async function POST(request: NextRequest) {
     // Calculate totals from items
     let subtotal = 0;
     validatedData.items.forEach(
-      (item: { quantity: number; unitPrice: number }) => {
-        subtotal += item.quantity * item.unitPrice;
+      (item: { quantity: number; unitPrice: string }) => {
+        // Remove formatting (periods as thousand separators) and convert to number
+        const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
+        const unitPrice = parseFloat(cleanPrice) || 0;
+        subtotal += item.quantity * unitPrice;
       },
     );
 
@@ -269,16 +283,23 @@ export async function POST(request: NextRequest) {
           (item: {
             productId: string;
             quantity: number;
-            unitPrice: number;
+            unitPrice: string;
             notes?: string;
-          }) => ({
-            quotationId,
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice.toString(),
-            total: (item.quantity * item.unitPrice).toString(),
-            notes: item.notes,
-          }),
+          }) => {
+            // Remove formatting (periods as thousand separators) and convert to number
+            const cleanPrice = item.unitPrice
+              .replace(/\./g, '')
+              .replace(',', '.');
+            const unitPrice = parseFloat(cleanPrice) || 0;
+            return {
+              quotationId,
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: unitPrice.toString(),
+              total: (item.quantity * unitPrice).toString(),
+              notes: item.notes,
+            };
+          },
         );
 
         await tx.insert(quotationItems).values(itemsToInsert);

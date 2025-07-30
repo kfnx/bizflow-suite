@@ -30,8 +30,8 @@ function DetailCard({
   return (
     <div className={`rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6 ${className}`}>
       <div className='mb-4 flex items-center gap-3'>
-        <div className='flex size-8 items-center justify-center rounded-full bg-primary-50 ring-1 ring-primary-100'>
-          <Icon className='size-4 text-primary-600' />
+        <div className='bg-primary-50 ring-primary-100 flex size-8 items-center justify-center rounded-full ring-1'>
+          <Icon className='text-primary-600 size-4' />
         </div>
         <h3 className='text-lg font-semibold text-text-strong-950'>
           {title}
@@ -57,7 +57,7 @@ function DetailItem({
         {Icon && <Icon className='size-4 text-text-sub-600' />}
         <span className='text-sm font-medium text-text-sub-600'>{label}</span>
       </div>
-      <div className='text-sm text-text-strong-950 text-right'>
+      <div className='text-sm text-right text-text-strong-950'>
         {value}
       </div>
     </div>
@@ -88,10 +88,10 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
             <DetailItem 
               label='Type' 
               value={
-                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                <span className={`text-xs inline-flex items-center rounded-full px-2 py-1 font-medium ${
                   quotation.customerType === 'company'
-                    ? 'bg-primary-50 text-primary-700 ring-1 ring-primary-600/20' 
-                    : 'bg-success-50 text-success-700 ring-1 ring-success-600/20'
+                    ? 'bg-primary-50 text-primary-700 ring-primary-600/20 ring-1' 
+                    : 'bg-success-50 text-success-700 ring-success-600/20 ring-1'
                 }`}>
                   {quotation.customerType === 'company' ? 'Company' : 'Individual'}
                 </span>
@@ -165,9 +165,9 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
             icon={RiPercentLine}
             label='Include PPN' 
             value={
-              <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+              <span className={`text-xs inline-flex items-center rounded-full px-2 py-1 font-medium ${
                 quotation.isIncludePPN 
-                  ? 'bg-success-50 text-success-700 ring-1 ring-success-600/20' 
+                  ? 'bg-success-50 text-success-700 ring-success-600/20 ring-1' 
                   : 'bg-bg-weak-50 text-text-sub-600 ring-1 ring-stroke-soft-200'
               }`}>
                 {quotation.isIncludePPN ? 'Yes (11%)' : 'No'}
@@ -217,7 +217,7 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
         <div className='lg:col-span-2'>
           <DetailCard icon={RiFileTextLine} title='Notes' className=''>
             <div className='rounded-lg border border-stroke-soft-200 bg-bg-weak-50 p-4'>
-              <p className='text-sm text-text-sub-600 whitespace-pre-wrap leading-relaxed'>
+              <p className='text-sm whitespace-pre-wrap leading-relaxed text-text-sub-600'>
                 {quotation.notes}
               </p>
             </div>
@@ -230,7 +230,7 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
         <div className='lg:col-span-2'>
           <DetailCard icon={RiFileTextLine} title='Terms and Conditions' className=''>
             <div className='rounded-lg border border-stroke-soft-200 bg-bg-weak-50 p-4'>
-              <p className='text-sm text-text-sub-600 whitespace-pre-wrap leading-relaxed'>
+              <p className='text-sm whitespace-pre-wrap leading-relaxed text-text-sub-600'>
                 {quotation.termsAndConditions}
               </p>
             </div>

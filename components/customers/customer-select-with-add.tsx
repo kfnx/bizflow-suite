@@ -116,12 +116,12 @@ export function CustomerSelectWithAdd({
             <Select.Item key={customer.id} value={customer.id}>
               <div className='flex flex-col'>
                 <div className='font-medium'>{customer.name}</div>
-                <div className='text-xs text-text-sub-600 flex items-center gap-2'>
+                <div className='text-xs flex items-center gap-2 text-text-sub-600'>
                   <span>{customer.code}</span>
                   {customer.type && (
                     <>
                       <span>•</span>
-                      <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${
+                      <span className={`text-xs inline-flex items-center rounded px-1.5 py-0.5 font-medium ${
                         customer.type === 'company'
                           ? 'bg-primary-50 text-primary-700' 
                           : 'bg-success-50 text-success-700'

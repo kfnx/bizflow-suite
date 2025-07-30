@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
         // Create contact person directly in customerContactPersons table
         await db.insert(customerContactPersons).values({
           customerId: newCustomerId,
+          prefix: contactPersonData.prefix,
           name: contactPersonData.name,
           email: contactPersonData.email,
           phone: contactPersonData.phone,

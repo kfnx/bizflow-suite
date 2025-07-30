@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 // Contact person schema for creation
 export const customerContactPersonSchema = z.object({
+  prefix: z.enum(['Bapak', 'Ibu', 'Sdr.', 'Sdri.']).optional(),
   name: z.string().min(1, 'Contact person name is required'),
   email: z.string().email().optional().nullable(),
   phone: z.string().optional().nullable(),

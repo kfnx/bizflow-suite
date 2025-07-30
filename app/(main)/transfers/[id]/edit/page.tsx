@@ -17,7 +17,11 @@ import {
 import { toast } from 'sonner';
 
 import { useProducts } from '@/hooks/use-products';
-import { useTransfer, useUpdateTransfer, type UpdateTransferData } from '@/hooks/use-transfers';
+import {
+  useTransfer,
+  useUpdateTransfer,
+  type UpdateTransferData,
+} from '@/hooks/use-transfers';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -228,7 +232,7 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
       invoiceId: formData.invoiceId.trim() || undefined,
       deliveryId: formData.deliveryId.trim() || undefined,
       notes: formData.notes.trim() || undefined,
-      items: formData.items.map(item => ({
+      items: formData.items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
         quantityTransferred: item.quantityTransferred || 0,
@@ -254,7 +258,10 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
     }
   };
 
-  const handleInputChange = (field: keyof Omit<EditTransferData, 'items'>, value: string) => {
+  const handleInputChange = (
+    field: keyof Omit<EditTransferData, 'items'>,
+    value: string,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -450,9 +457,7 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
                 </div>
 
                 <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='status'>
-                    Status
-                  </Label.Root>
+                  <Label.Root htmlFor='status'>Status</Label.Root>
                   <Select.Root
                     value={formData.status}
                     onValueChange={(value) =>
@@ -542,7 +547,10 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
                             </Select.Trigger>
                             <Select.Content>
                               {products.map((product) => (
-                                <Select.Item key={product.id} value={product.id}>
+                                <Select.Item
+                                  key={product.id}
+                                  value={product.id}
+                                >
                                   {product.code} - {product.name}
                                 </Select.Item>
                               ))}
@@ -568,7 +576,11 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
                                 min='1'
                                 value={item.quantity}
                                 onChange={(e) =>
-                                  handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)
+                                  handleItemChange(
+                                    index,
+                                    'quantity',
+                                    parseInt(e.target.value) || 0,
+                                  )
                                 }
                                 placeholder='Enter quantity'
                               />
@@ -595,7 +607,11 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
                                 max={item.quantity}
                                 value={item.quantityTransferred || 0}
                                 onChange={(e) =>
-                                  handleItemChange(index, 'quantityTransferred', parseInt(e.target.value) || 0)
+                                  handleItemChange(
+                                    index,
+                                    'quantityTransferred',
+                                    parseInt(e.target.value) || 0,
+                                  )
                                 }
                                 placeholder='Transferred qty'
                               />

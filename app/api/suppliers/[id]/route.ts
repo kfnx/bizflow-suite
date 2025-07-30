@@ -26,6 +26,7 @@ export async function GET(
     const contactPersonsData = await db
       .select({
         id: supplierContactPersons.id,
+        prefix: supplierContactPersons.prefix,
         name: supplierContactPersons.name,
         email: supplierContactPersons.email,
         phone: supplierContactPersons.phone,
@@ -132,6 +133,7 @@ export async function PUT(
       for (const contactPersonData of contactPersonsData) {
         await db.insert(supplierContactPersons).values({
           supplierId: params.id,
+          prefix: contactPersonData.prefix,
           name: contactPersonData.name,
           email: contactPersonData.email,
           phone: contactPersonData.phone,

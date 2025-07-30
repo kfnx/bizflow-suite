@@ -36,7 +36,6 @@ export async function GET(
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         status: quotations.status,
         notes: quotations.notes,
         termsAndConditions: quotations.termsAndConditions,
@@ -141,9 +140,6 @@ export async function PUT(
       if (validatedData.customerId) {
         updateData.customerId = validatedData.customerId;
       }
-      if (validatedData.branchId) {
-        updateData.branchId = validatedData.branchId;
-      }
       if (validatedData.approvedBy !== undefined) {
         updateData.approvedBy = validatedData.approvedBy;
       }
@@ -153,9 +149,7 @@ export async function PUT(
       if (validatedData.isIncludePPN !== undefined) {
         updateData.isIncludePPN = validatedData.isIncludePPN;
       }
-      if (validatedData.currency) {
-        updateData.currency = validatedData.currency;
-      }
+
       if (validatedData.notes !== undefined) {
         updateData.notes = validatedData.notes;
       }
@@ -215,13 +209,11 @@ export async function PUT(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
-        branchId: quotations.branchId,
         branchName: branches.name,
         approvedBy: quotations.approvedBy,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         status: quotations.status,
         notes: quotations.notes,
         termsAndConditions: quotations.termsAndConditions,

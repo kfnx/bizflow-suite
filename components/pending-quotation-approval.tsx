@@ -112,7 +112,7 @@ function PendingQuotationCard({
         <div className='text-right'>
           <div className='mb-2'>
             <p className='text-3xl font-bold text-text-sub-600'>
-              {formatCurrency(quotation.total, quotation.currency)}
+              {formatCurrency(quotation.total, 'IDR')}
             </p>
             <p className='text-text-600 text-paragraph-sm'>
               {quotation.items.length} item
@@ -125,20 +125,20 @@ function PendingQuotationCard({
             <div className='flex justify-between gap-4'>
               <span className='text-text-600'>Subtotal:</span>
               <span className='text-text-sub-600'>
-                {formatCurrency(quotation.subtotal, quotation.currency)}
+                {formatCurrency(quotation.subtotal, 'IDR')}
               </span>
             </div>
             <div className='flex justify-between gap-4'>
               <span className='text-text-600'>Tax:</span>
               <span className='text-text-sub-600'>
-                {formatCurrency(quotation.tax, quotation.currency)}
+                {formatCurrency(quotation.tax, 'IDR')}
               </span>
             </div>
             <Divider.Root className='my-1' />
             <div className='flex justify-between gap-4 font-medium'>
               <span className='text-text-sub-600'>Total:</span>
               <span className='text-text-sub-600'>
-                {formatCurrency(quotation.total, quotation.currency)}
+                {formatCurrency(quotation.total, 'IDR')}
               </span>
             </div>
           </div>
@@ -182,10 +182,10 @@ function PendingQuotationCard({
                     <div className='text-right'>
                       <p className='text-text-600 text-paragraph-sm'>
                         {item.quantity} ×{' '}
-                        {formatCurrency(item.unitPrice, quotation.currency)}
+                        {formatCurrency(item.unitPrice, 'IDR')}
                       </p>
                       <p className='font-medium text-text-sub-600'>
-                        {formatCurrency(item.total, quotation.currency)}
+                        {formatCurrency(item.total, 'IDR')}
                       </p>
                     </div>
                   </div>

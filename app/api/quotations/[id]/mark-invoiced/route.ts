@@ -65,7 +65,6 @@ export async function POST(
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         invoicedAt: quotations.invoicedAt,
       })
       .from(quotations)
@@ -121,7 +120,6 @@ export async function POST(
         subtotal: quotation.subtotal || '0.00',
         tax: quotation.tax || '0.00',
         total: quotation.total || '0.00',
-        currency: quotation.currency || 'IDR',
         status: INVOICE_STATUS.DRAFT,
         paymentMethod: null, // Default value
         notes:

@@ -59,7 +59,7 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
             <label className='text-sm text-gray-700 block font-medium'>
               Currency
             </label>
-            <p className='text-sm text-gray-900 mt-1'>{quotation.currency}</p>
+            <p className='text-sm text-gray-900 mt-1'>IDR</p>
           </div>
           <div>
             <label className='text-sm text-gray-700 block font-medium'>

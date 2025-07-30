@@ -224,9 +224,9 @@ export function WarehousesTable({
     action:
       !filters.search && filters.isActive === 'all'
         ? {
-          label: 'Add Warehouse',
-          onClick: () => (window.location.href = '/warehouses/new'),
-        }
+            label: 'Add Warehouse',
+            onClick: () => (window.location.href = '/warehouses/new'),
+          }
         : undefined,
   };
 

@@ -376,10 +376,7 @@ export function TransfersTable({
 }: TransfersTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const columns = React.useMemo(
-    () => createColumns(),
-    [],
-  );
+  const columns = React.useMemo(() => createColumns(), []);
 
   const table = useReactTable({
     data: transfers,

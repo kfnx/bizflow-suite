@@ -72,6 +72,14 @@ function ActionCell({
     window.location.href = `/quotations/${row.original.id}/edit`;
   };
 
+  const handleReviseQuotation = () => {
+    if (row.original.status !== 'rejected') {
+      alert('Only rejected quotations can be revised');
+      return;
+    }
+    window.location.href = `/quotations/${row.original.id}/revise`;
+  };
+
   const handleViewDetails = () => {
     window.location.href = `/quotations/${row.original.id}`;
   };
@@ -133,6 +141,12 @@ function ActionCell({
           <RiEditLine className='size-4' />
           Edit Quotation
         </Dropdown.Item>
+        {row.original.status === 'rejected' && (
+          <Dropdown.Item onClick={handleReviseQuotation}>
+            <RiEditLine className='size-4' />
+            Revise Quotation
+          </Dropdown.Item>
+        )}
       </Dropdown.Content>
     </Dropdown.Root>
   );
@@ -275,10 +289,10 @@ const createColumns = (
       <div className='text-right'>
         <div className='flex flex-col'>
           <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(row.original.total, row.original.currency)}
+            {formatCurrency(row.original.total, 'IDR')}
           </div>
           <div className='text-paragraph-xs text-text-soft-400'>
-            {formatCurrency(row.original.subtotal, row.original.currency)}
+            {formatCurrency(row.original.subtotal, 'IDR')}
           </div>
         </div>
       </div>

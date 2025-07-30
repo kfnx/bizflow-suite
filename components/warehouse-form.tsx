@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  RiMapPinLine,
-  RiStoreLine,
-  RiUserLine,
-} from '@remixicon/react';
+import { RiMapPinLine, RiStoreLine, RiUserLine } from '@remixicon/react';
 import { toast } from 'sonner';
 
 import { useBranches } from '@/hooks/use-branches';
@@ -139,7 +135,8 @@ export function WarehouseForm({
     }
   };
 
-  const isLoading = createWarehouseMutation.isPending || updateWarehouseMutation.isPending;
+  const isLoading =
+    createWarehouseMutation.isPending || updateWarehouseMutation.isPending;
 
   return (
     <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
@@ -334,11 +331,7 @@ export function WarehouseForm({
           >
             Cancel
           </Button.Root>
-          <Button.Root
-            type='submit'
-            variant='primary'
-            disabled={isLoading}
-          >
+          <Button.Root type='submit' variant='primary' disabled={isLoading}>
             {isLoading
               ? mode === 'create'
                 ? 'Creating...'
@@ -351,4 +344,4 @@ export function WarehouseForm({
       </form>
     </div>
   );
-} 
+}

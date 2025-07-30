@@ -25,7 +25,6 @@ export type PendingQuotation = {
   subtotal: number;
   tax: number;
   total: number;
-  currency: string;
   status: 'sent';
   notes?: string;
   termsAndConditions?: string;

@@ -20,9 +20,7 @@ const initialFormData: QuotationFormData = {
     .toISOString()
     .split('T')[0], // 30 days from now
   customerId: '',
-  branchId: '',
   isIncludePPN: false,
-  currency: 'IDR',
   status: QUOTATION_STATUS.DRAFT,
   items: [],
 };

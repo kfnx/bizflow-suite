@@ -18,7 +18,6 @@ export type Quotation = {
   subtotal: number;
   tax: number;
   total: number;
-  currency: string;
   status: QUOTATION_STATUS;
   notes?: string;
   createdBy: string;

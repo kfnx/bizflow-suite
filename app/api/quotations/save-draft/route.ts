@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
         subtotal: subtotal.toFixed(2),
         tax: taxAmount.toFixed(2),
         total: total.toFixed(2),
-        currency: validatedData.currency || 'IDR',
         status: QUOTATION_STATUS.DRAFT,
         notes: validatedData.notes || null, // Handle optional text fields
         termsAndConditions: validatedData.termsAndConditions || null, // Handle optional text fields
@@ -115,7 +114,6 @@ export async function POST(request: NextRequest) {
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         status: quotations.status,
         notes: quotations.notes,
         termsAndConditions: quotations.termsAndConditions,

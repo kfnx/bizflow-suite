@@ -1,12 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import {
   RiAddLine,
+  RiArrowLeftLine,
   RiCalendarLine,
   RiDeleteBinLine,
   RiEditLine,
+  RiGlobalLine,
   RiHashtag,
   RiMapPin2Line,
   RiMoneyDollarCircleLine,
@@ -80,8 +83,8 @@ export default function EditQuotationPage() {
         }
 
         // Check if quotation is in draft status
-        if (data.data.status !== 'draft') {
-          toast.error('Only draft quotations can be edited');
+        if (data.data.status !== 'rejected') {
+          toast.error('Only rejected quotations can be revised');
           router.push('/quotations');
           return;
         }
@@ -307,8 +310,8 @@ export default function EditQuotationPage() {
             <RiEditLine className='size-6 text-text-sub-600' />
           </div>
         }
-        title='Edit Quotation'
-        description='Edit your draft quotation.'
+        title='Revise Quotation'
+        description='Revise rejected quotation.'
       >
         <BackButton href='/quotations' label='Back to Quotations' />
       </Header>
@@ -599,6 +602,23 @@ export default function EditQuotationPage() {
                       >
                         <RiDeleteBinLine className='size-4' />
                       </Button.Root>
+                    </div>
+
+                    <div className='col-span-12 flex flex-col gap-1'>
+                      <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
+                      <Input.Root>
+                        <Input.Wrapper>
+                          <Input.Icon as={RiHashtag} />
+                          <Input.Input
+                            id={`notes-${index}`}
+                            value={item.notes || ''}
+                            onChange={(e) =>
+                              updateItem(index, 'notes', e.target.value)
+                            }
+                            placeholder='Item notes...'
+                          />
+                        </Input.Wrapper>
+                      </Input.Root>
                     </div>
                   </div>
                 ))}

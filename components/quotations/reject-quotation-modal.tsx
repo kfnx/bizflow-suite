@@ -125,7 +125,6 @@ export function RejectQuotationModal({
                 value={responseNotes}
                 onChange={(e) => setResponseNotes(e.target.value)}
                 placeholder='Any additional notes or comments...'
-                rows={3}
                 disabled={isSubmitting}
               />
             </div>

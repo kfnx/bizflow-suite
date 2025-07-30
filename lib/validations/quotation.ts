@@ -35,9 +35,7 @@ export const createQuotationRequestSchema = z.object({
   quotationDate: z.string().min(1, 'Quotation date is required'),
   validUntil: z.string().min(1, 'Valid until date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
-  branchId: z.string().min(1, 'Branch is required'),
   isIncludePPN: z.boolean().optional().default(false),
-  currency: z.string().optional().default('IDR'),
   notes: z.string().optional(),
   termsAndConditions: z.string().optional(),
   status: z.enum([QUOTATION_STATUS.DRAFT, QUOTATION_STATUS.SUBMITTED], {
@@ -68,7 +66,6 @@ export const createQuotationDraftRequestSchema = z.object({
     .default(new Date().toISOString()),
   customerId: z.string().min(1, 'Customer ID is required').optional(),
   isIncludePPN: z.boolean().optional().default(false),
-  currency: z.string().optional().default('IDR'),
   notes: z.string().optional(),
   termsAndConditions: z.string().optional(),
   status: z.enum([QUOTATION_STATUS.DRAFT], {
@@ -110,34 +107,19 @@ export interface CreateQuotationRequest {
   validUntil: Date;
   customerId: string;
   isIncludePPN: boolean;
-  currency: string;
   notes?: string;
   termsAndConditions?: string;
   status: QUOTATION_STATUS;
   items: QuotationItem[];
 }
 
-// export interface CreateQuotationRequest {
-//   quotationDate: string;
-//   validUntil: string;
-//   customerId: string;
-//   approvedBy: string;
-//   isIncludePPN?: boolean;
-//   currency?: string;
-//   notes?: string;
-//   termsAndConditions?: string;
-//   items: QuotationItem[];
-// }
-
 export interface UpdateQuotationRequest {
   quotationDate?: string;
   validUntil?: string;
   status?: string;
   customerId?: string;
-  branchId?: string;
   approvedBy?: string;
   isIncludePPN?: boolean;
-  currency?: string;
   notes?: string;
   termsAndConditions?: string;
   items?: QuotationItem[];

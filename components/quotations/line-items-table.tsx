@@ -64,10 +64,10 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
                       {formatNumber(item.quantity)}
                     </Table.Cell>
                     <Table.Cell className='text-right'>
-                      {formatCurrency(item.unitPrice, quotation.currency)}
+                      {formatCurrency(item.unitPrice, 'IDR')}
                     </Table.Cell>
                     <Table.Cell className='text-right'>
-                      {formatCurrency(item.total, quotation.currency)}
+                      {formatCurrency(item.total, 'IDR')}
                     </Table.Cell>
                     <Table.Cell>
                       <span className='text-sm text-gray-600'>
@@ -86,7 +86,7 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
               <div className='text-sm flex justify-between'>
                 <span className='text-gray-600'>Subtotal:</span>
                 <span className='font-medium'>
-                  {formatCurrency(quotation.subtotal, quotation.currency)}
+                  {formatCurrency(quotation.subtotal, 'IDR')}
                 </span>
               </div>
 
@@ -94,7 +94,7 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
                 <div className='text-sm flex justify-between'>
                   <span className='text-gray-600'>PPN (11%):</span>
                   <span className='font-medium'>
-                    {formatCurrency(quotation.tax, quotation.currency)}
+                    {formatCurrency(quotation.tax, 'IDR')}
                   </span>
                 </div>
               )}
@@ -105,7 +105,7 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
                     Total:
                   </span>
                   <span className='text-base text-gray-900 font-semibold'>
-                    {formatCurrency(quotation.total, quotation.currency)}
+                    {formatCurrency(quotation.total, 'IDR')}
                   </span>
                 </div>
               </div>

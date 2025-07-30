@@ -43,7 +43,7 @@ export default function NewCustomerPage() {
     country: undefined,
     postalCode: undefined,
     paymentTerms: undefined,
-    contactPersons: [{ name: '', email: '', phone: '' }],
+    contactPersons: [{ prefix: 'Bapak', name: '', email: '', phone: '' }],
   });
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -153,7 +153,7 @@ export default function NewCustomerPage() {
   const addContactPerson = () => {
     handleInputChange('contactPersons', [
       ...(formData.contactPersons || []),
-      { name: '', email: '', phone: '' },
+      { prefix: 'Bapak', name: '', email: '', phone: '' },
     ]);
   };
 
@@ -485,7 +485,29 @@ export default function NewCustomerPage() {
                       )}
                     </div>
 
-                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+                      <div className='flex flex-col gap-2'>
+                        <Label.Root htmlFor={`contact-prefix-${index}`}>
+                          Prefix
+                        </Label.Root>
+                        <Select.Root
+                          value={contact.prefix || 'Bapak'}
+                          onValueChange={(value) =>
+                            handleContactPersonChange(index, 'prefix', value)
+                          }
+                        >
+                          <Select.Trigger id={`contact-prefix-${index}`}>
+                            <Select.Value placeholder='Select prefix' />
+                          </Select.Trigger>
+                          <Select.Content>
+                            <Select.Item value='Bapak'>Bapak</Select.Item>
+                            <Select.Item value='Ibu'>Ibu</Select.Item>
+                            <Select.Item value='Sdr.'>Sdr.</Select.Item>
+                            <Select.Item value='Sdri.'>Sdri.</Select.Item>
+                          </Select.Content>
+                        </Select.Root>
+                      </div>
+
                       <div className='flex flex-col gap-2'>
                         <Label.Root htmlFor={`contact-name-${index}`}>
                           Name

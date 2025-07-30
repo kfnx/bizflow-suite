@@ -15,6 +15,7 @@ import {
   RiShareLine,
 } from '@remixicon/react';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
 import {
   canCreateInvoice,
@@ -108,8 +109,11 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
   };
 
   const handleEdit = () => {
-    if (quotation.status !== 'draft') {
-      alert('Only draft quotations can be edited');
+    if (
+      quotation.status !== QUOTATION_STATUS.DRAFT &&
+      quotation.status !== QUOTATION_STATUS.REVISED
+    ) {
+      alert('Only draft and revised quotations can be edited');
       return;
     }
     window.location.href = `/quotations/${quotation.id}/edit`;
@@ -306,10 +310,16 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
                   </Dropdown.Item>
                 </>
               )}
-              {quotation.status === 'draft' && (
+              {quotation.status === 'draft' || (
                 <Dropdown.Item onClick={handleEdit}>
                   <RiEditLine className='size-4' />
                   Edit Quotation
+                </Dropdown.Item>
+              )}
+              {quotation.status === QUOTATION_STATUS.REJECTED || (
+                <Dropdown.Item onClick={handleEdit}>
+                  <RiEditLine className='size-4' />
+                  Revise Quotation
                 </Dropdown.Item>
               )}
               {quotation.status === 'accepted' &&
@@ -360,7 +370,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
         <div className='flex items-center gap-2'>
           <span className='text-gray-500'>Total:</span>
           <span className='text-lg text-gray-900 font-semibold'>
-            {formatCurrency(quotation.total, quotation.currency)}
+            {formatCurrency(quotation.total, 'IDR')}
           </span>
         </div>
       </div>

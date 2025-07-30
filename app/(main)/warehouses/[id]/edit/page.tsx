@@ -32,7 +32,8 @@ export default function EditWarehousePage({ params }: EditWarehousePageProps) {
       address: warehouseData.address || '',
       managerId: warehouseData.managerId || '',
       branchId: warehouseData.branchId || '',
-      isActive: warehouseData.isActive !== undefined ? warehouseData.isActive : true,
+      isActive:
+        warehouseData.isActive !== undefined ? warehouseData.isActive : true,
     };
   };
 

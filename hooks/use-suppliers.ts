@@ -7,6 +7,7 @@ import { Supplier } from '@/lib/db/schema';
 export type SupplierWithContactPersons = Supplier & {
   contactPersons: Array<{
     id: string;
+    prefix?: string;
     name: string;
     email?: string;
     phone?: string;

@@ -221,7 +221,6 @@ export function MarkAsInvoiceModal({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder='Add any additional notes about the invoice'
-                rows={3}
               />
             </div>
           </div>

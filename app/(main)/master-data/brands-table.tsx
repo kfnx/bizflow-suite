@@ -340,7 +340,7 @@ export function BrandsTable() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className='flex items-center gap-2 text-sm text-gray-600 capitalize'>
+                  <div className='text-sm text-gray-600 flex items-center gap-2 capitalize'>
                     {brand.type === 'machine' ? (
                       <RiSettings3Line className='size-5' />
                     ) : (

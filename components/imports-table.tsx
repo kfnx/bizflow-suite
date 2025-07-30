@@ -31,6 +31,7 @@ import {
 } from '@tanstack/react-table';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
+import { formatDate } from '@/utils/date-formatter';
 import {
   useDeleteImport,
   useImports,
@@ -45,7 +46,6 @@ import * as Dropdown from '@/components/ui/dropdown';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
-import { formatDate } from '@/utils/date-formatter';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -326,7 +326,11 @@ export function ImportsTable({
             </Dropdown.Item>
             <Dropdown.Separator />
             <Dropdown.Item
-              disabled={verifyImportMutation.isPending || can('imports:verify') && row.original.status === IMPORT_STATUS.PENDING}
+              disabled={
+                verifyImportMutation.isPending ||
+                (can('imports:verify') &&
+                  row.original.status === IMPORT_STATUS.PENDING)
+              }
               onClick={(e) => {
                 e.stopPropagation();
                 handleVerifyImport(row.original.id);
@@ -412,9 +416,9 @@ export function ImportsTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </Table.Head>
                 ))}
               </Table.Row>

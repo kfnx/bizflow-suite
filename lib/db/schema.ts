@@ -238,6 +238,7 @@ export const customerContactPersons = mysqlTable(
       .notNull()
       .default(sql`(UUID())`),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
+    prefix: varchar('prefix', { length: 50 }).default('Bapak'),
     name: varchar('name', { length: 100 }).notNull(),
     email: varchar('email', { length: 255 }),
     phone: varchar('phone', { length: 20 }),
@@ -290,6 +291,7 @@ export const supplierContactPersons = mysqlTable(
       .notNull()
       .default(sql`(UUID())`),
     supplierId: varchar('supplier_id', { length: 36 }).notNull(),
+    prefix: varchar('prefix', { length: 50 }).default('Bapak'),
     name: varchar('name', { length: 100 }).notNull(),
     email: varchar('email', { length: 255 }),
     phone: varchar('phone', { length: 20 }),
@@ -324,7 +326,6 @@ export const quotations = mysqlTable(
     subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
     total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
-    currency: varchar('currency', { length: 3 }).default('IDR'),
     status: mysqlEnum('status', QUOTATION_STATUS).default(
       QUOTATION_STATUS.DRAFT,
     ),

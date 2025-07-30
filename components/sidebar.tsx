@@ -322,7 +322,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
 
   return filteredNavigationLinks.map(({ label, links }) => {
     const isGroupCollapsed = collapsedGroups.has(label);
-    const hasActiveLink = links.some((link) => pathname === link.href);
 
     return (
       <div key={label} className='space-y-2'>
@@ -355,52 +354,45 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
             },
           )}
         >
-          {links.map(({ icon: Icon, label: linkLabel, href, disabled }, i) => (
-            <Link
-              key={i}
-              href={href}
-              aria-current={pathname === href ? 'page' : undefined}
-              aria-disabled={disabled}
-              className={cn(
-                'group relative flex items-center gap-2 whitespace-nowrap rounded-lg py-2 text-text-sub-600 hover:bg-bg-weak-50',
-                'transition-default',
-                'aria-[current=page]:bg-bg-weak-50',
-                'aria-disabled:pointer-events-none aria-disabled:opacity-50',
-                {
-                  'w-9 px-2': collapsed,
-                  'w-full px-3': !collapsed,
-                },
-              )}
-            >
-              <div
+          {links.map(({ icon: Icon, label: linkLabel, href, disabled }, i) => {
+            const selected = pathname === href;
+
+            return (
+              <Link
+                key={i}
+                href={href}
+                aria-current={selected ? 'page' : undefined}
+                aria-disabled={disabled}
                 className={cn(
-                  'transition-default absolute top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
+                  'group relative flex items-center gap-2 whitespace-nowrap rounded-lg py-2 text-text-sub-600 hover:bg-bg-weak-50',
+                  'transition-default',
+                  'aria-[current=page]:bg-bg-weak-50',
+                  'aria-disabled:pointer-events-none aria-disabled:opacity-50',
                   {
-                    '-left-[22px]': collapsed,
-                    '-left-5': !collapsed,
-                    'scale-100': pathname === href,
-                    'scale-0': pathname !== href,
+                    'w-9 px-2': collapsed,
+                    'w-full px-3': !collapsed,
                   },
                 )}
-              />
-              <Icon
-                className={cn(
-                  'transition-default size-5 shrink-0 text-text-sub-600',
-                  'group-aria-[current=page]:text-primary-base',
-                )}
-              />
-
-              <div
-                className='flex w-[180px] shrink-0 items-center gap-2'
-                data-hide-collapsed
               >
-                <div className='flex-1 text-label-sm'>{linkLabel}</div>
-                {pathname === href && (
-                  <RiArrowRightSLine className='size-5 text-text-sub-600' />
-                )}
-              </div>
-            </Link>
-          ))}
+                <Icon
+                  className={cn(
+                    'transition-default size-5 shrink-0 text-text-sub-600',
+                    'group-aria-[current=page]:text-primary-base',
+                  )}
+                />
+
+                <div
+                  className='flex w-[180px] shrink-0 items-center gap-2'
+                  data-hide-collapsed
+                >
+                  <div className='flex-1 text-label-sm'>{linkLabel}</div>
+                  {selected && (
+                    <RiArrowRightSLine className='size-5 text-text-sub-600' />
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     );

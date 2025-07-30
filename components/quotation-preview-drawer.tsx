@@ -76,7 +76,7 @@ function QuotationPreviewContent({
         )}
 
         <div className='text-title-h4 text-text-strong-950'>
-          {formatCurrency(quotation.total, quotation.currency)}
+          {formatCurrency(quotation.total, 'IDR')}
         </div>
         <div className='mt-1 text-paragraph-sm text-text-sub-600'>
           Total Amount
@@ -175,10 +175,10 @@ function QuotationPreviewContent({
                   <div className='ml-4 text-right'>
                     <div className='text-label-sm text-text-strong-950'>
                       {parseFloat(item.quantity)} ×{' '}
-                      {formatCurrency(item.unitPrice, quotation.currency)}
+                      {formatCurrency(item.unitPrice, 'IDR')}
                     </div>
                     <div className='text-paragraph-sm text-text-sub-600'>
-                      {formatCurrency(item.total, quotation.currency)}
+                      {formatCurrency(item.total, 'IDR')}
                     </div>
                   </div>
                 </div>

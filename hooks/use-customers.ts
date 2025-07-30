@@ -20,6 +20,7 @@ export type Customer = {
   isActive?: boolean;
   contactPersons?: Array<{
     id: string;
+    prefix?: string;
     name: string;
     email?: string;
     phone?: string;

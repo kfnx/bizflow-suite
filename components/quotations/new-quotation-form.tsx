@@ -147,9 +147,7 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
         quotationDate: formData.quotationDate,
         validUntil: formData.validUntil,
         customerId: formData.customerId,
-        branchId: formData.branchId,
         isIncludePPN: formData.isIncludePPN,
-        currency: formData.currency,
         notes: formData.notes,
         termsAndConditions: formData.termsAndConditions,
         status,
@@ -266,60 +264,14 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
             />
           </div>
 
-          <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='branchId'>
-              Branch <Label.Asterisk />
-            </Label.Root>
-            <Select.Root
-              value={formData.branchId}
-              onValueChange={(value) => handleInputChange('branchId', value)}
-            >
-              <Select.Trigger id='branchId'>
-                <Select.TriggerIcon as={RiMapPin2Line} />
-                <Select.Value placeholder='Select branch' />
-              </Select.Trigger>
-              <Select.Content>
-                {branches?.data?.map((branch) => (
-                  <Select.Item key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='currency'>Currency</Label.Root>
-            <Select.Root
-              value={formData.currency}
-              onValueChange={(value) => handleInputChange('currency', value)}
-            >
-              <Select.Trigger id='currency'>
-                <Select.TriggerIcon as={RiGlobalLine} />
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='IDR'>IDR</Select.Item>
-                <Select.Item value='RMB'>RMB</Select.Item>
-                <Select.Item value='USD'>USD</Select.Item>
-                <Select.Item value='EUR'>EUR</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
           <div className='flex flex-col gap-1 md:col-span-2'>
             <Label.Root htmlFor='notes'>Notes</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Icon as={RiHashtag} />
-                <Input.Input
-                  id='notes'
-                  value={formData.notes || ''}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  placeholder='Additional notes...'
-                />
-              </Input.Wrapper>
-            </Input.Root>
+            <Textarea.Root
+              id='notes'
+              value={formData.notes || ''}
+              onChange={(e) => handleInputChange('notes', e.target.value)}
+              placeholder='Additional notes...'
+            />
           </div>
 
           <div className='flex flex-col gap-1 md:col-span-2'>
@@ -328,7 +280,6 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
             </Label.Root>
             <Textarea.Root
               id='termsAndConditions'
-              rows={3}
               value={formData.termsAndConditions || ''}
               onChange={(e) =>
                 handleInputChange('termsAndConditions', e.target.value)
@@ -473,23 +424,6 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
                     <RiDeleteBinLine className='size-4' />
                   </Button.Root>
                 </div>
-
-                <div className='col-span-12 flex flex-col gap-1'>
-                  <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiHashtag} />
-                      <Input.Input
-                        id={`notes-${index}`}
-                        value={item.notes || ''}
-                        onChange={(e) =>
-                          updateItem(index, 'notes', e.target.value)
-                        }
-                        placeholder='Item notes...'
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                </div>
               </div>
             ))}
           </div>
@@ -505,23 +439,17 @@ export function NewQuotationForm({ initialFormData }: QuotationFormProps) {
           <div className='text-sm space-y-2'>
             <div className='flex justify-between'>
               <span>Subtotal:</span>
-              <span>
-                {calculateSubtotal().toLocaleString()} {formData.currency}
-              </span>
+              <span>{calculateSubtotal().toLocaleString()} IDR</span>
             </div>
             {formData.isIncludePPN && (
               <div className='flex justify-between'>
                 <span>PPN (11%):</span>
-                <span>
-                  {calculateTax().toLocaleString()} {formData.currency}
-                </span>
+                <span>{calculateTax().toLocaleString()} IDR</span>
               </div>
             )}
             <div className='flex justify-between border-t border-stroke-soft-200 pt-2 font-semibold'>
               <span>Total:</span>
-              <span>
-                {calculateTotal().toLocaleString()} {formData.currency}
-              </span>
+              <span>{calculateTotal().toLocaleString()} IDR</span>
             </div>
           </div>
         </div>

@@ -104,6 +104,7 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
                 Primary Contact
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
+                {customer.contactPersons[0].prefix}{' '}
                 {customer.contactPersons[0].name}
               </div>
               {customer.contactPersons[0].email && (

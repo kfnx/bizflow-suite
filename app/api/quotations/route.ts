@@ -135,7 +135,6 @@ export async function GET(request: NextRequest) {
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         status: quotations.status,
         notes: quotations.notes,
         createdBy: quotations.createdBy,
@@ -234,22 +233,22 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
+      const branchId = session.user.branchId;
 
       // Create quotation (ID will be auto-generated)
       const quotationData = {
         quotationNumber,
         quotationDate: new Date(validatedData.quotationDate),
-        branchId: validatedData.branchId,
         validUntil: new Date(validatedData.validUntil),
         customerId: validatedData.customerId,
         isIncludePPN: validatedData.isIncludePPN || false,
         subtotal: subtotal.toFixed(2),
         tax: taxAmount.toFixed(2),
         total: total.toFixed(2),
-        currency: validatedData.currency || 'IDR',
         status: validatedData.status,
         notes: validatedData.notes,
         termsAndConditions: validatedData.termsAndConditions,
+        branchId,
         createdBy,
       };
 
@@ -301,7 +300,6 @@ export async function POST(request: NextRequest) {
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         status: quotations.status,
         notes: quotations.notes,
         termsAndConditions: quotations.termsAndConditions,

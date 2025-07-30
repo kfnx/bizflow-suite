@@ -84,6 +84,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
                 Primary Contact
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
+                {supplier.contactPersons[0].prefix}{' '}
                 {supplier.contactPersons[0].name}
               </div>
               {supplier.contactPersons[0].email && (

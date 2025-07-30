@@ -18,6 +18,7 @@ export const customerContactPersons = [
   {
     id: customerContactPersonIds.customerContact1,
     customerId: customerIds.customer1,
+    prefix: 'Bapak',
     name: 'John Doe',
     email: 'contact@customerpertama.com',
     phone: '+6281234567897',
@@ -25,6 +26,7 @@ export const customerContactPersons = [
   {
     id: customerContactPersonIds.customerContact2,
     customerId: customerIds.customer2,
+    prefix: 'Ibu',
     name: 'Jane Smith',
     email: 'info@customerkedua.com',
     phone: '+6281234567898',
@@ -32,6 +34,7 @@ export const customerContactPersons = [
   {
     id: customerContactPersonIds.customerContact3,
     customerId: customerIds.customer3,
+    prefix: 'Bapak',
     name: 'Ahmad Rizki',
     email: 'contact@customerketiga.com',
     phone: '+6281234567899',
@@ -39,6 +42,7 @@ export const customerContactPersons = [
   {
     id: customerContactPersonIds.customerContact4,
     customerId: customerIds.customer4,
+    prefix: 'Ibu',
     name: 'Siti Nurhaliza',
     email: 'info@customerkeempat.com',
     phone: '+6281234567900',
@@ -46,6 +50,7 @@ export const customerContactPersons = [
   {
     id: customerContactPersonIds.customerContact5,
     customerId: customerIds.customer5,
+    prefix: 'Bapak',
     name: 'Budi Santoso',
     email: 'contact@customerkelima.com',
     phone: '+6281234567901',

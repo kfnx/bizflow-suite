@@ -46,7 +46,6 @@ export async function GET(request: NextRequest) {
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
-        currency: quotations.currency,
         status: quotations.status,
         notes: quotations.notes,
         termsAndConditions: quotations.termsAndConditions,

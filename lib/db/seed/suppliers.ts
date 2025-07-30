@@ -16,6 +16,7 @@ export const supplierContactPersons = [
   {
     id: supplierContactPersonIds.supplierContact1,
     supplierId: supplierIds.supplier1,
+    prefix: 'Bapak',
     name: 'John Doe',
     email: 'contact@supplierutama.com',
     phone: '+6281234567893',
@@ -23,6 +24,7 @@ export const supplierContactPersons = [
   {
     id: supplierContactPersonIds.supplierContact2,
     supplierId: supplierIds.supplier2,
+    prefix: 'Ibu',
     name: 'Jane Smith',
     email: 'info@suppliermitra.com',
     phone: '+6281234567894',
@@ -30,6 +32,7 @@ export const supplierContactPersons = [
   {
     id: supplierContactPersonIds.supplierContact3,
     supplierId: supplierIds.supplier3,
+    prefix: 'Bapak',
     name: 'Ahmad Rizki',
     email: 'contact@supplierketiga.com',
     phone: '+6281234567895',
@@ -37,6 +40,7 @@ export const supplierContactPersons = [
   {
     id: supplierContactPersonIds.supplierContact4,
     supplierId: supplierIds.supplier4,
+    prefix: 'Bapak',
     name: 'Agus Rizki',
     email: 'contact@supplierempat.com',
     phone: '+6281234567896',

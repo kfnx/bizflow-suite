@@ -1,0 +1,1 @@
+ALTER TABLE `supplier_contact_persons` ADD `prefix` varchar(50) DEFAULT 'Bapak';

@@ -852,11 +852,17 @@ export function ImportForm({
         router.push('/imports');
       }
     } catch (error) {
-      console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} import:`, error);
-      toast.error(`Failed to ${mode === 'create' ? 'create' : 'update'} import`, {
-        description:
-          error instanceof Error ? error.message : 'Please try again.',
-      });
+      console.error(
+        `Error ${mode === 'create' ? 'creating' : 'updating'} import:`,
+        error,
+      );
+      toast.error(
+        `Failed to ${mode === 'create' ? 'create' : 'update'} import`,
+        {
+          description:
+            error instanceof Error ? error.message : 'Please try again.',
+        },
+      );
     }
   };
 
@@ -894,7 +900,8 @@ export function ImportForm({
     }
   };
 
-  const isPending = createImportMutation.isPending || updateImportMutation.isPending;
+  const isPending =
+    createImportMutation.isPending || updateImportMutation.isPending;
 
   return (
     <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
@@ -920,7 +927,13 @@ export function ImportForm({
                 >
                   <Select.Trigger>
                     <Select.TriggerIcon as={RiBuildingLine} />
-                    <Select.Value placeholder={suppliersLoading ? 'Loading suppliers...' : 'Select supplier'} />
+                    <Select.Value
+                      placeholder={
+                        suppliersLoading
+                          ? 'Loading suppliers...'
+                          : 'Select supplier'
+                      }
+                    />
                   </Select.Trigger>
                   {suppliers?.data.length && (
                     <Select.Content>
@@ -957,7 +970,13 @@ export function ImportForm({
                 >
                   <Select.Trigger>
                     <Select.TriggerIcon as={RiStoreLine} />
-                    <Select.Value placeholder={warehousesLoading ? 'Loading warehouses...' : 'Select warehouse'} />
+                    <Select.Value
+                      placeholder={
+                        warehousesLoading
+                          ? 'Loading warehouses...'
+                          : 'Select warehouse'
+                      }
+                    />
                   </Select.Trigger>
                   {warehouses?.data.length && (
                     <Select.Content>
@@ -967,8 +986,7 @@ export function ImportForm({
                           value={warehouse.id}
                           disabled={!warehouse.isActive}
                         >
-                          {warehouse.name}{' '}
-                          {!warehouse.isActive && '(Inactive)'}
+                          {warehouse.name} {!warehouse.isActive && '(Inactive)'}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -1223,11 +1241,7 @@ export function ImportForm({
           >
             Cancel
           </Button.Root>
-          <Button.Root
-            type='submit'
-            variant='primary'
-            disabled={isPending}
-          >
+          <Button.Root type='submit' variant='primary' disabled={isPending}>
             {isPending
               ? mode === 'create'
                 ? 'Creating...'
@@ -1240,4 +1254,4 @@ export function ImportForm({
       </form>
     </div>
   );
-} 
+}

@@ -1,7 +1,7 @@
 'use client';
 
-import { RiStoreLine } from '@remixicon/react';
 import { useRouter } from 'next/navigation';
+import { RiStoreLine } from '@remixicon/react';
 
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';

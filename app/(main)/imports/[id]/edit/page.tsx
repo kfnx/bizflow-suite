@@ -45,7 +45,9 @@ export default function EditImportPage({ params }: EditImportPageProps) {
       invoiceNumber: importData.invoiceNumber,
       invoiceDate: formatDateForInput(importData.invoiceDate),
       billOfLadingNumber: importData.billOfLadingNumber || '',
-      billOfLadingDate: importData.billOfLadingDate ? formatDateForInput(importData.billOfLadingDate) : '',
+      billOfLadingDate: importData.billOfLadingDate
+        ? formatDateForInput(importData.billOfLadingDate)
+        : '',
       exchangeRateRMBtoIDR: importData.exchangeRateRMBtoIDR.toString(),
       notes: importData.notes || '',
       items:

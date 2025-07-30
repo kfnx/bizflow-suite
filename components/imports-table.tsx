@@ -287,34 +287,29 @@ export function ImportsTable({
               View Details
             </Dropdown.Item>
             <Dropdown.Separator />
-            {row.original.status === IMPORT_STATUS.PENDING && (
-              <>
-                <Dropdown.Item
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = `/imports/${row.original.id}/edit`;
-                  }}
-                >
-                  <RiFileTextLine className='size-4' />
-                  Edit Import
-                </Dropdown.Item>
-                {can('imports:verify') && (
-                  <Dropdown.Item
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleVerifyImport(row.original.id);
-                    }}
-                    disabled={verifyImportMutation.isPending}
-                  >
-                    <RiVerifiedBadgeLine className='size-4' />
-                    {verifyImportMutation.isPending
-                      ? 'Verifying...'
-                      : 'Verify Import'}
-                  </Dropdown.Item>
-                )}
-                <Dropdown.Separator />
-              </>
-            )}
+            <Dropdown.Item
+              disabled={row.original.status === IMPORT_STATUS.PENDING}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/imports/${row.original.id}/edit`;
+              }}
+            >
+              <RiFileTextLine className='size-4' />
+              Edit Import
+            </Dropdown.Item>
+            <Dropdown.Separator />
+            <Dropdown.Item
+              disabled={verifyImportMutation.isPending || can('imports:verify') && row.original.status === IMPORT_STATUS.PENDING}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleVerifyImport(row.original.id);
+              }}
+            >
+              <RiVerifiedBadgeLine className='size-4' />
+              {verifyImportMutation.isPending
+                ? 'Verifying...'
+                : 'Verify Import'}
+            </Dropdown.Item>
             <Dropdown.Item
               onClick={(e) => {
                 e.stopPropagation();
@@ -390,9 +385,9 @@ export function ImportsTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                   </Table.Head>
                 ))}
               </Table.Row>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
@@ -55,6 +55,19 @@ interface ValidationErrors {
   general?: string;
 }
 
+const emptyFormData: QuotationFormData = {
+  quotationNumber: '',
+  quotationDate: '',
+  validUntil: '',
+  customerId: '',
+  branchId: '',
+  isIncludePPN: false,
+  notes: '',
+  termsAndConditions: '',
+  status: QUOTATION_STATUS.DRAFT,
+  items: []
+}
+
 export function QuotationForm({
   mode,
   initialFormData,
@@ -62,9 +75,18 @@ export function QuotationForm({
   isLoadingData = false,
   onCancel,
 }: QuotationFormProps) {
-  const [formData, setFormData] = useState<QuotationFormData | null>(
-    initialFormData || null,
+  console.log(mode, initialFormData, quotationId, isLoadingData, onCancel)
+  const [formData, setFormData] = useState<QuotationFormData>(
+    initialFormData || emptyFormData,
   );
+
+  // Update form data when initialFormData changes (for edit/revise modes)
+  useEffect(() => {
+    if (initialFormData && (mode === 'edit' || mode === 'revise')) {
+      console.log('Updating form data with initialFormData:', initialFormData);
+      setFormData(initialFormData);
+    }
+  }, [initialFormData, mode]);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
@@ -85,7 +107,7 @@ export function QuotationForm({
       field: keyof Omit<QuotationFormData, 'items'>,
       value: string | boolean,
     ) => {
-      setFormData((prev) => (prev ? { ...prev, [field]: value } : null));
+      setFormData((prev) => (prev ? { ...prev, [field]: value } : emptyFormData));
       // Clear validation error for this field when user starts typing
       if (validationErrors[field as keyof ValidationErrors]) {
         setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -110,7 +132,7 @@ export function QuotationForm({
             },
           ],
         }
-        : null,
+        : emptyFormData,
     );
     // Clear items validation error when adding new item
     if (validationErrors.items) {
@@ -128,7 +150,7 @@ export function QuotationForm({
               i === index ? { ...item, [field]: value } : item,
             ),
           }
-          : null,
+          : emptyFormData,
       );
       // Clear items validation error when updating items
       if (validationErrors.items) {
@@ -145,7 +167,7 @@ export function QuotationForm({
           ...prev,
           items: prev.items.filter((_, i) => i !== index),
         }
-        : null,
+        : emptyFormData,
     );
     // Clear items validation error when removing items
     if (validationErrors.items) {
@@ -457,10 +479,6 @@ export function QuotationForm({
         </div>
       </div>
     );
-  }
-
-  if (!formData) {
-    return null;
   }
 
   return (

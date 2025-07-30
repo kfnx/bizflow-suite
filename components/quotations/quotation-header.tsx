@@ -13,6 +13,7 @@ import {
   RiPrinterLine,
   RiRefreshLine,
   RiShareLine,
+  RiDownloadLine,
 } from '@remixicon/react';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
@@ -30,6 +31,8 @@ import { AcceptQuotationModal } from '@/components/quotations/accept-quotation-m
 import { MarkAsInvoiceModal } from '@/components/quotations/mark-as-invoice-modal';
 import { RejectQuotationModal } from '@/components/quotations/reject-quotation-modal';
 import { ReviseQuotationModal } from '@/components/quotations/revise-quotation-modal';
+import { downloadQuotationPDF, printQuotationPDF } from '@/components/quotations/quotation-pdf-download';
+import { BackButton } from '../back-button';
 
 interface QuotationHeaderProps {
   quotation: QuotationDetail;
@@ -143,77 +146,50 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `Quotation ${quotation.quotationNumber}`,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard');
-    }
-  };
-
   return (
-    <div className='border-b pb-6'>
-      {/* Breadcrumb */}
-      <div className='text-sm text-gray-500 mb-4 flex items-center gap-2'>
-        <Link
-          href='/quotations'
-          className='hover:text-gray-700 transition-colors'
-        >
-          Quotations
-        </Link>
-        <span>/</span>
-        <span className='text-gray-900'>{quotation.quotationNumber}</span>
-      </div>
-
-      {/* Header Content */}
-      <div className='mb-6 flex items-center justify-between'>
-        <div>
-          <div className='mb-8 flex items-center gap-3'>
-            <Link
-              href='/quotations'
-              className='text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors'
+    <div className='w-full'>
+      <div className='flex w-full items-end gap-2'>
+        {/* Status and Key Info */}
+        <div className='text-sm flex flex-1 gap-6'>
+          <div className='flex items-center gap-2'>
+            <span className='text-gray-500'>Status:</span>
+            <Badge.Root
+              variant={status.variant}
+              color={status.color}
+              size='medium'
             >
-              <RiArrowLeftLine className='size-5' />
-              <span className='text-sm'>Back to Quotations</span>
-            </Link>
+              {status.label}
+            </Badge.Root>
+            {isQuotationInvoiced(quotation) && (
+              <div className='flex items-center gap-2'>
+                <Badge.Root variant='lighter' color='blue' size='medium'>
+                  Invoiced
+                </Badge.Root>
+                {quotation.invoiceId && (
+                  <Link
+                    href={`/invoices/${quotation.invoiceId}`}
+                    className='text-xs text-blue-600 underline hover:text-blue-800'
+                  >
+                    View Invoice
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
-          <h1 className='text-2xl text-gray-900 font-semibold'>
-            {quotation.quotationNumber}
-          </h1>
-          <p className='text-gray-600'>
-            {quotation.customerName} • {formatDate(quotation.quotationDate)}
-          </p>
+          <div className='flex items-center gap-2'>
+            <span className='text-gray-500'>Valid Until:</span>
+            <span className='font-medium'>
+              {formatDate(quotation.validUntil)}
+            </span>
+          </div>
+          <div className='flex items-center gap-2'>
+            <span className='text-gray-500'>Total:</span>
+            <span className='text-lg text-gray-900 font-semibold'>
+              {formatCurrency(quotation.total, 'IDR')}
+            </span>
+          </div>
         </div>
-
         <div className='flex items-center gap-2'>
-          <Button.Root
-            variant='neutral'
-            mode='stroke'
-            size='small'
-            onClick={handlePrint}
-          >
-            <RiPrinterLine className='size-4' />
-            Print
-          </Button.Root>
-
-          <Button.Root
-            variant='neutral'
-            mode='stroke'
-            size='small'
-            onClick={handleShare}
-          >
-            <RiShareLine className='size-4' />
-            Share
-          </Button.Root>
-
           {quotation.status === 'approved' && (
             <Button.Root
               variant='primary'
@@ -269,109 +245,6 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
                 Mark as Invoice
               </Button.Root>
             )}
-
-          <Dropdown.Root>
-            <Dropdown.Trigger asChild>
-              <Button.Root variant='neutral' mode='ghost' size='small'>
-                <RiMoreLine className='size-4' />
-              </Button.Root>
-            </Dropdown.Trigger>
-            <Dropdown.Content>
-              <Dropdown.Item
-                onClick={() =>
-                  (window.location.href = `/quotations/${quotation.id}/duplicate`)
-                }
-              >
-                <RiFileTextLine className='size-4' />
-                Duplicate
-              </Dropdown.Item>
-              {quotation.status === 'approved' && (
-                <Dropdown.Item
-                  onClick={handleSend}
-                  disabled={sendQuotationMutation.isPending}
-                >
-                  <RiMailSendLine className='size-4' />
-                  Send to Customer
-                </Dropdown.Item>
-              )}
-              {quotation.status === 'sent' && (
-                <>
-                  <Dropdown.Item onClick={handleAccept}>
-                    <RiCheckLine className='size-4' />
-                    Accept Quotation
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={handleReject}>
-                    <RiCloseLine className='size-4' />
-                    Reject Quotation
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={handleRevise}>
-                    <RiRefreshLine className='size-4' />
-                    Request Revision
-                  </Dropdown.Item>
-                </>
-              )}
-              {quotation.status === 'draft' || (
-                <Dropdown.Item onClick={handleEdit}>
-                  <RiEditLine className='size-4' />
-                  Edit Quotation
-                </Dropdown.Item>
-              )}
-              {quotation.status === QUOTATION_STATUS.REJECTED || (
-                <Dropdown.Item onClick={handleEdit}>
-                  <RiEditLine className='size-4' />
-                  Revise Quotation
-                </Dropdown.Item>
-              )}
-              {quotation.status === 'accepted' &&
-                !isQuotationInvoiced(quotation) && (
-                  <Dropdown.Item onClick={handleMarkAsInvoice}>
-                    <RiFileTextLine className='size-4' />
-                    Mark as Invoice
-                  </Dropdown.Item>
-                )}
-            </Dropdown.Content>
-          </Dropdown.Root>
-        </div>
-      </div>
-
-      {/* Status and Key Info */}
-      <div className='text-sm flex items-center gap-6'>
-        <div className='flex items-center gap-2'>
-          <span className='text-gray-500'>Status:</span>
-          <Badge.Root
-            variant={status.variant}
-            color={status.color}
-            size='medium'
-          >
-            {status.label}
-          </Badge.Root>
-          {isQuotationInvoiced(quotation) && (
-            <div className='flex items-center gap-2'>
-              <Badge.Root variant='lighter' color='blue' size='medium'>
-                Invoiced
-              </Badge.Root>
-              {quotation.invoiceId && (
-                <Link
-                  href={`/invoices/${quotation.invoiceId}`}
-                  className='text-xs text-blue-600 underline hover:text-blue-800'
-                >
-                  View Invoice
-                </Link>
-              )}
-            </div>
-          )}
-        </div>
-        <div className='flex items-center gap-2'>
-          <span className='text-gray-500'>Valid Until:</span>
-          <span className='font-medium'>
-            {formatDate(quotation.validUntil)}
-          </span>
-        </div>
-        <div className='flex items-center gap-2'>
-          <span className='text-gray-500'>Total:</span>
-          <span className='text-lg text-gray-900 font-semibold'>
-            {formatCurrency(quotation.total, 'IDR')}
-          </span>
         </div>
       </div>
 

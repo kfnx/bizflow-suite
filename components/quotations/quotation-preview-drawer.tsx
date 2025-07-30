@@ -27,6 +27,7 @@ import * as Drawer from '@/components/ui/drawer';
 import { QuotationStatusBadge } from '@/components/quotations/quotation-status-badge';
 
 import { Asterisk } from '../ui/label';
+import { toast } from 'sonner';
 
 interface QuotationPreviewDrawerProps {
   quotationId: string | null;
@@ -152,6 +153,20 @@ function QuotationPreviewContent({
             </div>
           </>
         )}
+
+        {quotation.termsAndConditions && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Terms and Conditions
+              </div>
+              <pre className='mt-1 text-label-sm text-text-sub-600'>
+                {quotation.termsAndConditions}
+              </pre>
+            </div>
+          </>
+        )}
       </div>
 
       {quotation.items.length > 0 && (
@@ -197,7 +212,7 @@ function QuotationPreviewContent({
   );
 }
 
-function QuotationPreviewFooter({ quotation }: { quotation: QuotationDetail }) {
+function QuotationPreviewFooter({ quotation, onClose }: { quotation: QuotationDetail, onClose: () => void }) {
   const sendQuotationMutation = useSendQuotation();
   const submitQuotationMutation = useSubmitQuotation();
   const markAsInvoiceMutation = useMarkQuotationAsInvoiced();
@@ -230,7 +245,7 @@ function QuotationPreviewFooter({ quotation }: { quotation: QuotationDetail }) {
 
     try {
       await submitQuotationMutation.mutateAsync(quotation.id);
-      alert('Quotation submitted successfully!');
+      toast.success('Quotation submitted successfully!');
     } catch (error) {
       alert(
         error instanceof Error ? error.message : 'Failed to submit quotation',
@@ -280,8 +295,9 @@ function QuotationPreviewFooter({ quotation }: { quotation: QuotationDetail }) {
       await markAsInvoiceMutation.mutateAsync({
         quotationId: quotation.id,
       });
-      alert('Quotation marked as invoice successfully!');
-      // router.push(`/invoices/${invoiceId}`);
+      toast.success('Quotation marked as invoice successfully!');
+      onClose()
+      // router.push(`/invoices`);
     } catch (error) {
       alert(
         error instanceof Error
@@ -395,7 +411,7 @@ export function QuotationPreviewDrawer({
         </Drawer.Body>
 
         {data?.data && !isLoading && !error && (
-          <QuotationPreviewFooter quotation={data.data} />
+          <QuotationPreviewFooter quotation={data.data} onClose={onClose} />
         )}
       </Drawer.Content>
     </Drawer.Root>

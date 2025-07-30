@@ -33,7 +33,13 @@ export const quotations = [
     currency: 'IDR',
     status: QUOTATION_STATUS.DRAFT,
     notes: 'Standard quotation for heavy equipment',
-    termsAndConditions: null,
+    termsAndConditions: `- Franco Jakarta
+- Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
+- Free Jasa service 3x (250, 500 and 1000 jam)
+- Free Filter 1x untuk service 250 jam
+- Warranty 12 bulan atau 2000 HM (yang tercapai dahulu)
+- Penawaran berlaku selama 14 hari dari tenggal penawaran
+- Ready stok selama belum terjual`,
   },
   {
     id: quotationIds.quotation2,
@@ -51,7 +57,10 @@ export const quotations = [
     currency: 'IDR',
     status: QUOTATION_STATUS.SENT,
     notes: 'Special pricing for bulk order',
-    termsAndConditions: null,
+    termsAndConditions: `- Franco Bekasi
+- Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
+- Free Jasa service 3x (250, 500 and 1000 jam)
+- Free Filter 1x untuk service 250 jam`,
   },
   {
     id: quotationIds.quotation3,
@@ -69,7 +78,20 @@ export const quotations = [
     currency: 'IDR',
     status: QUOTATION_STATUS.ACCEPTED,
     notes: 'Premium equipment package',
-    termsAndConditions: null,
+    termsAndConditions: `- Franco Jakarta
+- Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
+- Free Jasa service 3x (250, 500 and 1000 jam)
+- Free Filter 1x untuk service 250 jam
+- Warranty 12 bulan atau 2000 HM (yang tercapai dahulu)
+- Penawaran berlaku selama 14 hari dari tenggal penawaran
+- Ready stok selama belum terjual
+- Franco Singapore
+- Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
+- Free Jasa service 3x (250, 500 and 1000 jam)
+- Free Filter 1x untuk service 250 jam
+- Warranty 12 bulan atau 2000 HM (yang tercapai dahulu)
+- Penawaran berlaku selama 14 hari dari tenggal penawaran
+- Ready stok selama belum terjual`,
   },
   {
     id: quotationIds.quotation4,

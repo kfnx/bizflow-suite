@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        customerType: customers.type,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,

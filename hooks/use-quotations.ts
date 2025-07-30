@@ -13,11 +13,12 @@ export type Quotation = {
   customerId: string;
   customerName: string;
   customerCode: string;
-  customerAddress: string;
-  customerContactPerson: string;
-  customerContactPersonPrefix: string;
-  customerContactPersonEmail: string;
-  customerContactPersonPhone: string;
+  customerType?: string;
+  customerAddress?: string;
+  customerContactPerson?: string;
+  customerContactPersonPrefix?: string;
+  customerContactPersonEmail?: string;
+  customerContactPersonPhone?: string;
   branchId?: string;
   branchName?: string;
   subtotal: number;

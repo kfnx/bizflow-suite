@@ -84,6 +84,45 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
             label='Code' 
             value={quotation.customerCode} 
           />
+          {quotation.customerType && (
+            <DetailItem 
+              label='Type' 
+              value={
+                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                  quotation.customerType === 'company'
+                    ? 'bg-primary-50 text-primary-700 ring-1 ring-primary-600/20' 
+                    : 'bg-success-50 text-success-700 ring-1 ring-success-600/20'
+                }`}>
+                  {quotation.customerType === 'company' ? 'Company' : 'Individual'}
+                </span>
+              }
+            />
+          )}
+          {quotation.customerAddress && (
+            <DetailItem 
+              icon={RiMapPinLine}
+              label='Address' 
+              value={quotation.customerAddress} 
+            />
+          )}
+          {quotation.customerContactPerson && (
+            <DetailItem 
+              label='Contact Person' 
+              value={`${quotation.customerContactPersonPrefix ? quotation.customerContactPersonPrefix + ' ' : ''}${quotation.customerContactPerson}`} 
+            />
+          )}
+          {quotation.customerContactPersonEmail && (
+            <DetailItem 
+              label='Email' 
+              value={quotation.customerContactPersonEmail} 
+            />
+          )}
+          {quotation.customerContactPersonPhone && (
+            <DetailItem 
+              label='Phone' 
+              value={quotation.customerContactPersonPhone} 
+            />
+          )}
         </div>
       </DetailCard>
 

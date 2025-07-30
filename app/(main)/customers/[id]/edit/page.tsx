@@ -52,6 +52,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     isLoading: customerLoading,
     error: customerError,
   } = useCustomerDetail(params.id);
+  console.log("🚀 ~ EditCustomerPage ~ customerData:", customerData)
   const updateCustomerMutation = useUpdateCustomer();
 
   const [formData, setFormData] = useState<EditCustomerData>({
@@ -98,13 +99,13 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
         contactPersons:
           customerData.contactPersons && customerData.contactPersons.length > 0
             ? customerData.contactPersons.map((cp) => ({
-                id: cp.id,
-                prefix:
-                  (cp.prefix as 'Bapak' | 'Ibu' | 'Sdr.' | 'Sdri.') || 'Bapak',
-                name: cp.name,
-                email: cp.email || '',
-                phone: cp.phone || '',
-              }))
+              id: cp.id,
+              prefix:
+                (cp.prefix as 'Bapak' | 'Ibu' | 'Sdr.' | 'Sdri.') || 'Bapak',
+              name: cp.name,
+              email: cp.email || '',
+              phone: cp.phone || '',
+            }))
             : [{ prefix: 'Bapak', name: '', email: '', phone: '' }],
       });
     }
@@ -158,15 +159,62 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     };
 
     const validationResult = createCustomerSchema.safeParse(validationData);
+    console.log("🚀 ~ handleSubmit ~ validationResult:", validationResult)
 
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
+      const invalidFields: string[] = [];
+
       validationResult.error.issues.forEach((issue) => {
         if (issue.path.length > 0) {
-          errors[issue.path[0].toString()] = issue.message;
+          const fieldName = issue.path[0].toString();
+          errors[fieldName] = issue.message;
+
+          // Map field names to user-friendly names
+          const fieldDisplayNames: Record<string, string> = {
+            code: 'Customer Code',
+            name: 'Customer Name',
+            type: 'Customer Type',
+            npwp: 'NPWP',
+            npwp16: 'NPWP 16',
+            billingAddress: 'Billing Address',
+            shippingAddress: 'Shipping Address',
+            address: 'Primary Address',
+            city: 'City',
+            province: 'Province',
+            country: 'Country',
+            postalCode: 'Postal Code',
+            paymentTerms: 'Payment Terms',
+            contactPersons: 'Contact Persons',
+          };
+
+          // Handle nested contact person fields
+          if (fieldName === 'contactPersons' && issue.path.length > 1) {
+            const contactIndex = issue.path[1];
+            const contactField = issue.path[2];
+            const contactFieldNames: Record<string, string> = {
+              name: 'Name',
+              email: 'Email',
+              phone: 'Phone',
+              prefix: 'Prefix',
+            };
+            const contactDisplayName = contactFieldNames[contactField] || contactField;
+            invalidFields.push(`Contact Person ${Number(contactIndex) + 1} - ${contactDisplayName}`);
+          } else {
+            const displayName = fieldDisplayNames[fieldName] || fieldName;
+            invalidFields.push(displayName);
+          }
         }
       });
+
       setValidationErrors(errors);
+
+      // Show toast with invalid fields
+      const errorMessage = invalidFields.length > 0
+        ? `Please fix the following fields: ${invalidFields.join(', ')}`
+        : 'Please check your input and try again.';
+
+      toast.error(errorMessage);
       return;
     }
 
@@ -315,13 +363,13 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
                     <Label.Asterisk />
                   </Label.Root>
                   <Select.Root
+                    key={`customer-type-${formData.type}`}
                     value={formData.type}
-                    defaultValue='individual'
                     onValueChange={(value) => handleInputChange('type', value)}
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiUserLine} />
-                      <Select.Value placeholder='Select customer type' />
+                      <Select.Value placeholder={customerLoading ? 'Loading...' : 'Select customer type'} />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value='individual'>Individual</Select.Item>

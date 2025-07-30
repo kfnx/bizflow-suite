@@ -578,7 +578,7 @@ export function QuotationForm({
                 <Select.Content>
                   {customers?.data?.map((customer) => (
                     <Select.Item key={customer.id} value={customer.id}>
-                      {customer.name} ({customer.code})
+                      {customer.name} ({customer.code}) {customer.type === 'company' ? 'Company' : 'Individual'}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -771,6 +771,19 @@ export function QuotationForm({
             ))}
           </div>
         )}
+
+        <div className='flex justify-end'>
+          <Button.Root
+            variant='neutral'
+            mode='stroke'
+            size='small'
+            onClick={addItem}
+            type='button'
+          >
+            <RiAddLine className='size-4' />
+            Add Item
+          </Button.Root>
+        </div>
       </div>
 
       {/* Summary */}

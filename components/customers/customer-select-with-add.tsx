@@ -114,7 +114,24 @@ export function CustomerSelectWithAdd({
           <Select.Separator />
           {customers?.data?.map((customer) => (
             <Select.Item key={customer.id} value={customer.id}>
-              {customer.name} ({customer.code})
+              <div className='flex flex-col'>
+                <div className='font-medium'>{customer.name}</div>
+                <div className='text-xs text-text-sub-600 flex items-center gap-2'>
+                  <span>{customer.code}</span>
+                  {customer.type && (
+                    <>
+                      <span>•</span>
+                      <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${
+                        customer.type === 'company'
+                          ? 'bg-primary-50 text-primary-700' 
+                          : 'bg-success-50 text-success-700'
+                      }`}>
+                        {customer.type === 'company' ? 'Company' : 'Individual'}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
             </Select.Item>
           ))}
         </Select.Content>

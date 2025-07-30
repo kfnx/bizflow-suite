@@ -67,6 +67,82 @@ export const verificationTokens = mysqlTable(
   (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })],
 );
 
+// Roles table
+export const roles = mysqlTable(
+  'roles',
+  {
+    id: varchar('id', { length: 36 }).primaryKey().notNull(), // example: admin, staff, manager, import-manager, director
+    name: varchar('name', { length: 255 }).notNull().unique(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [index('name_idx').on(table.name)],
+);
+
+// Permissions table
+export const permissions = mysqlTable(
+  'permissions',
+  {
+    id: varchar('id', { length: 36 }).primaryKey().notNull(), // example: quotation:read, invoice:update
+    name: varchar('name', { length: 255 }).notNull().unique(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [index('name_idx').on(table.name)],
+);
+
+// User-Roles junction table
+export const userRoles = mysqlTable(
+  'user_roles',
+  {
+    userId: varchar('user_id', { length: 36 }).notNull(),
+    roleId: varchar('role_id', { length: 36 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.roleId] }),
+    index('user_id_idx').on(table.userId),
+    index('role_id_idx').on(table.roleId),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: 'fk_user_roles_user',
+    }),
+    foreignKey({
+      columns: [table.roleId],
+      foreignColumns: [roles.id],
+      name: 'fk_user_roles_role',
+    }),
+  ],
+);
+
+// Role-Permissions junction table
+export const rolePermissions = mysqlTable(
+  'role_permissions',
+  {
+    roleId: varchar('role_id', { length: 36 }).notNull(),
+    permissionId: varchar('permission_id', { length: 36 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.roleId, table.permissionId] }),
+    index('role_id_idx').on(table.roleId),
+    index('permission_id_idx').on(table.permissionId),
+    foreignKey({
+      columns: [table.roleId],
+      foreignColumns: [roles.id],
+      name: 'fk_role_permissions_role',
+    }),
+    foreignKey({
+      columns: [table.permissionId],
+      foreignColumns: [permissions.id],
+      name: 'fk_role_permissions_permission',
+    }),
+  ],
+);
+
 // Users table
 export const users = mysqlTable(
   'users',
@@ -88,6 +164,7 @@ export const users = mysqlTable(
     type: varchar('type', { length: 50 }).default('full-time'), // full-time, resigned, contract
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
+    // TODO: remove this role and use user_roles
     role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, import-manager director
     branchId: varchar('branch_id', { length: 36 }), // HO Jakarta, Pekanbaru , Kendari, Balikpapan
     signature: varchar('signature', { length: 500 }),
@@ -895,6 +972,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   receivedNotes: many(deliveryNotes, { relationName: 'receivedBy' }),
   verifiedImports: many(imports, { relationName: 'verifier' }),
   managedWarehouses: many(warehouses),
+  userRoles: many(userRoles),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -1168,6 +1246,41 @@ export const transferItemsRelations = relations(transferItems, ({ one }) => ({
   }),
 }));
 
+// Roles and Permissions Relations
+export const rolesRelations = relations(roles, ({ many }) => ({
+  userRoles: many(userRoles),
+  rolePermissions: many(rolePermissions),
+}));
+
+export const permissionsRelations = relations(permissions, ({ many }) => ({
+  rolePermissions: many(rolePermissions),
+}));
+
+export const userRolesRelations = relations(userRoles, ({ one }) => ({
+  user: one(users, {
+    fields: [userRoles.userId],
+    references: [users.id],
+  }),
+  role: one(roles, {
+    fields: [userRoles.roleId],
+    references: [roles.id],
+  }),
+}));
+
+export const rolePermissionsRelations = relations(
+  rolePermissions,
+  ({ one }) => ({
+    role: one(roles, {
+      fields: [rolePermissions.roleId],
+      references: [roles.id],
+    }),
+    permission: one(permissions, {
+      fields: [rolePermissions.permissionId],
+      references: [permissions.id],
+    }),
+  }),
+);
+
 // Query interfaces for filtering and pagination
 export interface UserQueryParams {
   search?: string;
@@ -1333,3 +1446,13 @@ export type Transfer = typeof transfers.$inferSelect;
 export type InsertTransfer = typeof transfers.$inferInsert;
 export type TransferItem = typeof transferItems.$inferSelect;
 export type InsertTransferItem = typeof transferItems.$inferInsert;
+
+// Roles and Permissions types
+export type Role = typeof roles.$inferSelect;
+export type InsertRole = typeof roles.$inferInsert;
+export type Permission = typeof permissions.$inferSelect;
+export type InsertPermission = typeof permissions.$inferInsert;
+export type UserRole = typeof userRoles.$inferSelect;
+export type InsertUserRole = typeof userRoles.$inferInsert;
+export type RolePermission = typeof rolePermissions.$inferSelect;
+export type InsertRolePermission = typeof rolePermissions.$inferInsert;

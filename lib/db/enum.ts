@@ -63,3 +63,22 @@ export enum MOVEMENT_TYPE {
   TRANSFER = 'transfer',
   ADJUSTMENT = 'adjustment',
 }
+
+export enum PERMISSION_RESOURCE {
+  QUOTATION = 'quotation',
+  INVOICE = 'invoice',
+  DELIVERY_NOTE = 'delivery_note',
+  IMPORT = 'import',
+  PRODUCT = 'product',
+  SUPPLIER = 'supplier',
+  CUSTOMER = 'customer',
+  WAREHOUSE = 'warehouse',
+}
+
+export enum PERMISSION_ACTION {
+  READ = 'read',
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  NAVIGATE = 'navigate',
+}

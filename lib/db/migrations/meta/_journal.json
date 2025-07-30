@@ -15,6 +15,20 @@
       "when": 1753623411591,
       "tag": "0001_ambiguous_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1753754624828,
+      "tag": "0002_jazzy_tigra",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1753765517813,
+      "tag": "0003_dry_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }

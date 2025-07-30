@@ -1,5 +1,6 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, PDFViewer, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, PDFViewer, Font, Image } from '@react-pdf/renderer';
 import { QuotationDetail } from '@/hooks/use-quotations';
 import { formatDate } from '@/utils/date-formatter';
 
@@ -17,14 +18,9 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
   },
-
-  // Header
-  header: {
-    backgroundColor: '#000000',
-    color: '#FFFFFF',
-    padding: '20px 30px',
-    flexDirection: 'row',
-    alignItems: 'center',
+  headerImage: {
+    width: "100%",
+    height: 80,
   },
   logo: {
     fontSize: 24,
@@ -70,6 +66,9 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontWeight: 'bold',
     width: 120,
+  },
+  detailLabelSoft: {
+    width: 180,
   },
   detailValue: {
     flex: 1,
@@ -260,20 +259,6 @@ const formatNumber = (amount: string | number) => {
   }).format(num);
 };
 
-
-// Create styles
-const styles2 = StyleSheet.create({
-  page: {
-    flexDirection: 'row',
-    backgroundColor: '#E4E4E4'
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-    flexGrow: 1
-  }
-});
-
 export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
   const subtotal = parseFloat(quotation.subtotal);
   const tax = parseFloat(quotation.tax);
@@ -284,13 +269,7 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
       <Document>
         <Page size="A4" style={styles.page}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.logo}>⚙️ STI</Text>
-            <View>
-              <Text style={styles.companyName}>PT. SAN TRAKTOR INDONESIA</Text>
-              <Text style={styles.companySubtitle}>MEMBER OF MULTI POWER</Text>
-            </View>
-          </View>
+          <Image src="/images/document-header.jpg" style={styles.headerImage} />
 
           {/* Title */}
           <Text style={styles.title}>QUOTATION</Text>
@@ -299,13 +278,13 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
           <View style={styles.detailsSection}>
             <View style={styles.leftColumn}>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>PT Runa Persada</Text>
+                <Text style={styles.detailLabel}>{quotation.customerName}</Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Jakarta</Text>
+                <Text style={styles.detailLabelSoft}>{quotation.customerAddress}</Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Attn: Bapak Paulus Goh</Text>
+                <Text style={styles.detailLabelSoft}>Attn: {quotation.customerContactPersonPrefix} {quotation.customerContactPerson}</Text>
               </View>
             </View>
             <View style={styles.rightColumn}>

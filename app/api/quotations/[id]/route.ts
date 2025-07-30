@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {
   branches,
+  customerContactPersons,
   customers,
   products,
   quotationItems,
@@ -29,6 +30,11 @@ export async function GET(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        customerAddress: customers.address,
+        customerContactPerson: customerContactPersons.name,
+        customerContactPersonPrefix: customerContactPersons.prefix,
+        customerContactPersonEmail: customerContactPersons.email,
+        customerContactPersonPhone: customerContactPersons.phone,
         branchId: quotations.branchId,
         branchName: branches.name,
         approvedBy: quotations.approvedBy,
@@ -48,6 +54,10 @@ export async function GET(
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(
+        customerContactPersons,
+        eq(quotations.customerId, customerContactPersons.customerId),
+      )
       .leftJoin(users, eq(quotations.createdBy, users.id))
       .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(eq(quotations.id, id))
@@ -162,7 +172,9 @@ export async function PUT(
         let subtotal = 0;
         validatedData.items.forEach((item) => {
           // Remove formatting (periods as thousand separators) and convert to number
-          const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
+          const cleanPrice = item.unitPrice
+            .replace(/\./g, '')
+            .replace(',', '.');
           const unitPrice = parseFloat(cleanPrice) || 0;
           subtotal += item.quantity * unitPrice;
         });
@@ -181,7 +193,9 @@ export async function PUT(
 
         const itemsToInsert = validatedData.items.map((item) => {
           // Remove formatting (periods as thousand separators) and convert to number
-          const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
+          const cleanPrice = item.unitPrice
+            .replace(/\./g, '')
+            .replace(',', '.');
           const unitPrice = parseFloat(cleanPrice) || 0;
           return {
             quotationId: id,
@@ -217,6 +231,11 @@ export async function PUT(
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        customerAddress: customers.address,
+        customerContactPerson: customerContactPersons.name,
+        customerContactPersonPrefix: customerContactPersons.prefix,
+        customerContactPersonEmail: customerContactPersons.email,
+        customerContactPersonPhone: customerContactPersons.phone,
         branchName: branches.name,
         approvedBy: quotations.approvedBy,
         subtotal: quotations.subtotal,
@@ -232,6 +251,10 @@ export async function PUT(
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(
+        customerContactPersons,
+        eq(quotations.customerId, customerContactPersons.customerId),
+      )
       .leftJoin(users, eq(quotations.createdBy, users.id))
       .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(eq(quotations.id, id))

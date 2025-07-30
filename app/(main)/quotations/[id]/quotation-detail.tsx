@@ -80,6 +80,7 @@ export function QuotationDetail({ id }: QuotationDetailProps) {
   }
 
   const quotation = data.data;
+  console.log("🚀 ~ quotation:", quotation)
 
   return (
     <div className='min-h-screen'>

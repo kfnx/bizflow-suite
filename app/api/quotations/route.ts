@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import {
   branches,
+  customerContactPersons,
   customers,
   quotationItems,
   quotations,
@@ -140,6 +141,11 @@ export async function GET(request: NextRequest) {
         validUntil: quotations.validUntil,
         customerId: quotations.customerId,
         customerName: customers.name,
+        customerAddress: customers.address,
+        customerContactPerson: customerContactPersons.name,
+        customerContactPersonPrefix: customerContactPersons.prefix,
+        customerContactPersonEmail: customerContactPersons.email,
+        customerContactPersonPhone: customerContactPersons.phone,
         customerCode: customers.code,
         branchId: quotations.branchId,
         branchName: branches.name,
@@ -157,6 +163,10 @@ export async function GET(request: NextRequest) {
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(
+        customerContactPersons,
+        eq(quotations.customerId, customerContactPersons.customerId),
+      )
       .leftJoin(users, eq(quotations.createdBy, users.id))
       .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
@@ -169,6 +179,10 @@ export async function GET(request: NextRequest) {
       .select({ count: quotations.id })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(
+        customerContactPersons,
+        eq(quotations.customerId, customerContactPersons.customerId),
+      )
       .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
@@ -318,6 +332,10 @@ export async function POST(request: NextRequest) {
         customerId: quotations.customerId,
         customerName: customers.name,
         customerCode: customers.code,
+        customerContactPerson: customerContactPersons.name,
+        customerContactPersonPrefix: customerContactPersons.prefix,
+        customerContactPersonEmail: customerContactPersons.email,
+        customerContactPersonPhone: customerContactPersons.phone,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
@@ -331,6 +349,10 @@ export async function POST(request: NextRequest) {
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
+      .leftJoin(
+        customerContactPersons,
+        eq(quotations.customerId, customerContactPersons.customerId),
+      )
       .leftJoin(users, eq(quotations.createdBy, users.id))
       .where(eq(quotations.id, result.quotationId))
       .limit(1);

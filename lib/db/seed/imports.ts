@@ -39,6 +39,8 @@ export const imports: InsertImport[] = [
     importDate: new Date('2025-03-15'),
     invoiceNumber: 'INV/CN/2025/03/001',
     invoiceDate: new Date('2025-03-10'),
+    billOfLadingNumber: 'BL-2025-001',
+    billOfLadingDate: new Date('2025-01-15'),
     exchangeRateRMBtoIDR: '2260.00', // 1 USD = 15,750 IDR example rate
     total: '3465000000.00', // Total from import items in IDR
     status: IMPORT_STATUS.VERIFIED,
@@ -53,6 +55,8 @@ export const imports: InsertImport[] = [
     importDate: new Date('2025-01-20'),
     invoiceNumber: 'INV/CN/2025/02/001',
     invoiceDate: new Date('2025-01-18'),
+    billOfLadingNumber: 'BL-2024-002',
+    billOfLadingDate: new Date('2024-02-20'),
     exchangeRateRMBtoIDR: '2255.00',
     total: '1874250000.00', // Total from import items in IDR
     status: IMPORT_STATUS.PENDING,
@@ -67,6 +71,8 @@ export const imports: InsertImport[] = [
     importDate: new Date('2024-02-01'),
     invoiceNumber: 'INV/CN/2024/03/001',
     invoiceDate: new Date('2024-01-28'),
+    billOfLadingNumber: 'BL-2024-003',
+    billOfLadingDate: new Date('2024-03-10'),
     exchangeRateRMBtoIDR: '2252.00', // Different exchange rate
     total: '4029000000.00', // Total from import items in IDR
     status: IMPORT_STATUS.VERIFIED,
@@ -81,6 +87,8 @@ export const imports: InsertImport[] = [
     importDate: new Date('2024-02-10'),
     invoiceNumber: 'INV/CN/2024/04/001',
     invoiceDate: new Date('2024-02-05'),
+    billOfLadingNumber: 'BL-2024-004',
+    billOfLadingDate: new Date('2024-04-05'),
     exchangeRateRMBtoIDR: '2252.00',
     total: '1975000000.00', // Total from import items in IDR
     status: IMPORT_STATUS.PENDING,
@@ -94,6 +102,8 @@ export const imports: InsertImport[] = [
     importDate: new Date('2024-02-15'),
     invoiceNumber: 'INV/CN/2024/05/001',
     invoiceDate: new Date('2024-02-12'),
+    billOfLadingNumber: 'BL-2024-005',
+    billOfLadingDate: new Date('2024-05-15'),
     exchangeRateRMBtoIDR: '2252.00',
     total: '3487000000.00', // Total from import items in IDR
     status: IMPORT_STATUS.VERIFIED,
@@ -108,6 +118,8 @@ export const imports: InsertImport[] = [
     importDate: new Date('2024-02-20'),
     invoiceNumber: 'INV/CN/2024/06/001',
     invoiceDate: new Date('2024-02-18'),
+    billOfLadingNumber: 'BL-2024-006',
+    billOfLadingDate: new Date('2024-06-20'),
     exchangeRateRMBtoIDR: '2258.00',
     total: '3090750000.00', // Total from import items in IDR
     status: IMPORT_STATUS.PENDING,

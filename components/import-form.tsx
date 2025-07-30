@@ -72,6 +72,8 @@ interface ImportFormData {
   importDate: string;
   invoiceNumber: string;
   invoiceDate: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
   exchangeRateRMBtoIDR: string;
   notes: string;
   items: ProductItem[];
@@ -637,6 +639,8 @@ export function ImportForm({
       importDate: new Date().toISOString().split('T')[0],
       invoiceNumber: '',
       invoiceDate: new Date().toISOString().split('T')[0],
+      billOfLadingNumber: '',
+      billOfLadingDate: '',
       exchangeRateRMBtoIDR: '2250',
       notes: '',
       items: [createEmptyProductItem()],
@@ -827,6 +831,8 @@ export function ImportForm({
 
     const submitData = {
       ...formData,
+      billOfLadingNumber: formData.billOfLadingNumber?.trim() || undefined,
+      billOfLadingDate: formData.billOfLadingDate || undefined,
       items: transformedItems,
     };
 
@@ -868,8 +874,8 @@ export function ImportForm({
     return subtotal * exchangeRate;
   };
 
-  const { data: suppliers } = useSuppliers();
-  const { data: warehouses } = useWarehouses();
+  const { data: suppliers, isLoading: suppliersLoading } = useSuppliers();
+  const { data: warehouses, isLoading: warehousesLoading } = useWarehouses();
 
   // Get all brands for filtering
   const { data: allBrands, isLoading: brandsLoading } = useBrands();
@@ -914,7 +920,7 @@ export function ImportForm({
                 >
                   <Select.Trigger>
                     <Select.TriggerIcon as={RiBuildingLine} />
-                    <Select.Value placeholder='Select supplier' />
+                    <Select.Value placeholder={suppliersLoading ? 'Loading suppliers...' : 'Select supplier'} />
                   </Select.Trigger>
                   {suppliers?.data.length && (
                     <Select.Content>
@@ -951,7 +957,7 @@ export function ImportForm({
                 >
                   <Select.Trigger>
                     <Select.TriggerIcon as={RiStoreLine} />
-                    <Select.Value placeholder='Select warehouse' />
+                    <Select.Value placeholder={warehousesLoading ? 'Loading warehouses...' : 'Select warehouse'} />
                   </Select.Trigger>
                   {warehouses?.data.length && (
                     <Select.Content>
@@ -977,26 +983,6 @@ export function ImportForm({
             </div>
 
             <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='importDate'>
-                  Import Date <Label.Asterisk />
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiCalendarLine} />
-                    <Input.Input
-                      id='importDate'
-                      type='date'
-                      value={formData.importDate}
-                      onChange={(e) =>
-                        handleInputChange('importDate', e.target.value)
-                      }
-                      required
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              </div>
-
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='invoiceNumber'>
                   Invoice Number <Label.Asterisk />
@@ -1035,6 +1021,64 @@ export function ImportForm({
                       value={formData.invoiceDate}
                       onChange={(e) =>
                         handleInputChange('invoiceDate', e.target.value)
+                      }
+                      required
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='billOfLadingNumber'>
+                  Bill of Lading Number
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Icon as={RiReceiptLine} />
+                    <Input.Input
+                      id='billOfLadingNumber'
+                      value={formData.billOfLadingNumber}
+                      onChange={(e) =>
+                        handleInputChange('billOfLadingNumber', e.target.value)
+                      }
+                      placeholder='Enter bill of lading number (optional)'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='billOfLadingDate'>
+                  Bill of Lading Date
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Icon as={RiCalendarLine} />
+                    <Input.Input
+                      id='billOfLadingDate'
+                      type='date'
+                      value={formData.billOfLadingDate}
+                      onChange={(e) =>
+                        handleInputChange('billOfLadingDate', e.target.value)
+                      }
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='importDate'>
+                  Import Date <Label.Asterisk />
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Icon as={RiCalendarLine} />
+                    <Input.Input
+                      id='importDate'
+                      type='date'
+                      value={formData.importDate}
+                      onChange={(e) =>
+                        handleInputChange('importDate', e.target.value)
                       }
                       required
                     />

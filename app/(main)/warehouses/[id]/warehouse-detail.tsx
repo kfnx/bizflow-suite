@@ -213,34 +213,6 @@ export function WarehouseDetail({ id }: WarehouseDetailProps) {
                   </div>
                 </div>
               )}
-
-              {warehouse.billOfLadingNumber && (
-                <div>
-                  <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
-                    Bill of Lading Number
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <RiStoreLine className='size-4 text-text-sub-600' />
-                    <span className='text-paragraph-sm text-text-strong-950'>
-                      {warehouse.billOfLadingNumber}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {warehouse.billOfLadingDate && (
-                <div>
-                  <div className='text-sm mb-2 font-medium uppercase tracking-wide text-text-soft-400'>
-                    Bill of Lading Date
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <RiCalendarLine className='size-4 text-text-sub-600' />
-                    <span className='text-paragraph-sm text-text-strong-950'>
-                      {formatDate(warehouse.billOfLadingDate)}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 

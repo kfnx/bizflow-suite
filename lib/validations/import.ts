@@ -82,6 +82,11 @@ export const createImportRequestSchema = z.object({
     .min(1, { message: 'Invoice number is required' })
     .max(50),
   invoiceDate: z.string().transform((str) => new Date(str)),
+  billOfLadingNumber: z.string().max(50).optional(),
+  billOfLadingDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .optional(),
   exchangeRateRMBtoIDR: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, { message: 'Invalid exchange rate' }),
@@ -100,6 +105,11 @@ export const updateImportRequestSchema = z.object({
     .optional(),
   invoiceNumber: z.string().min(1).max(50).optional(),
   invoiceDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .optional(),
+  billOfLadingNumber: z.string().max(50).optional(),
+  billOfLadingDate: z
     .string()
     .transform((str) => new Date(str))
     .optional(),

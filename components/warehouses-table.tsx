@@ -143,31 +143,6 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
     ),
   },
   {
-    id: 'billOfLading',
-    accessorKey: 'billOfLadingNumber',
-    header: 'Bill of Lading',
-    cell: ({ row }) => (
-      <div className='flex flex-col gap-1'>
-        {row.original.billOfLadingNumber ? (
-          <>
-            <span className='text-paragraph-sm text-text-sub-600'>
-              {row.original.billOfLadingNumber}
-            </span>
-            {row.original.billOfLadingDate && (
-              <span className='text-paragraph-sm text-text-soft-400'>
-                {formatDate(row.original.billOfLadingDate)}
-              </span>
-            )}
-          </>
-        ) : (
-          <span className='text-text-sub-400 text-paragraph-sm'>
-            No B/L info
-          </span>
-        )}
-      </div>
-    ),
-  },
-  {
     id: 'status',
     accessorKey: 'isActive',
     header: 'Status',
@@ -249,9 +224,9 @@ export function WarehousesTable({
     action:
       !filters.search && filters.isActive === 'all'
         ? {
-            label: 'Add Warehouse',
-            onClick: () => (window.location.href = '/warehouses/new'),
-          }
+          label: 'Add Warehouse',
+          onClick: () => (window.location.href = '/warehouses/new'),
+        }
         : undefined,
   };
 

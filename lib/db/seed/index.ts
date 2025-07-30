@@ -9,6 +9,7 @@ import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
 import { importItems, imports } from './imports';
 import { invoiceItems, invoices } from './invoices';
 import { machineTypes } from './machine-types';
+import { permissions, rolePermissions, roles, userRoles } from './permissions';
 import { products } from './products';
 import { quotationItems, quotations } from './quotations';
 import { supplierContactPersons, suppliers } from './suppliers';
@@ -88,6 +89,18 @@ async function main() {
 
   await db.insert(schema.transferItems).values(transferItems);
   console.log(`✅ Seeded ${transferItems.length} transfer items`);
+
+  await db.insert(schema.roles).values(roles);
+  console.log(`✅ Seeded ${roles.length} roles`);
+
+  await db.insert(schema.permissions).values(permissions);
+  console.log(`✅ Seeded ${permissions.length} permissions`);
+
+  await db.insert(schema.rolePermissions).values(rolePermissions);
+  console.log(`✅ Seeded ${rolePermissions.length} role permissions`);
+
+  await db.insert(schema.userRoles).values(userRoles);
+  console.log(`✅ Seeded ${userRoles.length} user roles`);
 
   await connection.end();
   console.log('🎉 Database seeded successfully with complete sample data!');

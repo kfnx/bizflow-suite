@@ -13,6 +13,8 @@ export type Import = {
   importDate: string;
   invoiceNumber: string;
   invoiceDate: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
   exchangeRateRMBtoIDR: number;
   total: number;
   status: string;
@@ -66,6 +68,8 @@ export type CreateImportData = {
   importDate: string;
   invoiceNumber: string;
   invoiceDate: string;
+  billOfLadingNumber?: string;
+  billOfLadingDate?: string;
   exchangeRateRMBtoIDR: string;
   notes: string;
   items: ImportItem[];

@@ -45,6 +45,7 @@ import * as Dropdown from '@/components/ui/dropdown';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
+import { formatDate } from '@/utils/date-formatter';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -238,6 +239,32 @@ export function ImportsTable({
           <div className='text-paragraph-xs text-text-soft-400'>
             Rate: {row.original.exchangeRateRMBtoIDR}
           </div>
+        </div>
+      ),
+    },
+
+    {
+      id: 'billOfLading',
+      accessorKey: 'billOfLadingNumber',
+      header: 'Bill of Lading',
+      cell: ({ row }) => (
+        <div className='flex flex-col gap-1'>
+          {row.original.billOfLadingNumber ? (
+            <>
+              <span className='text-paragraph-sm text-text-sub-600'>
+                {row.original.billOfLadingNumber}
+              </span>
+              {row.original.billOfLadingDate && (
+                <span className='text-paragraph-sm text-text-soft-400'>
+                  {formatDate(row.original.billOfLadingDate)}
+                </span>
+              )}
+            </>
+          ) : (
+            <span className='text-text-sub-400 text-paragraph-sm'>
+              No B/L info
+            </span>
+          )}
         </div>
       ),
     },

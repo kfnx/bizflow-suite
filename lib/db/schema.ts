@@ -817,8 +817,6 @@ export const warehouses = mysqlTable(
     address: text('address'),
     managerId: varchar('manager_id', { length: 36 }),
     branchId: varchar('branch_id', { length: 36 }).notNull(),
-    billOfLadingNumber: varchar('bill_of_lading_number', { length: 100 }),
-    billOfLadingDate: date('bill_of_lading_date'),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),

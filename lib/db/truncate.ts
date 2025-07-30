@@ -203,6 +203,34 @@ async function main() {
     console.error('⚠️ Error truncating branches:', error);
   }
 
+  try {
+    await db.delete(schema.permissions);
+    console.log('✅ Truncated permissions');
+  } catch (error) {
+    console.error('⚠️ Error truncating permissions:', error);
+  }
+
+  try {
+    await db.delete(schema.roles);
+    console.log('✅ Truncated roles');
+  } catch (error) {
+    console.error('⚠️ Error truncating roles:', error);
+  }
+
+  try {
+    await db.delete(schema.rolePermissions);
+    console.log('✅ Truncated rolePermissions');
+  } catch (error) {
+    console.error('⚠️ Error truncating rolePermissions:', error);
+  }
+
+  try {
+    await db.delete(schema.userRoles);
+    console.log('✅ Truncated userRoles');
+  } catch (error) {
+    console.error('⚠️ Error truncating userRoles:', error);
+  }
+
   await connection.end();
   console.log('🎉 Finished truncating!');
 }

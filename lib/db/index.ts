@@ -26,6 +26,3 @@ export const db = drizzle(pool, { schema, mode: 'default' });
 export async function createConnection() {
   return await mysql.createConnection(connectionConfig);
 }
-
-// Export schema for migrations
-export * from './schema';

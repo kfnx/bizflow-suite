@@ -221,6 +221,28 @@ export function ImportDetail({ id }: ImportDetailProps) {
               </div>
             </div>
 
+            {importData.billOfLadingNumber && (
+              <div>
+                <div className='text-subheading-xs uppercase text-text-soft-400'>
+                  Bill of Lading Number
+                </div>
+                <div className='mt-1 text-label-sm text-text-strong-950'>
+                  {importData.billOfLadingNumber}
+                </div>
+              </div>
+            )}
+
+            {importData.billOfLadingDate && (
+              <div>
+                <div className='text-subheading-xs uppercase text-text-soft-400'>
+                  Bill of Lading Date
+                </div>
+                <div className='mt-1 text-label-sm text-text-strong-950'>
+                  {new Date(importData.billOfLadingDate).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+
             <div>
               <div className='text-subheading-xs uppercase text-text-soft-400'>
                 Exchange Rate (RMB to IDR)
@@ -350,8 +372,8 @@ export function ImportDetail({ id }: ImportDetailProps) {
                       <span className='font-medium'>Subtotal (IDR):</span>{' '}
                       {formatCurrency(
                         parseFloat(item.priceRMB) *
-                          item.quantity *
-                          importData.exchangeRateRMBtoIDR,
+                        item.quantity *
+                        importData.exchangeRateRMBtoIDR,
                         'IDR',
                       )}
                     </div>
@@ -383,27 +405,27 @@ export function ImportDetail({ id }: ImportDetailProps) {
 
                   {(item.category === 'non_serialized' ||
                     item.category === 'bulk') && (
-                    <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
-                      {item.batchOrLotNumber && (
-                        <div>
-                          <span className='font-medium'>Batch/Lot:</span>{' '}
-                          {item.batchOrLotNumber}
-                        </div>
-                      )}
-                      {item.partNumber && (
-                        <div>
-                          <span className='font-medium'>Part Number:</span>{' '}
-                          {item.partNumber}
-                        </div>
-                      )}
-                      {item.brand && (
-                        <div>
-                          <span className='font-medium'>Brand:</span>{' '}
-                          {item.brand}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
+                        {item.batchOrLotNumber && (
+                          <div>
+                            <span className='font-medium'>Batch/Lot:</span>{' '}
+                            {item.batchOrLotNumber}
+                          </div>
+                        )}
+                        {item.partNumber && (
+                          <div>
+                            <span className='font-medium'>Part Number:</span>{' '}
+                            {item.partNumber}
+                          </div>
+                        )}
+                        {item.brand && (
+                          <div>
+                            <span className='font-medium'>Brand:</span>{' '}
+                            {item.brand}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                   {item.notes && (
                     <div className='mt-3 text-paragraph-sm text-text-sub-600'>

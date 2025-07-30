@@ -164,6 +164,34 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
           </div>
         </div>
 
+        {importData.billOfLadingNumber && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Bill of Lading Number
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {importData.billOfLadingNumber}
+              </div>
+            </div>
+          </>
+        )}
+
+        {importData.billOfLadingDate && (
+          <>
+            <Divider.Root variant='line-spacing' />
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Bill of Lading Date
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {new Date(importData.billOfLadingDate).toLocaleDateString()}
+              </div>
+            </div>
+          </>
+        )}
+
         <Divider.Root variant='line-spacing' />
 
         <div>

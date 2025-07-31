@@ -1,13 +1,23 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, PDFViewer, Font, Image } from '@react-pdf/renderer';
-import { QuotationDetail } from '@/hooks/use-quotations';
+import {
+  Document,
+  Font,
+  Image,
+  Page,
+  PDFViewer,
+  StyleSheet,
+  Text,
+  View,
+} from '@react-pdf/renderer';
+
 import { formatDate } from '@/utils/date-formatter';
+import { QuotationDetail } from '@/hooks/use-quotations';
 
 // Register fonts (you may need to add actual font files)
 Font.register({
   family: 'Inter',
-  src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2'
+  src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2',
 });
 
 const styles = StyleSheet.create({
@@ -19,7 +29,7 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   headerImage: {
-    width: "100%",
+    width: '100%',
     height: 80,
   },
   logo: {
@@ -197,13 +207,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: '0 30px',
     marginBottom: 20,
+    gap: 64,
   },
   signatureColumn: {
     flex: 1,
   },
   signatureTitle: {
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 64,
   },
   signatureLine: {
     borderBottomWidth: 1,
@@ -265,11 +276,11 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
   const total = parseFloat(quotation.total);
 
   return (
-    <PDFViewer style={{ width: '100%', height: "100vh" }}>
+    <PDFViewer style={{ width: '100%', height: '100vh' }}>
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size='A4' style={styles.page}>
           {/* Header */}
-          <Image src="/images/document-header.jpg" style={styles.headerImage} />
+          <Image src='/images/document-header.jpg' style={styles.headerImage} />
 
           {/* Title */}
           <Text style={styles.title}>QUOTATION</Text>
@@ -281,24 +292,35 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
                 <Text style={styles.detailLabel}>{quotation.customerName}</Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabelSoft}>{quotation.customerAddress}</Text>
+                <Text style={styles.detailLabelSoft}>
+                  {quotation.customerAddress}
+                </Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabelSoft}>Attn: {quotation.customerContactPersonPrefix} {quotation.customerContactPerson}</Text>
+                <Text style={styles.detailLabelSoft}>
+                  Attn: {quotation.customerContactPersonPrefix}{' '}
+                  {quotation.customerContactPerson}
+                </Text>
               </View>
             </View>
             <View style={styles.rightColumn}>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Quotation Number:</Text>
-                <Text style={styles.detailValue}>{quotation.quotationNumber}</Text>
+                <Text style={styles.detailValue}>
+                  {quotation.quotationNumber}
+                </Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Date:</Text>
-                <Text style={styles.detailValue}>{formatDate(quotation.quotationDate)}</Text>
+                <Text style={styles.detailValue}>
+                  {formatDate(quotation.quotationDate)}
+                </Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Valid Until:</Text>
-                <Text style={styles.detailValue}>{formatDate(quotation.validUntil)}</Text>
+                <Text style={styles.detailValue}>
+                  {formatDate(quotation.validUntil)}
+                </Text>
               </View>
             </View>
           </View>
@@ -309,23 +331,35 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               {/* Table Header */}
               <View style={styles.tableHeader}>
                 <Text style={[styles.tableHeaderCell, { width: 50 }]}>No.</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Description</Text>
+                <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
+                  Description
+                </Text>
                 <Text style={[styles.tableHeaderCell, { width: 60 }]}>Qty</Text>
-                <Text style={[styles.tableHeaderCell, { width: 120 }]}>Unit Price (Rp.)</Text>
-                <Text style={[styles.tableHeaderCell, { width: 120 }]}>Total Price (Rp.)</Text>
+                <Text style={[styles.tableHeaderCell, { width: 120 }]}>
+                  Unit Price (Rp.)
+                </Text>
+                <Text style={[styles.tableHeaderCell, { width: 120 }]}>
+                  Total Price (Rp.)
+                </Text>
               </View>
 
               {/* Table Rows */}
               {quotation.items.map((item, index) => (
                 <View key={item.id} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { width: 50 }]}>{index + 1}</Text>
+                  <Text style={[styles.tableCell, { width: 50 }]}>
+                    {index + 1}
+                  </Text>
                   <View style={styles.descriptionCell}>
                     <Text style={styles.productName}>{item.name}</Text>
                     <Text style={styles.productType}>Excavator</Text>
                   </View>
                   <Text style={styles.quantityCell}>{item.quantity}</Text>
-                  <Text style={styles.priceCell}>{formatNumber(item.unitPrice)}</Text>
-                  <Text style={styles.totalCell}>{formatNumber(item.total)}</Text>
+                  <Text style={styles.priceCell}>
+                    {formatNumber(item.unitPrice)}
+                  </Text>
+                  <Text style={styles.totalCell}>
+                    {formatNumber(item.total)}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -335,7 +369,9 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
           <View style={styles.summarySection}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Sub Total:</Text>
-              <Text style={styles.summaryValue}>Rp. {formatNumber(subtotal)}</Text>
+              <Text style={styles.summaryValue}>
+                Rp. {formatNumber(subtotal)}
+              </Text>
             </View>
             {quotation.isIncludePPN && (
               <View style={styles.summaryRow}>
@@ -359,7 +395,9 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               </View>
               <View style={styles.termItem}>
                 <Text style={styles.bullet}>•</Text>
-                <Text>Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan</Text>
+                <Text>
+                  Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
+                </Text>
               </View>
               <View style={styles.termItem}>
                 <Text style={styles.bullet}>•</Text>
@@ -371,11 +409,15 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               </View>
               <View style={styles.termItem}>
                 <Text style={styles.bullet}>•</Text>
-                <Text>Warranty 12 bulan atau 2000 HM (yang tercapai dahulu).</Text>
+                <Text>
+                  Warranty 12 bulan atau 2000 HM (yang tercapai dahulu).
+                </Text>
               </View>
               <View style={styles.termItem}>
                 <Text style={styles.bullet}>•</Text>
-                <Text>Penawaran berlaku selama 14 hari dari tenggal penawaran</Text>
+                <Text>
+                  Penawaran berlaku selama 14 hari dari tenggal penawaran
+                </Text>
               </View>
               <View style={styles.termItem}>
                 <Text style={styles.bullet}>•</Text>
@@ -383,11 +425,16 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               </View>
             </View>
           </View>
-
+          <View style={styles.signaturesSection}>
+            <Text style={styles.signatureTitle}>
+              Prepared by: {quotation.createdByUser}{' '}
+              {quotation.createdByUserPrefix} {quotation.createdByUserFirstName}{' '}
+              {quotation.createdByUserLastName} ({quotation.createdByUserPhone})
+            </Text>
+          </View>
           {/* Signatures */}
           <View style={styles.signaturesSection}>
             <View style={styles.signatureColumn}>
-              <Text style={styles.signatureTitle}>Prepared by: Bpk. Agung (+62 811-909-736)</Text>
               <Text style={styles.signatureTitle}>Approved by:</Text>
               <View style={styles.signatureLine} />
               <Text style={styles.signatureName}>Tony Rafly</Text>
@@ -396,15 +443,20 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
             <View style={styles.signatureColumn}>
               <Text style={styles.signatureTitle}>Customer Approval:</Text>
               <View style={styles.signatureLine} />
-              <Text style={styles.signatureName}>PT Runa Persada</Text>
-              <Text style={styles.signatureContact}>Bapak Paulus Goh</Text>
+              <Text style={styles.signatureName}>{quotation.customerName}</Text>
+              <Text style={styles.signatureContact}>
+                {quotation.customerContactPersonPrefix}{' '}
+                {quotation.customerContactPerson}
+              </Text>
             </View>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerCompany}>PT. SAN TRAKTOR INDONESIA</Text>
-            <Text style={styles.footerAddress}>Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara 14450, Indonesia</Text>
+            <Text style={styles.footerAddress}>
+              Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara 14450, Indonesia
+            </Text>
           </View>
         </Page>
       </Document>

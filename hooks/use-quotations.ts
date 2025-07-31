@@ -28,6 +28,10 @@ export type Quotation = {
   notes?: string;
   createdBy: string;
   createdByUser: string;
+  createdByUserPrefix: string;
+  createdByUserFirstName: string;
+  createdByUserLastName: string;
+  createdByUserPhone: string;
   invoiceId?: string;
   invoicedAt?: string;
   createdAt: string;

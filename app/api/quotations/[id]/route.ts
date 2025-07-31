@@ -49,7 +49,10 @@ export async function GET(
         invoiceId: quotations.invoiceId,
         invoicedAt: quotations.invoicedAt,
         createdBy: quotations.createdBy,
-        createdByUser: users.firstName,
+        createdByUserPrefix: users.prefix,
+        createdByUserFirstName: users.firstName,
+        createdByUserLastName: users.lastName,
+        createdByUserPhone: users.phone,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
       })

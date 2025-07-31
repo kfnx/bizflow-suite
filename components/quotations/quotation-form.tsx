@@ -21,6 +21,10 @@ import {
   type QuotationItem,
   type UpdateQuotationRequest,
 } from '@/lib/validations/quotation';
+import {
+  formatNumberWithDots,
+  parseNumberFromDots,
+} from '@/utils/number-formatter';
 import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
 import { useQuotationNumber } from '@/hooks/use-quotation-number';
@@ -33,7 +37,6 @@ import { CustomerSelectWithAdd } from '@/components/customers/customer-select-wi
 import QuotationNumberDisplay from '@/components/quotations/quotation-number-display';
 
 import { SimplePageLoading } from '../simple-page-loading';
-import { parseNumberFromDots, formatNumberWithDots } from '@/utils/number-formatter';
 
 export type QuotationFormMode = 'create' | 'edit' | 'revise';
 
@@ -65,8 +68,8 @@ const emptyFormData: QuotationFormData = {
   notes: '',
   termsAndConditions: '',
   status: QUOTATION_STATUS.DRAFT,
-  items: []
-}
+  items: [],
+};
 
 export function QuotationForm({
   mode,
@@ -75,7 +78,7 @@ export function QuotationForm({
   isLoadingData = false,
   onCancel,
 }: QuotationFormProps) {
-  console.log(mode, initialFormData, quotationId, isLoadingData, onCancel)
+  console.log(mode, initialFormData, quotationId, isLoadingData, onCancel);
   const [formData, setFormData] = useState<QuotationFormData>(
     initialFormData || emptyFormData,
   );
@@ -88,7 +91,9 @@ export function QuotationForm({
     }
   }, [initialFormData, mode]);
   const [isLoading, setIsLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -107,7 +112,9 @@ export function QuotationForm({
       field: keyof Omit<QuotationFormData, 'items'>,
       value: string | boolean,
     ) => {
-      setFormData((prev) => (prev ? { ...prev, [field]: value } : emptyFormData));
+      setFormData((prev) =>
+        prev ? { ...prev, [field]: value } : emptyFormData,
+      );
       // Clear validation error for this field when user starts typing
       if (validationErrors[field as keyof ValidationErrors]) {
         setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -120,18 +127,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-          ...prev,
-          items: [
-            ...prev.items,
-            {
-              productId: '',
-              name: '',
-              quantity: 1,
-              unitPrice: '0',
-              notes: '',
-            },
-          ],
-        }
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                notes: '',
+              },
+            ],
+          }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -145,11 +152,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.map((item, i) =>
-              i === index ? { ...item, [field]: value } : item,
-            ),
-          }
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -160,30 +167,30 @@ export function QuotationForm({
     [validationErrors.items],
   );
 
-  const removeItem = useCallback((index: number) => {
-    setFormData((prev) =>
-      prev
-        ? {
-          ...prev,
-          items: prev.items.filter((_, i) => i !== index),
-        }
-        : emptyFormData,
-    );
-    // Clear items validation error when removing items
-    if (validationErrors.items) {
-      setValidationErrors((prev) => ({ ...prev, items: undefined }));
-    }
-  }, [validationErrors.items]);
+  const removeItem = useCallback(
+    (index: number) => {
+      setFormData((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.filter((_, i) => i !== index),
+            }
+          : emptyFormData,
+      );
+      // Clear items validation error when removing items
+      if (validationErrors.items) {
+        setValidationErrors((prev) => ({ ...prev, items: undefined }));
+      }
+    },
+    [validationErrors.items],
+  );
 
   const calculateSubtotal = useCallback(() => {
     if (!formData) return 0;
-    return formData.items.reduce(
-      (sum, item) => {
-        const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
-        return sum + item.quantity * unitPrice;
-      },
-      0,
-    );
+    return formData.items.reduce((sum, item) => {
+      const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
+      return sum + item.quantity * unitPrice;
+    }, 0);
   }, [formData]);
 
   const calculateTax = useCallback(() => {
@@ -212,7 +219,8 @@ export function QuotationForm({
         } else {
           const itemErrors: string[] = [];
           formData.items.forEach((item, index) => {
-            const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
+            const unitPrice =
+              parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
             if (!item.productId) {
               itemErrors[index] = 'Please select a product';
             } else if (item.quantity <= 0) {
@@ -244,13 +252,17 @@ export function QuotationForm({
 
     if (!validateForm(status)) {
       // Show first error as toast for better UX
-      const firstError = Object.values(validationErrors).find((error: string | string[] | undefined) =>
-        typeof error === 'string' || (Array.isArray(error) && error.some((e: string | undefined) => e))
+      const firstError = Object.values(validationErrors).find(
+        (error: string | string[] | undefined) =>
+          typeof error === 'string' ||
+          (Array.isArray(error) && error.some((e: string | undefined) => e)),
       );
       if (firstError) {
-        const errorMessage = typeof firstError === 'string'
-          ? firstError
-          : firstError.find((e: string | undefined) => e) || 'Please fix the validation errors';
+        const errorMessage =
+          typeof firstError === 'string'
+            ? firstError
+            : firstError.find((e: string | undefined) => e) ||
+              'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
@@ -288,16 +300,13 @@ export function QuotationForm({
       notes: formData!.notes,
       termsAndConditions: formData!.termsAndConditions,
       status,
-      items: formData!.items.map((item) => {
-        const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
-        return {
-          productId: item.productId,
-          name: item.name,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice, // Keep as string for API
-          notes: item.notes,
-        };
-      }),
+      items: formData!.items.map((item) => ({
+        productId: item.productId,
+        name: item.name,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice, // Keep as string for API
+        notes: item.notes,
+      })),
     };
 
     const endpoint =
@@ -519,12 +528,16 @@ export function QuotationForm({
                     handleInputChange('quotationDate', e.target.value)
                   }
                   required
-                  className={validationErrors.quotationDate ? 'border-error-500' : ''}
+                  className={
+                    validationErrors.quotationDate ? 'border-error-500' : ''
+                  }
                 />
               </Input.Wrapper>
             </Input.Root>
             {validationErrors.quotationDate && (
-              <p className='text-sm mt-1 text-error-base'>{validationErrors.quotationDate}</p>
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.quotationDate}
+              </p>
             )}
           </div>
 
@@ -544,12 +557,16 @@ export function QuotationForm({
                   }
                   required
                   min={formData.quotationDate}
-                  className={validationErrors.validUntil ? 'border-error-500' : ''}
+                  className={
+                    validationErrors.validUntil ? 'border-error-500' : ''
+                  }
                 />
               </Input.Wrapper>
             </Input.Root>
             {validationErrors.validUntil && (
-              <p className='text-sm mt-1 text-error-base'>{validationErrors.validUntil}</p>
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.validUntil}
+              </p>
             )}
           </div>
 
@@ -560,7 +577,9 @@ export function QuotationForm({
             {mode === 'create' ? (
               <CustomerSelectWithAdd
                 value={formData.customerId}
-                onValueChange={(value: string) => handleInputChange('customerId', value)}
+                onValueChange={(value: string) =>
+                  handleInputChange('customerId', value)
+                }
                 placeholder='Select a customer'
                 required
               />
@@ -571,21 +590,29 @@ export function QuotationForm({
                   handleInputChange('customerId', value)
                 }
               >
-                <Select.Trigger id='customer' className={validationErrors.customerId ? 'border-error-500' : ''}>
+                <Select.Trigger
+                  id='customer'
+                  className={
+                    validationErrors.customerId ? 'border-error-500' : ''
+                  }
+                >
                   <Select.TriggerIcon as={RiUserLine} />
                   <Select.Value placeholder='Select a customer' />
                 </Select.Trigger>
                 <Select.Content>
                   {customers?.data?.map((customer) => (
                     <Select.Item key={customer.id} value={customer.id}>
-                      {customer.name} ({customer.code}) {customer.type === 'company' ? 'Company' : 'Individual'}
+                      {customer.name} ({customer.code}){' '}
+                      {customer.type === 'company' ? 'Company' : 'Individual'}
                     </Select.Item>
                   ))}
                 </Select.Content>
               </Select.Root>
             )}
             {validationErrors.customerId && (
-              <p className='text-sm mt-1 text-error-base'>{validationErrors.customerId}</p>
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.customerId}
+              </p>
             )}
           </div>
 
@@ -599,7 +626,9 @@ export function QuotationForm({
               className={validationErrors.notes ? 'border-error-500' : ''}
             />
             {validationErrors.notes && (
-              <p className='text-sm mt-1 text-error-base'>{validationErrors.notes}</p>
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.notes}
+              </p>
             )}
           </div>
 
@@ -614,10 +643,14 @@ export function QuotationForm({
                 handleInputChange('termsAndConditions', e.target.value)
               }
               placeholder='Enter terms and conditions...'
-              className={validationErrors.termsAndConditions ? 'border-error-500' : ''}
+              className={
+                validationErrors.termsAndConditions ? 'border-error-500' : ''
+              }
             />
             {validationErrors.termsAndConditions && (
-              <p className='text-sm mt-1 text-error-base'>{validationErrors.termsAndConditions}</p>
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.termsAndConditions}
+              </p>
             )}
           </div>
 
@@ -660,9 +693,13 @@ export function QuotationForm({
           </div>
         ) : (
           <div className='space-y-4'>
-            {validationErrors.items && validationErrors.items[0] && formData.items.length === 0 && (
-              <p className='text-sm  mb-2 text-error-base'>{validationErrors.items[0]}</p>
-            )}
+            {validationErrors.items &&
+              validationErrors.items[0] &&
+              formData.items.length === 0 && (
+                <p className='text-sm  mb-2 text-error-base'>
+                  {validationErrors.items[0]}
+                </p>
+              )}
             {formData.items.map((item, index) => (
               <div
                 key={index}
@@ -687,7 +724,11 @@ export function QuotationForm({
                   >
                     <Select.Trigger
                       id={`product-${index}`}
-                      className={validationErrors.items?.[index] ? 'border-error-500' : ''}
+                      className={
+                        validationErrors.items?.[index]
+                          ? 'border-error-500'
+                          : ''
+                      }
                     >
                       <Select.TriggerIcon as={RiShoppingCartLine} />
                       <Select.Value placeholder='Select product' />
@@ -701,7 +742,9 @@ export function QuotationForm({
                     </Select.Content>
                   </Select.Root>
                   {validationErrors.items?.[index] && (
-                    <p className='text-sm mt-1 text-error-base'>{validationErrors.items[index]}</p>
+                    <p className='text-sm mt-1 text-error-base'>
+                      {validationErrors.items[index]}
+                    </p>
                   )}
                 </div>
 
@@ -721,7 +764,11 @@ export function QuotationForm({
                         onChange={(e) =>
                           updateItem(index, 'quantity', Number(e.target.value))
                         }
-                        className={validationErrors.items?.[index] ? 'border-error-500' : ''}
+                        className={
+                          validationErrors.items?.[index]
+                            ? 'border-error-500'
+                            : ''
+                        }
                       />
                     </Input.Wrapper>
                   </Input.Root>
@@ -743,7 +790,11 @@ export function QuotationForm({
                           updateItem(index, 'unitPrice', rawValue);
                         }}
                         placeholder='0'
-                        className={validationErrors.items?.[index] ? 'border-error-500' : ''}
+                        className={
+                          validationErrors.items?.[index]
+                            ? 'border-error-500'
+                            : ''
+                        }
                       />
                     </Input.Wrapper>
                   </Input.Root>
@@ -752,7 +803,10 @@ export function QuotationForm({
                 <div className='col-span-10 flex flex-col gap-1 md:col-span-2'>
                   <Label.Root>Total</Label.Root>
                   <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
-                    {(item.quantity * (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)).toLocaleString()}
+                    {(
+                      item.quantity *
+                      (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)
+                    ).toLocaleString()}
                   </div>
                 </div>
 
@@ -842,4 +896,4 @@ export function QuotationForm({
       </div>
     </form>
   );
-} 
+}

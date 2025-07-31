@@ -360,33 +360,6 @@ function ProductItemForm({
       {item.category === 'non_serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`unit-${index}`}>
-              Unit of Measurement <Label.Asterisk />
-            </Label.Root>
-            <Select.Root
-              value={item.unitOfMeasureId || ''}
-              onValueChange={(value) =>
-                handleFieldChange('unitOfMeasureId', value)
-              }
-            >
-              <Select.Trigger id={`unit-${index}`}>
-                <Select.Value placeholder='Select UoM' />
-              </Select.Trigger>
-              <Select.Content>
-                {unitOfMeasures.map((unit) => (
-                  <Select.Item key={unit.id} value={unit.id}>
-                    {unit.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-            {getFieldError('unitOfMeasureId') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('unitOfMeasureId')}
-              </div>
-            )}
-          </div>
-          <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`batchLotNumber-${index}`}>
               Batch/Lot Number
             </Label.Root>
@@ -412,31 +385,6 @@ function ProductItemForm({
       )}
       {item.category === 'bulk' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`unitBulk-${index}`}>Unit</Label.Root>
-            <Select.Root
-              value={item.unitOfMeasureId || ''}
-              onValueChange={(value) =>
-                handleFieldChange('unitOfMeasureId', value)
-              }
-            >
-              <Select.Trigger id={`unitBulk-${index}`}>
-                <Select.Value placeholder='Select unit' />
-              </Select.Trigger>
-              <Select.Content>
-                {unitOfMeasures.map((unit) => (
-                  <Select.Item key={unit.id} value={unit.id}>
-                    {unit.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-            {getFieldError('unitOfMeasureId') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('unitOfMeasureId')}
-              </div>
-            )}
-          </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelPartNumber-${index}`}>
               Part Number
@@ -484,7 +432,7 @@ function ProductItemForm({
         </div>
       )}
       {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
-      <div className='mt-4 grid grid-cols-1 gap-6 sm:grid-cols-5'>
+      <div className='mt-4 grid grid-cols-1 gap-6 sm:grid-cols-6'>
         <div className='flex flex-col gap-2'>
           <Label.Root htmlFor={`quantity-${index}`}>
             QTY <Label.Asterisk />
@@ -505,6 +453,33 @@ function ProductItemForm({
           {getFieldError('quantity') && (
             <div className='text-xs text-red-600'>
               {getFieldError('quantity')}
+            </div>
+          )}
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`unit-${index}`}>
+            Unit of Measurement <Label.Asterisk />
+          </Label.Root>
+          <Select.Root
+            value={item.unitOfMeasureId || ''}
+            onValueChange={(value) =>
+              handleFieldChange('unitOfMeasureId', value)
+            }
+          >
+            <Select.Trigger id={`unit-${index}`}>
+              <Select.Value placeholder='Select UoM' />
+            </Select.Trigger>
+            <Select.Content>
+              {unitOfMeasures.map((unit) => (
+                <Select.Item key={unit.id} value={unit.id}>
+                  {unit.name}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
+          {getFieldError('unitOfMeasureId') && (
+            <div className='text-xs text-red-600'>
+              {getFieldError('unitOfMeasureId')}
             </div>
           )}
         </div>

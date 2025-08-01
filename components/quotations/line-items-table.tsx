@@ -24,9 +24,9 @@ const formatNumber = (value: string | number) => {
 };
 
 export function LineItemsTable({ quotation }: LineItemsTableProps) {
-  const subtotal = parseFloat(quotation.subtotal);
-  const tax = parseFloat(quotation.tax);
-  const total = parseFloat(quotation.total);
+  const subtotal = typeof quotation.subtotal === 'string' ? parseFloat(quotation.subtotal) : quotation.subtotal;
+  const tax = typeof quotation.tax === 'string' ? parseFloat(quotation.tax) : quotation.tax;
+  const total = typeof quotation.total === 'string' ? parseFloat(quotation.total) : quotation.total;
 
   return (
     <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>

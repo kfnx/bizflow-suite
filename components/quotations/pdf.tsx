@@ -271,9 +271,9 @@ const formatNumber = (amount: string | number) => {
 };
 
 export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
-  const subtotal = parseFloat(quotation.subtotal);
-  const tax = parseFloat(quotation.tax);
-  const total = parseFloat(quotation.total);
+  const subtotal = typeof quotation.subtotal === 'string' ? parseFloat(quotation.subtotal) : quotation.subtotal;
+  const tax = typeof quotation.tax === 'string' ? parseFloat(quotation.tax) : quotation.tax;
+  const total = typeof quotation.total === 'string' ? parseFloat(quotation.total) : quotation.total;
 
   return (
     <PDFViewer style={{ width: '100%', height: '100vh' }}>

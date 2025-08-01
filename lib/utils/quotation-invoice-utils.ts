@@ -35,7 +35,8 @@
  */
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { Quotation, QuotationDetail } from '@/hooks/use-quotations';
+import { Quotation } from '@/lib/db/schema';
+import { QuotationDetail } from '@/hooks/use-quotations';
 
 /**
  * Check if a quotation has been converted to an invoice

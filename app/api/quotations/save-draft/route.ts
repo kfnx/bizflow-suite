@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         status: QUOTATION_STATUS.DRAFT,
         notes: validatedData.notes || null, // Handle optional text fields
         termsAndConditions: validatedData.termsAndConditions || null, // Handle optional text fields
-        branchId: branchId || null,
+        branchId: branchId || 'default-branch-id', // Fallback to default if null
         createdBy,
       };
 

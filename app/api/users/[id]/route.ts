@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
+import { invalidateUserSession } from '@/lib/auth/session-utils';
 import { db } from '@/lib/db';
 import { branches, users } from '@/lib/db/schema';
 import { canCreateRole } from '@/lib/permissions';
@@ -171,6 +172,8 @@ export async function PUT(
       );
     }
 
+    const oldUser = existingUser[0];
+    
     await db
       .update(users)
       .set({
@@ -179,6 +182,20 @@ export async function PUT(
         updatedAt: new Date(),
       })
       .where(eq(users.id, params.id));
+
+    // Invalidate user's session if role, branchId, or isActive status changed
+    const roleChanged = validatedData.role && validatedData.role !== oldUser.role;
+    const branchChanged = validatedData.hasOwnProperty('branchId') && validatedData.branchId !== oldUser.branchId;
+    const activeStatusChanged = validatedData.hasOwnProperty('isActive') && validatedData.isActive !== oldUser.isActive;
+    
+    if (roleChanged || branchChanged || activeStatusChanged) {
+      console.log(`User ${params.id} data changed - invalidating session:`, {
+        roleChanged,
+        branchChanged,
+        activeStatusChanged
+      });
+      invalidateUserSession(params.id);
+    }
 
     return NextResponse.json({ message: 'User updated successfully' });
   } catch (error) {

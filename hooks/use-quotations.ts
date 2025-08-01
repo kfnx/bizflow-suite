@@ -11,8 +11,39 @@ import {
   UpdateQuotationRequest,
 } from '@/lib/validations/quotation';
 
+// Type for the actual API response from /api/quotations
+export type QuotationListItem = {
+  id: string;
+  quotationNumber: string;
+  quotationDate: Date;
+  validUntil: Date;
+  customerId: string | null;
+  customerName: string | null;
+  customerCode: string | null;
+  customerType: string | null;
+  customerAddress: string | null;
+  customerContactPerson: string | null;
+  customerContactPersonPrefix: string | null;
+  customerContactPersonEmail: string | null;
+  customerContactPersonPhone: string | null;
+  branchId: string;
+  branchName: string | null;
+  subtotal: string | null;
+  tax: string | null;
+  total: string | null;
+  status: string;
+  notes: string | null;
+  createdBy: string;
+  createdByUserFirstName: string | null;
+  createdByUserLastName: string | null;
+  invoiceId: string | null;
+  invoicedAt: Date | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
 export type QuotationsResponse = {
-  data: Quotation[];
+  data: QuotationListItem[];
   pagination: {
     page: number;
     limit: number;
@@ -34,19 +65,23 @@ export type QuotationItem = {
 };
 
 // TODO: update, crosscheck with schema type
-export type QuotationDetail = Omit<
-  Quotation,
-  'id' | 'subtotal' | 'tax' | 'total'
-> & {
+export type QuotationDetail = Omit<Quotation, 'id' | 'tax'> & {
   id: string;
   approvedBy?: string;
   isIncludePPN: boolean;
-  subtotal: string;
-  tax: string;
-  total: string;
+  subtotal: number;
+  tax: number;
+  total: number;
   termsAndConditions?: string;
   branchName: string;
   customerName: string;
+  customerCode: string;
+  customerType: string;
+  customerAddress?: string;
+  customerContactPerson?: string;
+  customerContactPersonPrefix?: string;
+  customerContactPersonEmail?: string;
+  customerContactPersonPhone?: string;
   customerResponseDate?: string;
   customerResponseNotes?: string;
   customerAcceptanceInfo?: string;
@@ -57,6 +92,10 @@ export type QuotationDetail = Omit<
   items: QuotationItem[];
   revisionVersion: number;
   createdByUser: string;
+  createdByUserPrefix?: string;
+  createdByUserFirstName?: string;
+  createdByUserLastName?: string;
+  createdByUserPhone?: string;
 };
 
 export type QuotationsFilters = {

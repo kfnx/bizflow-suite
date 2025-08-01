@@ -211,17 +211,17 @@ async function main() {
   }
 
   try {
-    await db.delete(schema.roles);
-    console.log('✅ Truncated roles');
-  } catch (error) {
-    console.error('⚠️ Error truncating roles:', error);
-  }
-
-  try {
     await db.delete(schema.rolePermissions);
     console.log('✅ Truncated rolePermissions');
   } catch (error) {
     console.error('⚠️ Error truncating rolePermissions:', error);
+  }
+
+  try {
+    await db.delete(schema.roles);
+    console.log('✅ Truncated roles');
+  } catch (error) {
+    console.error('⚠️ Error truncating roles:', error);
   }
 
   try {

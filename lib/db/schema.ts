@@ -324,9 +324,9 @@ export const quotations = mysqlTable(
     validUntil: date('valid_until').notNull(),
     customerId: varchar('customer_id', { length: 36 }),
     isIncludePPN: boolean('is_include_ppn').default(false),
-    subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
-    tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
-    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    subtotal: decimal('subtotal', { precision: 17, scale: 2 }).default('0.00'),
+    tax: decimal('tax', { precision: 17, scale: 2 }).default('0.00'),
+    total: decimal('total', { precision: 17, scale: 2 }).default('0.00'),
     status: mysqlEnum('status', QUOTATION_STATUS).default(
       QUOTATION_STATUS.DRAFT,
     ),
@@ -339,7 +339,7 @@ export const quotations = mysqlTable(
     customerAcceptanceInfo: text('customer_acceptance_info'),
     rejectionReason: text('rejection_reason'),
     revisionReason: text('revision_reason'),
-    revisionVersion: int('revision_version').default(0).notNull(),
+    revisionVersion: int('revision_version').default(0),
     invoicedAt: timestamp('invoiced_at'),
     invoiceId: varchar('invoice_id', { length: 36 }),
     createdAt: timestamp('created_at').defaultNow(),
@@ -386,8 +386,8 @@ export const quotationItems = mysqlTable(
     quotationId: varchar('quotation_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
-    unitPrice: decimal('unit_price', { precision: 15, scale: 2 }).notNull(),
-    total: decimal('total', { precision: 15, scale: 2 }).notNull(),
+    unitPrice: decimal('unit_price', { precision: 17, scale: 2 }).notNull(),
+    total: decimal('total', { precision: 17, scale: 2 }).notNull(),
     notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
   },
@@ -415,15 +415,15 @@ export const invoices = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    branchId: varchar('branch_id', { length: 36 }),
+    branchId: varchar('branch_id', { length: 36 }).notNull(),
     invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
     quotationId: varchar('quotation_id', { length: 36 }),
     invoiceDate: date('invoice_date').notNull(),
     dueDate: date('due_date').notNull(),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
-    subtotal: decimal('subtotal', { precision: 15, scale: 2 }).default('0.00'),
-    tax: decimal('tax', { precision: 15, scale: 2 }).default('0.00'),
-    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    subtotal: decimal('subtotal', { precision: 17, scale: 2 }).default('0.00'),
+    tax: decimal('tax', { precision: 17, scale: 2 }).default('0.00'),
+    total: decimal('total', { precision: 17, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
     status: mysqlEnum('status', INVOICE_STATUS).default(INVOICE_STATUS.DRAFT),
     paymentMethod: varchar('payment_method', { length: 100 }),
@@ -469,8 +469,8 @@ export const invoiceItems = mysqlTable(
     invoiceId: varchar('invoice_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
-    unitPrice: decimal('unit_price', { precision: 15, scale: 2 }).notNull(),
-    total: decimal('total', { precision: 15, scale: 2 }).notNull(),
+    unitPrice: decimal('unit_price', { precision: 17, scale: 2 }).notNull(),
+    total: decimal('total', { precision: 17, scale: 2 }).notNull(),
     paymentTerms: varchar('payment_terms', { length: 100 }),
     termsAndConditions: text('terms_and_conditions'),
     notes: text('notes'),
@@ -615,7 +615,7 @@ export const products = mysqlTable(
     batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }), // [non-serialized, bulk]
     // ================================
     status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
-    price: decimal('price', { precision: 15, scale: 2 })
+    price: decimal('price', { precision: 17, scale: 2 })
       .notNull()
       .default('0.00'),
     condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
@@ -700,7 +700,7 @@ export const imports = mysqlTable(
       precision: 15,
       scale: 2,
     }).notNull(),
-    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    total: decimal('total', { precision: 17, scale: 2 }).default('0.00'),
     status: mysqlEnum('status', IMPORT_STATUS).default(IMPORT_STATUS.PENDING),
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
@@ -748,9 +748,9 @@ export const importItems = mysqlTable(
     importId: varchar('import_id', { length: 36 }).notNull(),
 
     // Pricing & Quantity
-    priceRMB: decimal('price_rmb', { precision: 15, scale: 2 }).notNull(),
+    priceRMB: decimal('price_rmb', { precision: 17, scale: 2 }).notNull(),
     quantity: int('quantity').notNull().default(1),
-    total: decimal('total', { precision: 15, scale: 2 }).default('0.00'),
+    total: decimal('total', { precision: 17, scale: 2 }).default('0.00'),
     notes: text('notes'),
 
     // Product Creation Data - Core fields

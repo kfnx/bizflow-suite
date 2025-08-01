@@ -1,0 +1,1 @@
+ALTER TABLE `quotations` MODIFY COLUMN `revision_version` int;

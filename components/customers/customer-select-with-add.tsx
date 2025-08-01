@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RiAddLine, RiUserLine } from '@remixicon/react';
+import { RiAddLine } from '@remixicon/react';
 
 import { useCustomers } from '@/hooks/use-customers';
 import * as Button from '@/components/ui/button';
@@ -95,7 +95,7 @@ export function CustomerSelectWithAdd({
         value={value}
         onValueChange={(newValue) => {
           if (newValue === 'ADD_NEW_CUSTOMER') {
-            setIsAddDialogOpen(true);
+            window.open('/customers/new', '_blank');
           } else {
             onValueChange(newValue);
           }
@@ -105,35 +105,28 @@ export function CustomerSelectWithAdd({
           <Select.Value placeholder={placeholder} />
         </Select.Trigger>
         <Select.Content>
+          {customers?.data?.map((customer) => (
+            <Select.Item key={customer.id} value={customer.id}>
+              <div className='flex flex-col'>
+                <div className='flex justify-end gap-1 text-text-soft-400'>
+                  <span className='text-text-strong-950'>{customer.name}</span>
+                  <small>•</small>
+                  <small>{customer.code}</small>
+                  <small>•</small>
+                  <small>
+                    {customer.type === 'company' ? 'Company' : 'Individual'}
+                  </small>
+                </div>
+              </div>
+            </Select.Item>
+          ))}
+          <Select.Separator />
           <Select.Item value='ADD_NEW_CUSTOMER'>
             <div className='flex items-center gap-2'>
               <RiAddLine className='size-4' />
               <span>Add New Customer</span>
             </div>
           </Select.Item>
-          <Select.Separator />
-          {customers?.data?.map((customer) => (
-            <Select.Item key={customer.id} value={customer.id}>
-              <div className='flex flex-col'>
-                <div className='font-medium'>{customer.name}</div>
-                <div className='text-xs flex items-center gap-2 text-text-sub-600'>
-                  <span>{customer.code}</span>
-                  {customer.type && (
-                    <>
-                      <span>•</span>
-                      <span className={`text-xs inline-flex items-center rounded px-1.5 py-0.5 font-medium ${
-                        customer.type === 'company'
-                          ? 'bg-primary-50 text-primary-700' 
-                          : 'bg-success-50 text-success-700'
-                      }`}>
-                        {customer.type === 'company' ? 'Company' : 'Individual'}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </Select.Item>
-          ))}
         </Select.Content>
       </Select.Root>
 
@@ -141,9 +134,6 @@ export function CustomerSelectWithAdd({
         <Modal.Content className='sm:max-w-md'>
           <Modal.Header>
             <Modal.Title>Add New Customer</Modal.Title>
-            <Modal.Description>
-              Create a new customer to add to your database.
-            </Modal.Description>
           </Modal.Header>
 
           <div className='space-y-4 p-4'>

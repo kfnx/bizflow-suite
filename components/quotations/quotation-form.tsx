@@ -86,10 +86,24 @@ export function QuotationForm({
   // Update form data when initialFormData changes (for edit/revise modes)
   useEffect(() => {
     if (initialFormData && (mode === 'edit' || mode === 'revise')) {
-      console.log('Updating form data with initialFormData:', initialFormData);
       setFormData(initialFormData);
     }
   }, [initialFormData, mode]);
+
+  // Ensure customer ID is preserved even if customer list hasn't loaded yet
+  useEffect(() => {
+    if (
+      (mode === 'edit' || mode === 'revise') &&
+      initialFormData?.customerId &&
+      !formData.customerId
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        customerId: initialFormData.customerId,
+      }));
+    }
+  }, [mode, initialFormData?.customerId, formData.customerId]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
@@ -127,18 +141,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                productId: '',
-                name: '',
-                quantity: 1,
-                unitPrice: '0',
-                notes: '',
-              },
-            ],
-          }
+          ...prev,
+          items: [
+            ...prev.items,
+            {
+              productId: '',
+              name: '',
+              quantity: 1,
+              unitPrice: '0',
+              notes: '',
+            },
+          ],
+        }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -152,11 +166,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.map((item, i) =>
-                i === index ? { ...item, [field]: value } : item,
-              ),
-            }
+            ...prev,
+            items: prev.items.map((item, i) =>
+              i === index ? { ...item, [field]: value } : item,
+            ),
+          }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -172,9 +186,9 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.filter((_, i) => i !== index),
-            }
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index),
+          }
           : emptyFormData,
       );
       // Clear items validation error when removing items
@@ -262,7 +276,7 @@ export function QuotationForm({
           typeof firstError === 'string'
             ? firstError
             : firstError.find((e: string | undefined) => e) ||
-              'Please fix the validation errors';
+            'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
@@ -584,30 +598,14 @@ export function QuotationForm({
                 required
               />
             ) : (
-              <Select.Root
+              <CustomerSelectWithAdd
                 value={formData.customerId}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   handleInputChange('customerId', value)
                 }
-              >
-                <Select.Trigger
-                  id='customer'
-                  className={
-                    validationErrors.customerId ? 'border-error-500' : ''
-                  }
-                >
-                  <Select.TriggerIcon as={RiUserLine} />
-                  <Select.Value placeholder='Select a customer' />
-                </Select.Trigger>
-                <Select.Content>
-                  {customers?.data?.map((customer) => (
-                    <Select.Item key={customer.id} value={customer.id}>
-                      {customer.name} ({customer.code}){' '}
-                      {customer.type === 'company' ? 'Company' : 'Individual'}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
+                placeholder='Select a customer'
+                required
+              />
             )}
             {validationErrors.customerId && (
               <p className='text-sm mt-1 text-error-base'>
@@ -673,19 +671,9 @@ export function QuotationForm({
 
       {/* Quotation Items */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-        <div className='mb-4 flex items-center justify-between'>
-          <h3 className='text-lg font-semibold text-text-strong-950'>Items</h3>
-          <Button.Root
-            variant='neutral'
-            mode='stroke'
-            size='small'
-            onClick={addItem}
-            type='button'
-          >
-            <RiAddLine className='size-4' />
-            Add Item
-          </Button.Root>
-        </div>
+        <h3 className='text-lg mb-4 font-semibold text-text-strong-950'>
+          Items
+        </h3>
 
         {formData.items.length === 0 ? (
           <div className='py-8 text-center text-text-sub-600'>
@@ -826,7 +814,7 @@ export function QuotationForm({
           </div>
         )}
 
-        <div className='flex justify-end'>
+        <div className='mt-4 flex justify-end'>
           <Button.Root
             variant='neutral'
             mode='stroke'

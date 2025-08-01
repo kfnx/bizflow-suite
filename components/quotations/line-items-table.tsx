@@ -40,7 +40,8 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
         </h3>
         <div className='ml-auto'>
           <span className='text-xs inline-flex items-center rounded-full bg-bg-weak-50 px-2.5 py-0.5 font-medium text-text-sub-600 ring-1 ring-stroke-soft-200'>
-            {quotation.items.length} {quotation.items.length === 1 ? 'item' : 'items'}
+            {quotation.items.length}{' '}
+            {quotation.items.length === 1 ? 'item' : 'items'}
           </span>
         </div>
       </div>
@@ -50,8 +51,12 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
           <div className='mb-4 flex size-12 items-center justify-center rounded-full bg-bg-weak-50 ring-1 ring-stroke-soft-200'>
             <RiFileTextLine className='size-6 text-text-sub-600' />
           </div>
-          <h4 className='text-sm mb-1 font-medium text-text-strong-950'>No items</h4>
-          <p className='text-sm text-text-sub-600'>This quotation doesn&apos;t have any line items yet.</p>
+          <h4 className='text-sm mb-1 font-medium text-text-strong-950'>
+            No items
+          </h4>
+          <p className='text-sm text-text-sub-600'>
+            This quotation doesn&apos;t have any line items yet.
+          </p>
         </div>
       ) : (
         <>
@@ -60,11 +65,21 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
             <Table.Root>
               <Table.Header>
                 <Table.Row className='bg-bg-weak-50'>
-                  <Table.Head className='w-1/3 font-semibold text-text-strong-950'>Product</Table.Head>
-                  <Table.Head className='text-center font-semibold text-text-strong-950'>Qty</Table.Head>
-                  <Table.Head className='text-right font-semibold text-text-strong-950'>Unit Price</Table.Head>
-                  <Table.Head className='text-right font-semibold text-text-strong-950'>Total</Table.Head>
-                  <Table.Head className='w-1/4 font-semibold text-text-strong-950'>Notes</Table.Head>
+                  <Table.Head className='w-1/3 font-semibold text-text-strong-950'>
+                    Product
+                  </Table.Head>
+                  <Table.Head className='text-center font-semibold text-text-strong-950'>
+                    Qty
+                  </Table.Head>
+                  <Table.Head className='text-right font-semibold text-text-strong-950'>
+                    Unit Price
+                  </Table.Head>
+                  <Table.Head className='text-right font-semibold text-text-strong-950'>
+                    Total
+                  </Table.Head>
+                  <Table.Head className='w-1/4 font-semibold text-text-strong-950'>
+                    Notes
+                  </Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
@@ -109,7 +124,9 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
             <div className='w-96 rounded-lg border border-stroke-soft-200 bg-bg-weak-50 p-4'>
               <div className='space-y-3'>
                 <div className='text-sm flex justify-between'>
-                  <span className='font-medium text-text-sub-600'>Subtotal:</span>
+                  <span className='font-medium text-text-sub-600'>
+                    Subtotal:
+                  </span>
                   <span className='font-semibold text-text-strong-950'>
                     {formatCurrency(quotation.subtotal)}
                   </span>
@@ -117,7 +134,9 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
 
                 {quotation.isIncludePPN && (
                   <div className='text-sm flex justify-between'>
-                    <span className='font-medium text-text-sub-600'>PPN (11%):</span>
+                    <span className='font-medium text-text-sub-600'>
+                      PPN (11%):
+                    </span>
                     <span className='font-semibold text-text-strong-950'>
                       {formatCurrency(quotation.tax)}
                     </span>

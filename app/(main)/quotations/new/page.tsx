@@ -67,10 +67,7 @@ export default function NewQuotationPage() {
         <BackButton href='/quotations' label='Back to Quotations' />
       </Header>
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <QuotationForm
-          mode='create'
-          initialFormData={initialFormData}
-        />
+        <QuotationForm mode='create' initialFormData={initialFormData} />
       </div>
     </PermissionGate>
   );

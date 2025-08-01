@@ -52,7 +52,6 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     isLoading: customerLoading,
     error: customerError,
   } = useCustomerDetail(params.id);
-  console.log("🚀 ~ EditCustomerPage ~ customerData:", customerData)
   const updateCustomerMutation = useUpdateCustomer();
 
   const [formData, setFormData] = useState<EditCustomerData>({
@@ -99,13 +98,13 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
         contactPersons:
           customerData.contactPersons && customerData.contactPersons.length > 0
             ? customerData.contactPersons.map((cp) => ({
-              id: cp.id,
-              prefix:
-                (cp.prefix as 'Bapak' | 'Ibu' | 'Sdr.' | 'Sdri.') || 'Bapak',
-              name: cp.name,
-              email: cp.email || '',
-              phone: cp.phone || '',
-            }))
+                id: cp.id,
+                prefix:
+                  (cp.prefix as 'Bapak' | 'Ibu' | 'Sdr.' | 'Sdri.') || 'Bapak',
+                name: cp.name,
+                email: cp.email || '',
+                phone: cp.phone || '',
+              }))
             : [{ prefix: 'Bapak', name: '', email: '', phone: '' }],
       });
     }
@@ -159,7 +158,6 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     };
 
     const validationResult = createCustomerSchema.safeParse(validationData);
-    console.log("🚀 ~ handleSubmit ~ validationResult:", validationResult)
 
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
@@ -198,8 +196,11 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
               phone: 'Phone',
               prefix: 'Prefix',
             };
-            const contactDisplayName = contactFieldNames[contactField] || contactField;
-            invalidFields.push(`Contact Person ${Number(contactIndex) + 1} - ${contactDisplayName}`);
+            const contactDisplayName =
+              contactFieldNames[contactField] || contactField;
+            invalidFields.push(
+              `Contact Person ${Number(contactIndex) + 1} - ${contactDisplayName}`,
+            );
           } else {
             const displayName = fieldDisplayNames[fieldName] || fieldName;
             invalidFields.push(displayName);
@@ -210,9 +211,10 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
       setValidationErrors(errors);
 
       // Show toast with invalid fields
-      const errorMessage = invalidFields.length > 0
-        ? `Please fix the following fields: ${invalidFields.join(', ')}`
-        : 'Please check your input and try again.';
+      const errorMessage =
+        invalidFields.length > 0
+          ? `Please fix the following fields: ${invalidFields.join(', ')}`
+          : 'Please check your input and try again.';
 
       toast.error(errorMessage);
       return;
@@ -369,7 +371,13 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
                   >
                     <Select.Trigger>
                       <Select.TriggerIcon as={RiUserLine} />
-                      <Select.Value placeholder={customerLoading ? 'Loading...' : 'Select customer type'} />
+                      <Select.Value
+                        placeholder={
+                          customerLoading
+                            ? 'Loading...'
+                            : 'Select customer type'
+                        }
+                      />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value='individual'>Individual</Select.Item>

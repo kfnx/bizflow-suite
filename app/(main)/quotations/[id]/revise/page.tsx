@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { RiEditLine } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { QuotationFormData } from '@/lib/validations/quotation';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
@@ -33,7 +34,7 @@ export default function ReviseQuotationPage() {
         }
 
         // Check if quotation is in rejected status
-        if (data.data.status !== 'rejected') {
+        if (data.data.status !== QUOTATION_STATUS.REJECTED) {
           toast.error('Only rejected quotations can be revised');
           router.push('/quotations');
           return;

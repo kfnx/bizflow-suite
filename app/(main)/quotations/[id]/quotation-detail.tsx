@@ -1,16 +1,20 @@
 'use client';
 
-import { RiErrorWarningLine, RiFileAddLine, RiFileSearchLine } from '@remixicon/react';
+import {
+  RiErrorWarningLine,
+  RiFileAddLine,
+  RiFileSearchLine,
+} from '@remixicon/react';
 
+import { formatDate } from '@/utils/date-formatter';
 import { useQuotationDetail } from '@/hooks/use-quotations';
+import { BackButton } from '@/components/back-button';
+import Header from '@/components/header';
 import { LineItemsTable } from '@/components/quotations/line-items-table';
+import { QuotationPDF } from '@/components/quotations/pdf';
 import { QuotationDetails } from '@/components/quotations/quotation-details';
 import { QuotationHeader } from '@/components/quotations/quotation-header';
 import { SimplePageLoading } from '@/components/simple-page-loading';
-import { QuotationPDF } from '@/components/quotations/pdf';
-import Header from '@/components/header';
-import { BackButton } from '@/components/back-button';
-import { formatDate } from '@/utils/date-formatter';
 
 interface QuotationDetailProps {
   id: string;
@@ -66,7 +70,8 @@ export function QuotationDetail({ id }: QuotationDetailProps) {
             Quotation Not Found
           </h3>
           <p className='mb-4 text-text-sub-600'>
-            The quotation you&apos;re looking for doesn&apos;t exist or may have been deleted.
+            The quotation you&apos;re looking for doesn&apos;t exist or may have
+            been deleted.
           </p>
           <a
             href='/quotations'
@@ -80,7 +85,6 @@ export function QuotationDetail({ id }: QuotationDetailProps) {
   }
 
   const quotation = data.data;
-  console.log("🚀 ~ quotation:", quotation)
 
   return (
     <div className='min-h-screen'>
@@ -94,7 +98,7 @@ export function QuotationDetail({ id }: QuotationDetailProps) {
         description={`${quotation.customerName} • ${formatDate(quotation.quotationDate)}`}
       >
         <BackButton href='/quotations' label='Back to Quotations' />
-      </Header >
+      </Header>
       {/* Main Content */}
       <div className='mx-auto max-w-5xl space-y-6 p-6'>
         <QuotationHeader quotation={quotation} />

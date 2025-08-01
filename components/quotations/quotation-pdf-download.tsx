@@ -1,12 +1,21 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font, pdf } from '@react-pdf/renderer';
-import { QuotationDetail } from '@/hooks/use-quotations';
+import {
+  Document,
+  Font,
+  Page,
+  pdf,
+  StyleSheet,
+  Text,
+  View,
+} from '@react-pdf/renderer';
+
 import { formatDate } from '@/utils/date-formatter';
+import { QuotationDetail } from '@/hooks/use-quotations';
 
 // Register fonts
 Font.register({
   family: 'Inter',
-  src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2'
+  src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2',
 });
 
 const styles = StyleSheet.create({
@@ -258,7 +267,7 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size='A4' style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.logo}>⚙️ STI</Text>
@@ -287,15 +296,21 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
           <View style={styles.rightColumn}>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Quotation Number:</Text>
-              <Text style={styles.detailValue}>{quotation.quotationNumber}</Text>
+              <Text style={styles.detailValue}>
+                {quotation.quotationNumber}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Date:</Text>
-              <Text style={styles.detailValue}>{formatDate(quotation.quotationDate)}</Text>
+              <Text style={styles.detailValue}>
+                {formatDate(quotation.quotationDate)}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Valid Until:</Text>
-              <Text style={styles.detailValue}>{formatDate(quotation.validUntil)}</Text>
+              <Text style={styles.detailValue}>
+                {formatDate(quotation.validUntil)}
+              </Text>
             </View>
           </View>
         </View>
@@ -306,22 +321,32 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
             {/* Table Header */}
             <View style={styles.tableHeader}>
               <Text style={[styles.tableHeaderCell, { width: 50 }]}>No.</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Description</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
+                Description
+              </Text>
               <Text style={[styles.tableHeaderCell, { width: 60 }]}>Qty</Text>
-              <Text style={[styles.tableHeaderCell, { width: 120 }]}>Unit Price (Rp.)</Text>
-              <Text style={[styles.tableHeaderCell, { width: 120 }]}>Total Price (Rp.)</Text>
+              <Text style={[styles.tableHeaderCell, { width: 120 }]}>
+                Unit Price (Rp.)
+              </Text>
+              <Text style={[styles.tableHeaderCell, { width: 120 }]}>
+                Total Price (Rp.)
+              </Text>
             </View>
 
             {/* Table Rows */}
             {quotation.items.map((item, index) => (
               <View key={item.id} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { width: 50 }]}>{index + 1}</Text>
+                <Text style={[styles.tableCell, { width: 50 }]}>
+                  {index + 1}
+                </Text>
                 <View style={styles.descriptionCell}>
                   <Text style={styles.productName}>{item.name}</Text>
                   <Text style={styles.productType}>Excavator</Text>
                 </View>
                 <Text style={styles.quantityCell}>{item.quantity}</Text>
-                <Text style={styles.priceCell}>{formatNumber(item.unitPrice)}</Text>
+                <Text style={styles.priceCell}>
+                  {formatNumber(item.unitPrice)}
+                </Text>
                 <Text style={styles.totalCell}>{formatNumber(item.total)}</Text>
               </View>
             ))}
@@ -332,7 +357,9 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
         <View style={styles.summarySection}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Sub Total:</Text>
-            <Text style={styles.summaryValue}>Rp. {formatNumber(subtotal)}</Text>
+            <Text style={styles.summaryValue}>
+              Rp. {formatNumber(subtotal)}
+            </Text>
           </View>
           {quotation.isIncludePPN && (
             <View style={styles.summaryRow}>
@@ -356,7 +383,9 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
             </View>
             <View style={styles.termItem}>
               <Text style={styles.bullet}>•</Text>
-              <Text>Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan</Text>
+              <Text>
+                Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
+              </Text>
             </View>
             <View style={styles.termItem}>
               <Text style={styles.bullet}>•</Text>
@@ -368,11 +397,15 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
             </View>
             <View style={styles.termItem}>
               <Text style={styles.bullet}>•</Text>
-              <Text>Warranty 12 bulan atau 2000 HM (yang tercapai dahulu).</Text>
+              <Text>
+                Warranty 12 bulan atau 2000 HM (yang tercapai dahulu).
+              </Text>
             </View>
             <View style={styles.termItem}>
               <Text style={styles.bullet}>•</Text>
-              <Text>Penawaran berlaku selama 14 hari dari tenggal penawaran</Text>
+              <Text>
+                Penawaran berlaku selama 14 hari dari tenggal penawaran
+              </Text>
             </View>
             <View style={styles.termItem}>
               <Text style={styles.bullet}>•</Text>
@@ -384,7 +417,9 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
         {/* Signatures */}
         <View style={styles.signaturesSection}>
           <View style={styles.signatureColumn}>
-            <Text style={styles.signatureTitle}>Prepared by: Bpk. Agung (+62 811-909-736)</Text>
+            <Text style={styles.signatureTitle}>
+              Prepared by: Bpk. Agung (+62 811-909-736)
+            </Text>
             <Text style={styles.signatureTitle}>Approved by:</Text>
             <View style={styles.signatureLine} />
             <Text style={styles.signatureName}>Tony Rafly</Text>
@@ -401,20 +436,27 @@ const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerCompany}>PT. SAN TRAKTOR INDONESIA</Text>
-          <Text style={styles.footerAddress}>Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara 14450, Indonesia</Text>
+          <Text style={styles.footerAddress}>
+            Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara 14450, Indonesia
+          </Text>
         </View>
       </Page>
     </Document>
   );
 };
 
-export const generateQuotationPDF = async (quotation: QuotationDetail): Promise<Blob> => {
+export const generateQuotationPDF = async (
+  quotation: QuotationDetail,
+): Promise<Blob> => {
   const pdfDoc = <QuotationPDFDocument quotation={quotation} />;
   const pdfBytes = await pdf(pdfDoc).toBlob();
   return pdfBytes;
 };
 
-export const downloadQuotationPDF = async (quotation: QuotationDetail, filename?: string) => {
+export const downloadQuotationPDF = async (
+  quotation: QuotationDetail,
+  filename?: string,
+) => {
   try {
     const blob = await generateQuotationPDF(quotation);
     const url = URL.createObjectURL(blob);
@@ -448,4 +490,4 @@ export const printQuotationPDF = async (quotation: QuotationDetail) => {
     console.error('Error printing PDF:', error);
     throw new Error('Failed to print PDF');
   }
-}; 
+};

@@ -54,7 +54,7 @@ export default function EditQuotationPage() {
           quotationDate: formatDateForInput(quotationData.quotationDate),
           validUntil: formatDateForInput(quotationData.validUntil),
           customerId: quotationData.customerId,
-          branchId: quotationData.branchId || undefined,      
+          branchId: quotationData.branchId || undefined,
           isIncludePPN: quotationData.isIncludePPN,
           notes: quotationData.notes || '',
           termsAndConditions: quotationData.termsAndConditions || '',

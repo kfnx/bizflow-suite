@@ -1,16 +1,15 @@
 'use client';
 
 import React from 'react';
-import router from 'next/router';
 import {
   RiBillLine,
-  RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
   RiLoader4Line,
   RiMailSendLine,
   RiSendPlaneLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
@@ -27,7 +26,6 @@ import * as Drawer from '@/components/ui/drawer';
 import { QuotationStatusBadge } from '@/components/quotations/quotation-status-badge';
 
 import { Asterisk } from '../ui/label';
-import { toast } from 'sonner';
 
 interface QuotationPreviewDrawerProps {
   quotationId: string | null;
@@ -212,7 +210,13 @@ function QuotationPreviewContent({
   );
 }
 
-function QuotationPreviewFooter({ quotation, onClose }: { quotation: QuotationDetail, onClose: () => void }) {
+function QuotationPreviewFooter({
+  quotation,
+  onClose,
+}: {
+  quotation: QuotationDetail;
+  onClose: () => void;
+}) {
   const sendQuotationMutation = useSendQuotation();
   const submitQuotationMutation = useSubmitQuotation();
   const markAsInvoiceMutation = useMarkQuotationAsInvoiced();
@@ -296,7 +300,7 @@ function QuotationPreviewFooter({ quotation, onClose }: { quotation: QuotationDe
         quotationId: quotation.id,
       });
       toast.success('Quotation marked as invoice successfully!');
-      onClose()
+      onClose();
       // router.push(`/invoices`);
     } catch (error) {
       alert(

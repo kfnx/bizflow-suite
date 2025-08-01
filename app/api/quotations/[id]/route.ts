@@ -112,7 +112,6 @@ export async function PUT(
     const { id } = params;
     const body = await request.json();
 
-    // Use request body as UpdateQuotationRequest
     const validatedData = body as UpdateQuotationRequest;
 
     // Check if quotation exists and is in draft status
@@ -126,13 +125,6 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Quotation not found' },
         { status: 404 },
-      );
-    }
-
-    if (existingQuotation[0].status !== 'draft') {
-      return NextResponse.json(
-        { error: 'Only draft quotations can be edited' },
-        { status: 400 },
       );
     }
 

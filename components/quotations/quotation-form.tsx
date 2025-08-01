@@ -7,27 +7,28 @@ import {
   RiCalendarLine,
   RiDeleteBinLine,
   RiHashtag,
-  RiMapPin2Line,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
-  RiUserLine,
 } from '@remixicon/react';
-import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import {
   QuotationFormData,
   type QuotationItem,
-  type UpdateQuotationRequest,
 } from '@/lib/validations/quotation';
 import {
   formatNumberWithDots,
   parseNumberFromDots,
 } from '@/utils/number-formatter';
-import { useCustomers } from '@/hooks/use-customers';
 import { useProducts } from '@/hooks/use-products';
 import { useQuotationNumber } from '@/hooks/use-quotation-number';
+import {
+  useCreateQuotation,
+  useCreateQuotationDraft,
+  useEditQuotation,
+  useReviseQuotation
+} from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -78,7 +79,6 @@ export function QuotationForm({
   isLoadingData = false,
   onCancel,
 }: QuotationFormProps) {
-  console.log(mode, initialFormData, quotationId, isLoadingData, onCancel);
   const [formData, setFormData] = useState<QuotationFormData>(
     initialFormData || emptyFormData,
   );
@@ -104,18 +104,25 @@ export function QuotationForm({
     }
   }, [mode, initialFormData?.customerId, formData.customerId]);
 
-  const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
   );
 
   const router = useRouter();
-  const queryClient = useQueryClient();
 
-  const { data: customers } = useCustomers();
   const { data: products } = useProducts();
   const { data: quotationNumber, isLoading: isLoadingQuotationNumber } =
     useQuotationNumber();
+
+  const createQuotationMutation = useCreateQuotation();
+  const createQuotationDraftMutation = useCreateQuotationDraft();
+  const editQuotationMutation = useEditQuotation();
+  const reviseQuotationMutation = useReviseQuotation();
+
+  // Combined loading state from mutations
+  const isLoading = createQuotationMutation.isPending ||
+    createQuotationDraftMutation.isPending ||
+    editQuotationMutation.isPending || reviseQuotationMutation.isPending;
 
   const clearValidationErrors = useCallback(() => {
     setValidationErrors({});
@@ -218,12 +225,12 @@ export function QuotationForm({
   }, [calculateSubtotal, calculateTax]);
 
   const validateForm = useCallback(
-    (status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED) => {
+    (status: QUOTATION_STATUS) => {
       if (!formData) return false;
 
       const errors: ValidationErrors = {};
 
-      if (status === 'submitted') {
+      if (status === QUOTATION_STATUS.SUBMITTED) {
         if (!formData.customerId) {
           errors.customerId = 'Please select a customer';
         }
@@ -257,7 +264,7 @@ export function QuotationForm({
 
   const handleSubmit = async (
     e: React.FormEvent,
-    status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED,
+    status: QUOTATION_STATUS,
   ) => {
     e.preventDefault();
     if (!formData) return;
@@ -282,209 +289,55 @@ export function QuotationForm({
       return;
     }
 
-    setIsLoading(true);
-
     try {
+      const quotationNumberData = mode === 'create' ? quotationNumber : formData!.quotationNumber;
+      const requestData: QuotationFormData = {
+        quotationNumber: quotationNumberData || "",
+        quotationDate: formData!.quotationDate,
+        validUntil: formData!.validUntil,
+        customerId: formData!.customerId,
+        isIncludePPN: formData!.isIncludePPN,
+        notes: formData!.notes,
+        termsAndConditions: formData!.termsAndConditions,
+        status,
+        items: formData!.items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice, // Keep as string for API
+          notes: item.notes,
+        })),
+      };
+
       if (mode === 'create') {
-        await handleCreateQuotation(status);
-      } else {
-        await handleUpdateQuotation(status);
+        if (status === QUOTATION_STATUS.DRAFT) {
+          await createQuotationDraftMutation.mutateAsync(requestData);
+        } else {
+          await createQuotationMutation.mutateAsync(requestData);
+        }
+      } else if (mode === 'edit') {
+        if (!quotationId) {
+          toast.error('Quotation ID is required');
+          return;
+        }
+        await editQuotationMutation.mutateAsync({
+          quotationId,
+          data: requestData,
+        });
+      } else if (mode === 'revise') {
+        if (!quotationId) {
+          toast.error('Quotation ID is required');
+          return;
+        }
+        await reviseQuotationMutation.mutateAsync({
+          quotationId,
+          data: requestData,
+        });
       }
+      router.push('/quotations');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const handleCreateQuotation = async (
-    status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED,
-  ) => {
-    if (!quotationNumber) {
-      toast.error('Failed to generate quotation number');
-      return;
-    }
-
-    const requestData: QuotationFormData = {
-      quotationNumber,
-      quotationDate: formData!.quotationDate,
-      validUntil: formData!.validUntil,
-      customerId: formData!.customerId,
-      isIncludePPN: formData!.isIncludePPN,
-      notes: formData!.notes,
-      termsAndConditions: formData!.termsAndConditions,
-      status,
-      items: formData!.items.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice, // Keep as string for API
-        notes: item.notes,
-      })),
-    };
-
-    const endpoint =
-      status === QUOTATION_STATUS.DRAFT
-        ? '/api/quotations/save-draft'
-        : '/api/quotations';
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestData),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      // Handle API validation errors
-      if (response.status === 400 && data.details) {
-        const apiErrors: ValidationErrors = {};
-
-        // Map Zod validation errors to form fields
-        data.details.forEach((error: { path: string[]; message: string }) => {
-          const fieldPath = error.path.join('.');
-
-          if (fieldPath === 'customerId') {
-            apiErrors.customerId = error.message;
-          } else if (fieldPath === 'quotationDate') {
-            apiErrors.quotationDate = error.message;
-          } else if (fieldPath === 'validUntil') {
-            apiErrors.validUntil = error.message;
-          } else if (fieldPath === 'notes') {
-            apiErrors.notes = error.message;
-          } else if (fieldPath === 'termsAndConditions') {
-            apiErrors.termsAndConditions = error.message;
-          } else if (fieldPath.startsWith('items.')) {
-            // Handle items array errors
-            const itemIndex = parseInt(fieldPath.split('.')[1]);
-            const itemField = fieldPath.split('.')[2];
-
-            if (!apiErrors.items) {
-              apiErrors.items = [];
-            }
-
-            if (itemField === 'productId') {
-              apiErrors.items[itemIndex] = `Product: ${error.message}`;
-            } else if (itemField === 'name') {
-              apiErrors.items[itemIndex] = `Name: ${error.message}`;
-            } else if (itemField === 'quantity') {
-              apiErrors.items[itemIndex] = `Quantity: ${error.message}`;
-            } else if (itemField === 'unitPrice') {
-              apiErrors.items[itemIndex] = `Unit Price: ${error.message}`;
-            } else {
-              apiErrors.items[itemIndex] = error.message;
-            }
-          }
-        });
-
-        setValidationErrors(apiErrors);
-        toast.error('Please fix the validation errors');
-        return;
-      }
-
-      toast.error(data.error || 'Failed to create quotation');
-      return;
-    }
-
-    const successMessage =
-      status === QUOTATION_STATUS.DRAFT
-        ? 'Quotation saved as draft!'
-        : 'Quotation submitted!';
-    toast.success(successMessage);
-    queryClient.invalidateQueries({ queryKey: ['quotations'] });
-    router.push('/quotations');
-  };
-
-  const handleUpdateQuotation = async (
-    status: QUOTATION_STATUS.DRAFT | QUOTATION_STATUS.SUBMITTED,
-  ) => {
-    if (!quotationId) {
-      toast.error('Quotation ID is required');
-      return;
-    }
-
-    const requestData: UpdateQuotationRequest = {
-      quotationDate: formData!.quotationDate,
-      validUntil: formData!.validUntil,
-      status,
-      customerId: formData!.customerId,
-      isIncludePPN: formData!.isIncludePPN,
-      notes: formData!.notes,
-      termsAndConditions: formData!.termsAndConditions,
-      items: formData!.items.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        notes: item.notes,
-      })),
-    };
-
-    const response = await fetch(`/api/quotations/${quotationId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestData),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      // Handle API validation errors
-      if (response.status === 400 && data.details) {
-        const apiErrors: ValidationErrors = {};
-
-        // Map Zod validation errors to form fields
-        data.details.forEach((error: { path: string[]; message: string }) => {
-          const fieldPath = error.path.join('.');
-
-          if (fieldPath === 'customerId') {
-            apiErrors.customerId = error.message;
-          } else if (fieldPath === 'quotationDate') {
-            apiErrors.quotationDate = error.message;
-          } else if (fieldPath === 'validUntil') {
-            apiErrors.validUntil = error.message;
-          } else if (fieldPath === 'notes') {
-            apiErrors.notes = error.message;
-          } else if (fieldPath === 'termsAndConditions') {
-            apiErrors.termsAndConditions = error.message;
-          } else if (fieldPath.startsWith('items.')) {
-            // Handle items array errors
-            const itemIndex = parseInt(fieldPath.split('.')[1]);
-            const itemField = fieldPath.split('.')[2];
-
-            if (!apiErrors.items) {
-              apiErrors.items = [];
-            }
-
-            if (itemField === 'productId') {
-              apiErrors.items[itemIndex] = `Product: ${error.message}`;
-            } else if (itemField === 'name') {
-              apiErrors.items[itemIndex] = `Name: ${error.message}`;
-            } else if (itemField === 'quantity') {
-              apiErrors.items[itemIndex] = `Quantity: ${error.message}`;
-            } else if (itemField === 'unitPrice') {
-              apiErrors.items[itemIndex] = `Unit Price: ${error.message}`;
-            } else {
-              apiErrors.items[itemIndex] = error.message;
-            }
-          }
-        });
-
-        setValidationErrors(apiErrors);
-        toast.error('Please fix the validation errors');
-        return;
-      }
-
-      toast.error(data.error || 'Failed to update quotation');
-      return;
-    }
-
-    const successMessage =
-      status === 'draft'
-        ? 'Quotation updated successfully!'
-        : 'Quotation updated and submitted successfully!';
-    toast.success(successMessage);
-    queryClient.invalidateQueries({ queryKey: ['quotations'] });
-    router.push('/quotations');
   };
 
   // Show loading state for create mode while fetching quotation number

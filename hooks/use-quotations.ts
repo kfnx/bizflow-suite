@@ -1,9 +1,13 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { UpdateQuotationRequest } from '@/lib/validations/quotation';
+import {
+  QuotationFormData,
+  UpdateQuotationRequest,
+} from '@/lib/validations/quotation';
 
 export type Quotation = {
   id: string;
@@ -125,7 +129,56 @@ const fetchQuotationDetail = async (
   return response.json();
 };
 
-const updateQuotation = async (
+const createQuotation = async (
+  data: QuotationFormData,
+): Promise<{ data: QuotationDetail }> => {
+  const response = await fetch('/api/quotations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create quotation');
+  }
+
+  return response.json();
+};
+
+const createQuotationDraft = async (
+  data: QuotationFormData,
+): Promise<{ data: QuotationDetail }> => {
+  const response = await fetch('/api/quotations/save-draft', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create quotation draft');
+  }
+
+  return response.json();
+};
+
+const deleteQuotation = async (quotationId: string): Promise<void> => {
+  const response = await fetch(`/api/quotations/${quotationId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to delete quotation');
+  }
+};
+
+const editQuotation = async (
   quotationId: string,
   data: UpdateQuotationRequest,
 ): Promise<any> => {
@@ -143,6 +196,27 @@ const updateQuotation = async (
   }
 
   return response.json();
+};
+
+const reviseQuotation = async (
+  quotationId: string,
+  data: UpdateQuotationRequest,
+): Promise<any> => {
+  // First, update the quotation data
+  const updateResponse = await fetch(`/api/quotations/${quotationId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!updateResponse.ok) {
+    const errorData = await updateResponse.json();
+    throw new Error(errorData.error || 'Failed to revise quotation');
+  }
+
+  return updateResponse.json();
 };
 
 const sendQuotation = async (quotationId: string): Promise<void> => {
@@ -182,7 +256,15 @@ export function useQuotationDetail(id: string) {
   });
 }
 
-export function useUpdateQuotation() {
+export function useQuotation(quotationId: string | null) {
+  return useQuery({
+    queryKey: ['quotation', quotationId],
+    queryFn: () => fetchQuotationDetail(quotationId!),
+    enabled: !!quotationId,
+  });
+}
+
+export function useEditQuotation() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -192,10 +274,36 @@ export function useUpdateQuotation() {
     }: {
       quotationId: string;
       data: UpdateQuotationRequest;
-    }) => updateQuotation(quotationId, data),
+    }) => editQuotation(quotationId, data),
     onSuccess: () => {
       // Invalidate and refetch quotations after successful update
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      toast.success('Quotation updated successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update quotation');
+    },
+  });
+}
+
+export function useReviseQuotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      quotationId,
+      data,
+    }: {
+      quotationId: string;
+      data: UpdateQuotationRequest;
+    }) => reviseQuotation(quotationId, data),
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful revise
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      toast.success('Quotation revised successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to revise quotation');
     },
   });
 }
@@ -209,6 +317,10 @@ export function useSendQuotation() {
       // Invalidate and refetch quotations after successful send
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       queryClient.invalidateQueries({ queryKey: ['quotation'] });
+      toast.success('Quotation sent successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to send quotation');
     },
   });
 }
@@ -222,6 +334,59 @@ export function useSubmitQuotation() {
       // Invalidate and refetch quotations after successful submit
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       queryClient.invalidateQueries({ queryKey: ['quotation'] });
+      toast.success('Quotation submitted successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to submit quotation');
+    },
+  });
+}
+
+export function useCreateQuotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createQuotation,
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful creation
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      toast.success('Quotation created successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to create quotation');
+    },
+  });
+}
+
+export function useCreateQuotationDraft() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createQuotationDraft,
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful draft creation
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      toast.success('Quotation draft saved successfully');
+    },
+    onError: (error) => {
+      console.error('🚀 ~ useCreateQuotationDraft ~ error:', error);
+      toast.error(error.message || 'Failed to save quotation draft');
+    },
+  });
+}
+
+export function useDeleteQuotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteQuotation,
+    onSuccess: () => {
+      // Invalidate and refetch quotations after successful deletion
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      toast.success('Quotation deleted successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete quotation');
     },
   });
 }
@@ -276,6 +441,10 @@ export function useMarkQuotationAsInvoiced() {
       // Invalidate and refetch quotations after marking as invoiced
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       queryClient.invalidateQueries({ queryKey: ['quotation'] });
+      toast.success('Quotation marked as invoiced successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to mark quotation as invoiced');
     },
   });
 }

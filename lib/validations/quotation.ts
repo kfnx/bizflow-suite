@@ -39,9 +39,22 @@ export const createQuotationRequestSchema = z.object({
   isIncludePPN: z.boolean().optional().default(false),
   notes: z.string().optional(),
   termsAndConditions: z.string().optional(),
-  status: z.enum([QUOTATION_STATUS.DRAFT, QUOTATION_STATUS.SUBMITTED], {
-    errorMap: () => ({ message: 'Status must be either DRAFT or SUBMITTED' }),
-  }),
+  status: z.enum(
+    [
+      QUOTATION_STATUS.DRAFT,
+      QUOTATION_STATUS.SUBMITTED,
+      QUOTATION_STATUS.APPROVED,
+      QUOTATION_STATUS.SENT,
+      QUOTATION_STATUS.ACCEPTED,
+      QUOTATION_STATUS.REJECTED,
+      QUOTATION_STATUS.REVISED,
+    ],
+    {
+      errorMap: () => ({
+        message: 'Status must be either DRAFT, SUBMITTED, or REJECTED',
+      }),
+    },
+  ),
   items: z
     .array(
       z.object({
@@ -85,15 +98,8 @@ export const createQuotationDraftRequestSchema = z.object({
     .default([]),
 });
 
-export const updateQuotationSchema = createQuotationRequestSchema.partial();
-
-// TypeScript interfaces for backward compatibility
-export interface QuotationItem {
-  productId: string;
-  quantity: number;
-  unitPrice: string;
-  notes?: string;
-}
+export const updateQuotationRequestSchema =
+  createQuotationRequestSchema.partial();
 
 export interface QuotationItem {
   productId: string;
@@ -115,6 +121,7 @@ export interface CreateQuotationRequest {
 }
 
 export interface UpdateQuotationRequest {
+  quotationNumber?: string;
   quotationDate?: string;
   validUntil?: string;
   status?: string;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import {
   branches,
   customerContactPersons,
@@ -55,6 +56,7 @@ export async function GET(
         createdByUserPhone: users.phone,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
+        revisionVersion: quotations.revisionVersion,
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
@@ -116,7 +118,10 @@ export async function PUT(
 
     // Check if quotation exists and is in draft status
     const existingQuotation = await db
-      .select({ status: quotations.status })
+      .select({
+        status: quotations.status,
+        revisionVersion: quotations.revisionVersion,
+      })
       .from(quotations)
       .where(eq(quotations.id, id))
       .limit(1);
@@ -163,15 +168,29 @@ export async function PUT(
         updateData.termsAndConditions = validatedData.termsAndConditions;
       }
 
+      // bump revision if was rejected
+      if (existingQuotation[0].status === QUOTATION_STATUS.REJECTED) {
+        updateData.revisionVersion =
+          (existingQuotation[0].revisionVersion || 0) + 1;
+      }
+
       // If items are provided, recalculate totals and update items
       if (validatedData.items && validatedData.items.length > 0) {
         let subtotal = 0;
         validatedData.items.forEach((item) => {
-          // Remove formatting (periods as thousand separators) and convert to number
+          // Parse unit price using proper number formatter
           const cleanPrice = item.unitPrice
             .replace(/\./g, '')
             .replace(',', '.');
           const unitPrice = parseFloat(cleanPrice) || 0;
+
+          // Validate that the price is within reasonable bounds
+          if (unitPrice > 999999999999.99) {
+            throw new Error(
+              `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+            );
+          }
+
           subtotal += item.quantity * unitPrice;
         });
 
@@ -188,17 +207,32 @@ export async function PUT(
           .where(eq(quotationItems.quotationId, id));
 
         const itemsToInsert = validatedData.items.map((item) => {
-          // Remove formatting (periods as thousand separators) and convert to number
+          // Parse unit price using proper number formatter
           const cleanPrice = item.unitPrice
             .replace(/\./g, '')
             .replace(',', '.');
           const unitPrice = parseFloat(cleanPrice) || 0;
+
+          // Validate that the price is within reasonable bounds
+          if (unitPrice > 999999999999.99) {
+            throw new Error(
+              `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+            );
+          }
+
+          const itemTotal = item.quantity * unitPrice;
+          if (itemTotal > 999999999999.99) {
+            throw new Error(
+              `Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999.99`,
+            );
+          }
+
           return {
             quotationId: id,
             productId: item.productId,
             quantity: item.quantity,
-            unitPrice: unitPrice.toString(),
-            total: (item.quantity * unitPrice).toString(),
+            unitPrice: unitPrice.toFixed(2),
+            total: itemTotal.toFixed(2),
             notes: item.notes || null,
           };
         });
@@ -245,6 +279,7 @@ export async function PUT(
         createdByUser: users.firstName,
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
+        revisionVersion: quotations.revisionVersion,
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))

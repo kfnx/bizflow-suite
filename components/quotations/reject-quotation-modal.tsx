@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { RiCloseLine, RiErrorWarningLine } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import * as Button from '@/components/ui/button';
 import * as Modal from '@/components/ui/modal';
@@ -59,14 +60,14 @@ export function RejectQuotationModal({
         queryKey: ['quotation', quotationId],
       });
 
-      alert('Quotation rejected successfully');
+      toast.success('Quotation rejected');
 
       // Reset form and close modal
       setRejectionReason('');
       setResponseNotes('');
       onClose();
     } catch (error) {
-      alert(
+      toast.error(
         error instanceof Error ? error.message : 'Failed to reject quotation',
       );
     } finally {

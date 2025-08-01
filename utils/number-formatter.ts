@@ -32,11 +32,26 @@ export const formatNumberWithDots = (value: string | number): string => {
 export const parseNumberFromDots = (value: string): string => {
   if (!value) return '';
 
-  // Remove all dots except the last one (decimal separator)
-  const parts = value.split('.');
+  // Clean the input - remove any non-digit, non-dot, non-comma characters
+  const cleanValue = value.toString().replace(/[^\d.,]/g, '');
+  
+  // Handle comma as decimal separator (European style)
+  if (cleanValue.includes(',') && !cleanValue.includes('.')) {
+    // Only comma - treat as decimal separator
+    return cleanValue.replace(',', '.');
+  }
+  
+  // Handle both dots and commas
+  if (cleanValue.includes(',') && cleanValue.includes('.')) {
+    // Both present - assume dots are thousand separators, comma is decimal
+    return cleanValue.replace(/\./g, '').replace(',', '.');
+  }
+
+  // Only dots - need to determine if they're thousand separators or decimal
+  const parts = cleanValue.split('.');
   if (parts.length <= 1) {
     // No dots - just return the value
-    return value;
+    return cleanValue;
   }
 
   if (parts.length === 2) {
@@ -44,18 +59,25 @@ export const parseNumberFromDots = (value: string): string => {
     // If the part after the dot has more than 2 digits, it's likely a thousand separator
     // If it has 1-2 digits, it's likely a decimal separator
     const afterDot = parts[1];
-    if (afterDot.length <= 2) {
+    if (afterDot.length <= 2 && afterDot.length > 0) {
       // Likely decimal separator - keep it
-      return value;
+      return cleanValue;
     } else {
       // Likely thousand separator - remove it
       return parts.join('');
     }
   }
 
-  // Multiple dots - last one is decimal separator, others are thousand separators
-  const decimalPart = parts.pop();
-  const integerPart = parts.join('');
-
-  return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+  // Multiple dots - assume they're all thousand separators except possibly the last one
+  // Check if the last part looks like a decimal (1-2 digits)
+  const lastPart = parts[parts.length - 1];
+  if (lastPart.length <= 2 && lastPart.length > 0) {
+    // Last part looks like decimal - keep it as decimal separator
+    const decimalPart = parts.pop();
+    const integerPart = parts.join('');
+    return `${integerPart}.${decimalPart}`;
+  } else {
+    // All dots are thousand separators
+    return parts.join('');
+  }
 };

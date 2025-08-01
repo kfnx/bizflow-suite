@@ -77,7 +77,7 @@ export async function POST(
         .where(eq(quotations.id, id));
 
       return NextResponse.json({
-        message: 'Quotation rejected successfully',
+        message: 'Quotation rejected',
         data: {
           id: quotation.id,
           quotationNumber: quotation.quotationNumber,
@@ -135,7 +135,7 @@ export async function POST(
         .where(eq(quotations.id, id));
 
       return NextResponse.json({
-        message: 'Quotation rejected successfully',
+        message: 'Quotation rejected',
         data: {
           id: quotation.id,
           quotationNumber: quotation.quotationNumber,

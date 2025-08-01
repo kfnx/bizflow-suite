@@ -4,43 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
+import { Quotation } from '@/lib/db/schema';
 import {
   QuotationFormData,
+  QuotationResponse,
   UpdateQuotationRequest,
 } from '@/lib/validations/quotation';
-
-export type Quotation = {
-  id: string;
-  quotationNumber: string;
-  quotationDate: string;
-  validUntil: string;
-  customerId: string;
-  customerName: string;
-  customerCode: string;
-  customerType?: string;
-  customerAddress?: string;
-  customerContactPerson?: string;
-  customerContactPersonPrefix?: string;
-  customerContactPersonEmail?: string;
-  customerContactPersonPhone?: string;
-  branchId?: string;
-  branchName?: string;
-  subtotal: number;
-  tax: number;
-  total: number;
-  status: QUOTATION_STATUS;
-  notes?: string;
-  createdBy: string;
-  createdByUser: string;
-  createdByUserPrefix: string;
-  createdByUserFirstName: string;
-  createdByUserLastName: string;
-  createdByUserPhone: string;
-  invoiceId?: string;
-  invoicedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export type QuotationsResponse = {
   data: Quotation[];
@@ -52,6 +21,7 @@ export type QuotationsResponse = {
   };
 };
 
+// TODO: update, crosscheck with schema type
 export type QuotationItem = {
   id: string;
   productId: string;
@@ -63,6 +33,7 @@ export type QuotationItem = {
   notes?: string;
 };
 
+// TODO: update, crosscheck with schema type
 export type QuotationDetail = Omit<
   Quotation,
   'id' | 'subtotal' | 'tax' | 'total'
@@ -74,6 +45,8 @@ export type QuotationDetail = Omit<
   tax: string;
   total: string;
   termsAndConditions?: string;
+  branchName: string;
+  customerName: string;
   customerResponseDate?: string;
   customerResponseNotes?: string;
   customerAcceptanceInfo?: string;
@@ -82,6 +55,8 @@ export type QuotationDetail = Omit<
   invoicedAt?: string;
   invoiceId?: string;
   items: QuotationItem[];
+  revisionVersion: number;
+  createdByUser: string;
 };
 
 export type QuotationsFilters = {

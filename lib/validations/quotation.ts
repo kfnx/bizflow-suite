@@ -132,3 +132,52 @@ export interface UpdateQuotationRequest {
   termsAndConditions?: string;
   items?: QuotationItem[];
 }
+
+// Response type for GET /api/quotations/[id]
+export interface QuotationResponse {
+  data: {
+    id: string;
+    quotationNumber: string;
+    quotationDate: string;
+    validUntil: string;
+    customerId: string | null;
+    customerName: string | null;
+    customerCode: string | null;
+    customerType: string | null;
+    customerAddress: string | null;
+    customerContactPerson: string | null;
+    customerContactPersonPrefix: string | null;
+    customerContactPersonEmail: string | null;
+    customerContactPersonPhone: string | null;
+    branchId: string | null;
+    branchName: string | null;
+    approvedBy: string | null;
+    isIncludePPN: boolean;
+    subtotal: string;
+    tax: string;
+    total: string;
+    status: QUOTATION_STATUS;
+    notes: string | null;
+    termsAndConditions: string | null;
+    invoiceId: string | null;
+    invoicedAt: string | null;
+    createdBy: string;
+    createdByUserPrefix: string | null;
+    createdByUserFirstName: string | null;
+    createdByUserLastName: string | null;
+    createdByUserPhone: string | null;
+    createdAt: string;
+    updatedAt: string;
+    items: QuotationItemResponse[];
+  };
+}
+
+export interface QuotationItemResponse {
+  id: string;
+  productId: string;
+  name: string | null;
+  quantity: number;
+  unitPrice: string;
+  total: string;
+  notes: string | null;
+}

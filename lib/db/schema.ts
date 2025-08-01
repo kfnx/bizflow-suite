@@ -316,7 +316,7 @@ export const quotations = mysqlTable(
       .primaryKey()
       .notNull()
       .default(sql`(UUID())`),
-    branchId: varchar('branch_id', { length: 36 }),
+    branchId: varchar('branch_id', { length: 36 }).notNull(),
     quotationNumber: varchar('quotation_number', { length: 50 }) // QT/2025/04/001
       .notNull()
       .unique(),
@@ -339,7 +339,7 @@ export const quotations = mysqlTable(
     customerAcceptanceInfo: text('customer_acceptance_info'),
     rejectionReason: text('rejection_reason'),
     revisionReason: text('revision_reason'),
-    revisionVersion: int('revision_version').default(1),
+    revisionVersion: int('revision_version').default(0).notNull(),
     invoicedAt: timestamp('invoiced_at'),
     invoiceId: varchar('invoice_id', { length: 36 }),
     createdAt: timestamp('created_at').defaultNow(),

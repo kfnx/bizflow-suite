@@ -56,6 +56,11 @@ function QuotationPreviewContent({
           <div>
             <div className='text-title-h4 text-text-strong-950'>
               {quotation.quotationNumber}
+              {quotation.revisionVersion > 0 && (
+                <small className='ml-2 text-paragraph-sm text-text-sub-600'>
+                  revision {quotation.revisionVersion}
+                </small>
+              )}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
               {quotation.customerName} • {formatDate(quotation.quotationDate)}
@@ -134,7 +139,7 @@ function QuotationPreviewContent({
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(quotation.createdAt)}
+            {quotation.createdAt ? formatDate(quotation.createdAt) : '—'}
           </div>
         </div>
 

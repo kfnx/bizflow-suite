@@ -249,9 +249,15 @@ export async function POST(request: NextRequest) {
     let subtotal = 0;
     validatedData.items.forEach(
       (item: { quantity: number; unitPrice: string }) => {
-        // Remove formatting (periods as thousand separators) and convert to number
+        // Parse unit price using proper number formatter
         const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
         const unitPrice = parseFloat(cleanPrice) || 0;
+        
+        // Validate that the price is within reasonable bounds
+        if (unitPrice > 999999999999.99) {
+          throw new Error(`Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`);
+        }
+        
         subtotal += item.quantity * unitPrice;
       },
     );
@@ -263,7 +269,7 @@ export async function POST(request: NextRequest) {
     const result = await db.transaction(async (tx) => {
       // Get user ID from authenticated session
       const createdBy = session.user.id;
-      const branchId = session.user.branchId;
+      const branchId = session.user.branchId || '';
 
       // Create quotation (ID will be auto-generated)
       const quotationData = {
@@ -302,17 +308,28 @@ export async function POST(request: NextRequest) {
             unitPrice: string;
             notes?: string;
           }) => {
-            // Remove formatting (periods as thousand separators) and convert to number
+            // Parse unit price using proper number formatter
             const cleanPrice = item.unitPrice
               .replace(/\./g, '')
               .replace(',', '.');
             const unitPrice = parseFloat(cleanPrice) || 0;
+            
+            // Validate that the price is within reasonable bounds
+            if (unitPrice > 999999999999.99) {
+              throw new Error(`Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`);
+            }
+            
+            const itemTotal = item.quantity * unitPrice;
+            if (itemTotal > 999999999999.99) {
+              throw new Error(`Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999.99`);
+            }
+            
             return {
               quotationId,
               productId: item.productId,
               quantity: item.quantity,
-              unitPrice: unitPrice.toString(),
-              total: (item.quantity * unitPrice).toString(),
+              unitPrice: unitPrice.toFixed(2),
+              total: itemTotal.toFixed(2),
               notes: item.notes,
             };
           },

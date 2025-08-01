@@ -14,6 +14,8 @@ import {
   RiFileTextLine,
   RiMailSendLine,
   RiMoreLine,
+  RiSendPlane2Line,
+  RiSendPlaneLine,
   RiUserLine,
 } from '@remixicon/react';
 import {
@@ -30,6 +32,7 @@ import { formatDate } from '@/utils/date-formatter';
 import {
   useQuotations,
   useSendQuotation,
+  useSubmitQuotation,
   type Quotation,
 } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
@@ -38,6 +41,8 @@ import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
 import { QuotationStatusBadge } from '@/components/quotations/quotation-status-badge';
+import { QUOTATION_STATUS } from '@/lib/db/enum';
+import { toast } from 'sonner';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -63,10 +68,11 @@ function ActionCell({
   onPreview?: (id: string) => void;
 }) {
   const sendQuotationMutation = useSendQuotation();
+  const submitQuotationMutation = useSubmitQuotation();
 
   const handleEditQuotation = () => {
     if (row.original.status !== 'draft') {
-      alert('Only draft quotations can be edited');
+      toast.warning('Only draft quotations can be edited');
       return;
     }
     window.location.href = `/quotations/${row.original.id}/edit`;
@@ -74,7 +80,7 @@ function ActionCell({
 
   const handleReviseQuotation = () => {
     if (row.original.status !== 'rejected') {
-      alert('Only rejected quotations can be revised');
+      toast.warning('Only rejected quotations can be revised');
       return;
     }
     window.location.href = `/quotations/${row.original.id}/revise`;
@@ -86,7 +92,7 @@ function ActionCell({
 
   const handleSend = async () => {
     if (row.original.status !== 'approved') {
-      alert('Only approved quotations can be sent');
+      toast.warning('Only approved quotations can be sent');
       return;
     }
 
@@ -100,10 +106,34 @@ function ActionCell({
 
     try {
       await sendQuotationMutation.mutateAsync(row.original.id);
-      alert('Quotation sent successfully!');
+      toast.success('Quotation sent successfully!');
     } catch (error) {
-      alert(
+      toast.error(
         error instanceof Error ? error.message : 'Failed to send quotation',
+      );
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (row.original.status !== QUOTATION_STATUS.DRAFT) {
+      toast.warning('Only draft quotations can be submitted');
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to submit quotation ${row.original.quotationNumber} for approval?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await submitQuotationMutation.mutateAsync(row.original.id);
+      toast.success('Quotation submitted successfully!');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to submit quotation',
       );
     }
   };
@@ -132,6 +162,15 @@ function ActionCell({
           >
             <RiMailSendLine className='size-4' />
             Send to Customer
+          </Dropdown.Item>
+        )}
+        {row.original.status === QUOTATION_STATUS.DRAFT && (
+          <Dropdown.Item
+            onClick={handleSubmit}
+            disabled={sendQuotationMutation.isPending}
+          >
+            <RiSendPlaneLine className='size-4' />
+            Submit
           </Dropdown.Item>
         )}
         <Dropdown.Item

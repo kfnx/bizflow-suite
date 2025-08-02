@@ -99,7 +99,7 @@ const updatePassword = async (passwordData: {
   newPassword: string;
   confirmPassword: string;
 }): Promise<void> => {
-  const response = await fetch('/api/update-password', {
+  const response = await fetch('/api/users/update-password', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

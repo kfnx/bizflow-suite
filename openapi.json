@@ -1,0 +1,429 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BizDocGen API",
+    "description": "API for business document generation and management system",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Local development server API"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Check the health status of the API and database connection",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "healthy" },
+                    "database": { "type": "string", "example": "connected" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Service is unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "unhealthy" },
+                    "database": { "type": "string", "example": "disconnected" },
+                    "error": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "Get products",
+        "description": "Retrieve a paginated list of products with optional filtering and sorting",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for product name, code, description, model number, part number, or serial number",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by product status",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by product category",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "description": "Filter by brand ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "condition",
+            "in": "query",
+            "description": "Filter by product condition",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "supplierId",
+            "in": "query",
+            "description": "Filter by supplier ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "warehouseId",
+            "in": "query",
+            "description": "Filter by warehouse ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort products by specified field",
+            "schema": {
+              "type": "string",
+              "enum": ["name-asc", "name-desc", "code-asc", "code-desc", "price-asc", "price-desc", "category-asc", "category-desc", "created-asc", "created-desc"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create product (Restricted)",
+        "description": "Products can only be created through the imports workflow",
+        "responses": {
+          "403": {
+            "description": "Operation not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { 
+                      "type": "string", 
+                      "example": "Product creation not allowed. Products must be created through the imports workflow." 
+                    },
+                    "redirectTo": { 
+                      "type": "string", 
+                      "example": "/imports/new" 
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quotations": {
+      "get": {
+        "summary": "Get quotations",
+        "description": "Retrieve a list of quotations",
+        "responses": {
+          "200": {
+            "description": "List of quotations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Quotation"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoices": {
+      "get": {
+        "summary": "Get invoices",
+        "description": "Retrieve a list of invoices",
+        "responses": {
+          "200": {
+            "description": "List of invoices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Invoice"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "Get customers",
+        "description": "Retrieve a list of customers",
+        "responses": {
+          "200": {
+            "description": "List of customers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Customer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/suppliers": {
+      "get": {
+        "summary": "Get suppliers",
+        "description": "Retrieve a list of suppliers",
+        "responses": {
+          "200": {
+            "description": "List of suppliers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Supplier"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/warehouses": {
+      "get": {
+        "summary": "Get warehouses",
+        "description": "Retrieve a list of warehouses",
+        "responses": {
+          "200": {
+            "description": "List of warehouses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Warehouse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "description": { "type": "string" },
+          "category": { "type": "string" },
+          "brandId": { "type": "string" },
+          "brandName": { "type": "string" },
+          "machineTypeId": { "type": "string" },
+          "machineTypeName": { "type": "string" },
+          "unitOfMeasureId": { "type": "string" },
+          "unitOfMeasureName": { "type": "string" },
+          "unitOfMeasureAbbreviation": { "type": "string" },
+          "partNumber": { "type": "string" },
+          "modelNumber": { "type": "string" },
+          "engineNumber": { "type": "string" },
+          "batchOrLotNumber": { "type": "string" },
+          "serialNumber": { "type": "string" },
+          "additionalSpecs": { "type": "string" },
+          "condition": { "type": "string" },
+          "status": { "type": "string" },
+          "warehouseId": { "type": "string" },
+          "warehouseName": { "type": "string" },
+          "price": { "type": "number" },
+          "supplierId": { "type": "string" },
+          "supplierName": { "type": "string" },
+          "supplierCode": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Quotation": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "number": { "type": "string" },
+          "customerId": { "type": "string" },
+          "status": { "type": "string" },
+          "totalAmount": { "type": "number" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "number": { "type": "string" },
+          "customerId": { "type": "string" },
+          "status": { "type": "string" },
+          "totalAmount": { "type": "number" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "address": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "address": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Warehouse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "location": { "type": "string" },
+          "description": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total": { "type": "integer" },
+          "totalPages": { "type": "integer" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

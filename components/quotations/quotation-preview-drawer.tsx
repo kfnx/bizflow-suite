@@ -304,7 +304,6 @@ function QuotationPreviewFooter({
       await markAsInvoiceMutation.mutateAsync({
         quotationId: quotation.id,
       });
-      toast.success('Quotation marked as invoice successfully!');
       onClose();
       // router.push(`/invoices`);
     } catch (error) {

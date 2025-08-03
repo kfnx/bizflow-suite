@@ -9,6 +9,7 @@ import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Modal from '@/components/ui/modal';
 import * as Textarea from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface MarkAsInvoiceModalProps {
   quotationId: string;
@@ -119,7 +120,7 @@ export function MarkAsInvoiceModal({
         queryKey: ['quotation', quotationId],
       });
 
-      alert('Quotation marked as invoiced successfully');
+      toast.success('Quotation marked as invoiced');
 
       // Reset form and close modal
       setInvoiceNumber('');

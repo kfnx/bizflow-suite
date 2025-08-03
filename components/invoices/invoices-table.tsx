@@ -242,12 +242,9 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
         </div>
       ),
       cell: ({ row }) => (
-        <div className='flex items-center gap-2'>
-          <RiMoneyDollarCircleLine className='size-4 text-text-sub-600' />
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {row.original.currency}{' '}
-            {parseFloat(row.original.total).toLocaleString()}
-          </div>
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {row.original.currency}{' '}
+          {parseFloat(row.original.total).toLocaleString()}
         </div>
       ),
     },
@@ -327,14 +324,14 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
               )}
               {(row.original.status === 'draft' ||
                 row.original.status === 'sent') && (
-                <Dropdown.Item
-                  onClick={() => handleVoidInvoice(row.original.id)}
-                  className='text-red-600'
-                >
-                  <RiFileTextLine className='size-4' />
-                  Void Invoice
-                </Dropdown.Item>
-              )}
+                  <Dropdown.Item
+                    onClick={() => handleVoidInvoice(row.original.id)}
+                    className='text-red-600'
+                  >
+                    <RiFileTextLine className='size-4' />
+                    Void Invoice
+                  </Dropdown.Item>
+                )}
               <Dropdown.Separator />
               <Dropdown.Item
                 onClick={() => handleDelete(row.original.id)}
@@ -402,9 +399,9 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
                 </Table.Head>
               ))}
             </Table.Row>

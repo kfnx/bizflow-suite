@@ -455,7 +455,7 @@ export function useMarkQuotationAsInvoiced() {
       // Invalidate and refetch quotations after marking as invoiced
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
       queryClient.invalidateQueries({ queryKey: ['quotation'] });
-      toast.success('Quotation marked as invoiced successfully');
+      toast.success('Quotation marked as invoiced');
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to mark quotation as invoiced');

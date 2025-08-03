@@ -21,7 +21,9 @@ export default function ReviseQuotationPage() {
   const { data, isLoading, error } = useQuotationDetail(quotationId);
 
   // Transform quotation data to form data format
-  const transformQuotationToFormData = (quotationData: any): QuotationFormData => {
+  const transformQuotationToFormData = (
+    quotationData: any,
+  ): QuotationFormData => {
     // Convert ISO date strings to YYYY-MM-DD format for date inputs
     const formatDateForInput = (dateString: string) => {
       if (!dateString) return '';

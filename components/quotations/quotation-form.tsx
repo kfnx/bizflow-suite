@@ -150,18 +150,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-          ...prev,
-          items: [
-            ...prev.items,
-            {
-              productId: '',
-              name: '',
-              quantity: 1,
-              unitPrice: '0',
-              additionalSpecsnotes: '',
-            },
-          ],
-        }
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                additionalSpecs: '',
+              },
+            ],
+          }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -175,11 +175,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.map((item, i) =>
-              i === index ? { ...item, [field]: value } : item,
-            ),
-          }
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -195,9 +195,9 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.filter((_, i) => i !== index),
-          }
+              ...prev,
+              items: prev.items.filter((_, i) => i !== index),
+            }
           : emptyFormData,
       );
       // Clear items validation error when removing items
@@ -282,7 +282,7 @@ export function QuotationForm({
           typeof firstError === 'string'
             ? firstError
             : firstError.find((e: string | undefined) => e) ||
-            'Please fix the validation errors';
+              'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
@@ -355,7 +355,7 @@ export function QuotationForm({
       </div>
     );
   }
-
+  console.log(formData.items);
   return (
     <form
       onSubmit={(e) => handleSubmit(e, QUOTATION_STATUS.SUBMITTED)}
@@ -554,6 +554,7 @@ export function QuotationForm({
                         (p) => p.id === value,
                       );
                       updateItem(index, 'productId', value);
+                      updateItem(index, 'category', product?.category || '');
                       updateItem(index, 'name', product?.name || '');
                       updateItem(
                         index,
@@ -586,7 +587,10 @@ export function QuotationForm({
                     <Select.Content>
                       {products?.data?.map((product) => (
                         <Select.Item key={product.id} value={product.id}>
-                          {product.name}
+                          {product.name}{' '}
+                          <small className='text-text-soft-400'>
+                            {product.category}
+                          </small>
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -671,20 +675,23 @@ export function QuotationForm({
                   </Button.Root>
                 </div>
 
-                <div className='col-span-12 flex flex-col gap-1'>
-                  <Label.Root htmlFor={`additionalSpecs-${index}`}>
-                    Additional Specs
-                  </Label.Root>
-                  <Textarea.Root
-                    id={`additionalSpecs-${index}`}
-                    value={item.additionalSpecs || ''}
-                    onChange={(e) =>
-                      updateItem(index, 'additionalSpecs', e.target.value)
-                    }
-                    placeholder='Enter specification...'
-                    className='w-full'
-                  />
-                </div>
+                {/* Only show Additional Specs for serialized products */}
+                {item.category === 'serialized' && (
+                  <div className='col-span-12 flex flex-col gap-1'>
+                    <Label.Root htmlFor={`additionalSpecs-${index}`}>
+                      Additional Specs
+                    </Label.Root>
+                    <Textarea.Root
+                      id={`additionalSpecs-${index}`}
+                      value={item.additionalSpecs || ''}
+                      onChange={(e) =>
+                        updateItem(index, 'additionalSpecs', e.target.value)
+                      }
+                      placeholder='Enter specification...'
+                      className='w-full'
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

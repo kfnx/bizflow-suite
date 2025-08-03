@@ -271,16 +271,29 @@ const formatNumber = (amount: string | number) => {
 };
 
 export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
-  const subtotal = typeof quotation.subtotal === 'string' ? parseFloat(quotation.subtotal) : quotation.subtotal;
-  const tax = typeof quotation.tax === 'string' ? parseFloat(quotation.tax) : quotation.tax;
-  const total = typeof quotation.total === 'string' ? parseFloat(quotation.total) : quotation.total;
+  const subtotal =
+    typeof quotation.subtotal === 'string'
+      ? parseFloat(quotation.subtotal)
+      : quotation.subtotal;
+  const tax =
+    typeof quotation.tax === 'string'
+      ? parseFloat(quotation.tax)
+      : quotation.tax;
+  const total =
+    typeof quotation.total === 'string'
+      ? parseFloat(quotation.total)
+      : quotation.total;
 
   return (
     <PDFViewer style={{ width: '100%', height: '100vh' }}>
       <Document>
         <Page size='A4' style={styles.page}>
-          {/* Header */}
-          <Image src='/images/document-header.jpg' style={styles.headerImage} />
+          {/* Header - Fixed to repeat on every page */}
+          <Image
+            src='/images/document-header.jpg'
+            style={styles.headerImage}
+            fixed
+          />
 
           {/* Title */}
           <Text style={styles.title}>QUOTATION</Text>

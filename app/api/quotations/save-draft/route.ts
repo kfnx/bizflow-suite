@@ -41,12 +41,14 @@ export async function POST(request: NextRequest) {
         // Parse unit price using proper number formatter
         const cleanPrice = item.unitPrice.replace(/\./g, '').replace(',', '.');
         const unitPrice = parseFloat(cleanPrice) || 0;
-        
+
         // Validate that the price is within reasonable bounds
         if (unitPrice > 999999999999.99) {
-          throw new Error(`Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`);
+          throw new Error(
+            `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+          );
         }
-        
+
         subtotal += item.quantity * unitPrice;
       },
     );
@@ -102,17 +104,21 @@ export async function POST(request: NextRequest) {
               .replace(/\./g, '')
               .replace(',', '.');
             const unitPrice = parseFloat(cleanPrice) || 0;
-            
+
             // Validate that the price is within reasonable bounds
             if (unitPrice > 999999999999.99) {
-              throw new Error(`Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`);
+              throw new Error(
+                `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+              );
             }
-            
+
             const itemTotal = item.quantity * unitPrice;
             if (itemTotal > 999999999999.99) {
-              throw new Error(`Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999.99`);
+              throw new Error(
+                `Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999.99`,
+              );
             }
-            
+
             return {
               quotationId,
               productId: item.productId,

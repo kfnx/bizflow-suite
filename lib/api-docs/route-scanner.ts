@@ -1,6 +1,6 @@
-import { glob } from 'glob';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import { glob } from 'glob';
 
 export interface RouteInfo {
   path: string;
@@ -43,7 +43,7 @@ export class RouteScanner {
   private async analyzeRouteFile(filePath: string): Promise<RouteInfo | null> {
     try {
       const content = fs.readFileSync(filePath, 'utf-8');
-      
+
       // Extract API path from file path
       const relativePath = path.relative(this.appDir, filePath);
       const apiPath = this.filePathToApiPath(relativePath);
@@ -71,7 +71,7 @@ export class RouteScanner {
     // Convert file path to API path
     // e.g., "api/products/route.ts" -> "/products"
     // e.g., "api/products/[id]/route.ts" -> "/products/{id}"
-    
+
     let apiPath = relativePath
       .replace(/^api\//, '') // Remove "api/" prefix
       .replace(/\/route\.ts$/, '') // Remove "/route.ts" suffix
@@ -87,8 +87,9 @@ export class RouteScanner {
 
   private extractHttpMethods(content: string): string[] {
     const methods: string[] = [];
-    const httpMethodRegex = /export\s+async\s+function\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(/g;
-    
+    const httpMethodRegex =
+      /export\s+async\s+function\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(/g;
+
     let match;
     while ((match = httpMethodRegex.exec(content)) !== null) {
       methods.push(match[1]);

@@ -185,9 +185,9 @@ export async function PUT(
           const unitPrice = parseFloat(cleanPrice) || 0;
 
           // Validate that the price is within reasonable bounds
-          if (unitPrice > 999999999999.99) {
+          if (unitPrice > 999_999_999_999_999.99) {
             throw new Error(
-              `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+              `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999,999.99`,
             );
           }
 
@@ -214,16 +214,16 @@ export async function PUT(
           const unitPrice = parseFloat(cleanPrice) || 0;
 
           // Validate that the price is within reasonable bounds
-          if (unitPrice > 999999999999.99) {
+          if (unitPrice > 999_999_999_999_999.99) {
             throw new Error(
-              `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+              `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999,999.99`,
             );
           }
 
           const itemTotal = item.quantity * unitPrice;
-          if (itemTotal > 999999999999.99) {
+          if (itemTotal > 999_999_999_999_999.99) {
             throw new Error(
-              `Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999.99`,
+              `Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999,999.99`,
             );
           }
 
@@ -238,6 +238,15 @@ export async function PUT(
         });
 
         await tx.insert(quotationItems).values(itemsToInsert);
+
+        // update additionalSpecs of serialized products if any
+        validatedData.items
+          .filter((item) => item.category === 'serialized')
+          .forEach(async (item) => {
+            await tx.update(products)
+              .set({ additionalSpecs: item.additionalSpecs })
+              .where(eq(products.id, item.productId));
+          });
       }
 
       // Update quotation if there's data to update

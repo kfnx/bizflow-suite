@@ -1,5 +1,5 @@
-import * as ts from 'typescript';
 import fs from 'fs';
+import * as ts from 'typescript';
 
 export interface RouteFunction {
   method: string;
@@ -28,12 +28,19 @@ export class AstParser {
 
   constructor() {
     // Create TypeScript program for type checking
-    const configPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists, 'tsconfig.json');
-    const configFile = ts.readConfigFile(configPath || 'tsconfig.json', ts.sys.readFile);
+    const configPath = ts.findConfigFile(
+      process.cwd(),
+      ts.sys.fileExists,
+      'tsconfig.json',
+    );
+    const configFile = ts.readConfigFile(
+      configPath || 'tsconfig.json',
+      ts.sys.readFile,
+    );
     const compilerOptions = ts.parseJsonConfigFileContent(
       configFile.config,
       ts.sys,
-      process.cwd()
+      process.cwd(),
     ).options;
 
     this.program = ts.createProgram([], compilerOptions);
@@ -46,7 +53,7 @@ export class AstParser {
       filePath,
       content,
       ts.ScriptTarget.Latest,
-      true
+      true,
     );
 
     const functions: RouteFunction[] = [];
@@ -55,17 +62,29 @@ export class AstParser {
     const visit = (node: ts.Node) => {
       if (ts.isFunctionDeclaration(node) && node.name) {
         const functionName = node.name.text;
-        
+
         // Check if it's an HTTP method function
-        const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+        const httpMethods = [
+          'GET',
+          'POST',
+          'PUT',
+          'PATCH',
+          'DELETE',
+          'HEAD',
+          'OPTIONS',
+        ];
         if (httpMethods.includes(functionName)) {
-          const routeFunction = this.parseRouteFunction(node, functionName, apiPath);
+          const routeFunction = this.parseRouteFunction(
+            node,
+            functionName,
+            apiPath,
+          );
           if (routeFunction) {
             functions.push(routeFunction);
           }
         }
       }
-      
+
       ts.forEachChild(node, visit);
     };
 
@@ -80,7 +99,7 @@ export class AstParser {
   private parseRouteFunction(
     node: ts.FunctionDeclaration,
     method: string,
-    apiPath: string
+    apiPath: string,
   ): RouteFunction | null {
     try {
       const parameters: Parameter[] = [];
@@ -88,9 +107,13 @@ export class AstParser {
       // Extract parameters from function signature
       if (node.parameters) {
         for (const param of node.parameters) {
-          if (ts.isParameter(param) && param.name && ts.isIdentifier(param.name)) {
+          if (
+            ts.isParameter(param) &&
+            param.name &&
+            ts.isIdentifier(param.name)
+          ) {
             const paramName = param.name.text;
-            
+
             // Check if it's NextRequest parameter
             if (paramName === 'request' && param.type) {
               const requestParams = this.extractRequestParameters(apiPath);
@@ -107,7 +130,8 @@ export class AstParser {
         method,
         parameters,
         summary: jsDoc.summary || this.generateDefaultSummary(method, apiPath),
-        description: jsDoc.description || this.generateDefaultDescription(method, apiPath),
+        description:
+          jsDoc.description || this.generateDefaultDescription(method, apiPath),
       };
     } catch (error) {
       console.error(`Error parsing route function ${method}:`, error);
@@ -164,17 +188,26 @@ export class AstParser {
     }
   }
 
-  private extractJsDocComments(node: ts.Node): { summary?: string; description?: string } {
+  private extractJsDocComments(node: ts.Node): {
+    summary?: string;
+    description?: string;
+  } {
     const result: { summary?: string; description?: string } = {};
 
     // Get JSDoc comments if they exist
     const jsDocTags = ts.getJSDocTags(node);
     for (const tag of jsDocTags) {
       if (tag.tagName.text === 'summary' && tag.comment) {
-        result.summary = typeof tag.comment === 'string' ? tag.comment : tag.comment.map(c => c.text).join('');
+        result.summary =
+          typeof tag.comment === 'string'
+            ? tag.comment
+            : tag.comment.map((c) => c.text).join('');
       }
       if (tag.tagName.text === 'description' && tag.comment) {
-        result.description = typeof tag.comment === 'string' ? tag.comment : tag.comment.map(c => c.text).join('');
+        result.description =
+          typeof tag.comment === 'string'
+            ? tag.comment
+            : tag.comment.map((c) => c.text).join('');
       }
     }
 
@@ -183,7 +216,7 @@ export class AstParser {
 
   private generateDefaultSummary(method: string, apiPath: string): string {
     const resource = this.extractResourceName(apiPath);
-    
+
     switch (method) {
       case 'GET':
         return apiPath.includes('{') ? `Get ${resource}` : `List ${resource}`;
@@ -202,10 +235,10 @@ export class AstParser {
 
   private generateDefaultDescription(method: string, apiPath: string): string {
     const resource = this.extractResourceName(apiPath);
-    
+
     switch (method) {
       case 'GET':
-        return apiPath.includes('{') 
+        return apiPath.includes('{')
           ? `Retrieve a specific ${resource} by ID`
           : `Retrieve a list of ${resource} with optional filtering and pagination`;
       case 'POST':
@@ -224,16 +257,16 @@ export class AstParser {
   private extractResourceName(apiPath: string): string {
     // Extract resource name from API path
     // e.g., "/products" -> "product", "/products/{id}" -> "product"
-    const segments = apiPath.split('/').filter(s => s && !s.includes('{'));
+    const segments = apiPath.split('/').filter((s) => s && !s.includes('{'));
     const lastSegment = segments[segments.length - 1];
-    
+
     if (!lastSegment) return 'resource';
-    
+
     // Convert plural to singular (simple approach)
     if (lastSegment.endsWith('s') && lastSegment.length > 1) {
       return lastSegment.slice(0, -1);
     }
-    
+
     return lastSegment;
   }
 }

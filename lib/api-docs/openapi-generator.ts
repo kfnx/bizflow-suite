@@ -1,6 +1,6 @@
-import { RouteScanner, RouteInfo } from './route-scanner';
 import { AstParser, ParsedRoute, RouteFunction } from './ast-parser';
-import { SchemaExtractor, OpenAPISchema } from './schema-extractor';
+import { RouteInfo, RouteScanner } from './route-scanner';
+import { OpenAPISchema, SchemaExtractor } from './schema-extractor';
 
 export interface OpenAPISpec {
   openapi: string;
@@ -34,11 +34,14 @@ export class OpenAPIGenerator {
     try {
       // Scan all routes
       const routes = await this.routeScanner.scanRoutes();
-      
+
       // Parse each route file
       const parsedRoutes: ParsedRoute[] = [];
       for (const route of routes) {
-        const parsed = this.astParser.parseRouteFile(route.filePath, route.path);
+        const parsed = this.astParser.parseRouteFile(
+          route.filePath,
+          route.path,
+        );
         parsedRoutes.push(parsed);
       }
 
@@ -50,7 +53,8 @@ export class OpenAPIGenerator {
         openapi: '3.0.3',
         info: {
           title: 'BizDocGen API',
-          description: 'Auto-generated API documentation for business document generation and management system',
+          description:
+            'Auto-generated API documentation for business document generation and management system',
           version: '1.0.0',
         },
         servers: [
@@ -131,7 +135,10 @@ export class OpenAPIGenerator {
     return parameters;
   }
 
-  private generateResponses(func: RouteFunction, path: string): Record<string, any> {
+  private generateResponses(
+    func: RouteFunction,
+    path: string,
+  ): Record<string, any> {
     const responses: Record<string, any> = {
       '500': {
         description: 'Internal server error',
@@ -242,24 +249,28 @@ export class OpenAPIGenerator {
 
   private extractTagFromPath(path: string): string | null {
     // Extract the first path segment as tag
-    const segments = path.split('/').filter(s => s && !s.includes('{'));
+    const segments = path.split('/').filter((s) => s && !s.includes('{'));
     return segments.length > 0 ? this.toPascalCase(segments[0]) : null;
   }
 
   private extractResourceFromPath(path: string): string {
     // Extract resource name from path
-    const segments = path.split('/').filter(s => s && !s.includes('{'));
-    const resourceSegment = segments[segments.length - 1] || segments[0] || 'resource';
-    
+    const segments = path.split('/').filter((s) => s && !s.includes('{'));
+    const resourceSegment =
+      segments[segments.length - 1] || segments[0] || 'resource';
+
     // Convert plural to singular
     if (resourceSegment.endsWith('s') && resourceSegment.length > 1) {
       return resourceSegment.slice(0, -1);
     }
-    
+
     return resourceSegment;
   }
 
   private toPascalCase(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).replace(/[_-]([a-z])/g, (_, letter) => letter.toUpperCase());
+    return (
+      str.charAt(0).toUpperCase() +
+      str.slice(1).replace(/[_-]([a-z])/g, (_, letter) => letter.toUpperCase())
+    );
   }
 }

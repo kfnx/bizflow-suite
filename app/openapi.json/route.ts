@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { OpenAPIGenerator } from '@/lib/api-docs/openapi-generator';
 
 export const dynamic = 'force-dynamic';

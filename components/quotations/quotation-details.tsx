@@ -207,7 +207,9 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
           <DetailItem
             icon={RiCalendarLine}
             label='Created At'
-            value={quotation.createdAt ? formatDate(quotation.createdAt) : 'Unknown'}
+            value={
+              quotation.createdAt ? formatDate(quotation.createdAt) : 'Unknown'
+            }
           />
           {quotation.updatedAt &&
             quotation.updatedAt !== quotation.createdAt && (

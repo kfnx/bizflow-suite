@@ -3,19 +3,22 @@ import { eq } from 'drizzle-orm';
 
 import { auth, signOut } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { users, branches } from '@/lib/db/schema';
+import { branches, users } from '@/lib/db/schema';
 import { hasPermission, Permission } from '@/lib/permissions';
 
 // Simple in-memory cache for session validation (5 minute TTL)
-const sessionValidationCache = new Map<string, { isValid: boolean; timestamp: number }>();
+const sessionValidationCache = new Map<
+  string,
+  { isValid: boolean; timestamp: number }
+>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 async function validateSession(session: any) {
   const cacheKey = `${session.user.id}-${session.user.role}-${session.user.branchId}`;
   const cached = sessionValidationCache.get(cacheKey);
-  
+
   // Return cached result if still valid
-  if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return cached.isValid;
   }
   try {
@@ -40,13 +43,17 @@ async function validateSession(session: any) {
 
     // Check if role has changed
     if (dbUser.role !== session.user.role) {
-      console.log(`User role changed from ${session.user.role} to ${dbUser.role}, invalidating session`);
+      console.log(
+        `User role changed from ${session.user.role} to ${dbUser.role}, invalidating session`,
+      );
       return false;
     }
 
     // Check if branchId has changed
     if (dbUser.branchId !== session.user.branchId) {
-      console.log(`User branchId changed from ${session.user.branchId} to ${dbUser.branchId}, invalidating session`);
+      console.log(
+        `User branchId changed from ${session.user.branchId} to ${dbUser.branchId}, invalidating session`,
+      );
       return false;
     }
 
@@ -59,18 +66,26 @@ async function validateSession(session: any) {
         .limit(1);
 
       if (!branchExists.length) {
-        console.log(`User's branch ${dbUser.branchId} no longer exists, invalidating session`);
+        console.log(
+          `User's branch ${dbUser.branchId} no longer exists, invalidating session`,
+        );
         return false;
       }
     }
 
     // Cache the valid result
-    sessionValidationCache.set(cacheKey, { isValid: true, timestamp: Date.now() });
+    sessionValidationCache.set(cacheKey, {
+      isValid: true,
+      timestamp: Date.now(),
+    });
     return true;
   } catch (error) {
     console.error('Error validating session:', error);
     // Cache the invalid result for a shorter time
-    sessionValidationCache.set(cacheKey, { isValid: false, timestamp: Date.now() });
+    sessionValidationCache.set(cacheKey, {
+      isValid: false,
+      timestamp: Date.now(),
+    });
     return false;
   }
 }
@@ -79,10 +94,10 @@ async function validateSession(session: any) {
 export function clearSessionValidationCache(userId?: string) {
   if (userId) {
     // Clear specific user's cache entries
-    const keysToDelete = Array.from(sessionValidationCache.keys()).filter(key => 
-      key.startsWith(`${userId}-`)
+    const keysToDelete = Array.from(sessionValidationCache.keys()).filter(
+      (key) => key.startsWith(`${userId}-`),
     );
-    keysToDelete.forEach(key => sessionValidationCache.delete(key));
+    keysToDelete.forEach((key) => sessionValidationCache.delete(key));
   } else {
     // Clear all cache entries
     sessionValidationCache.clear();
@@ -101,11 +116,11 @@ export async function requireAuth(request: NextRequest) {
   if (!isSessionValid) {
     // Session is invalid, return unauthorized to force re-login
     return NextResponse.json(
-      { 
+      {
         error: 'Session invalid - please log in again',
-        code: 'SESSION_INVALID'
-      }, 
-      { status: 401 }
+        code: 'SESSION_INVALID',
+      },
+      { status: 401 },
     );
   }
 

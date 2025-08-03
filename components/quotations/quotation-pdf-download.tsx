@@ -261,9 +261,18 @@ const formatNumber = (amount: string | number) => {
 };
 
 const QuotationPDFDocument = ({ quotation }: QuotationPDFDocumentProps) => {
-  const subtotal = typeof quotation.subtotal === 'string' ? parseFloat(quotation.subtotal) : quotation.subtotal;
-  const tax = typeof quotation.tax === 'string' ? parseFloat(quotation.tax) : quotation.tax;
-  const total = typeof quotation.total === 'string' ? parseFloat(quotation.total) : quotation.total;
+  const subtotal =
+    typeof quotation.subtotal === 'string'
+      ? parseFloat(quotation.subtotal)
+      : quotation.subtotal;
+  const tax =
+    typeof quotation.tax === 'string'
+      ? parseFloat(quotation.tax)
+      : quotation.tax;
+  const total =
+    typeof quotation.total === 'string'
+      ? parseFloat(quotation.total)
+      : quotation.total;
 
   return (
     <Document>

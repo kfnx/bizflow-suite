@@ -16,7 +16,10 @@ export function useApi() {
       try {
         return await apiClient.get<T>(url, options);
       } catch (error) {
-        if (error instanceof Error && error.message.includes('Session expired')) {
+        if (
+          error instanceof Error &&
+          error.message.includes('Session expired')
+        ) {
           // The API client already handled the signOut, just redirect
           router.push('/login');
         }
@@ -24,22 +27,36 @@ export function useApi() {
       }
     },
 
-    post: async <T>(url: string, body?: any, options?: RequestInit): Promise<T> => {
+    post: async <T>(
+      url: string,
+      body?: any,
+      options?: RequestInit,
+    ): Promise<T> => {
       try {
         return await apiClient.post<T>(url, body, options);
       } catch (error) {
-        if (error instanceof Error && error.message.includes('Session expired')) {
+        if (
+          error instanceof Error &&
+          error.message.includes('Session expired')
+        ) {
           router.push('/login');
         }
         throw error;
       }
     },
 
-    put: async <T>(url: string, body?: any, options?: RequestInit): Promise<T> => {
+    put: async <T>(
+      url: string,
+      body?: any,
+      options?: RequestInit,
+    ): Promise<T> => {
       try {
         return await apiClient.put<T>(url, body, options);
       } catch (error) {
-        if (error instanceof Error && error.message.includes('Session expired')) {
+        if (
+          error instanceof Error &&
+          error.message.includes('Session expired')
+        ) {
           router.push('/login');
         }
         throw error;
@@ -50,7 +67,10 @@ export function useApi() {
       try {
         return await apiClient.delete<T>(url, options);
       } catch (error) {
-        if (error instanceof Error && error.message.includes('Session expired')) {
+        if (
+          error instanceof Error &&
+          error.message.includes('Session expired')
+        ) {
           router.push('/login');
         }
         throw error;

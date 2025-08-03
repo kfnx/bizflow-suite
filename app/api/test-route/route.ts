@@ -24,10 +24,13 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  
-  return NextResponse.json({
-    message: 'Test data created',
-    data: body,
-    id: Math.random().toString(36).substr(2, 9),
-  }, { status: 201 });
+
+  return NextResponse.json(
+    {
+      message: 'Test data created',
+      data: body,
+      id: Math.random().toString(36).substr(2, 9),
+    },
+    { status: 201 },
+  );
 }

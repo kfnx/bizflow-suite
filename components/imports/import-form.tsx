@@ -126,7 +126,7 @@ function ProductItemForm({
       if (value === 'serialized') {
         updatedItem.quantity = '1';
         // Find the 'Unit' unit of measure and set it
-        const unitUoM = unitOfMeasures.find(uom => uom.name === 'Unit');
+        const unitUoM = unitOfMeasures.find((uom) => uom.name === 'Unit');
         if (unitUoM) {
           updatedItem.unitOfMeasureId = unitUoM.id;
         }
@@ -437,8 +437,8 @@ function ProductItemForm({
         </div>
       )}
       {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
-      <div className='mt-4 grid gap-6 grid-cols-12'>
-        <div className='flex flex-col gap-2 col-span-2'>
+      <div className='mt-4 grid grid-cols-12 gap-6'>
+        <div className='col-span-2 flex flex-col gap-2'>
           <Label.Root htmlFor={`quantity-${index}`}>
             QTY <Label.Asterisk />
           </Label.Root>
@@ -461,7 +461,7 @@ function ProductItemForm({
             </div>
           )}
         </div>
-        <div className='flex flex-col gap-2 col-span-5'>
+        <div className='col-span-5 flex flex-col gap-2'>
           <Label.Root htmlFor={`priceRMB-${index}`}>
             Price (RMB) <Label.Asterisk />
           </Label.Root>
@@ -485,7 +485,7 @@ function ProductItemForm({
             </div>
           )}
         </div>
-        <div className='flex flex-col gap-2 col-span-5'>
+        <div className='col-span-5 flex flex-col gap-2'>
           <Label.Root htmlFor={`totalRMB-${index}`}>Total (RMB)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -503,7 +503,7 @@ function ProductItemForm({
             </Input.Wrapper>
           </Input.Root>
         </div>
-        <div className='flex flex-col gap-2 col-span-2'>
+        <div className='col-span-2 flex flex-col gap-2'>
           <Label.Root htmlFor={`unit-${index}`}>
             Unit
             <Label.Asterisk />
@@ -531,7 +531,7 @@ function ProductItemForm({
             </div>
           )}
         </div>
-        <div className='flex flex-col gap-2 col-span-5'>
+        <div className='col-span-5 flex flex-col gap-2'>
           <Label.Root htmlFor={`priceIDR-${index}`}>Price (IDR)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -549,7 +549,7 @@ function ProductItemForm({
             </Input.Wrapper>
           </Input.Root>
         </div>
-        <div className='flex flex-col gap-2 col-span-5'>
+        <div className='col-span-5 flex flex-col gap-2'>
           <Label.Root htmlFor={`totalIDR-${index}`}>Total (IDR)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -597,7 +597,7 @@ export function ImportForm({
   // Create empty product item
   function createEmptyProductItem(): ProductItem {
     // Find the 'Unit' unit of measure if available
-    const unitUoM = unitOfMeasures.find(uom => uom.name === 'Unit');
+    const unitUoM = unitOfMeasures.find((uom) => uom.name === 'Unit');
 
     return {
       category: 'serialized',

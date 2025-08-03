@@ -1,6 +1,6 @@
-import * as ts from 'typescript';
 import fs from 'fs';
 import path from 'path';
+import * as ts from 'typescript';
 
 export interface OpenAPISchema {
   type: string;
@@ -33,7 +33,7 @@ export class SchemaExtractor {
         this.schemaFilePath,
         content,
         ts.ScriptTarget.Latest,
-        true
+        true,
       );
 
       // Extract table definitions
@@ -50,21 +50,27 @@ export class SchemaExtractor {
     }
   }
 
-  private extractTableSchemas(sourceFile: ts.SourceFile): Record<string, OpenAPISchema> {
+  private extractTableSchemas(
+    sourceFile: ts.SourceFile,
+  ): Record<string, OpenAPISchema> {
     const schemas: Record<string, OpenAPISchema> = {};
 
     const visit = (node: ts.Node) => {
       if (ts.isVariableStatement(node)) {
         for (const declaration of node.declarationList.declarations) {
-          if (ts.isVariableDeclaration(declaration) && 
-              declaration.name && 
-              ts.isIdentifier(declaration.name) &&
-              declaration.initializer &&
-              ts.isCallExpression(declaration.initializer)) {
-            
+          if (
+            ts.isVariableDeclaration(declaration) &&
+            declaration.name &&
+            ts.isIdentifier(declaration.name) &&
+            declaration.initializer &&
+            ts.isCallExpression(declaration.initializer)
+          ) {
             const tableName = declaration.name.text;
-            const schema = this.parseTableSchema(declaration.initializer, tableName);
-            
+            const schema = this.parseTableSchema(
+              declaration.initializer,
+              tableName,
+            );
+
             if (schema) {
               // Convert table name to PascalCase for schema name
               const schemaName = this.toPascalCase(tableName);
@@ -73,7 +79,7 @@ export class SchemaExtractor {
           }
         }
       }
-      
+
       ts.forEachChild(node, visit);
     };
 
@@ -81,11 +87,16 @@ export class SchemaExtractor {
     return schemas;
   }
 
-  private parseTableSchema(callExpression: ts.CallExpression, tableName: string): OpenAPISchema | null {
+  private parseTableSchema(
+    callExpression: ts.CallExpression,
+    tableName: string,
+  ): OpenAPISchema | null {
     try {
       // Check if this is a mysqlTable call
-      if (!ts.isIdentifier(callExpression.expression) || 
-          callExpression.expression.text !== 'mysqlTable') {
+      if (
+        !ts.isIdentifier(callExpression.expression) ||
+        callExpression.expression.text !== 'mysqlTable'
+      ) {
         return null;
       }
 
@@ -95,15 +106,18 @@ export class SchemaExtractor {
       // Get the table definition object (second argument)
       if (callExpression.arguments.length >= 2) {
         const tableDefArg = callExpression.arguments[1];
-        
+
         if (ts.isObjectLiteralExpression(tableDefArg)) {
           for (const property of tableDefArg.properties) {
-            if (ts.isPropertyAssignment(property) && 
-                ts.isIdentifier(property.name)) {
-              
+            if (
+              ts.isPropertyAssignment(property) &&
+              ts.isIdentifier(property.name)
+            ) {
               const fieldName = property.name.text;
-              const fieldSchema = this.parseFieldDefinition(property.initializer);
-              
+              const fieldSchema = this.parseFieldDefinition(
+                property.initializer,
+              );
+
               if (fieldSchema) {
                 properties[fieldName] = fieldSchema.schema;
                 if (fieldSchema.required) {
@@ -126,7 +140,9 @@ export class SchemaExtractor {
     }
   }
 
-  private parseFieldDefinition(node: ts.Node): { schema: OpenAPISchema; required: boolean } | null {
+  private parseFieldDefinition(
+    node: ts.Node,
+  ): { schema: OpenAPISchema; required: boolean } | null {
     try {
       if (!ts.isCallExpression(node)) {
         return null;
@@ -179,8 +195,8 @@ export class SchemaExtractor {
       if (ts.isArrayLiteralExpression(enumArg)) {
         const enumValues = enumArg.elements
           .filter(ts.isStringLiteral)
-          .map(el => el.text);
-        
+          .map((el) => el.text);
+
         if (enumValues.length > 0) {
           return {
             type: 'string',
@@ -197,12 +213,14 @@ export class SchemaExtractor {
     // Check if field has .notNull() call
     let current = node;
     while (ts.isCallExpression(current)) {
-      if (ts.isPropertyAccessExpression(current.expression) &&
-          ts.isIdentifier(current.expression.name) &&
-          current.expression.name.text === 'notNull') {
+      if (
+        ts.isPropertyAccessExpression(current.expression) &&
+        ts.isIdentifier(current.expression.name) &&
+        current.expression.name.text === 'notNull'
+      ) {
         return true;
       }
-      
+
       // Move to the parent expression
       if (ts.isPropertyAccessExpression(current.expression)) {
         current = current.expression.expression;
@@ -210,7 +228,7 @@ export class SchemaExtractor {
         break;
       }
     }
-    
+
     return false;
   }
 
@@ -275,6 +293,9 @@ export class SchemaExtractor {
   }
 
   private toPascalCase(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+    return (
+      str.charAt(0).toUpperCase() +
+      str.slice(1).replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+    );
   }
 }

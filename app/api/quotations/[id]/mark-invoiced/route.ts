@@ -122,7 +122,7 @@ export async function POST(
         tax: quotation.tax || '0.00',
         total: quotation.total || '0.00',
         status: INVOICE_STATUS.DRAFT,
-        paymentMethod: null, // Default value
+        paymentTerms: null, // Default value
         notes:
           validatedData.notes ||
           `Generated from quotation ${quotation.quotationNumber}`,

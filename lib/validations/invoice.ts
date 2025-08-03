@@ -72,7 +72,7 @@ export interface UpdateInvoiceRequest {
   branchId?: string;
   currency?: string;
   status?: string;
-  paymentMethod?: string;
+  paymentTerms?: string;
   notes?: string;
   items?: InvoiceItem[];
 }

@@ -170,14 +170,6 @@ function PendingQuotationCard({
                           {item.name}
                         </p>
                       </div>
-                      <p className='text-text-600 mb-1 text-paragraph-sm'>
-                        Product Code: {item.productCode}
-                      </p>
-                      {item.notes && (
-                        <p className='text-text-600 text-paragraph-sm italic'>
-                          Notes: {item.notes}
-                        </p>
-                      )}
                     </div>
                     <div className='text-right'>
                       <p className='text-text-600 text-paragraph-sm'>

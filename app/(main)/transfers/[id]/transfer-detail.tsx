@@ -284,9 +284,6 @@ export function TransferDetail({ id }: TransferDetailProps) {
                             <div className='text-paragraph-sm font-medium text-text-strong-950'>
                               {item.productName}
                             </div>
-                            <div className='text-xs font-mono text-text-sub-600'>
-                              {item.productCode}
-                            </div>
                           </div>
                         </div>
                       </div>

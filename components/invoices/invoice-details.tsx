@@ -51,13 +51,13 @@ export function InvoiceDetails({ invoice }: InvoiceDetailsProps) {
             </label>
             <p className='text-sm text-gray-900 mt-1'>{invoice.currency}</p>
           </div>
-          {invoice.paymentMethod && (
+          {invoice.paymentTerms && (
             <div>
               <label className='text-sm text-gray-700 block font-medium'>
                 Payment Method
               </label>
               <p className='text-sm text-gray-900 mt-1'>
-                {invoice.paymentMethod}
+                {invoice.paymentTerms}
               </p>
             </div>
           )}

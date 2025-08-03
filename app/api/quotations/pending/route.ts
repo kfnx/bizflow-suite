@@ -92,7 +92,6 @@ export async function GET(request: NextRequest) {
             quantity: quotationItems.quantity,
             unitPrice: quotationItems.unitPrice,
             total: quotationItems.total,
-            notes: quotationItems.notes,
           })
           .from(quotationItems)
           .leftJoin(products, eq(quotationItems.productId, products.id))

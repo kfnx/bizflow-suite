@@ -20,7 +20,8 @@ const initialFormData: InvoiceFormData = {
   customerId: '',
   currency: 'IDR',
   status: 'draft',
-  paymentMethod: '',
+  paymentTerms: '',
+  isIncludePPN: false,
   notes: '',
   items: [],
 };

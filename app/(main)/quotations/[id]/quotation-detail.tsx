@@ -10,9 +10,7 @@ import { formatDate } from '@/utils/date-formatter';
 import { useQuotationDetail } from '@/hooks/use-quotations';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
-import { LineItemsTable } from '@/components/quotations/line-items-table';
 import { QuotationPDF } from '@/components/quotations/pdf';
-import { QuotationDetails } from '@/components/quotations/quotation-details';
 import { QuotationHeader } from '@/components/quotations/quotation-header';
 import { SimplePageLoading } from '@/components/simple-page-loading';
 
@@ -103,11 +101,6 @@ export function QuotationDetail({ id }: QuotationDetailProps) {
       <div className='mx-auto max-w-5xl space-y-6 p-6'>
         <QuotationHeader quotation={quotation} />
         <QuotationPDF quotation={quotation} />
-        {/* Content Grid */}
-        <div className='grid gap-6 lg:gap-8'>
-          <QuotationDetails quotation={quotation} />
-          <LineItemsTable quotation={quotation} />
-        </div>
       </div>
     </div>
   );

@@ -99,11 +99,6 @@ export function LineItemsTable({ quotation }: LineItemsTableProps) {
                         <div className='font-medium text-text-strong-950'>
                           {item.name}
                         </div>
-                        {item.productCode && (
-                          <div className='text-sm text-text-sub-600'>
-                            Code: {item.productCode}
-                          </div>
-                        )}
                       </div>
                     </Table.Cell>
                     <Table.Cell className='text-center'>

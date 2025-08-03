@@ -186,9 +186,6 @@ function QuotationPreviewContent({
                     <div className='truncate text-label-sm text-text-strong-950'>
                       {item.name}
                     </div>
-                    <div className='text-paragraph-sm text-text-sub-600'>
-                      {item.productCode}
-                    </div>
                   </div>
                   <div className='ml-4 text-right'>
                     <div className='text-label-sm text-text-strong-950'>

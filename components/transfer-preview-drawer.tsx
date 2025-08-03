@@ -170,9 +170,6 @@ function TransferPreviewContent({ transfer }: { transfer: Transfer }) {
                           <div className='text-label-sm font-medium text-text-strong-950'>
                             {item.productName}
                           </div>
-                          <div className='text-paragraph-xs text-text-sub-600'>
-                            {item.productCode}
-                          </div>
                         </div>
                       </div>
                     </Table.Cell>

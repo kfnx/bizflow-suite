@@ -48,14 +48,11 @@ export function InvoiceLineItemsTable({ invoice }: InvoiceLineItemsTableProps) {
               </Table.Header>
               <Table.Body>
                 {invoice.items.map((item, index) => (
-                  <Table.Row key={item.id}>
+                  <Table.Row key={item.productId}>
                     <Table.Cell>
                       <div>
                         <div className='text-gray-900 font-medium'>
                           {item.name}
-                        </div>
-                        <div className='text-sm text-gray-500'>
-                          {item.productCode}
                         </div>
                       </div>
                     </Table.Cell>

@@ -136,15 +136,12 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             <div className='space-y-3'>
               {invoice.items.slice(0, 3).map((item) => (
                 <div
-                  key={item.id}
+                  key={item.productId}
                   className='flex items-center justify-between'
                 >
                   <div className='min-w-0 flex-1'>
                     <div className='truncate text-label-sm text-text-strong-950'>
                       {item.name}
-                    </div>
-                    <div className='text-paragraph-sm text-text-sub-600'>
-                      {item.productCode}
                     </div>
                   </div>
                   <div className='ml-4 text-right'>

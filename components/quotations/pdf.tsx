@@ -26,21 +26,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 80,
   },
-  logo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
-  companyName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  companySubtitle: {
-    fontSize: 10,
-    marginTop: 2,
-  },
 
-  // Title
   title: {
     textAlign: 'center',
     fontSize: 24,

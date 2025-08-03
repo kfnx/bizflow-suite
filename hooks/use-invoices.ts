@@ -16,7 +16,7 @@ export type Invoice = {
   total: string;
   currency: string;
   status: string;
-  paymentMethod?: string;
+  paymentTerms?: string;
   notes?: string;
   createdBy: string;
   createdAt: string;

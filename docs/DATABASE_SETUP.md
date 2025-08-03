@@ -221,7 +221,7 @@ const response = await fetch('/api/invoices', {
     customerAddress: 'Jl. Customer No. 1, Jakarta',
     invoiceDate: '2024-01-20',
     dueDate: '2024-02-20',
-    paymentMethod: 'Bank Transfer',
+    paymentTerms: 'Bank Transfer',
     items: [
       {
         productId: 'product-1',

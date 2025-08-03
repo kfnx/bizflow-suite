@@ -90,7 +90,11 @@ export async function GET(
         quantity: invoiceItems.quantity,
         unitPrice: invoiceItems.unitPrice,
         total: invoiceItems.total,
-        // Product data
+        // Product data - include all fields needed by PDF
+        name: products.name,
+        category: products.category,
+        additionalSpecs: products.additionalSpecs,
+        // Product data for backward compatibility
         product: {
           id: products.id,
           price: products.price,
@@ -103,7 +107,17 @@ export async function GET(
     return NextResponse.json({
       data: {
         ...invoice[0],
-        items,
+        customerName: invoice[0].customer?.name,
+        quotationNumber: invoice[0].quotation?.quotationNumber,
+        items: items.map(item => ({
+          productId: item.productId,
+          name: item.name,
+          quantity: item.quantity.toString(),
+          unitPrice: item.unitPrice.toString(),
+          total: item.total.toString(),
+          additionalSpecs: item.additionalSpecs,
+          category: item.category,
+        })),
       },
     });
   } catch (error) {

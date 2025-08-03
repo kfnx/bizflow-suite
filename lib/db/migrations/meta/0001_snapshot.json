@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "30ccfe70-477e-49ee-8d64-63d7cefb2153",
-  "prevId": "c4144dcd-9ffd-4597-9b92-7726f511d29c",
+  "id": "715b3d42-6ec9-4018-8aea-1ecec3054ba3",
+  "prevId": "37946636-8fb8-4b45-ace9-58a012c4f595",
   "tables": {
     "accounts": {
       "name": "accounts",
@@ -245,6 +245,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "prefix": {
+          "name": "prefix",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'Bapak'"
         },
         "name": {
           "name": "name",
@@ -862,7 +870,7 @@
         },
         "price_rmb": {
           "name": "price_rmb",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -877,7 +885,7 @@
         },
         "total": {
           "name": "total",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1189,7 +1197,7 @@
         },
         "total": {
           "name": "total",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1378,37 +1386,16 @@
         },
         "unit_price": {
           "name": "unit_price",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "total": {
           "name": "total",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "payment_terms": {
-          "name": "payment_terms",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "terms_and_conditions": {
-          "name": "terms_and_conditions",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -1490,7 +1477,7 @@
           "name": "branch_id",
           "type": "varchar(36)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "invoice_number": {
@@ -1528,9 +1515,23 @@
           "notNull": true,
           "autoincrement": false
         },
+        "contract_number": {
+          "name": "contract_number",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "customer_po_number": {
+          "name": "customer_po_number",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "subtotal": {
           "name": "subtotal",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1538,7 +1539,7 @@
         },
         "tax": {
           "name": "tax",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1546,7 +1547,7 @@
         },
         "total": {
           "name": "total",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -1568,8 +1569,8 @@
           "autoincrement": false,
           "default": "'draft'"
         },
-        "payment_method": {
-          "name": "payment_method",
+        "payment_terms": {
+          "name": "payment_terms",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
@@ -1581,6 +1582,21 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "salesman_user_id": {
+          "name": "salesman_user_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_include_ppn": {
+          "name": "is_include_ppn",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         },
         "created_by": {
           "name": "created_by",
@@ -1683,6 +1699,19 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "fk_invoices_salesman_user": {
+          "name": "fk_invoices_salesman_user",
+          "tableFrom": "invoices",
+          "tableTo": "users",
+          "columnsFrom": [
+            "salesman_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -1740,6 +1769,76 @@
         }
       },
       "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "permissions": {
+      "name": "permissions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "name_idx": {
+          "name": "name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "permissions_id": {
+          "name": "permissions_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "permissions_name_unique": {
+          "name": "permissions_name_unique",
+          "columns": [
+            "name"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "products": {
@@ -1862,7 +1961,7 @@
         },
         "price": {
           "name": "price",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -2086,23 +2185,16 @@
         },
         "unit_price": {
           "name": "unit_price",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "total": {
           "name": "total",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -2184,7 +2276,7 @@
           "name": "branch_id",
           "type": "varchar(36)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "quotation_number": {
@@ -2225,7 +2317,7 @@
         },
         "subtotal": {
           "name": "subtotal",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -2233,7 +2325,7 @@
         },
         "tax": {
           "name": "tax",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
@@ -2241,19 +2333,11 @@
         },
         "total": {
           "name": "total",
-          "type": "decimal(15,2)",
+          "type": "decimal(17,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": "'0.00'"
-        },
-        "currency": {
-          "name": "currency",
-          "type": "varchar(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'IDR'"
         },
         "status": {
           "name": "status",
@@ -2332,7 +2416,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": 1
+          "default": 0
         },
         "invoiced_at": {
           "name": "invoiced_at",
@@ -2468,6 +2552,158 @@
       },
       "checkConstraint": {}
     },
+    "role_permissions": {
+      "name": "role_permissions",
+      "columns": {
+        "role_id": {
+          "name": "role_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "permission_id": {
+          "name": "permission_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "role_id_idx": {
+          "name": "role_id_idx",
+          "columns": [
+            "role_id"
+          ],
+          "isUnique": false
+        },
+        "permission_id_idx": {
+          "name": "permission_id_idx",
+          "columns": [
+            "permission_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_role_permissions_role": {
+          "name": "fk_role_permissions_role",
+          "tableFrom": "role_permissions",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "role_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_role_permissions_permission": {
+          "name": "fk_role_permissions_permission",
+          "tableFrom": "role_permissions",
+          "tableTo": "permissions",
+          "columnsFrom": [
+            "permission_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "role_permissions_role_id_permission_id_pk": {
+          "name": "role_permissions_role_id_permission_id_pk",
+          "columns": [
+            "role_id",
+            "permission_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "roles": {
+      "name": "roles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "name_idx": {
+          "name": "name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "roles_id": {
+          "name": "roles_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "roles_name_unique": {
+          "name": "roles_name_unique",
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
     "sessions": {
       "name": "sessions",
       "columns": {
@@ -2523,6 +2759,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "prefix": {
+          "name": "prefix",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'Bapak'"
         },
         "name": {
           "name": "name",
@@ -3112,6 +3356,88 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "user_roles": {
+      "name": "user_roles",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "user_id_idx": {
+          "name": "user_id_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "role_id_idx": {
+          "name": "role_id_idx",
+          "columns": [
+            "role_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_user_roles_user": {
+          "name": "fk_user_roles_user",
+          "tableFrom": "user_roles",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_user_roles_role": {
+          "name": "fk_user_roles_role",
+          "tableFrom": "user_roles",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "role_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_roles_user_id_role_id_pk": {
+          "name": "user_roles_user_id_role_id_pk",
+          "columns": [
+            "user_id",
+            "role_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "users": {
       "name": "users",
       "columns": {
@@ -3129,6 +3455,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "prefix": {
+          "name": "prefix",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'Bapak'"
         },
         "first_name": {
           "name": "first_name",
@@ -3515,20 +3849,6 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "bill_of_lading_number": {
-          "name": "bill_of_lading_number",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "bill_of_lading_date": {
-          "name": "bill_of_lading_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "is_active": {

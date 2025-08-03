@@ -1,1 +1,0 @@
-ALTER TABLE `invoices` MODIFY COLUMN `branch_id` varchar(36) NOT NULL;

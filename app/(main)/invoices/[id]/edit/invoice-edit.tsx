@@ -1,6 +1,6 @@
 import { PermissionGate } from '@/components/auth/permission-gate';
 
-import InvoiceEditForm from './invoice-edit-form';
+import { InvoiceForm } from '@/components/invoices/invoice-form';
 
 interface InvoiceEditProps {
   id: string;
@@ -23,7 +23,7 @@ export function InvoiceEdit({ id }: InvoiceEditProps) {
         </div>
       }
     >
-      <InvoiceEditForm id={id} />
+      <InvoiceForm mode="edit" invoiceId={id} />
     </PermissionGate>
   );
 }

@@ -150,18 +150,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                productId: '',
-                name: '',
-                quantity: 1,
-                unitPrice: '0',
-                additionalSpecs: '',
-              },
-            ],
-          }
+          ...prev,
+          items: [
+            ...prev.items,
+            {
+              productId: '',
+              name: '',
+              quantity: 1,
+              unitPrice: '0',
+              additionalSpecs: '',
+            },
+          ],
+        }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -175,11 +175,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.map((item, i) =>
-                i === index ? { ...item, [field]: value } : item,
-              ),
-            }
+            ...prev,
+            items: prev.items.map((item, i) =>
+              i === index ? { ...item, [field]: value } : item,
+            ),
+          }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -195,9 +195,9 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.filter((_, i) => i !== index),
-            }
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index),
+          }
           : emptyFormData,
       );
       // Clear items validation error when removing items
@@ -282,7 +282,7 @@ export function QuotationForm({
           typeof firstError === 'string'
             ? firstError
             : firstError.find((e: string | undefined) => e) ||
-              'Please fix the validation errors';
+            'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
@@ -737,7 +737,7 @@ export function QuotationForm({
       )}
 
       {/* Form Actions */}
-      <div className='flex justify-end space-x-3 border-t border-stroke-soft-200 pt-6'>
+      <div className='flex justify-end space-x-3'>
         <Button.Root
           variant='neutral'
           mode='stroke'

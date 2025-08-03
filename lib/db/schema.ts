@@ -417,10 +417,12 @@ export const invoices = mysqlTable(
       .default(sql`(UUID())`),
     branchId: varchar('branch_id', { length: 36 }).notNull(),
     invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
-    quotationId: varchar('quotation_id', { length: 36 }),
+    quotationId: varchar('quotation_id', { length: 36 }), // if was invoiced from quotation
     invoiceDate: date('invoice_date').notNull(),
     dueDate: date('due_date').notNull(),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
+    contractNumber: varchar('contract_number', { length: 50 }),
+    customerPoNumber: varchar('customer_po_number', { length: 50 }),
     subtotal: decimal('subtotal', { precision: 17, scale: 2 }).default('0.00'),
     tax: decimal('tax', { precision: 17, scale: 2 }).default('0.00'),
     total: decimal('total', { precision: 17, scale: 2 }).default('0.00'),
@@ -428,6 +430,8 @@ export const invoices = mysqlTable(
     status: mysqlEnum('status', INVOICE_STATUS).default(INVOICE_STATUS.DRAFT),
     paymentMethod: varchar('payment_method', { length: 100 }),
     notes: text('notes'),
+    salesmanUserId: varchar('salesman_user_id', { length: 36 }),
+    isIncludePPN: boolean('is_include_ppn').default(false),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -452,6 +456,11 @@ export const invoices = mysqlTable(
       columns: [table.createdBy],
       foreignColumns: [users.id],
       name: 'fk_invoices_created_by',
+    }),
+    foreignKey({
+      columns: [table.salesmanUserId],
+      foreignColumns: [users.id],
+      name: 'fk_invoices_salesman_user',
     }),
     // Note: quotationId foreign key removed due to circular reference
     // This relationship is handled through the relations instead
@@ -1322,18 +1331,18 @@ export interface ProductQueryParams {
   supplierId?: string;
   warehouseId?: string;
   sortBy?:
-    | 'name-asc'
-    | 'name-desc'
-    | 'code-asc'
-    | 'code-desc'
-    | 'price-asc'
-    | 'price-desc'
-    | 'category-asc'
-    | 'category-desc'
-    | 'year-asc'
-    | 'year-desc'
-    | 'created-asc'
-    | 'created-desc';
+  | 'name-asc'
+  | 'name-desc'
+  | 'code-asc'
+  | 'code-desc'
+  | 'price-asc'
+  | 'price-desc'
+  | 'category-asc'
+  | 'category-desc'
+  | 'year-asc'
+  | 'year-desc'
+  | 'created-asc'
+  | 'created-desc';
   page?: number;
   limit?: number;
 }

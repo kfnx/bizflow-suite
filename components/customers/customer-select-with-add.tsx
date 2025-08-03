@@ -106,18 +106,15 @@ export function CustomerSelectWithAdd({
         </Select.Trigger>
         <Select.Content>
           {customers?.data?.map((customer) => (
-            <Select.Item key={customer.id} value={customer.id}>
-              <div className='flex flex-col'>
-                <div className='flex justify-end gap-1 text-text-soft-400'>
-                  <span className='text-text-strong-950'>{customer.name}</span>
-                  <small>•</small>
-                  <small>{customer.code}</small>
-                  <small>•</small>
-                  <small>
-                    {customer.type === 'company' ? 'Company' : 'Individual'}
-                  </small>
-                </div>
-              </div>
+            <Select.Item key={customer.id} value={customer.id} disabled={!customer.isActive}>
+              <span>{customer.name}</span>
+              <small>•</small>
+              <small>{customer.code}</small>
+              <small>•</small>
+              <small>
+                {customer.type === 'company' ? 'Company' : 'Individual'}
+              </small>
+              {!customer.isActive && '(Inactive)'}
             </Select.Item>
           ))}
           <Select.Separator />

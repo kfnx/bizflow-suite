@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `prefix` varchar(50) DEFAULT 'Bapak';

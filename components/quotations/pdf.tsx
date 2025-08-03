@@ -2,25 +2,16 @@
 import React from 'react';
 import {
   Document,
-  Font,
   Image,
   Page,
-  Path,
   PDFViewer,
   StyleSheet,
-  Svg,
   Text,
   View,
 } from '@react-pdf/renderer';
 
 import { formatDate } from '@/utils/date-formatter';
 import { QuotationDetail } from '@/hooks/use-quotations';
-
-// Register fonts (you may need to add actual font files)
-Font.register({
-  family: 'Inter',
-  src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2',
-});
 
 const styles = StyleSheet.create({
   page: {

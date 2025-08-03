@@ -36,6 +36,7 @@ CREATE TABLE `brands` (
 CREATE TABLE `customer_contact_persons` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`customer_id` varchar(36) NOT NULL,
+	`prefix` varchar(50) DEFAULT 'Bapak',
 	`name` varchar(100) NOT NULL,
 	`email` varchar(255),
 	`phone` varchar(20),
@@ -100,9 +101,9 @@ CREATE TABLE `delivery_notes` (
 CREATE TABLE `import_items` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`import_id` varchar(36) NOT NULL,
-	`price_rmb` decimal(15,2) NOT NULL,
+	`price_rmb` decimal(17,2) NOT NULL,
 	`quantity` int NOT NULL DEFAULT 1,
-	`total` decimal(15,2) DEFAULT '0.00',
+	`total` decimal(17,2) DEFAULT '0.00',
 	`notes` text,
 	`product_id` varchar(36),
 	`category` enum('serialized','non_serialized','bulk') NOT NULL,
@@ -131,8 +132,10 @@ CREATE TABLE `imports` (
 	`import_date` date NOT NULL,
 	`invoice_number` varchar(50) NOT NULL,
 	`invoice_date` date NOT NULL,
+	`bill_of_lading_number` varchar(50),
+	`bill_of_lading_date` date,
 	`exchange_rate_rmb_to_idr` decimal(15,2) NOT NULL,
-	`total` decimal(15,2) DEFAULT '0.00',
+	`total` decimal(17,2) DEFAULT '0.00',
 	`status` enum('pending','verified') DEFAULT 'pending',
 	`notes` text,
 	`created_by` varchar(36) NOT NULL,
@@ -148,30 +151,31 @@ CREATE TABLE `invoice_items` (
 	`invoice_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` int NOT NULL,
-	`unit_price` decimal(15,2) NOT NULL,
-	`total` decimal(15,2) NOT NULL,
-	`payment_terms` varchar(100),
-	`terms_and_conditions` text,
-	`notes` text,
+	`unit_price` decimal(17,2) NOT NULL,
+	`total` decimal(17,2) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `invoice_items_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `invoices` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
-	`branch_id` varchar(36),
+	`branch_id` varchar(36) NOT NULL,
 	`invoice_number` varchar(50) NOT NULL,
 	`quotation_id` varchar(36),
 	`invoice_date` date NOT NULL,
 	`due_date` date NOT NULL,
 	`customer_id` varchar(36) NOT NULL,
-	`subtotal` decimal(15,2) DEFAULT '0.00',
-	`tax` decimal(15,2) DEFAULT '0.00',
-	`total` decimal(15,2) DEFAULT '0.00',
+	`contract_number` varchar(50),
+	`customer_po_number` varchar(50),
+	`subtotal` decimal(17,2) DEFAULT '0.00',
+	`tax` decimal(17,2) DEFAULT '0.00',
+	`total` decimal(17,2) DEFAULT '0.00',
 	`currency` varchar(3) DEFAULT 'IDR',
 	`status` enum('draft','sent','paid','void','overdue') DEFAULT 'draft',
-	`payment_method` varchar(100),
+	`payment_term` varchar(100),
 	`notes` text,
+	`salesman_user_id` varchar(36),
+	`is_include_ppn` boolean DEFAULT false,
 	`created_by` varchar(36) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -184,6 +188,16 @@ CREATE TABLE `machine_types` (
 	`name` varchar(100) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `machine_types_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `permissions` (
+	`id` varchar(36) NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`description` text,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `permissions_id` PRIMARY KEY(`id`),
+	CONSTRAINT `permissions_name_unique` UNIQUE(`name`)
 );
 --> statement-breakpoint
 CREATE TABLE `products` (
@@ -203,7 +217,7 @@ CREATE TABLE `products` (
 	`part_number` varchar(100),
 	`batch_or_lot_number` varchar(100),
 	`status` varchar(50) DEFAULT 'in_stock',
-	`price` decimal(15,2) NOT NULL DEFAULT '0.00',
+	`price` decimal(17,2) NOT NULL DEFAULT '0.00',
 	`condition` varchar(50) DEFAULT 'new',
 	`warehouse_id` varchar(36),
 	`supplier_id` varchar(36),
@@ -220,25 +234,23 @@ CREATE TABLE `quotation_items` (
 	`quotation_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` int NOT NULL,
-	`unit_price` decimal(15,2) NOT NULL,
-	`total` decimal(15,2) NOT NULL,
-	`notes` text,
+	`unit_price` decimal(17,2) NOT NULL,
+	`total` decimal(17,2) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `quotation_items_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `quotations` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
-	`branch_id` varchar(36),
+	`branch_id` varchar(36) NOT NULL,
 	`quotation_number` varchar(50) NOT NULL,
 	`quotation_date` date NOT NULL,
 	`valid_until` date NOT NULL,
 	`customer_id` varchar(36),
 	`is_include_ppn` boolean DEFAULT false,
-	`subtotal` decimal(15,2) DEFAULT '0.00',
-	`tax` decimal(15,2) DEFAULT '0.00',
-	`total` decimal(15,2) DEFAULT '0.00',
-	`currency` varchar(3) DEFAULT 'IDR',
+	`subtotal` decimal(17,2) DEFAULT '0.00',
+	`tax` decimal(17,2) DEFAULT '0.00',
+	`total` decimal(17,2) DEFAULT '0.00',
 	`status` enum('draft','submitted','approved','sent','accepted','rejected','revised') DEFAULT 'draft',
 	`notes` text,
 	`terms_and_conditions` text,
@@ -249,13 +261,30 @@ CREATE TABLE `quotations` (
 	`customer_acceptance_info` text,
 	`rejection_reason` text,
 	`revision_reason` text,
-	`revision_version` int DEFAULT 1,
+	`revision_version` int DEFAULT 0,
 	`invoiced_at` timestamp,
 	`invoice_id` varchar(36),
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `quotations_id` PRIMARY KEY(`id`),
 	CONSTRAINT `quotations_quotation_number_unique` UNIQUE(`quotation_number`)
+);
+--> statement-breakpoint
+CREATE TABLE `role_permissions` (
+	`role_id` varchar(36) NOT NULL,
+	`permission_id` varchar(36) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	CONSTRAINT `role_permissions_role_id_permission_id_pk` PRIMARY KEY(`role_id`,`permission_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `roles` (
+	`id` varchar(36) NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`description` text,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `roles_id` PRIMARY KEY(`id`),
+	CONSTRAINT `roles_name_unique` UNIQUE(`name`)
 );
 --> statement-breakpoint
 CREATE TABLE `sessions` (
@@ -265,24 +294,10 @@ CREATE TABLE `sessions` (
 	CONSTRAINT `sessions_sessionToken` PRIMARY KEY(`sessionToken`)
 );
 --> statement-breakpoint
-CREATE TABLE `stock_movements` (
-	`id` varchar(36) NOT NULL DEFAULT (UUID()),
-	`warehouse_id_from` varchar(36),
-	`warehouse_id_to` varchar(36) NOT NULL,
-	`product_id` varchar(36) NOT NULL,
-	`quantity` int NOT NULL,
-	`movement_type` varchar(20) NOT NULL,
-	`invoice_id` varchar(50),
-	`delivery_id` varchar(50),
-	`notes` text,
-	`created_at` timestamp DEFAULT (now()),
-	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `stock_movements_id` PRIMARY KEY(`id`)
-);
---> statement-breakpoint
 CREATE TABLE `supplier_contact_persons` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`supplier_id` varchar(36) NOT NULL,
+	`prefix` varchar(50) DEFAULT 'Bapak',
 	`name` varchar(100) NOT NULL,
 	`email` varchar(255),
 	`phone` varchar(20),
@@ -307,6 +322,38 @@ CREATE TABLE `suppliers` (
 	CONSTRAINT `suppliers_code_unique` UNIQUE(`code`)
 );
 --> statement-breakpoint
+CREATE TABLE `transfer_items` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
+	`transfer_id` varchar(36) NOT NULL,
+	`product_id` varchar(36) NOT NULL,
+	`quantity` int NOT NULL,
+	`quantity_transferred` int DEFAULT 0,
+	`notes` text,
+	`created_at` timestamp DEFAULT (now()),
+	CONSTRAINT `transfer_items_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `transfers` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
+	`transfer_number` varchar(50) NOT NULL,
+	`warehouse_id_from` varchar(36),
+	`warehouse_id_to` varchar(36) NOT NULL,
+	`movement_type` varchar(20) NOT NULL,
+	`status` varchar(20) DEFAULT 'pending',
+	`transfer_date` date NOT NULL,
+	`invoice_id` varchar(50),
+	`delivery_id` varchar(50),
+	`notes` text,
+	`created_by` varchar(36) NOT NULL,
+	`approved_by` varchar(36),
+	`approved_at` timestamp,
+	`completed_at` timestamp,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `transfers_id` PRIMARY KEY(`id`),
+	CONSTRAINT `transfers_transfer_number_unique` UNIQUE(`transfer_number`)
+);
+--> statement-breakpoint
 CREATE TABLE `unit_of_measures` (
 	`id` varchar(36) NOT NULL,
 	`abbreviation` varchar(10) NOT NULL,
@@ -315,9 +362,17 @@ CREATE TABLE `unit_of_measures` (
 	CONSTRAINT `unit_of_measures_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `user_roles` (
+	`user_id` varchar(36) NOT NULL,
+	`role_id` varchar(36) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	CONSTRAINT `user_roles_user_id_role_id_pk` PRIMARY KEY(`user_id`,`role_id`)
+);
+--> statement-breakpoint
 CREATE TABLE `users` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`code` varchar(50) NOT NULL,
+	`prefix` varchar(50) DEFAULT 'Bapak',
 	`first_name` varchar(100) NOT NULL,
 	`last_name` varchar(100),
 	`nik` varchar(50) NOT NULL,
@@ -394,6 +449,7 @@ ALTER TABLE `invoice_items` ADD CONSTRAINT `fk_invoice_items_product` FOREIGN KE
 ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_salesman_user` FOREIGN KEY (`salesman_user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -405,10 +461,17 @@ ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_customer` FOREIGN KEY (`c
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_approver` FOREIGN KEY (`approver_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_warehouse_from` FOREIGN KEY (`warehouse_id_from`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_warehouse_to` FOREIGN KEY (`warehouse_id_to`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `stock_movements` ADD CONSTRAINT `fk_stock_movements_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `role_permissions` ADD CONSTRAINT `fk_role_permissions_role` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `role_permissions` ADD CONSTRAINT `fk_role_permissions_permission` FOREIGN KEY (`permission_id`) REFERENCES `permissions`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `supplier_contact_persons` ADD CONSTRAINT `fk_supplier_contact_persons_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transfer_items` ADD CONSTRAINT `fk_transfer_items_transfer` FOREIGN KEY (`transfer_id`) REFERENCES `transfers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transfer_items` ADD CONSTRAINT `fk_transfer_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_warehouse_from` FOREIGN KEY (`warehouse_id_from`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_warehouse_to` FOREIGN KEY (`warehouse_id_to`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transfers` ADD CONSTRAINT `fk_transfers_approved_by` FOREIGN KEY (`approved_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `user_roles` ADD CONSTRAINT `fk_user_roles_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `user_roles` ADD CONSTRAINT `fk_user_roles_role` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `users` ADD CONSTRAINT `fk_users_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `warehouse_stocks` ADD CONSTRAINT `fk_warehouse_stocks_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `warehouse_stocks` ADD CONSTRAINT `fk_warehouse_stocks_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -440,6 +503,7 @@ CREATE INDEX `quotation_id_idx` ON `invoices` (`quotation_id`);--> statement-bre
 CREATE INDEX `customer_id_idx` ON `invoices` (`customer_id`);--> statement-breakpoint
 CREATE INDEX `status_idx` ON `invoices` (`status`);--> statement-breakpoint
 CREATE INDEX `created_by_idx` ON `invoices` (`created_by`);--> statement-breakpoint
+CREATE INDEX `name_idx` ON `permissions` (`name`);--> statement-breakpoint
 CREATE INDEX `name_id_idx` ON `products` (`name`);--> statement-breakpoint
 CREATE INDEX `brand_id_idx` ON `products` (`brand_id`);--> statement-breakpoint
 CREATE INDEX `category_idx` ON `products` (`category`);--> statement-breakpoint
@@ -452,13 +516,22 @@ CREATE INDEX `quotation_number_idx` ON `quotations` (`quotation_number`);--> sta
 CREATE INDEX `customer_id_idx` ON `quotations` (`customer_id`);--> statement-breakpoint
 CREATE INDEX `status_idx` ON `quotations` (`status`);--> statement-breakpoint
 CREATE INDEX `created_by_idx` ON `quotations` (`created_by`);--> statement-breakpoint
-CREATE INDEX `warehouse_id_from_idx` ON `stock_movements` (`warehouse_id_from`);--> statement-breakpoint
-CREATE INDEX `warehouse_id_to_idx` ON `stock_movements` (`warehouse_id_to`);--> statement-breakpoint
-CREATE INDEX `product_id_idx` ON `stock_movements` (`product_id`);--> statement-breakpoint
-CREATE INDEX `movement_type_idx` ON `stock_movements` (`movement_type`);--> statement-breakpoint
+CREATE INDEX `role_id_idx` ON `role_permissions` (`role_id`);--> statement-breakpoint
+CREATE INDEX `permission_id_idx` ON `role_permissions` (`permission_id`);--> statement-breakpoint
+CREATE INDEX `name_idx` ON `roles` (`name`);--> statement-breakpoint
 CREATE INDEX `supplier_id_idx` ON `supplier_contact_persons` (`supplier_id`);--> statement-breakpoint
 CREATE INDEX `code_idx` ON `suppliers` (`code`);--> statement-breakpoint
 CREATE INDEX `name_idx` ON `suppliers` (`name`);--> statement-breakpoint
+CREATE INDEX `transfer_id_idx` ON `transfer_items` (`transfer_id`);--> statement-breakpoint
+CREATE INDEX `product_id_idx` ON `transfer_items` (`product_id`);--> statement-breakpoint
+CREATE INDEX `transfer_number_idx` ON `transfers` (`transfer_number`);--> statement-breakpoint
+CREATE INDEX `warehouse_id_from_idx` ON `transfers` (`warehouse_id_from`);--> statement-breakpoint
+CREATE INDEX `warehouse_id_to_idx` ON `transfers` (`warehouse_id_to`);--> statement-breakpoint
+CREATE INDEX `movement_type_idx` ON `transfers` (`movement_type`);--> statement-breakpoint
+CREATE INDEX `status_idx` ON `transfers` (`status`);--> statement-breakpoint
+CREATE INDEX `created_by_idx` ON `transfers` (`created_by`);--> statement-breakpoint
+CREATE INDEX `user_id_idx` ON `user_roles` (`user_id`);--> statement-breakpoint
+CREATE INDEX `role_id_idx` ON `user_roles` (`role_id`);--> statement-breakpoint
 CREATE INDEX `email_idx` ON `users` (`email`);--> statement-breakpoint
 CREATE INDEX `role_idx` ON `users` (`role`);--> statement-breakpoint
 CREATE INDEX `warehouse_id_idx` ON `warehouse_stocks` (`warehouse_id`);--> statement-breakpoint

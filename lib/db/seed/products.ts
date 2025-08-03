@@ -32,12 +32,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'SHA-L36B3-2025-001',
     code: 'SHA-L36B3-2025-001',
     engineNumber: 'SHA-ENG-2025-001',
-    additionalSpecs: `
-      engineModel WD10G220E23
-      enginePower 220 hp
-      operatingWeight 18,500 kg
-      year 2025
-    `,
+    additionalSpecs: `engineModel WD10G220E23
+enginePower 220 hp
+operatingWeight 18,500 kg
+year 2025`,
     condition: 'new',
     status: 'in_stock',
     price: '185000000.00',
@@ -58,12 +56,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'SHA-L36B3-2023-002',
     code: 'SHA-L36B3-2023-002',
     engineNumber: 'SHA-ENG-2023-002',
-    additionalSpecs: `
-      engineModel WD10G220E23
-      enginePower 220 hp
-      operatingWeight 18,500 kg
-      year 2023
-    `,
+    additionalSpecs: `engineModel WD10G220E23
+enginePower 220 hp
+operatingWeight 18,500 kg
+year 2023`,
     condition: 'used',
     status: 'in_stock',
     price: '145000000.00',
@@ -84,12 +80,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'SHA-SL36B3-2019-003',
     code: 'SHA-SL36B3-2019-003',
     engineNumber: 'SHA-ENG-2019-003',
-    additionalSpecs: `
-      engineModel WD10G220E23
-      enginePower 220 hp
-      operatingWeight 18,500 kg
-      year 2019
-    `,
+    additionalSpecs: `engineModel WD10G220E23
+enginePower 220 hp
+operatingWeight 18,500 kg
+year 2019`,
     condition: 'used',
     status: 'in_stock',
     price: '95000000.00',
@@ -110,12 +104,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'SHA-DH08B3XL-2024-004',
     code: 'SHA-DH08B3XL-2024-004',
     engineNumber: 'SHA-ENG-2024-004',
-    additionalSpecs: `
-      engineModel Cummins NT855-C360
-      enginePower 360 hp
-      operatingWeight 32,000 kg
-      year 2024
-    `,
+    additionalSpecs: `engineModel Cummins NT855-C360
+enginePower 360 hp
+operatingWeight 32,000 kg
+year 2024`,
     condition: 'new',
     status: 'in_stock',
     price: '220000000.00',
@@ -136,12 +128,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'SHA-SFD35-2022-005',
     code: 'SHA-SFD35-2022-005',
     engineNumber: 'SHA-ENG-2022-005',
-    additionalSpecs: `
-      engineModel Cummins NT855-C360
-      enginePower 360 hp
-      operatingWeight 35,000 kg
-      year 2022
-    `,
+    additionalSpecs: `engineModel Cummins NT855-C360
+enginePower 360 hp
+operatingWeight 35,000 kg
+year 2022`,
     condition: 'used',
     status: 'in_stock',
     price: '165000000.00',
@@ -162,12 +152,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'CAT-D6T-2024-006',
     code: 'CAT-D6T-2024-006',
     engineNumber: 'CAT-ENG-2024-006',
-    additionalSpecs: `
-      engineModel Caterpillar C11 ACERT
-      enginePower 330 hp
-      operatingWeight 22,000 kg
-      year 2024
-    `,
+    additionalSpecs: `engineModel Caterpillar C11 ACERT
+enginePower 330 hp
+operatingWeight 22,000 kg
+year 2024`,
     condition: 'new',
     status: 'in_stock',
     price: '450000000.00',
@@ -228,12 +216,10 @@ export const products: InsertProduct[] = [
     serialNumber: 'KOM-PC200-2021-007',
     code: 'KOM-PC200-2021-007',
     engineNumber: 'KOM-ENG-2021-007',
-    additionalSpecs: `
-      engineModel Komatsu SAA6D107E-1
-      enginePower 103 kW
-      operatingWeight 20,000 kg
-      year 2021
-    `,
+    additionalSpecs: `engineModel Komatsu SAA6D107E-1
+enginePower 103 kW
+operatingWeight 20,000 kg
+year 2021`,
     condition: 'used',
     status: 'in_stock',
     price: '280000000.00',

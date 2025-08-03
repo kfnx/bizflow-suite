@@ -188,21 +188,6 @@ async function main() {
     console.error('⚠️ Error truncating customers:', error);
   }
 
-  // 8. Delete users last (many tables depend on users)
-  try {
-    await db.delete(schema.users);
-    console.log('✅ Truncated users');
-  } catch (error) {
-    console.error('⚠️ Error truncating users:', error);
-  }
-
-  try {
-    await db.delete(schema.branches);
-    console.log('✅ Truncated branches');
-  } catch (error) {
-    console.error('⚠️ Error truncating branches:', error);
-  }
-
   try {
     await db.delete(schema.permissions);
     console.log('✅ Truncated permissions');
@@ -229,6 +214,21 @@ async function main() {
     console.log('✅ Truncated userRoles');
   } catch (error) {
     console.error('⚠️ Error truncating userRoles:', error);
+  }
+
+  try {
+    await db.delete(schema.branches);
+    console.log('✅ Truncated branches');
+  } catch (error) {
+    console.error('⚠️ Error truncating branches:', error);
+  }
+
+  // 8. Delete users last (many tables depend on users)
+  try {
+    await db.delete(schema.users);
+    console.log('✅ Truncated users');
+  } catch (error) {
+    console.error('⚠️ Error truncating users:', error);
   }
 
   await connection.end();

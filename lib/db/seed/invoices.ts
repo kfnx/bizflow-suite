@@ -121,7 +121,7 @@ export const invoices = [
 
 export const invoiceItems = [
   {
-    id: 'b0000001-0000-4000-a000-000000000001',
+    id: 'ab000001-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice1,
     productId: productIds.product4,
     quantity: 1,
@@ -132,7 +132,7 @@ export const invoiceItems = [
     notes: 'Bulldozer with advanced controls - fully paid',
   },
   {
-    id: 'b0000002-0000-4000-a000-000000000001',
+    id: 'ab000002-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice2,
     productId: productIds.product3,
     quantity: 1,
@@ -143,7 +143,7 @@ export const invoiceItems = [
     notes: 'Wheel loader for construction site',
   },
   {
-    id: 'b0000003-0000-4000-a000-000000000001',
+    id: 'ab000003-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice3,
     productId: productIds.product1,
     quantity: 1,
@@ -154,7 +154,7 @@ export const invoiceItems = [
     notes: 'Shantui wheel loader - direct sale',
   },
   {
-    id: 'b0000004-0000-4000-a000-000000000001',
+    id: 'ab000004-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice4,
     productId: productIds.product4,
     quantity: 1,
@@ -165,7 +165,7 @@ export const invoiceItems = [
     notes: 'Shantui bulldozer - no PPN applied',
   },
   {
-    id: 'b0000005-0000-4000-a000-000000000001',
+    id: 'ab000005-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice5,
     productId: productIds.product5,
     quantity: 1,
@@ -176,7 +176,7 @@ export const invoiceItems = [
     notes: 'Excavator - payment received',
   },
   {
-    id: 'b0000006-0000-4000-a000-000000000001',
+    id: 'ab000006-0000-4000-a000-000000000001',
     invoiceId: invoiceIds.invoice6,
     productId: productIds.product2,
     quantity: 1,

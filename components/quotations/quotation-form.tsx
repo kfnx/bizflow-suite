@@ -27,7 +27,7 @@ import {
   useCreateQuotation,
   useCreateQuotationDraft,
   useEditQuotation,
-  useReviseQuotation
+  useReviseQuotation,
 } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -120,9 +120,11 @@ export function QuotationForm({
   const reviseQuotationMutation = useReviseQuotation();
 
   // Combined loading state from mutations
-  const isLoading = createQuotationMutation.isPending ||
+  const isLoading =
+    createQuotationMutation.isPending ||
     createQuotationDraftMutation.isPending ||
-    editQuotationMutation.isPending || reviseQuotationMutation.isPending;
+    editQuotationMutation.isPending ||
+    reviseQuotationMutation.isPending;
 
   const clearValidationErrors = useCallback(() => {
     setValidationErrors({});
@@ -148,18 +150,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-          ...prev,
-          items: [
-            ...prev.items,
-            {
-              productId: '',
-              name: '',
-              quantity: 1,
-              unitPrice: '0',
-              notes: '',
-            },
-          ],
-        }
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                additionalSpecsnotes: '',
+              },
+            ],
+          }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -173,11 +175,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.map((item, i) =>
-              i === index ? { ...item, [field]: value } : item,
-            ),
-          }
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -193,9 +195,9 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.filter((_, i) => i !== index),
-          }
+              ...prev,
+              items: prev.items.filter((_, i) => i !== index),
+            }
           : emptyFormData,
       );
       // Clear items validation error when removing items
@@ -262,10 +264,7 @@ export function QuotationForm({
     [formData],
   );
 
-  const handleSubmit = async (
-    e: React.FormEvent,
-    status: QUOTATION_STATUS,
-  ) => {
+  const handleSubmit = async (e: React.FormEvent, status: QUOTATION_STATUS) => {
     e.preventDefault();
     if (!formData) return;
 
@@ -283,16 +282,17 @@ export function QuotationForm({
           typeof firstError === 'string'
             ? firstError
             : firstError.find((e: string | undefined) => e) ||
-            'Please fix the validation errors';
+              'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
     }
 
     try {
-      const quotationNumberData = mode === 'create' ? quotationNumber : formData!.quotationNumber;
+      const quotationNumberData =
+        mode === 'create' ? quotationNumber : formData!.quotationNumber;
       const requestData: QuotationFormData = {
-        quotationNumber: quotationNumberData || "",
+        quotationNumber: quotationNumberData || '',
         quotationDate: formData!.quotationDate,
         validUntil: formData!.validUntil,
         customerId: formData!.customerId,
@@ -304,8 +304,7 @@ export function QuotationForm({
           productId: item.productId,
           name: item.name,
           quantity: item.quantity,
-          unitPrice: item.unitPrice, // Keep as string for API
-          notes: item.notes,
+          unitPrice: item.unitPrice,
         })),
       };
 
@@ -546,7 +545,7 @@ export function QuotationForm({
                 key={index}
                 className='grid grid-cols-12 items-end gap-2 pb-4'
               >
-                <div className='col-span-12 flex flex-col gap-1 md:col-span-4'>
+                <div className='col-span-12 flex flex-col gap-1 lg:col-span-4'>
                   <Label.Root htmlFor={`product-${index}`}>Product</Label.Root>
                   <Select.Root
                     value={item.productId}
@@ -561,6 +560,16 @@ export function QuotationForm({
                         'unitPrice',
                         formatNumberWithDots(product?.price || 0),
                       );
+                      if (
+                        product?.category === 'serialized' &&
+                        product?.additionalSpecs
+                      ) {
+                        updateItem(
+                          index,
+                          'additionalSpecs',
+                          product?.additionalSpecs,
+                        );
+                      }
                     }}
                   >
                     <Select.Trigger
@@ -589,7 +598,7 @@ export function QuotationForm({
                   )}
                 </div>
 
-                <div className='col-span-6 flex flex-col gap-1 md:col-span-2'>
+                <div className='col-span-3 flex flex-col gap-1 lg:col-span-2'>
                   <Label.Root htmlFor={`quantity-${index}`}>
                     Quantity
                   </Label.Root>
@@ -615,7 +624,7 @@ export function QuotationForm({
                   </Input.Root>
                 </div>
 
-                <div className='col-span-6 flex flex-col gap-1 md:col-span-3'>
+                <div className='col-span-9 flex flex-col gap-1 lg:col-span-3'>
                   <Label.Root htmlFor={`unitPrice-${index}`}>
                     Unit Price
                   </Label.Root>
@@ -641,7 +650,7 @@ export function QuotationForm({
                   </Input.Root>
                 </div>
 
-                <div className='col-span-10 flex flex-col gap-1 md:col-span-2'>
+                <div className='col-span-10 flex flex-col gap-1 lg:col-span-2'>
                   <Label.Root>Total</Label.Root>
                   <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
                     {(
@@ -651,7 +660,7 @@ export function QuotationForm({
                   </div>
                 </div>
 
-                <div className='col-span-2 md:col-span-1'>
+                <div className='col-span-2 lg:col-span-1'>
                   <Button.Root
                     variant='error'
                     mode='stroke'
@@ -661,6 +670,21 @@ export function QuotationForm({
                   >
                     <RiDeleteBinLine className='size-4' />
                   </Button.Root>
+                </div>
+
+                <div className='col-span-12 flex flex-col gap-1'>
+                  <Label.Root htmlFor={`additionalSpecs-${index}`}>
+                    Additional Specs
+                  </Label.Root>
+                  <Textarea.Root
+                    id={`additionalSpecs-${index}`}
+                    value={item.additionalSpecs || ''}
+                    onChange={(e) =>
+                      updateItem(index, 'additionalSpecs', e.target.value)
+                    }
+                    placeholder='Enter specification...'
+                    className='w-full'
+                  />
                 </div>
               </div>
             ))}

@@ -150,18 +150,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                productId: '',
-                name: '',
-                quantity: 1,
-                unitPrice: '0',
-                additionalSpecsnotes: '',
-              },
-            ],
-          }
+          ...prev,
+          items: [
+            ...prev.items,
+            {
+              productId: '',
+              name: '',
+              quantity: 1,
+              unitPrice: '0',
+              additionalSpecsnotes: '',
+            },
+          ],
+        }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -175,11 +175,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.map((item, i) =>
-                i === index ? { ...item, [field]: value } : item,
-              ),
-            }
+            ...prev,
+            items: prev.items.map((item, i) =>
+              i === index ? { ...item, [field]: value } : item,
+            ),
+          }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -195,9 +195,9 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.filter((_, i) => i !== index),
-            }
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index),
+          }
           : emptyFormData,
       );
       // Clear items validation error when removing items
@@ -282,7 +282,7 @@ export function QuotationForm({
           typeof firstError === 'string'
             ? firstError
             : firstError.find((e: string | undefined) => e) ||
-              'Please fix the validation errors';
+            'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
@@ -598,13 +598,12 @@ export function QuotationForm({
                   )}
                 </div>
 
-                <div className='col-span-3 flex flex-col gap-1 lg:col-span-2'>
+                <div className='col-span-3 flex flex-col gap-1 lg:col-span-1'>
                   <Label.Root htmlFor={`quantity-${index}`}>
                     Quantity
                   </Label.Root>
                   <Input.Root>
                     <Input.Wrapper>
-                      <Input.Icon as={RiHashtag} />
                       <Input.Input
                         id={`quantity-${index}`}
                         type='number'
@@ -650,7 +649,7 @@ export function QuotationForm({
                   </Input.Root>
                 </div>
 
-                <div className='col-span-10 flex flex-col gap-1 lg:col-span-2'>
+                <div className='col-span-10 flex flex-col gap-1 lg:col-span-3'>
                   <Label.Root>Total</Label.Root>
                   <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
                     {(

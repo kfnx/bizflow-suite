@@ -120,11 +120,16 @@ function ProductItemForm({
   const handleFieldChange = (field: keyof ProductItem, value: any) => {
     // Handle category changes - reset quantity to 1 only when changing category
     if (field === 'category') {
-      // When changing to serialized, reset quantity to 1
+      // When changing to serialized, reset quantity to 1 and set unitOfMeasureId to 'Unit'
       // But allow manual quantity changes afterward
       const updatedItem = { ...item, [field]: value };
       if (value === 'serialized') {
         updatedItem.quantity = '1';
+        // Find the 'Unit' unit of measure and set it
+        const unitUoM = unitOfMeasures.find(uom => uom.name === 'Unit');
+        if (unitUoM) {
+          updatedItem.unitOfMeasureId = unitUoM.id;
+        }
       }
       onUpdate(updatedItem);
     } else {
@@ -432,8 +437,8 @@ function ProductItemForm({
         </div>
       )}
       {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
-      <div className='mt-4 grid grid-cols-1 gap-6 sm:grid-cols-6'>
-        <div className='flex flex-col gap-2'>
+      <div className='mt-4 grid gap-6 grid-cols-12'>
+        <div className='flex flex-col gap-2 col-span-2'>
           <Label.Root htmlFor={`quantity-${index}`}>
             QTY <Label.Asterisk />
           </Label.Root>
@@ -456,34 +461,7 @@ function ProductItemForm({
             </div>
           )}
         </div>
-        <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`unit-${index}`}>
-            Unit of Measurement <Label.Asterisk />
-          </Label.Root>
-          <Select.Root
-            value={item.unitOfMeasureId || ''}
-            onValueChange={(value) =>
-              handleFieldChange('unitOfMeasureId', value)
-            }
-          >
-            <Select.Trigger id={`unit-${index}`}>
-              <Select.Value placeholder='Select UoM' />
-            </Select.Trigger>
-            <Select.Content>
-              {unitOfMeasures.map((unit) => (
-                <Select.Item key={unit.id} value={unit.id}>
-                  {unit.name}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Root>
-          {getFieldError('unitOfMeasureId') && (
-            <div className='text-xs text-red-600'>
-              {getFieldError('unitOfMeasureId')}
-            </div>
-          )}
-        </div>
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 col-span-5'>
           <Label.Root htmlFor={`priceRMB-${index}`}>
             Price (RMB) <Label.Asterisk />
           </Label.Root>
@@ -507,7 +485,7 @@ function ProductItemForm({
             </div>
           )}
         </div>
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 col-span-5'>
           <Label.Root htmlFor={`totalRMB-${index}`}>Total (RMB)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -525,7 +503,35 @@ function ProductItemForm({
             </Input.Wrapper>
           </Input.Root>
         </div>
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 col-span-2'>
+          <Label.Root htmlFor={`unit-${index}`}>
+            Unit
+            <Label.Asterisk />
+          </Label.Root>
+          <Select.Root
+            value={item.unitOfMeasureId || ''}
+            onValueChange={(value) =>
+              handleFieldChange('unitOfMeasureId', value)
+            }
+          >
+            <Select.Trigger id={`unit-${index}`}>
+              <Select.Value placeholder='Select' />
+            </Select.Trigger>
+            <Select.Content>
+              {unitOfMeasures.map((unit) => (
+                <Select.Item key={unit.id} value={unit.id}>
+                  {unit.name}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
+          {getFieldError('unitOfMeasureId') && (
+            <div className='text-xs text-red-600'>
+              {getFieldError('unitOfMeasureId')}
+            </div>
+          )}
+        </div>
+        <div className='flex flex-col gap-2 col-span-5'>
           <Label.Root htmlFor={`priceIDR-${index}`}>Price (IDR)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -543,7 +549,7 @@ function ProductItemForm({
             </Input.Wrapper>
           </Input.Root>
         </div>
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 col-span-5'>
           <Label.Root htmlFor={`totalIDR-${index}`}>Total (IDR)</Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -590,6 +596,9 @@ export function ImportForm({
 
   // Create empty product item
   function createEmptyProductItem(): ProductItem {
+    // Find the 'Unit' unit of measure if available
+    const unitUoM = unitOfMeasures.find(uom => uom.name === 'Unit');
+
     return {
       category: 'serialized',
       name: '',
@@ -601,7 +610,7 @@ export function ImportForm({
       machineNumber: '',
       engineNumber: '',
       brandId: '',
-      unitOfMeasureId: '',
+      unitOfMeasureId: unitUoM ? unitUoM.id : '',
       batchOrLotNumber: '',
       partNumber: '',
     };

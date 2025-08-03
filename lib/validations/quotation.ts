@@ -109,7 +109,6 @@ export interface QuotationItem {
   unitPrice: string;
   category?: string;
   additionalSpecs?: string;
-  notes?: string;
 }
 
 export interface CreateQuotationRequest {

@@ -43,8 +43,8 @@ export async function GET(
         total: invoices.total,
         currency: invoices.currency,
         status: invoices.status,
-        paymentMethod: invoices.paymentMethod,
-        notes: invoices.notes,
+        paymentTerms: invoices.paymentTerms,
+        isIncludePPN: invoices.isIncludePPN,
         createdBy: invoices.createdBy,
         createdAt: invoices.createdAt,
         updatedAt: invoices.updatedAt,
@@ -90,9 +90,6 @@ export async function GET(
         quantity: invoiceItems.quantity,
         unitPrice: invoiceItems.unitPrice,
         total: invoiceItems.total,
-        paymentTerms: invoiceItems.paymentTerms,
-        termsAndConditions: invoiceItems.termsAndConditions,
-        notes: invoiceItems.notes,
         // Product data
         product: {
           id: products.id,
@@ -147,7 +144,7 @@ export async function PUT(
 
     // Calculate totals
     const subtotal = validatedData.items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
+      (sum, item) => sum + item.quantity * Number(item.unitPrice),
       0,
     );
     const tax = subtotal * 0.11; // 11% tax
@@ -165,8 +162,8 @@ export async function PUT(
         total: total.toString(),
         currency: validatedData.currency,
         status: validatedData.status as INVOICE_STATUS,
-        paymentMethod: validatedData.paymentMethod,
-        notes: validatedData.notes,
+        paymentTerms: validatedData.paymentTerms,
+        isIncludePPN: validatedData.isIncludePPN,
         updatedAt: new Date(),
       })
       .where(eq(invoices.id, id));
@@ -181,11 +178,8 @@ export async function PUT(
           invoiceId: id,
           productId: item.productId,
           quantity: item.quantity,
-          unitPrice: item.unitPrice.toString(),
-          total: (item.quantity * item.unitPrice).toString(),
-          paymentTerms: item.paymentTerms,
-          termsAndConditions: item.termsAndConditions,
-          notes: item.notes,
+          unitPrice: item.unitPrice,
+          total: (item.quantity * Number(item.unitPrice)).toString(),
         })),
       );
     }

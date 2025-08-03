@@ -388,7 +388,6 @@ export const quotationItems = mysqlTable(
     quantity: int('quantity').notNull(),
     unitPrice: decimal('unit_price', { precision: 17, scale: 2 }).notNull(),
     total: decimal('total', { precision: 17, scale: 2 }).notNull(),
-    notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
@@ -428,7 +427,7 @@ export const invoices = mysqlTable(
     total: decimal('total', { precision: 17, scale: 2 }).default('0.00'),
     currency: varchar('currency', { length: 3 }).default('IDR'),
     status: mysqlEnum('status', INVOICE_STATUS).default(INVOICE_STATUS.DRAFT),
-    paymentMethod: varchar('payment_method', { length: 100 }),
+    paymentTerms: varchar('payment_terms', { length: 100 }),
     notes: text('notes'),
     salesmanUserId: varchar('salesman_user_id', { length: 36 }),
     isIncludePPN: boolean('is_include_ppn').default(false),
@@ -480,9 +479,6 @@ export const invoiceItems = mysqlTable(
     quantity: int('quantity').notNull(),
     unitPrice: decimal('unit_price', { precision: 17, scale: 2 }).notNull(),
     total: decimal('total', { precision: 17, scale: 2 }).notNull(),
-    paymentTerms: varchar('payment_terms', { length: 100 }),
-    termsAndConditions: text('terms_and_conditions'),
-    notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
@@ -1331,18 +1327,18 @@ export interface ProductQueryParams {
   supplierId?: string;
   warehouseId?: string;
   sortBy?:
-  | 'name-asc'
-  | 'name-desc'
-  | 'code-asc'
-  | 'code-desc'
-  | 'price-asc'
-  | 'price-desc'
-  | 'category-asc'
-  | 'category-desc'
-  | 'year-asc'
-  | 'year-desc'
-  | 'created-asc'
-  | 'created-desc';
+    | 'name-asc'
+    | 'name-desc'
+    | 'code-asc'
+    | 'code-desc'
+    | 'price-asc'
+    | 'price-desc'
+    | 'category-asc'
+    | 'category-desc'
+    | 'year-asc'
+    | 'year-desc'
+    | 'created-asc'
+    | 'created-desc';
   page?: number;
   limit?: number;
 }

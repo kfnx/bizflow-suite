@@ -56,12 +56,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Status filter
-    if (status && status !== 'all') {
-      const isActive = status === 'active';
-      conditions.push(eq(users.isActive, isActive));
-    }
-
     const whereCondition =
       conditions.length > 0 ? and(...conditions) : undefined;
 

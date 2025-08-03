@@ -85,7 +85,6 @@ export async function GET(
         quantity: quotationItems.quantity,
         unitPrice: quotationItems.unitPrice,
         total: quotationItems.total,
-        notes: quotationItems.notes,
       })
       .from(quotationItems)
       .leftJoin(products, eq(quotationItems.productId, products.id))
@@ -233,7 +232,6 @@ export async function PUT(
             quantity: item.quantity,
             unitPrice: unitPrice.toFixed(2),
             total: itemTotal.toFixed(2),
-            notes: item.notes || null,
           };
         });
 
@@ -243,7 +241,8 @@ export async function PUT(
         validatedData.items
           .filter((item) => item.category === 'serialized')
           .forEach(async (item) => {
-            await tx.update(products)
+            await tx
+              .update(products)
               .set({ additionalSpecs: item.additionalSpecs })
               .where(eq(products.id, item.productId));
           });
@@ -310,7 +309,6 @@ export async function PUT(
         quantity: quotationItems.quantity,
         unitPrice: quotationItems.unitPrice,
         total: quotationItems.total,
-        notes: quotationItems.notes,
       })
       .from(quotationItems)
       .leftJoin(products, eq(quotationItems.productId, products.id))

@@ -8,9 +8,10 @@ export const userIds = {
   admin_ho_jakarta: '00000001-0000-4000-a000-000000000001',
   staff_pekanbaru: '00000002-0000-4000-a000-000000000001',
   manager_kendari: '00000003-0000-4000-a000-000000000001',
-  user3: '00000004-0000-4000-a000-000000000001',
-  user4: '00000005-0000-4000-a000-000000000001',
-  user5: '00000006-0000-4000-a000-000000000001',
+  user4: '00000004-0000-4000-a000-000000000001',
+  user5: '00000005-0000-4000-a000-000000000001',
+  user6: '00000006-0000-4000-a000-000000000001',
+  user7: '00000007-0000-4000-a000-000000000001',
 };
 
 export const users = [
@@ -72,8 +73,8 @@ export const users = [
     isAdmin: false,
   },
   {
-    id: userIds.user3,
-    code: 'USR003',
+    id: userIds.user4,
+    code: 'USR004',
     firstName: 'Rizky',
     lastName: 'Director',
     NIK: '1234567890123458',
@@ -91,11 +92,11 @@ export const users = [
     isAdmin: false,
   },
   {
-    id: userIds.user4,
-    code: 'USR004',
+    id: userIds.user5,
+    code: 'USR005',
     firstName: 'Rini',
     lastName: 'Susanti Staff',
-    NIK: '1234567890123459',
+    NIK: '9234567890123459',
     email: 'staff2@sti.com',
     password: hashedPassword,
     jobTitle: 'Sales Staff',
@@ -110,8 +111,8 @@ export const users = [
     isAdmin: false,
   },
   {
-    id: userIds.user5,
-    code: 'USR005',
+    id: userIds.user6,
+    code: 'USR006',
     firstName: 'Dani',
     lastName: 'Import Manager',
     NIK: '1234567890123460',
@@ -126,6 +127,25 @@ export const users = [
     branchId: branchIds.ho_jakarta, // Import manager at HO Jakarta
     signature: null,
     isActive: true,
+    isAdmin: false,
+  },
+  {
+    id: userIds.user7,
+    code: 'USR007',
+    firstName: 'Eko',
+    lastName: 'Wicaksono',
+    NIK: '1234567890123459',
+    email: 'eko@sti.com',
+    password: hashedPassword,
+    jobTitle: 'Sales Staff',
+    joinDate: new Date('2024-03-01'),
+    type: 'full-time',
+    phone: '+6281234567878',
+    avatar: null,
+    role: 'staff',
+    branchId: branchIds.balikpapan, // Sales staff at Balikpapan
+    signature: null,
+    isActive: false,
     isAdmin: false,
   },
 ];

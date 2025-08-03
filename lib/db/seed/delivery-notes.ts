@@ -32,7 +32,7 @@ export const deliveryNotes = [
     vehicleNumber: 'B 1234 ABC',
     status: DELIVERY_NOTE_STATUS.DELIVERED,
     deliveredBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
-    receivedBy: userIds.user3, // Customer representative
+    receivedBy: userIds.user4, // Customer representative
     notes: 'Bulldozer delivered successfully to construction site',
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },

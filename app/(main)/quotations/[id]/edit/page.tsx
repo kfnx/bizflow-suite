@@ -92,14 +92,12 @@ export default function EditQuotationPage() {
       >
         <BackButton href='/quotations' label='Back to Quotations' />
       </Header>
-      <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <QuotationForm
-          mode='edit'
-          initialFormData={formData}
-          quotationId={quotationId}
-          isLoadingData={isLoadingData}
-        />
-      </div>
+      <QuotationForm
+        mode='edit'
+        initialFormData={formData}
+        quotationId={quotationId}
+        isLoadingData={isLoadingData}
+      />
     </PermissionGate>
   );
 }

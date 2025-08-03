@@ -23,13 +23,17 @@ export const invoices = [
     dueDate: new Date('2025-05-30'),
     customerId: customerIds.customer3,
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
+    contractNumber: null,
+    customerPoNumber: 'PO-2025-001',
     subtotal: '35000000.00',
     tax: '3500000.00',
     total: '38500000.00',
     currency: 'IDR',
     status: INVOICE_STATUS.PAID,
-    paymentMethod: 'Bank Transfer',
+    paymentTerms: 'Bank Transfer',
     notes: 'Invoice for premium equipment package - payment received',
+    salesmanUserId: userIds.staff_pekanbaru,
+    isIncludePPN: true,
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
@@ -40,13 +44,17 @@ export const invoices = [
     dueDate: new Date('2025-07-20'),
     customerId: customerIds.customer2,
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
+    contractNumber: 'CONTRACT-2025-002',
+    customerPoNumber: 'PO-2025-002',
     subtotal: '32000000.00',
     tax: '3200000.00',
     total: '35200000.00',
     currency: 'IDR',
     status: INVOICE_STATUS.SENT,
-    paymentMethod: 'Bank Transfer',
+    paymentTerms: 'Bank Transfer',
     notes: 'Invoice for JCB backhoe loader - pending payment',
+    salesmanUserId: userIds.staff_pekanbaru,
+    isIncludePPN: true,
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
@@ -57,13 +65,17 @@ export const invoices = [
     dueDate: new Date('2025-08-15'),
     customerId: customerIds.customer1,
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
+    contractNumber: 'CONTRACT-2025-003',
+    customerPoNumber: 'PO-2025-003',
     subtotal: '18500000.00',
     tax: '1850000.00',
     total: '20350000.00',
     currency: 'IDR',
     status: INVOICE_STATUS.DRAFT,
-    paymentMethod: 'Bank Transfer',
+    paymentTerms: 'Bank Transfer',
     notes: 'Direct invoice for Shantui wheel loader',
+    salesmanUserId: userIds.staff_pekanbaru,
+    isIncludePPN: true,
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
   {
@@ -74,13 +86,17 @@ export const invoices = [
     dueDate: new Date('2025-09-10'),
     customerId: customerIds.customer4,
     branchId: branchIds.balikpapan, // Created by Rini at Balikpapan branch
+    contractNumber: 'CONTRACT-2025-004',
+    customerPoNumber: 'PO-2025-004',
     subtotal: '22000000.00',
     tax: '0.00',
     total: '22000000.00',
     currency: 'IDR',
     status: INVOICE_STATUS.SENT,
-    paymentMethod: 'Cash',
+    paymentTerms: 'Cash',
     notes: 'Direct invoice for bulldozer - no PPN',
+    salesmanUserId: userIds.user4,
+    isIncludePPN: false,
     createdBy: userIds.user4, // Rini - Balikpapan branch
   },
   {
@@ -91,13 +107,17 @@ export const invoices = [
     dueDate: new Date('2025-10-05'),
     customerId: customerIds.customer5,
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
+    contractNumber: 'CONTRACT-2025-005',
+    customerPoNumber: 'PO-CAT-2025',
     subtotal: '42000000.00',
     tax: '4200000.00',
     total: '46200000.00',
     currency: 'IDR',
     status: INVOICE_STATUS.PAID,
-    paymentMethod: 'Bank Transfer',
+    paymentTerms: 'Bank Transfer',
     notes: 'Direct invoice for Caterpillar excavator - payment received',
+    salesmanUserId: userIds.manager_kendari,
+    isIncludePPN: true,
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
   },
   {
@@ -108,13 +128,17 @@ export const invoices = [
     dueDate: new Date('2025-11-01'),
     customerId: customerIds.customer3,
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
+    contractNumber: 'CONTRACT-2025-006',
+    customerPoNumber: 'PO-2025-006',
     subtotal: '13500000.00',
     tax: '1350000.00',
     total: '14850000.00',
     currency: 'IDR',
     status: INVOICE_STATUS.VOID,
-    paymentMethod: 'Bank Transfer',
+    paymentTerms: 'Bank Transfer',
     notes: 'Voided invoice due to customer cancellation',
+    salesmanUserId: userIds.staff_pekanbaru,
+    isIncludePPN: true,
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
   },
 ];
@@ -127,9 +151,6 @@ export const invoiceItems = [
     quantity: 1,
     unitPrice: '35000000.00',
     total: '35000000.00',
-    paymentTerms: 'NET 30',
-    termsAndConditions: 'Standard payment terms apply',
-    notes: 'Bulldozer with advanced controls - fully paid',
   },
   {
     id: 'ab000002-0000-4000-a000-000000000001',
@@ -138,9 +159,6 @@ export const invoiceItems = [
     quantity: 1,
     unitPrice: '32000000.00',
     total: '32000000.00',
-    paymentTerms: 'NET 30',
-    termsAndConditions: 'Payment due within 30 days',
-    notes: 'Wheel loader for construction site',
   },
   {
     id: 'ab000003-0000-4000-a000-000000000001',
@@ -149,9 +167,6 @@ export const invoiceItems = [
     quantity: 1,
     unitPrice: '18500000.00',
     total: '18500000.00',
-    paymentTerms: 'NET 30',
-    termsAndConditions: 'Standard terms and conditions',
-    notes: 'Shantui wheel loader - direct sale',
   },
   {
     id: 'ab000004-0000-4000-a000-000000000001',
@@ -160,9 +175,6 @@ export const invoiceItems = [
     quantity: 1,
     unitPrice: '22000000.00',
     total: '22000000.00',
-    paymentTerms: 'NET 15',
-    termsAndConditions: 'Cash payment preferred',
-    notes: 'Shantui bulldozer - no PPN applied',
   },
   {
     id: 'ab000005-0000-4000-a000-000000000001',
@@ -171,9 +183,6 @@ export const invoiceItems = [
     quantity: 1,
     unitPrice: '42000000.00',
     total: '42000000.00',
-    paymentTerms: 'NET 30',
-    termsAndConditions: 'Premium equipment warranty included',
-    notes: 'Excavator - payment received',
   },
   {
     id: 'ab000006-0000-4000-a000-000000000001',
@@ -182,8 +191,5 @@ export const invoiceItems = [
     quantity: 1,
     unitPrice: '13500000.00',
     total: '13500000.00',
-    paymentTerms: 'NET 30',
-    termsAndConditions: 'Standard terms apply',
-    notes: 'Wheel loader - voided due to cancellation',
   },
 ];

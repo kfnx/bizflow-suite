@@ -324,14 +324,14 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
               )}
               {(row.original.status === 'draft' ||
                 row.original.status === 'sent') && (
-                  <Dropdown.Item
-                    onClick={() => handleVoidInvoice(row.original.id)}
-                    className='text-red-600'
-                  >
-                    <RiFileTextLine className='size-4' />
-                    Void Invoice
-                  </Dropdown.Item>
-                )}
+                <Dropdown.Item
+                  onClick={() => handleVoidInvoice(row.original.id)}
+                  className='text-red-600'
+                >
+                  <RiFileTextLine className='size-4' />
+                  Void Invoice
+                </Dropdown.Item>
+              )}
               <Dropdown.Separator />
               <Dropdown.Item
                 onClick={() => handleDelete(row.original.id)}
@@ -399,9 +399,9 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

@@ -48,7 +48,7 @@ export default function ProfilePage() {
   if (userError) {
     return (
       <div className='flex min-h-screen items-center justify-center'>
-        <div className='text-red-600'>
+        <div className='text-error-base'>
           Error loading user data: {userError.message}
         </div>
       </div>
@@ -70,13 +70,17 @@ export default function ProfilePage() {
       {/* Header */}
       <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <h1 className='text-2xl text-gray-900 font-semibold'>Profile</h1>
-          <p className='text-sm text-gray-600'>View your account information</p>
+          <h1 className='text-2xl font-semibold text-text-strong-950'>
+            Profile
+          </h1>
+          <p className='text-sm text-text-sub-600'>
+            View your account information
+          </p>
         </div>
       </div>
 
       {/* Profile Card */}
-      <div className='shadow-sm rounded-lg border border-stroke-soft-200 bg-white'>
+      <div className='shadow-sm rounded-lg border border-stroke-soft-200 bg-bg-white-0'>
         {/* Avatar Section */}
         <div className='border-b border-stroke-soft-200 p-6'>
           <div className='flex items-center gap-4'>

@@ -111,14 +111,12 @@ export default function ReviseQuotationPage() {
       >
         <BackButton href='/quotations' label='Back to Quotations' />
       </Header>
-      <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <QuotationForm
-          mode='revise'
-          initialFormData={formData}
-          quotationId={quotationId}
-          isLoadingData={false}
-        />
-      </div>
+      <QuotationForm
+        mode='revise'
+        initialFormData={formData}
+        quotationId={quotationId}
+        isLoadingData={false}
+      />
     </PermissionGate>
   );
 }

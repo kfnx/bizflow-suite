@@ -2,16 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { auth } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { INVOICE_STATUS } from '@/lib/db/enum';
 import {
   branches,
   customers,
+  invoiceItems,
   invoices,
   quotations,
   users,
 } from '@/lib/db/schema';
 import { hasPermission } from '@/lib/permissions';
+import { updateInvoiceRequestSchema } from '@/lib/validations/invoice';
+import { parseNumberFromDots } from '@/utils/number-formatter';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,9 +42,19 @@ export async function GET(request: NextRequest) {
     // Build where conditions
     const whereConditions = [];
 
-    // Branch-based access control
-    // HO users (ho_*) can see all branches, others can only see their own branch
-    if (session.user.branchId && !session.user.branchId.startsWith('ho_')) {
+    // Branch-based access control// Branch-based access control
+    // HO users see all branches, others can only see their own branch
+    // get branch name from branchId
+    const branchName = session.user.branchId
+      ? await db
+          .select({ name: branches.name })
+          .from(branches)
+          .where(eq(branches.id, session.user.branchId))
+          .limit(1)
+          .then((result) => result[0]?.name || null)
+          .catch(() => null)
+      : null;
+    if (branchName && !branchName.startsWith('HO') && session.user.branchId) {
       whereConditions.push(eq(invoices.branchId, session.user.branchId));
     }
 
@@ -113,8 +127,8 @@ export async function GET(request: NextRequest) {
         total: invoices.total,
         currency: invoices.currency,
         status: invoices.status,
-        paymentMethod: invoices.paymentMethod,
-        notes: invoices.notes,
+        paymentTerms: invoices.paymentTerms,
+        isIncludePPN: invoices.isIncludePPN,
         createdBy: invoices.createdBy,
         createdAt: invoices.createdAt,
         updatedAt: invoices.updatedAt,
@@ -161,6 +175,195 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching invoices:', error);
     return NextResponse.json(
       { error: 'Failed to fetch invoices' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const session = await requirePermission(request, 'invoices:create');
+
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
+  try {
+    const body = await request.json();
+
+    // Validate request body using Zod schema
+    const validationResult = updateInvoiceRequestSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: validationResult.error.errors,
+        },
+        { status: 400 },
+      );
+    }
+
+    const validatedData = validationResult.data;
+
+    // Generate invoice number (INV/YYYY/MM/XXX format)
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+    // Get count of invoices this month to generate sequence number
+    const monthInvoices = await db
+      .select({ count: invoices.id })
+      .from(invoices)
+      .where(like(invoices.invoiceNumber, `INV/${year}/${month}/%`));
+
+    const sequence = (monthInvoices.length + 1).toString().padStart(3, '0');
+    const invoiceNumber = `INV/${year}/${month}/${sequence}`;
+
+    // Calculate totals from items
+    let subtotal = 0;
+    validatedData.items.forEach(
+      (item: { quantity: number; unitPrice: string }) => {
+        // Parse unit price using proper number formatter
+        const cleanPrice = parseNumberFromDots(item.unitPrice);
+        const unitPrice = parseFloat(cleanPrice) || 0;
+
+        // Validate that the price is within reasonable bounds
+        if (unitPrice > 999999999999.99) {
+          throw new Error(
+            `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+          );
+        }
+
+        subtotal += item.quantity * unitPrice;
+      },
+    );
+
+    const taxAmount = validatedData.isIncludePPN ? subtotal * 0.11 : 0;
+    const total = subtotal + taxAmount;
+
+    // Create invoice and items in a transaction
+    const result = await db.transaction(async (tx) => {
+      // Get user ID from authenticated session
+      const createdBy = session.user.id;
+      const branchId = session.user.branchId || '';
+
+      // Create invoice (ID will be auto-generated)
+      const invoiceData = {
+        invoiceNumber,
+        invoiceDate: new Date(validatedData.invoiceDate),
+        dueDate: new Date(validatedData.dueDate),
+        customerId: validatedData.customerId,
+        branchId,
+        contractNumber: null,
+        customerPoNumber: null,
+        subtotal: subtotal.toFixed(2),
+        tax: taxAmount.toFixed(2),
+        total: total.toFixed(2),
+        currency: validatedData.currency || 'IDR',
+        status:
+          (validatedData.status as INVOICE_STATUS) || INVOICE_STATUS.DRAFT,
+        paymentTerms: validatedData.paymentTerms,
+        notes: validatedData.notes,
+        salesmanUserId: createdBy,
+        isIncludePPN: validatedData.isIncludePPN || false,
+        createdBy,
+      };
+
+      await tx.insert(invoices).values(invoiceData);
+
+      // Get the generated invoice ID
+      const createdInvoiceResult = await tx
+        .select({ id: invoices.id })
+        .from(invoices)
+        .where(eq(invoices.invoiceNumber, invoiceNumber))
+        .limit(1);
+
+      const invoiceId = createdInvoiceResult[0].id;
+
+      if (validatedData.items.length > 0) {
+        // Create invoice items (IDs will be auto-generated)
+        const itemsToInsert = validatedData.items.map(
+          (item: {
+            productId: string;
+            quantity: number;
+            unitPrice: string;
+          }) => {
+            // Parse unit price using proper number formatter
+            const cleanPrice = parseNumberFromDots(item.unitPrice);
+            const unitPrice = parseFloat(cleanPrice) || 0;
+
+            // Validate that the price is within reasonable bounds
+            if (unitPrice > 999999999999.99) {
+              throw new Error(
+                `Unit price ${item.unitPrice} is too large. Maximum allowed is 999,999,999,999.99`,
+              );
+            }
+
+            const itemTotal = item.quantity * unitPrice;
+            if (itemTotal > 999999999999.99) {
+              throw new Error(
+                `Item total ${itemTotal.toLocaleString()} is too large. Maximum allowed is 999,999,999,999.99`,
+              );
+            }
+
+            return {
+              invoiceId,
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: unitPrice.toFixed(2),
+              total: itemTotal.toFixed(2),
+            };
+          },
+        );
+
+        await tx.insert(invoiceItems).values(itemsToInsert);
+      }
+
+      return { invoiceId, invoiceNumber };
+    });
+
+    // Fetch the created invoice with related data
+    const createdInvoice = await db
+      .select({
+        id: invoices.id,
+        invoiceNumber: invoices.invoiceNumber,
+        invoiceDate: invoices.invoiceDate,
+        dueDate: invoices.dueDate,
+        customerId: invoices.customerId,
+        branchId: invoices.branchId,
+        subtotal: invoices.subtotal,
+        tax: invoices.tax,
+        total: invoices.total,
+        currency: invoices.currency,
+        status: invoices.status,
+        paymentTerms: invoices.paymentTerms,
+        notes: invoices.notes,
+        isIncludePPN: invoices.isIncludePPN,
+        createdBy: invoices.createdBy,
+        createdAt: invoices.createdAt,
+        // Customer data
+        customer: {
+          id: customers.id,
+          code: customers.code,
+          name: customers.name,
+        },
+      })
+      .from(invoices)
+      .leftJoin(customers, eq(invoices.customerId, customers.id))
+      .where(eq(invoices.id, result.invoiceId))
+      .limit(1);
+
+    return NextResponse.json({
+      message: 'Invoice created successfully',
+      data: createdInvoice[0],
+    });
+  } catch (error) {
+    console.error('Error creating invoice:', error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : 'Failed to create invoice',
+      },
       { status: 500 },
     );
   }

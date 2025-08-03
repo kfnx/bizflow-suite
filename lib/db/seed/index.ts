@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/mysql2';
 
-import { createConnection } from '../index';
+import { db, endPool } from '../index';
 import * as schema from '../schema';
 import { branches } from './branches';
 import { brands } from './brands';
@@ -19,91 +19,126 @@ import { users } from './users';
 import { warehouses } from './warehouses';
 
 async function main() {
-  const connection = await createConnection();
-  const db = drizzle(connection, { schema, mode: 'default' });
+  // Use the existing database pool instead of creating a new connection
+
+  // Helper function to insert data with error handling
+  const insertWithErrorHandling = async (
+    table: any,
+    data: any[],
+    tableName: string,
+  ) => {
+    try {
+      await db.insert(table).values(data);
+      console.log(`✅ Seeded ${data.length} ${tableName}`);
+    } catch (error: any) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        console.log(`⚠️ Skipped ${tableName} - data already exists`);
+      } else {
+        console.error(`❌ Error seeding ${tableName}:`, error);
+        throw error;
+      }
+    }
+  };
 
   // Direct database inserts to ensure proper relationships
-  await db.insert(schema.branches).values(branches);
-  console.log(`✅ Seeded ${branches.length} branches`);
+  await insertWithErrorHandling(schema.branches, branches, 'branches');
 
-  await db.insert(schema.users).values(users);
-  console.log(`✅ Seeded ${users.length} users`);
+  await insertWithErrorHandling(schema.users, users, 'users');
 
-  await db.insert(schema.customers).values(customers);
-  console.log(`✅ Seeded ${customers.length} customers`);
+  await insertWithErrorHandling(schema.customers, customers, 'customers');
 
-  await db.insert(schema.customerContactPersons).values(customerContactPersons);
-  console.log(
-    `✅ Seeded ${customerContactPersons.length} customer contact persons`,
+  await insertWithErrorHandling(
+    schema.customerContactPersons,
+    customerContactPersons,
+    'customer contact persons',
   );
 
-  await db.insert(schema.suppliers).values(suppliers);
-  console.log(`✅ Seeded ${suppliers.length} suppliers`);
+  await insertWithErrorHandling(schema.suppliers, suppliers, 'suppliers');
 
-  await db.insert(schema.supplierContactPersons).values(supplierContactPersons);
-  console.log(
-    `✅ Seeded ${supplierContactPersons.length} supplier contact persons`,
+  await insertWithErrorHandling(
+    schema.supplierContactPersons,
+    supplierContactPersons,
+    'supplier contact persons',
   );
 
-  await db.insert(schema.warehouses).values(warehouses);
-  console.log(`✅ Seeded ${warehouses.length} warehouses`);
+  await insertWithErrorHandling(schema.warehouses, warehouses, 'warehouses');
 
-  await db.insert(schema.brands).values(brands);
-  console.log(`✅ Seeded ${brands.length} brands`);
+  await insertWithErrorHandling(schema.brands, brands, 'brands');
 
-  await db.insert(schema.machineTypes).values(machineTypes);
-  console.log(`✅ Seeded ${machineTypes.length} machine types`);
+  await insertWithErrorHandling(
+    schema.machineTypes,
+    machineTypes,
+    'machine types',
+  );
 
-  await db.insert(schema.unitOfMeasures).values(unitOfMeasures);
-  console.log(`✅ Seeded ${unitOfMeasures.length} unit of measures`);
+  await insertWithErrorHandling(
+    schema.unitOfMeasures,
+    unitOfMeasures,
+    'unit of measures',
+  );
 
-  await db.insert(schema.products).values(products);
-  console.log(`✅ Seeded ${products.length} products`);
+  await insertWithErrorHandling(schema.products, products, 'products');
 
-  await db.insert(schema.quotations).values(quotations);
-  console.log(`✅ Seeded ${quotations.length} quotations`);
+  await insertWithErrorHandling(schema.quotations, quotations, 'quotations');
 
-  await db.insert(schema.quotationItems).values(quotationItems);
-  console.log(`✅ Seeded ${quotationItems.length} quotation items`);
+  await insertWithErrorHandling(
+    schema.quotationItems,
+    quotationItems,
+    'quotation items',
+  );
 
-  await db.insert(schema.invoices).values(invoices);
-  console.log(`✅ Seeded ${invoices.length} invoices`);
+  await insertWithErrorHandling(schema.invoices, invoices, 'invoices');
 
-  await db.insert(schema.invoiceItems).values(invoiceItems);
-  console.log(`✅ Seeded ${invoiceItems.length} invoice items`);
+  await insertWithErrorHandling(
+    schema.invoiceItems,
+    invoiceItems,
+    'invoice items',
+  );
 
-  await db.insert(schema.deliveryNotes).values(deliveryNotes);
-  console.log(`✅ Seeded ${deliveryNotes.length} delivery notes`);
+  await insertWithErrorHandling(
+    schema.deliveryNotes,
+    deliveryNotes,
+    'delivery notes',
+  );
 
-  await db.insert(schema.deliveryNoteItems).values(deliveryNoteItems);
-  console.log(`✅ Seeded ${deliveryNoteItems.length} delivery note items`);
+  await insertWithErrorHandling(
+    schema.deliveryNoteItems,
+    deliveryNoteItems,
+    'delivery note items',
+  );
 
-  await db.insert(schema.imports).values(imports);
-  console.log(`✅ Seeded ${imports.length} imports`);
+  await insertWithErrorHandling(schema.imports, imports, 'imports');
 
-  await db.insert(schema.importItems).values(importItems);
-  console.log(`✅ Seeded ${importItems.length} import items`);
+  await insertWithErrorHandling(
+    schema.importItems,
+    importItems,
+    'import items',
+  );
 
-  await db.insert(schema.transfers).values(transfers);
-  console.log(`✅ Seeded ${transfers.length} transfers`);
+  await insertWithErrorHandling(schema.transfers, transfers, 'transfers');
 
-  await db.insert(schema.transferItems).values(transferItems);
-  console.log(`✅ Seeded ${transferItems.length} transfer items`);
+  await insertWithErrorHandling(
+    schema.transferItems,
+    transferItems,
+    'transfer items',
+  );
 
-  await db.insert(schema.roles).values(roles);
-  console.log(`✅ Seeded ${roles.length} roles`);
+  await insertWithErrorHandling(schema.roles, roles, 'roles');
 
-  await db.insert(schema.permissions).values(permissions);
-  console.log(`✅ Seeded ${permissions.length} permissions`);
+  await insertWithErrorHandling(schema.permissions, permissions, 'permissions');
 
-  await db.insert(schema.rolePermissions).values(rolePermissions);
-  console.log(`✅ Seeded ${rolePermissions.length} role permissions`);
+  await insertWithErrorHandling(
+    schema.rolePermissions,
+    rolePermissions,
+    'role permissions',
+  );
 
-  await db.insert(schema.userRoles).values(userRoles);
-  console.log(`✅ Seeded ${userRoles.length} user roles`);
+  await insertWithErrorHandling(schema.userRoles, userRoles, 'user roles');
 
-  await connection.end();
-  console.log('🎉 Database seeded successfully with complete sample data!');
+  console.log('🎉 Finished seeding!');
+
+  // End the pool to free up connections
+  await endPool();
 }
 
 main().catch((error) => {

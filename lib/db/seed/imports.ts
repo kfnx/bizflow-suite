@@ -109,7 +109,7 @@ export const imports: InsertImport[] = [
     status: IMPORT_STATUS.VERIFIED,
     notes:
       'Wheel loader, tools, and additional items import - quality inspection passed',
-    createdBy: userIds.user3, // Director
+    createdBy: userIds.user4, // Director
   },
   {
     id: importIds.import6,

@@ -47,7 +47,7 @@ export const quotations = [
     quotationDate: new Date('2025-04-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer2,
-    approverBy: userIds.user3, // Director
+    approverBy: userIds.user4, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
@@ -99,8 +99,8 @@ export const quotations = [
     quotationDate: new Date('2025-01-30'),
     validUntil: new Date('2025-02-28'),
     customerId: customerIds.customer4,
-    approverBy: userIds.user3, // Director
-    createdBy: userIds.user3, // Rizky - HO Jakarta
+    approverBy: userIds.user4, // Director
+    createdBy: userIds.user4, // Rizky - HO Jakarta
     branchId: branchIds.ho_jakarta, // Created by Rizky at HO Jakarta
     isIncludePPN: true,
     subtotal: '18000000.00',
@@ -135,7 +135,7 @@ export const quotations = [
     quotationDate: new Date('2025-06-20'),
     validUntil: new Date('2025-07-20'),
     customerId: customerIds.customer1,
-    approverBy: userIds.user3, // Director
+    approverBy: userIds.user4, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
@@ -189,7 +189,7 @@ export const quotations = [
     quotationDate: new Date('2025-10-20'),
     validUntil: new Date('2025-11-20'),
     customerId: customerIds.customer4,
-    approverBy: userIds.user3, // Director
+    approverBy: userIds.user4, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,

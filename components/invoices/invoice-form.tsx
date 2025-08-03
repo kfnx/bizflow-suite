@@ -11,15 +11,20 @@ import {
   RiHashtag,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
+  RiUserLine,
 } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { InvoiceFormData, type InvoiceItem } from '@/lib/validations/invoice';
-import { useCustomers } from '@/hooks/use-customers';
-import { useInvoiceDetail } from '@/hooks/use-invoices';
+import {
+  formatNumberWithDots,
+  parseNumberFromDots,
+} from '@/utils/number-formatter';
 import { useInvoiceNumber } from '@/hooks/use-invoice-number';
+import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
+import { useUsers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -40,19 +45,30 @@ const emptyFormData: InvoiceFormData = {
   invoiceDate: '',
   dueDate: '',
   customerId: '',
+  contractNumber: '',
+  customerPoNumber: '',
+  salesmanUserId: '',
   currency: 'IDR',
   status: 'draft',
-  paymentMethod: '',
+  paymentTerms: '',
+  isIncludePPN: false,
   notes: '',
   items: [],
 };
 
-export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormProps) {
+export function InvoiceForm({
+  mode,
+  invoiceId,
+  initialFormData,
+}: InvoiceFormProps) {
   const [formData, setFormData] = useState<InvoiceFormData>(
     initialFormData || emptyFormData,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(mode === 'create');
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -60,11 +76,11 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
   // Fetch data
   const { data: invoice, isLoading: isLoadingInvoice } = useInvoiceDetail(
     invoiceId || '',
-    { enabled: mode === 'edit' && !!invoiceId }
   );
-  const { data: invoiceNumber, isLoading: isLoadingInvoiceNumber } = useInvoiceNumber();
-  const { data: customers } = useCustomers();
+  const { data: invoiceNumber, isLoading: isLoadingInvoiceNumber } =
+    useInvoiceNumber();
   const { data: products } = useProducts();
+  const { data: users } = useUsers();
 
   // Initialize form data from invoice for edit mode
   useEffect(() => {
@@ -74,18 +90,22 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
         invoiceDate: invoiceData.invoiceDate || '',
         dueDate: invoiceData.dueDate || '',
         customerId: invoiceData.customerId || '',
+        contractNumber: invoiceData.contractNumber || '',
+        customerPoNumber: invoiceData.customerPoNumber || '',
+        salesmanUserId: invoiceData.salesmanUserId || '',
         currency: invoiceData.currency || 'IDR',
         status: invoiceData.status as 'draft' | 'sent' | 'paid' | 'void',
-        paymentMethod: invoiceData.paymentMethod || '',
+        paymentTerms: invoiceData.paymentTerms || '',
         notes: invoiceData.notes || '',
+        isIncludePPN: invoiceData.isIncludePPN || false,
         items:
           invoiceData.items?.map((item: any) => ({
             productId: item.productId,
-            quantity: Number(item.quantity),
-            unitPrice: Number(item.unitPrice),
-            paymentTerms: item.paymentTerms || '',
-            termsAndConditions: item.termsAndConditions || '',
-            notes: item.notes || '',
+            name: item.name,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            additionalSpecs: item.additionalSpecs,
+            category: item.category,
           })) || [],
       });
       setIsInitialized(true);
@@ -101,10 +121,14 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
   }, [initialFormData, isInitialized, mode]);
 
   const handleInputChange = useCallback(
-    (field: keyof Omit<InvoiceFormData, 'items'>, value: string) => {
+    (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
+      // Clear validation error for this field when user starts typing
+      if (validationErrors[field]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+      }
     },
-    [],
+    [validationErrors],
   );
 
   const addItem = useCallback(() => {
@@ -114,11 +138,9 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
         ...prev.items,
         {
           productId: '',
+          name: '',
           quantity: 1,
-          unitPrice: 0,
-          paymentTerms: '',
-          termsAndConditions: '',
-          notes: '',
+          unitPrice: '0',
         },
       ],
     }));
@@ -144,16 +166,18 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
   }, []);
 
   const calculateSubtotal = useCallback(() => {
-    return formData.items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0,
-    );
-  }, [formData.items]);
+    if (!formData) return 0;
+    return formData.items.reduce((sum, item) => {
+      const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
+      return sum + item.quantity * unitPrice;
+    }, 0);
+  }, [formData]);
 
   const calculateTax = useCallback(() => {
+    if (!formData) return 0;
     const subtotal = calculateSubtotal();
-    return subtotal * 0.11; // 11% tax
-  }, [calculateSubtotal]);
+    return formData.isIncludePPN ? subtotal * 0.11 : 0;
+  }, [calculateSubtotal, formData]);
 
   const calculateTotal = useCallback(() => {
     return calculateSubtotal() + calculateTax();
@@ -162,28 +186,11 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setValidationErrors({});
 
     try {
-      // Validate required fields
-      if (!formData.customerId) {
-        toast.error('Please select a customer');
-        return;
-      }
-      if (formData.items.length === 0) {
-        toast.error('Please add at least one item');
-        return;
-      }
-      if (
-        formData.items.some(
-          (item) =>
-            !item.productId || item.quantity <= 0 || item.unitPrice <= 0,
-        )
-      ) {
-        toast.error('Please complete all item details');
-        return;
-      }
-
-      const url = mode === 'create' ? '/api/invoices' : `/api/invoices/${invoiceId}`;
+      const url =
+        mode === 'create' ? '/api/invoices' : `/api/invoices/${invoiceId}`;
       const method = mode === 'create' ? 'POST' : 'PUT';
 
       const response = await fetch(url, {
@@ -194,11 +201,33 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
 
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data.error || `Failed to ${mode === 'create' ? 'create' : 'update'} invoice`);
+        if (data.error === 'Validation failed' && data.details) {
+          // Handle validation errors from API
+          const errors: Record<string, string> = {};
+          data.details.forEach((error: any) => {
+            const field = error.path?.join('.');
+            if (field) {
+              errors[field] = error.message;
+            }
+          });
+          setValidationErrors(errors);
+
+          // Show first validation error as toast
+          const firstError =
+            data.details[0]?.message || 'Please fix the validation errors';
+          toast.error(firstError);
+        } else {
+          toast.error(
+            data.error ||
+              `Failed to ${mode === 'create' ? 'create' : 'update'} invoice`,
+          );
+        }
         return;
       }
 
-      toast.success(`Invoice ${mode === 'create' ? 'created' : 'updated'} successfully!`);
+      toast.success(
+        `Invoice ${mode === 'create' ? 'created' : 'updated'} successfully!`,
+      );
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       if (mode === 'edit' && invoiceId) {
         queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
@@ -239,7 +268,10 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
   }
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
+    <form
+      onSubmit={handleSubmit}
+      className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'
+    >
       {/* Header for edit mode */}
       {mode === 'edit' && invoice?.data && (
         <div className='flex items-center justify-between'>
@@ -297,9 +329,17 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                     handleInputChange('invoiceDate', e.target.value)
                   }
                   required
+                  className={
+                    validationErrors.invoiceDate ? 'border-error-500' : ''
+                  }
                 />
               </Input.Wrapper>
             </Input.Root>
+            {validationErrors.invoiceDate && (
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.invoiceDate}
+              </p>
+            )}
           </div>
 
           <div className='flex flex-col gap-1'>
@@ -316,9 +356,15 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                   onChange={(e) => handleInputChange('dueDate', e.target.value)}
                   required
                   min={formData.invoiceDate}
+                  className={validationErrors.dueDate ? 'border-error-500' : ''}
                 />
               </Input.Wrapper>
             </Input.Root>
+            {validationErrors.dueDate && (
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.dueDate}
+              </p>
+            )}
           </div>
 
           <div className='flex flex-col gap-1'>
@@ -329,8 +375,12 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
               value={formData.customerId}
               onValueChange={(value) => handleInputChange('customerId', value)}
               placeholder='Select a customer'
-              required
             />
+            {validationErrors.customerId && (
+              <p className='text-sm mt-1 text-error-base'>
+                {validationErrors.customerId}
+              </p>
+            )}
           </div>
 
           <div className='flex flex-col gap-1'>
@@ -374,17 +424,89 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
           )}
 
           <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='paymentMethod'>Payment Method</Label.Root>
+            <Label.Root htmlFor='contractNumber'>Contract Number</Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Icon as={RiHashtag} />
+                <Input.Input
+                  id='contractNumber'
+                  value={formData.contractNumber || ''}
+                  onChange={(e) =>
+                    handleInputChange('contractNumber', e.target.value)
+                  }
+                  placeholder='Enter contract number'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='customerPoNumber'>
+              Customer PO Number
+            </Label.Root>
+            <Input.Root>
+              <Input.Wrapper>
+                <Input.Icon as={RiHashtag} />
+                <Input.Input
+                  id='customerPoNumber'
+                  value={formData.customerPoNumber || ''}
+                  onChange={(e) =>
+                    handleInputChange('customerPoNumber', e.target.value)
+                  }
+                  placeholder='Enter customer PO number'
+                />
+              </Input.Wrapper>
+            </Input.Root>
+          </div>
+
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='salesmanUserId'>Salesman</Label.Root>
+            <Select.Root
+              value={formData.salesmanUserId || ''}
+              onValueChange={(value) =>
+                handleInputChange('salesmanUserId', value)
+              }
+            >
+              <Select.Trigger id='salesmanUserId'>
+                <Select.TriggerIcon as={RiUserLine} />
+                <Select.Value placeholder='Select salesman' />
+              </Select.Trigger>
+              <Select.Content>
+                {users?.users?.map((user) => (
+                  <Select.Item
+                    key={user.id}
+                    value={user.id}
+                    disabled={!user.isActive}
+                  >
+                    {user.firstName} {user.lastName}
+                    {user.branchName && (
+                      <small className='ml-1 text-text-soft-400'>
+                        {user.branchName}
+                      </small>
+                    )}
+                    {!user.isActive && (
+                      <small className='ml-1 text-text-soft-400'>
+                        (Inactive)
+                      </small>
+                    )}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='paymentTerms'>Payment Terms</Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Icon as={RiMoneyDollarCircleLine} />
                 <Input.Input
-                  id='paymentMethod'
-                  value={formData.paymentMethod || ''}
+                  id='paymentTerms'
+                  value={formData.paymentTerms || ''}
                   onChange={(e) =>
-                    handleInputChange('paymentMethod', e.target.value)
+                    handleInputChange('paymentTerms', e.target.value)
                   }
-                  placeholder='Enter payment method'
+                  placeholder='Enter payment terms'
                 />
               </Input.Wrapper>
             </Input.Root>
@@ -400,6 +522,21 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
               placeholder='Additional notes...'
             />
           </div>
+
+          <div className='flex items-center space-x-2 md:col-span-2'>
+            <input
+              type='checkbox'
+              id='includePPN'
+              checked={formData.isIncludePPN}
+              onChange={(e) =>
+                handleInputChange('isIncludePPN', e.target.checked)
+              }
+              className='rounded border-stroke-soft-200'
+            />
+            <label htmlFor='includePPN' className='text-sm text-text-sub-600'>
+              Include PPN (11% tax)
+            </label>
+          </div>
         </div>
       </div>
 
@@ -412,6 +549,11 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
         {formData.items.length === 0 ? (
           <div className='py-8 text-center text-text-sub-600'>
             No items added yet. Click &quot;Add Item&quot; to get started.
+            {validationErrors.items && (
+              <p className='text-sm mt-2 text-error-base'>
+                {validationErrors.items}
+              </p>
+            )}
           </div>
         ) : (
           <div className='space-y-4'>
@@ -429,11 +571,21 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                         (p) => p.id === value,
                       );
                       updateItem(index, 'productId', value);
-                      if (product) {
+                      updateItem(index, 'category', product?.category || '');
+                      updateItem(index, 'name', product?.name || '');
+                      updateItem(
+                        index,
+                        'unitPrice',
+                        formatNumberWithDots(product?.price || 0),
+                      );
+                      if (
+                        product?.category === 'serialized' &&
+                        product?.additionalSpecs
+                      ) {
                         updateItem(
                           index,
-                          'unitPrice',
-                          Number(product.price) || 0,
+                          'additionalSpecs',
+                          product?.additionalSpecs,
                         );
                       }
                     }}
@@ -445,7 +597,10 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                     <Select.Content>
                       {products?.data?.map((product) => (
                         <Select.Item key={product.id} value={product.id}>
-                          {product.name}
+                          {product.name}{' '}
+                          <small className='text-text-soft-400'>
+                            {product.category}
+                          </small>
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -481,13 +636,13 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                       <Input.Icon as={RiMoneyDollarCircleLine} />
                       <Input.Input
                         id={`unitPrice-${index}`}
-                        type='number'
-                        min='0'
-                        step='1'
-                        value={item.unitPrice}
-                        onChange={(e) =>
-                          updateItem(index, 'unitPrice', Number(e.target.value))
-                        }
+                        type='text'
+                        value={formatNumberWithDots(item.unitPrice)}
+                        onChange={(e) => {
+                          const rawValue = parseNumberFromDots(e.target.value);
+                          updateItem(index, 'unitPrice', rawValue);
+                        }}
+                        placeholder='0'
                       />
                     </Input.Wrapper>
                   </Input.Root>
@@ -496,7 +651,10 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                 <div className='col-span-10 flex flex-col gap-1 lg:col-span-3'>
                   <Label.Root>Total</Label.Root>
                   <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
-                    {(item.quantity * item.unitPrice).toLocaleString()}
+                    {(
+                      item.quantity *
+                      (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)
+                    ).toLocaleString()}
                   </div>
                 </div>
 
@@ -512,22 +670,23 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                   </Button.Root>
                 </div>
 
-                <div className='col-span-12 flex flex-col gap-1'>
-                  <Label.Root htmlFor={`notes-${index}`}>Notes</Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiHashtag} />
-                      <Input.Input
-                        id={`notes-${index}`}
-                        value={item.notes || ''}
-                        onChange={(e) =>
-                          updateItem(index, 'notes', e.target.value)
-                        }
-                        placeholder='Item notes...'
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                </div>
+                {/* Only show Additional Specs for serialized products */}
+                {item.category === 'serialized' && (
+                  <div className='col-span-12 flex flex-col gap-1'>
+                    <Label.Root htmlFor={`additionalSpecs-${index}`}>
+                      Additional Specs
+                    </Label.Root>
+                    <Textarea.Root
+                      id={`additionalSpecs-${index}`}
+                      value={item.additionalSpecs || ''}
+                      onChange={(e) =>
+                        updateItem(index, 'additionalSpecs', e.target.value)
+                      }
+                      placeholder='Enter specification...'
+                      className='w-full'
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -560,12 +719,14 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
                 {calculateSubtotal().toLocaleString()} {formData.currency}
               </span>
             </div>
-            <div className='flex justify-between'>
-              <span>Tax (11%):</span>
-              <span>
-                {calculateTax().toLocaleString()} {formData.currency}
-              </span>
-            </div>
+            {formData.isIncludePPN && (
+              <div className='flex justify-between'>
+                <span>PPN (11%):</span>
+                <span>
+                  {calculateTax().toLocaleString()} {formData.currency}
+                </span>
+              </div>
+            )}
             <div className='flex justify-between border-t border-stroke-soft-200 pt-2 font-semibold'>
               <span>Total:</span>
               <span>
@@ -577,7 +738,7 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
       )}
 
       {/* Form Actions */}
-      <div className='flex justify-end space-x-3 border-t border-stroke-soft-200 pt-6'>
+      <div className='flex justify-end space-x-3'>
         <Button.Root
           variant='neutral'
           mode='stroke'
@@ -600,9 +761,12 @@ export function InvoiceForm({ mode, invoiceId, initialFormData }: InvoiceFormPro
           disabled={isLoading || formData.items.length === 0}
         >
           {isLoading
-            ? (mode === 'create' ? 'Creating...' : 'Saving...')
-            : (mode === 'create' ? 'Create Invoice' : 'Save Changes')
-          }
+            ? mode === 'create'
+              ? 'Creating...'
+              : 'Saving...'
+            : mode === 'create'
+              ? 'Create Invoice'
+              : 'Save Changes'}
         </Button.Root>
       </div>
     </form>

@@ -67,7 +67,7 @@ export default function NewInvoicePage() {
         <BackButton href='/invoices' label='Back to Invoices' />
       </Header>
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
-        <InvoiceForm mode="create" initialFormData={initialFormData} />
+        <InvoiceForm mode='create' initialFormData={initialFormData} />
       </div>
     </PermissionGate>
   );

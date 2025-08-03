@@ -6,7 +6,6 @@ import {
   RiAddLine,
   RiCalendarLine,
   RiDeleteBinLine,
-  RiHashtag,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
 } from '@remixicon/react';
@@ -150,18 +149,18 @@ export function QuotationForm({
     setFormData((prev) =>
       prev
         ? {
-          ...prev,
-          items: [
-            ...prev.items,
-            {
-              productId: '',
-              name: '',
-              quantity: 1,
-              unitPrice: '0',
-              additionalSpecs: '',
-            },
-          ],
-        }
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                additionalSpecs: '',
+              },
+            ],
+          }
         : emptyFormData,
     );
     // Clear items validation error when adding new item
@@ -175,11 +174,11 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.map((item, i) =>
-              i === index ? { ...item, [field]: value } : item,
-            ),
-          }
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
           : emptyFormData,
       );
       // Clear items validation error when updating items
@@ -195,9 +194,9 @@ export function QuotationForm({
       setFormData((prev) =>
         prev
           ? {
-            ...prev,
-            items: prev.items.filter((_, i) => i !== index),
-          }
+              ...prev,
+              items: prev.items.filter((_, i) => i !== index),
+            }
           : emptyFormData,
       );
       // Clear items validation error when removing items
@@ -282,7 +281,7 @@ export function QuotationForm({
           typeof firstError === 'string'
             ? firstError
             : firstError.find((e: string | undefined) => e) ||
-            'Please fix the validation errors';
+              'Please fix the validation errors';
         toast.error(errorMessage);
       }
       return;
@@ -355,11 +354,11 @@ export function QuotationForm({
       </div>
     );
   }
-  console.log(formData.items);
+
   return (
     <form
       onSubmit={(e) => handleSubmit(e, QUOTATION_STATUS.SUBMITTED)}
-      className='space-y-6'
+      className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'
     >
       {/* Quotation Details */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
@@ -440,25 +439,13 @@ export function QuotationForm({
             <Label.Root htmlFor='customer'>
               Customer <Label.Asterisk />
             </Label.Root>
-            {mode === 'create' ? (
-              <CustomerSelectWithAdd
-                value={formData.customerId}
-                onValueChange={(value: string) =>
-                  handleInputChange('customerId', value)
-                }
-                placeholder='Select a customer'
-                required
-              />
-            ) : (
-              <CustomerSelectWithAdd
-                value={formData.customerId}
-                onValueChange={(value: string) =>
-                  handleInputChange('customerId', value)
-                }
-                placeholder='Select a customer'
-                required
-              />
-            )}
+            <CustomerSelectWithAdd
+              value={formData.customerId}
+              onValueChange={(value: string) =>
+                handleInputChange('customerId', value)
+              }
+              placeholder='Select a customer'
+            />
             {validationErrors.customerId && (
               <p className='text-sm mt-1 text-error-base'>
                 {validationErrors.customerId}

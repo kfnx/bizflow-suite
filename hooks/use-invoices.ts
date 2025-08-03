@@ -62,6 +62,8 @@ export type InvoiceDetail = {
   invoiceNumber: string;
   quotationId?: string;
   invoiceDate: string;
+  contractNumber?: string;
+  customerPoNumber?: string;
   dueDate: string;
   customerId: string;
   branchId?: string;
@@ -71,7 +73,8 @@ export type InvoiceDetail = {
   total: string;
   currency: string;
   status: string;
-  paymentMethod?: string;
+  paymentTerms?: string;
+  isIncludePPN: boolean;
   notes?: string;
   createdBy: string;
   createdAt: string;
@@ -84,13 +87,15 @@ export type InvoiceDetail = {
     firstName: string;
     lastName: string;
   };
+  salesmanUserId?: string;
   items: {
-    id: string;
+    productId: string;
     name: string;
-    productCode: string;
     quantity: string;
     unitPrice: string;
     total: string;
+    additionalSpecs?: string;
+    category?: string;
   }[];
 };
 

@@ -241,8 +241,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   footerOrangeLine: {
-    backgroundColor: "#FF9900",
-    width: "100%",
+    backgroundColor: '#FF9900',
+    width: '100%',
     height: 6,
     marginBottom: 6,
   },
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   footerRight: {
     flex: 1,
     alignItems: 'flex-end',
-    gap: 2
+    gap: 2,
   },
 });
 
@@ -489,7 +489,9 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
             <View style={styles.footerOrangeLine} />
             <View style={styles.footerContent}>
               <View style={styles.footerLeft}>
-                <Text style={styles.footerCompany}>PT SAN TRAKTOR INDONESIA</Text>
+                <Text style={styles.footerCompany}>
+                  PT SAN TRAKTOR INDONESIA
+                </Text>
                 <Text style={styles.footerAddress}>
                   Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara
                 </Text>

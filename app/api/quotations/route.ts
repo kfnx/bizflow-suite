@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
 
     // Branch-based access control
     // HO users see all branches, others can only see their own branch
-
     // get branch name from branchId
     const branchName = session.user.branchId
       ? await db

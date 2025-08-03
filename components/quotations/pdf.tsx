@@ -5,8 +5,10 @@ import {
   Font,
   Image,
   Page,
+  Path,
   PDFViewer,
   StyleSheet,
+  Svg,
   Text,
   View,
 } from '@react-pdf/renderer';
@@ -27,6 +29,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     padding: 0,
     margin: 0,
+    paddingBottom: 80,
   },
   headerImage: {
     width: '100%',
@@ -206,7 +209,7 @@ const styles = StyleSheet.create({
   signaturesSection: {
     flexDirection: 'row',
     padding: '0 30px',
-    marginBottom: 20,
+    marginBottom: 80, // Increased to provide more space for the footer
     gap: 64,
   },
   signatureColumn: {
@@ -233,18 +236,43 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 0,
     left: 0,
     right: 0,
-    textAlign: 'center',
-    fontSize: 10,
+    height: 80,
+  },
+  footerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    padding: '20px 30px 30px',
+    color: '#FFFFFF',
+  },
+  footerOrangeLine: {
+    backgroundColor: "#FF9900",
+    width: "100%",
+    height: 6,
+    marginBottom: 6,
   },
   footerCompany: {
     fontWeight: 'bold',
-    marginBottom: 5,
+    fontSize: 12,
   },
   footerAddress: {
-    color: '#666666',
+    fontSize: 10,
+  },
+  footerContact: {
+    fontSize: 10,
+    textAlign: 'right',
+  },
+  footerLeft: {
+    flex: 1,
+  },
+  footerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+    gap: 2
   },
 });
 
@@ -445,6 +473,7 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               {quotation.createdByUserLastName} ({quotation.createdByUserPhone})
             </Text>
           </View>
+
           {/* Signatures */}
           <View style={styles.signaturesSection}>
             <View style={styles.signatureColumn}>
@@ -464,12 +493,22 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
             </View>
           </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerCompany}>PT. SAN TRAKTOR INDONESIA</Text>
-            <Text style={styles.footerAddress}>
-              Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara 14450, Indonesia
-            </Text>
+          {/* Footer - Fixed to repeat on every page*/}
+          <View style={styles.footer} fixed>
+            <View style={styles.footerOrangeLine} />
+            <View style={styles.footerContent}>
+              <View style={styles.footerLeft}>
+                <Text style={styles.footerCompany}>PT SAN TRAKTOR INDONESIA</Text>
+                <Text style={styles.footerAddress}>
+                  Jl. Pluit Karang Karya 1 Kav C8, Jakarta Utara
+                </Text>
+                <Text style={styles.footerAddress}>14450, Indonesia</Text>
+              </View>
+              <View style={styles.footerRight}>
+                <Text style={styles.footerContact}>info@santraktor.id</Text>
+                <Text style={styles.footerContact}>021-22663500</Text>
+              </View>
+            </View>
           </View>
         </Page>
       </Document>

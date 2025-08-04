@@ -5,7 +5,14 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { INVOICE_STATUS, QUOTATION_STATUS } from '@/lib/db/enum';
-import { InsertInvoice, InsertInvoiceItem, invoices, invoiceItems, quotations, quotationItems } from '@/lib/db/schema';
+import {
+  InsertInvoice,
+  InsertInvoiceItem,
+  invoiceItems,
+  invoices,
+  quotationItems,
+  quotations,
+} from '@/lib/db/schema';
 
 const markInvoicedSchema = z.object({
   invoiceNumber: z.string().optional(), // Made optional
@@ -179,7 +186,7 @@ export async function POST(
       return {
         invoiceId,
         invoicedAt: now,
-        itemsCount: quotationItemsData.length
+        itemsCount: quotationItemsData.length,
       };
     });
 

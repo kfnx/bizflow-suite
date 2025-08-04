@@ -45,10 +45,13 @@ export const updateInvoiceRequestSchema = z.object({
         productId: z.string().min(1, 'Product ID is required'),
         name: z.string().min(1, 'Product name is required'),
         quantity: z.number().positive('Quantity must be positive'),
-        unitPrice: z.string().min(1, 'Unit price is required').refine(
-          (val) => !isNaN(Number(val)) && Number(val) > 0,
-          'Unit price must be a valid positive number'
-        ),
+        unitPrice: z
+          .string()
+          .min(1, 'Unit price is required')
+          .refine(
+            (val) => !isNaN(Number(val)) && Number(val) > 0,
+            'Unit price must be a valid positive number',
+          ),
         additionalSpecs: z.string().optional(),
         category: z.string().optional(),
       }),

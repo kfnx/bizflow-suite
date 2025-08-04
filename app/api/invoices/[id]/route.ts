@@ -109,7 +109,7 @@ export async function GET(
         ...invoice[0],
         customerName: invoice[0].customer?.name,
         quotationNumber: invoice[0].quotation?.quotationNumber,
-        items: items.map(item => ({
+        items: items.map((item) => ({
           productId: item.productId,
           name: item.name,
           quantity: item.quantity.toString(),
@@ -157,16 +157,13 @@ export async function PUT(
     }
 
     // Calculate totals
-    const subtotal = validatedData.items.reduce(
-      (sum, item) => {
-        const unitPrice = Number(item.unitPrice);
-        if (isNaN(unitPrice)) {
-          throw new Error(`Invalid unit price: ${item.unitPrice}`);
-        }
-        return sum + item.quantity * unitPrice;
-      },
-      0,
-    );
+    const subtotal = validatedData.items.reduce((sum, item) => {
+      const unitPrice = Number(item.unitPrice);
+      if (isNaN(unitPrice)) {
+        throw new Error(`Invalid unit price: ${item.unitPrice}`);
+      }
+      return sum + item.quantity * unitPrice;
+    }, 0);
     const tax = validatedData.isIncludePPN ? subtotal * 0.11 : 0; // 11% tax only if PPN is included
     const total = subtotal + tax;
 

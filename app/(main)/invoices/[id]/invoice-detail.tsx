@@ -84,8 +84,6 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
     );
   }
 
-
-
   if (!data?.data) {
     return null; // This should not happen since we handle errors above
   }

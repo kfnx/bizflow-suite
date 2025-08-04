@@ -5,12 +5,12 @@ import {
   RiMailSendLine,
   RiMoneyDollarCircleLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
 import { formatDate } from '@/utils/date-formatter';
 import { InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
 import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
-import { toast } from 'sonner';
 
 interface InvoiceHeaderProps {
   invoice: InvoiceDetail;
@@ -52,7 +52,9 @@ export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
       // TODO: Implement send invoice API call
       toast.success('Invoice sent successfully! (TODO)');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to send invoice');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to send invoice',
+      );
     }
   };
 

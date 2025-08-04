@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   content: {
-    padding: 30
+    padding: 30,
   },
 
   // Title
@@ -324,9 +324,7 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
       ? parseFloat(invoice.subtotal)
       : invoice.subtotal;
   const tax =
-    typeof invoice.tax === 'string'
-      ? parseFloat(invoice.tax)
-      : invoice.tax;
+    typeof invoice.tax === 'string' ? parseFloat(invoice.tax) : invoice.tax;
   const total =
     typeof invoice.total === 'string'
       ? parseFloat(invoice.total)
@@ -344,7 +342,6 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
           />
 
           <View style={styles.content}>
-
             {/* Title */}
             <Text style={styles.title}>COMMERCIAL INVOICE</Text>
 
@@ -373,7 +370,9 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
                 <View style={styles.invoiceDetails}>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Invoice No.:</Text>
-                    <Text style={styles.detailValue}>{invoice.invoiceNumber}</Text>
+                    <Text style={styles.detailValue}>
+                      {invoice.invoiceNumber}
+                    </Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Contract No.:</Text>
@@ -396,7 +395,8 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Payment Term:</Text>
                     <Text style={styles.detailValue}>
-                      {invoice.paymentTerms || '30% DP, 70% BP oleh leasing 30 hari proses'}
+                      {invoice.paymentTerms ||
+                        '30% DP, 70% BP oleh leasing 30 hari proses'}
                     </Text>
                   </View>
                   <View style={styles.detailRow}>
@@ -418,14 +418,18 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
               <View style={styles.table}>
                 {/* Table Header */}
                 <View style={styles.tableHeader}>
-                  <Text style={[styles.tableHeaderCell, { width: 40 }]}>No.</Text>
+                  <Text style={[styles.tableHeaderCell, { width: 40 }]}>
+                    No.
+                  </Text>
                   <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>
                     Serial No.
                   </Text>
                   <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
                     Description
                   </Text>
-                  <Text style={[styles.tableHeaderCell, { width: 50 }]}>Qty.</Text>
+                  <Text style={[styles.tableHeaderCell, { width: 50 }]}>
+                    Qty.
+                  </Text>
                   <Text style={[styles.tableHeaderCell, { width: 120 }]}>
                     Unit Price
                   </Text>
@@ -487,7 +491,9 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
 
             {/* Thank You Section */}
             <View style={styles.thankYouSection}>
-              <Text style={styles.thankYouText}>THANK YOU FOR YOUR BUSINESS</Text>
+              <Text style={styles.thankYouText}>
+                THANK YOU FOR YOUR BUSINESS
+              </Text>
             </View>
 
             {/* Bank Information and Signature */}
@@ -525,7 +531,9 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
                 <View style={styles.signatureLine} />
                 <Text style={styles.signatureName}>Tony Raflv Teh</Text>
                 <Text style={styles.signaturePosition}>Direktur Utama</Text>
-                <Text style={styles.signatureCompany}>PT SAN TRAKTOR INDONESIA</Text>
+                <Text style={styles.signatureCompany}>
+                  PT SAN TRAKTOR INDONESIA
+                </Text>
               </View>
             </View>
 
@@ -533,7 +541,10 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
             <View style={styles.disclaimerSection}>
               <Text style={styles.disclaimerTitle}>ATTENTION</Text>
               <Text style={styles.disclaimerText}>
-                When within 14 days from the date of the Invoice and Tax Invoice received no objections from the customer, the customer is deemed to have agreed to everything contained in this Invoice and Tax Invoice.
+                When within 14 days from the date of the Invoice and Tax Invoice
+                received no objections from the customer, the customer is deemed
+                to have agreed to everything contained in this Invoice and Tax
+                Invoice.
               </Text>
             </View>
           </View>
@@ -541,4 +552,4 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
       </Document>
     </PDFViewer>
   );
-}; 
+};

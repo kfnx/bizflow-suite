@@ -328,7 +328,7 @@ function ProductItemForm({
                   onChange={(e) =>
                     handleFieldChange('machineNumber', e.target.value)
                   }
-                  placeholder='Serial/Machine Number'
+                  placeholder='Machine Number'
                 />
               </Input.Wrapper>
             </Input.Root>

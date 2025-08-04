@@ -30,6 +30,35 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
   }
 
   if (error) {
+    // Handle 404 case specifically
+    if (error.message === 'Invoice not found') {
+      return (
+        <div className='flex min-h-[400px] flex-1 items-center justify-center'>
+          <div className='max-w-md text-center'>
+            <div className='mb-4 flex justify-center'>
+              <div className='flex size-12 items-center justify-center rounded-full bg-bg-weak-50 ring-1 ring-stroke-soft-200'>
+                <RiFileSearchLine className='size-6 text-text-sub-600' />
+              </div>
+            </div>
+            <h3 className='text-lg mb-2 font-semibold text-text-strong-950'>
+              404 - Invoice Not Found
+            </h3>
+            <p className='mb-4 text-text-sub-600'>
+              The invoice you&apos;re looking for doesn&apos;t exist or may have
+              been deleted.
+            </p>
+            <a
+              href='/invoices'
+              className='text-primary-600 hover:text-primary-700 text-sm font-medium'
+            >
+              Back to Invoices
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // Handle other errors
     return (
       <div className='flex min-h-[400px] flex-1 items-center justify-center'>
         <div className='max-w-md text-center'>
@@ -55,31 +84,10 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
     );
   }
 
+
+
   if (!data?.data) {
-    return (
-      <div className='flex min-h-[400px] flex-1 items-center justify-center'>
-        <div className='max-w-md text-center'>
-          <div className='mb-4 flex justify-center'>
-            <div className='flex size-12 items-center justify-center rounded-full bg-bg-weak-50 ring-1 ring-stroke-soft-200'>
-              <RiFileSearchLine className='size-6 text-text-sub-600' />
-            </div>
-          </div>
-          <h3 className='text-lg mb-2 font-semibold text-text-strong-950'>
-            Invoice Not Found
-          </h3>
-          <p className='mb-4 text-text-sub-600'>
-            The invoice you&apos;re looking for doesn&apos;t exist or may have
-            been deleted.
-          </p>
-          <a
-            href='/invoices'
-            className='text-primary-600 hover:text-primary-700 text-sm font-medium'
-          >
-            Back to Invoices
-          </a>
-        </div>
-      </div>
-    );
+    return null; // This should not happen since we handle errors above
   }
 
   const invoice = data.data;

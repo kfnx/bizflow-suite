@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { INVOICE_STATUS, QUOTATION_STATUS } from '@/lib/db/enum';
-import { InsertInvoice, invoices, quotations } from '@/lib/db/schema';
+import { InsertInvoice, InsertInvoiceItem, invoices, invoiceItems, quotations, quotationItems } from '@/lib/db/schema';
 
 const markInvoicedSchema = z.object({
   invoiceNumber: z.string().optional(), // Made optional
@@ -140,6 +140,32 @@ export async function POST(
 
       const invoiceId = createdInvoice[0].id;
 
+      // Fetch quotation items to copy to invoice items
+      const quotationItemsData = await tx
+        .select({
+          productId: quotationItems.productId,
+          quantity: quotationItems.quantity,
+          unitPrice: quotationItems.unitPrice,
+          total: quotationItems.total,
+        })
+        .from(quotationItems)
+        .where(eq(quotationItems.quotationId, id));
+
+      // Create invoice items from quotation items
+      if (quotationItemsData.length > 0) {
+        const invoiceItemsData: InsertInvoiceItem[] = quotationItemsData.map(
+          (item) => ({
+            invoiceId: invoiceId,
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            total: item.total,
+          }),
+        );
+
+        await tx.insert(invoiceItems).values(invoiceItemsData);
+      }
+
       // Update quotation with invoice reference
       await tx
         .update(quotations)
@@ -150,7 +176,11 @@ export async function POST(
         })
         .where(eq(quotations.id, id));
 
-      return { invoiceId, invoicedAt: now };
+      return {
+        invoiceId,
+        invoicedAt: now,
+        itemsCount: quotationItemsData.length
+      };
     });
 
     return NextResponse.json({
@@ -161,6 +191,7 @@ export async function POST(
         invoicedAt: result.invoicedAt,
         invoiceId: result.invoiceId,
         invoiceNumber: invoiceNumber,
+        itemsCount: result.itemsCount,
       },
     });
   } catch (error) {

@@ -158,10 +158,16 @@ export async function PUT(
 
     // Calculate totals
     const subtotal = validatedData.items.reduce(
-      (sum, item) => sum + item.quantity * Number(item.unitPrice),
+      (sum, item) => {
+        const unitPrice = Number(item.unitPrice);
+        if (isNaN(unitPrice)) {
+          throw new Error(`Invalid unit price: ${item.unitPrice}`);
+        }
+        return sum + item.quantity * unitPrice;
+      },
       0,
     );
-    const tax = subtotal * 0.11; // 11% tax
+    const tax = validatedData.isIncludePPN ? subtotal * 0.11 : 0; // 11% tax only if PPN is included
     const total = subtotal + tax;
 
     // Update invoice

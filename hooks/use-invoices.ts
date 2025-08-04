@@ -124,6 +124,9 @@ const fetchInvoiceDetail = async (
 ): Promise<{ data: InvoiceDetail }> => {
   const response = await fetch(`/api/invoices/${invoiceId}`);
   if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error('Invoice not found');
+    }
     throw new Error('Failed to fetch invoice detail');
   }
   return response.json();

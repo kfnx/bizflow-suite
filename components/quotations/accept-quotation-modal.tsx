@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Button from '@/components/ui/button';
 import * as Modal from '@/components/ui/modal';
 import * as TextArea from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface AcceptQuotationModalProps {
   quotationId: string;
@@ -64,14 +65,14 @@ export function AcceptQuotationModal({
         queryKey: ['quotation', quotationId],
       });
 
-      alert('Quotation accepted successfully');
+      toast.success('Quotation accepted successfully');
 
       // Reset form and close modal
       setAcceptanceInfo('');
       setResponseNotes('');
       onClose();
     } catch (error) {
-      alert(
+      toast.error(
         error instanceof Error ? error.message : 'Failed to accept quotation',
       );
     } finally {

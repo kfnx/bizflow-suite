@@ -10,6 +10,7 @@ import { formatDate } from '@/utils/date-formatter';
 import { InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
 import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
+import { toast } from 'sonner';
 
 interface InvoiceHeaderProps {
   invoice: InvoiceDetail;
@@ -27,7 +28,7 @@ const formatCurrency = (amount: string, currency: string) => {
 export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
   const handleEdit = () => {
     if (invoice.status !== 'draft') {
-      alert('Only draft invoices can be edited');
+      toast.warning('Only draft invoices can be edited');
       return;
     }
     window.location.href = `/invoices/${invoice.id}/edit`;
@@ -35,7 +36,7 @@ export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
 
   const handleSendInvoice = async () => {
     if (invoice.status !== 'draft') {
-      alert('Only draft invoices can be sent');
+      toast.warning('Only draft invoices can be sent');
       return;
     }
 
@@ -49,15 +50,15 @@ export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
 
     try {
       // TODO: Implement send invoice API call
-      alert('Invoice sent successfully!');
+      toast.success('Invoice sent successfully! (TODO)');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to send invoice');
+      toast.error(error instanceof Error ? error.message : 'Failed to send invoice');
     }
   };
 
   const handleMarkAsPaid = async () => {
     if (invoice.status === 'paid') {
-      alert('Invoice is already marked as paid');
+      toast.warning('Invoice is already marked as paid');
       return;
     }
 
@@ -71,9 +72,9 @@ export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
 
     try {
       // TODO: Implement mark as paid API call
-      alert('Invoice marked as paid successfully!');
+      toast.success('Invoice marked as paid successfully!');
     } catch (error) {
-      alert(
+      toast.error(
         error instanceof Error
           ? error.message
           : 'Failed to mark invoice as paid',

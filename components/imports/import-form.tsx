@@ -513,6 +513,7 @@ function ProductItemForm({
             onValueChange={(value) =>
               handleFieldChange('unitOfMeasureId', value)
             }
+            disabled={item.category === PRODUCT_CATEGORY.SERIALIZED}
           >
             <Select.Trigger id={`unit-${index}`}>
               <Select.Value placeholder='Select' />
@@ -624,7 +625,7 @@ export function ImportForm({
       invoiceNumber: '',
       invoiceDate: new Date().toISOString().split('T')[0],
       billOfLadingNumber: '',
-      billOfLadingDate: '',
+      billOfLadingDate: new Date().toISOString().split('T')[0],
       exchangeRateRMBtoIDR: '2250',
       notes: '',
       items: [createEmptyProductItem()],
@@ -1073,26 +1074,6 @@ export function ImportForm({
               </div>
 
               <div className='flex flex-col gap-2'>
-                <Label.Root htmlFor='importDate'>
-                  Import Date <Label.Asterisk />
-                </Label.Root>
-                <Input.Root>
-                  <Input.Wrapper>
-                    <Input.Icon as={RiCalendarLine} />
-                    <Input.Input
-                      id='importDate'
-                      type='date'
-                      value={formData.importDate}
-                      onChange={(e) =>
-                        handleInputChange('importDate', e.target.value)
-                      }
-                      required
-                    />
-                  </Input.Wrapper>
-                </Input.Root>
-              </div>
-
-              <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='exchangeRateRMBtoIDR'>
                   Exchange Rate (RMB to IDR) <Label.Asterisk />
                 </Label.Root>
@@ -1119,6 +1100,26 @@ export function ImportForm({
                     {validationErrors.exchangeRateRMBtoIDR}
                   </div>
                 )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor='importDate'>
+                  Import Date <Label.Asterisk />
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Icon as={RiCalendarLine} />
+                    <Input.Input
+                      id='importDate'
+                      type='date'
+                      value={formData.importDate}
+                      onChange={(e) =>
+                        handleInputChange('importDate', e.target.value)
+                      }
+                      required
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
               </div>
             </div>
           </div>

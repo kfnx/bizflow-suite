@@ -86,9 +86,9 @@ export async function POST(
           );
         }
 
-        const insertData: InsertProduct = {
+        const productData: InsertProduct = {
           name: item.name,
-          code: item.serialNumber, // Use serial number as code for serialized products
+          code: item.serialNumber || item.partNumber || '', // Use serial number as code for serialized products
           description: item.description,
           category: item.category,
           brandId: item.brandId,
@@ -106,7 +106,7 @@ export async function POST(
           supplierId: importData[0].supplierId,
           isActive: true,
         };
-        await db.insert(products).values(insertData);
+        await db.insert(products).values(productData);
 
         // Get the created product ID by serial number
         const createdProduct = await db

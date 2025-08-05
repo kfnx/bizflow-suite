@@ -174,7 +174,7 @@ export function ProductsTable({
     {
       id: 'code',
       accessorKey: 'code',
-      header: 'Code',
+      header: 'Serial/Part Number',
       cell: ({ row }) => (
         <div className='font-mono text-paragraph-sm text-text-sub-600'>
           {row.original.code || '-'}

@@ -142,6 +142,12 @@ export function ProductsTable({
       ),
     },
     {
+      id: 'quantity',
+      accessorKey: 'quantity',
+      header: 'QTY',
+      cell: ({ row }) => <div>{row.original.quantity}</div>,
+    },
+    {
       id: 'condition',
       accessorKey: 'condition',
       header: 'Condition',

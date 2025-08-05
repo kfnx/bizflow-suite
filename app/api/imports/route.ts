@@ -7,6 +7,7 @@ import { IMPORT_STATUS, PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
   importItems,
   imports,
+  InsertImport,
   InsertImportItem,
   products,
   suppliers,
@@ -231,21 +232,22 @@ export async function POST(request: NextRequest) {
       const createdBy = session.user.id;
 
       // Create import record
-      const importData = {
+      const importData: InsertImport = {
         supplierId: validatedData.supplierId,
         warehouseId: validatedData.warehouseId,
         importDate: validatedData.importDate,
         invoiceNumber: validatedData.invoiceNumber,
         invoiceDate: validatedData.invoiceDate,
+        billOfLadingNumber: validatedData.billOfLadingNumber,
+        billOfLadingDate: validatedData.billOfLadingDate,
         exchangeRateRMBtoIDR: validatedData.exchangeRateRMBtoIDR,
-        subtotal: subtotal.toFixed(2),
         total: totalIDR.toFixed(2),
         status: IMPORT_STATUS.PENDING,
         notes: validatedData.notes,
         createdBy,
       };
 
-      const insertedImport = await tx.insert(imports).values(importData);
+      await tx.insert(imports).values(importData);
 
       // Get the generated import ID
       const createdImportResult = await tx

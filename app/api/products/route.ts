@@ -111,6 +111,7 @@ export async function GET(request: NextRequest) {
         id: products.id,
         name: products.name,
         code: products.code,
+        quantity: products.quantity,
         description: products.description,
         category: products.category,
         brandId: products.brandId,

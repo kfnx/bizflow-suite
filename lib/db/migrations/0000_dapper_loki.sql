@@ -172,7 +172,7 @@ CREATE TABLE `invoices` (
 	`total` decimal(17,2) DEFAULT '0.00',
 	`currency` varchar(3) DEFAULT 'IDR',
 	`status` enum('draft','sent','paid','void','overdue') DEFAULT 'draft',
-	`payment_term` varchar(100),
+	`payment_terms` varchar(100),
 	`notes` text,
 	`salesman_user_id` varchar(36),
 	`is_include_ppn` boolean DEFAULT false,
@@ -229,6 +229,20 @@ CREATE TABLE `products` (
 	CONSTRAINT `products_code_unique` UNIQUE(`code`)
 );
 --> statement-breakpoint
+CREATE TABLE `purchase_orders` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
+	`quotation_id` varchar(36) NOT NULL,
+	`number` varchar(50) NOT NULL,
+	`date` date NOT NULL,
+	`approval_type` varchar(100) NOT NULL,
+	`document` varchar(500),
+	`created_by` varchar(36) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `purchase_orders_id` PRIMARY KEY(`id`),
+	CONSTRAINT `purchase_orders_number_unique` UNIQUE(`number`)
+);
+--> statement-breakpoint
 CREATE TABLE `quotation_items` (
 	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`quotation_id` varchar(36) NOT NULL,
@@ -256,9 +270,9 @@ CREATE TABLE `quotations` (
 	`terms_and_conditions` text,
 	`created_by` varchar(36) NOT NULL,
 	`approver_by` varchar(36),
-	`customer_response_date` timestamp,
+	`purchase_order_id` varchar(36),
+	`customer_response_date` date,
 	`customer_response_notes` text,
-	`customer_acceptance_info` text,
 	`rejection_reason` text,
 	`revision_reason` text,
 	`revision_version` int DEFAULT 0,
@@ -455,6 +469,8 @@ ALTER TABLE `products` ADD CONSTRAINT `fk_products_warehouse` FOREIGN KEY (`ware
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_machine_type` FOREIGN KEY (`machine_type_id`) REFERENCES `machine_types`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_unit_of_measure` FOREIGN KEY (`unit_of_measure_id`) REFERENCES `unit_of_measures`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `purchase_orders` ADD CONSTRAINT `fk_purchase_orders_quotation` FOREIGN KEY (`quotation_id`) REFERENCES `quotations`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `purchase_orders` ADD CONSTRAINT `fk_purchase_orders_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotation_items` ADD CONSTRAINT `fk_quotation_items_quotation` FOREIGN KEY (`quotation_id`) REFERENCES `quotations`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotation_items` ADD CONSTRAINT `fk_quotation_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `quotations` ADD CONSTRAINT `fk_quotations_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -510,6 +526,9 @@ CREATE INDEX `category_idx` ON `products` (`category`);--> statement-breakpoint
 CREATE INDEX `status_idx` ON `products` (`status`);--> statement-breakpoint
 CREATE INDEX `supplier_id_idx` ON `products` (`supplier_id`);--> statement-breakpoint
 CREATE INDEX `warehouse_id_idx` ON `products` (`warehouse_id`);--> statement-breakpoint
+CREATE INDEX `quotation_id_idx` ON `purchase_orders` (`quotation_id`);--> statement-breakpoint
+CREATE INDEX `number_idx` ON `purchase_orders` (`number`);--> statement-breakpoint
+CREATE INDEX `created_by_idx` ON `purchase_orders` (`created_by`);--> statement-breakpoint
 CREATE INDEX `quotation_id_idx` ON `quotation_items` (`quotation_id`);--> statement-breakpoint
 CREATE INDEX `product_id_idx` ON `quotation_items` (`product_id`);--> statement-breakpoint
 CREATE INDEX `quotation_number_idx` ON `quotations` (`quotation_number`);--> statement-breakpoint

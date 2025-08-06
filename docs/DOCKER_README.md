@@ -52,7 +52,7 @@ docker-compose exec app pnpm db:seed
 
 - **Next.js App**: http://localhost:3000
 - **MySQL Database**: localhost:3306
-  - Database: `bizdocgen`
+  - Database: `mysti`
   - User: `user`
   - Password: `password`
   - Root Password: `rootpassword`
@@ -100,7 +100,7 @@ docker-compose restart
 
 ```bash
 # Connect to MySQL
-docker-compose exec mysql mysql -u user -p bizdocgen
+docker-compose exec mysql mysql -u user -p mysti
 
 # Or as root
 docker-compose exec mysql mysql -u root -p
@@ -144,7 +144,7 @@ The following environment variables are automatically set in the Docker environm
 | `DB_PORT`     | `3306`       | Database port                       |
 | `DB_USER`     | `user`       | Database username                   |
 | `DB_PASSWORD` | `password`   | Database password                   |
-| `DB_NAME`     | `bizdocgen`  | Database name                       |
+| `DB_NAME`     | `mysti`      | Database name                       |
 
 ## Troubleshooting
 

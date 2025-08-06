@@ -19,7 +19,7 @@ async function main() {
     const [tables] = await connection.execute(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'bizdocgen' 
+      WHERE table_schema = 'mysti' 
       AND table_type = 'BASE TABLE'
       AND table_name != '__drizzle_migrations'
     `);

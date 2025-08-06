@@ -34,7 +34,7 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
-DB_NAME=bizdocgen
+DB_NAME=mysti
 ```
 
 ## Database Setup
@@ -42,7 +42,7 @@ DB_NAME=bizdocgen
 1. **Create the database:**
 
    ```sql
-   CREATE DATABASE bizdocgen;
+   CREATE DATABASE mysti;
    ```
 
 2. **Generate migrations:**

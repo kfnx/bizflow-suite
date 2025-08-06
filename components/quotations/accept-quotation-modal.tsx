@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { RiCheckLine, RiCloseLine } from '@remixicon/react';
+import { useState, useRef } from 'react';
+import { RiCheckLine, RiCloseLine, RiCalendarLine, RiFileTextLine, RiUploadLine, RiDeleteBinLine } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import * as Button from '@/components/ui/button';
 import * as Modal from '@/components/ui/modal';
 import * as TextArea from '@/components/ui/textarea';
+import * as Select from '@/components/ui/select';
+import * as Label from '@/components/ui/label';
+import * as Input from '@/components/ui/input';
 
 interface AcceptQuotationModalProps {
   quotationId: string;
@@ -16,9 +19,9 @@ interface AcceptQuotationModalProps {
   onClose: () => void;
 }
 
-interface AcceptQuotationData {
-  acceptanceInfo: string;
-  responseNotes?: string;
+interface FileInfo {
+  file: File;
+  preview?: string;
 }
 
 export function AcceptQuotationModal({
@@ -27,31 +30,102 @@ export function AcceptQuotationModal({
   isOpen,
   onClose,
 }: AcceptQuotationModalProps) {
-  const [acceptanceInfo, setAcceptanceInfo] = useState('');
+  const [approvalType, setApprovalType] = useState('');
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState('');
+  const [purchaseOrderDate, setPurchaseOrderDate] = useState('');
   const [responseNotes, setResponseNotes] = useState('');
+  const [selectedFile, setSelectedFile] = useState<FileInfo | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  const handleFileSelect = (file: File) => {
+    // Validate file type
+    const allowedTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.gif'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+
+    if (!allowedTypes.includes(fileExtension)) {
+      toast.error('Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size too large. Maximum size: 10MB');
+      return;
+    }
+
+    // Create preview for images
+    let preview: string | undefined;
+    if (file.type.startsWith('image/')) {
+      preview = URL.createObjectURL(file);
+    }
+
+    setSelectedFile({ file, preview });
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const removeFile = () => {
+    if (selectedFile?.preview) {
+      URL.revokeObjectURL(selectedFile.preview);
+    }
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!acceptanceInfo.trim()) {
-      alert('Please provide acceptance information');
+    if (!approvalType.trim()) {
+      toast.error('Please select an approval type');
+      return;
+    }
+
+    if (!purchaseOrderNumber.trim()) {
+      toast.error('Please enter a purchase order number');
+      return;
+    }
+
+    if (!purchaseOrderDate.trim()) {
+      toast.error('Please select a purchase order date');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      const formData = new FormData();
+      formData.append('approvalType', approvalType.trim());
+      formData.append('purchaseOrderNumber', purchaseOrderNumber.trim());
+      formData.append('purchaseOrderDate', purchaseOrderDate.trim());
+      formData.append('responseNotes', responseNotes.trim() || '');
+
+      if (selectedFile) {
+        formData.append('file', selectedFile.file);
+      }
+
       const response = await fetch(`/api/quotations/${quotationId}/accept`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          acceptanceInfo: acceptanceInfo.trim(),
-          responseNotes: responseNotes.trim() || null,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -68,8 +142,11 @@ export function AcceptQuotationModal({
       toast.success('Quotation accepted successfully');
 
       // Reset form and close modal
-      setAcceptanceInfo('');
+      setApprovalType('');
+      setPurchaseOrderNumber('');
+      setPurchaseOrderDate('');
       setResponseNotes('');
+      removeFile();
       onClose();
     } catch (error) {
       toast.error(
@@ -82,8 +159,11 @@ export function AcceptQuotationModal({
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setAcceptanceInfo('');
+      setApprovalType('');
+      setPurchaseOrderNumber('');
+      setPurchaseOrderDate('');
       setResponseNotes('');
+      removeFile();
       onClose();
     }
   };
@@ -92,46 +172,161 @@ export function AcceptQuotationModal({
     <Modal.Root open={isOpen} onOpenChange={handleClose}>
       <Modal.Content>
         <Modal.Header>
-          <Modal.Title>Accept Quotation</Modal.Title>
-          <Modal.Description>
-            Accept quotation {quotationNumber} and provide acceptance
-            information.
-          </Modal.Description>
+          <Modal.Title>Accept Quotation - Purchase Order Information</Modal.Title>
         </Modal.Header>
 
         <form onSubmit={handleSubmit}>
           <Modal.Body className='space-y-4'>
             <div>
-              <label
-                htmlFor='acceptanceInfo'
-                className='text-sm text-gray-700 mb-2 block font-medium'
+              <Label.Root
+                htmlFor='approvalType'
+                className='mb-2 block font-medium'
               >
-                Acceptance Information *
-              </label>
-              <TextArea.Root
-                id='acceptanceInfo'
-                value={acceptanceInfo}
-                onChange={(e) => setAcceptanceInfo(e.target.value)}
-                placeholder='Please provide details about the acceptance terms, conditions, or any specific requirements...'
-                rows={4}
-                required
-                disabled={isSubmitting}
-              />
+                Approval Type *
+              </Label.Root>
+              <Select.Root
+                value={approvalType}
+                onValueChange={(value) => setApprovalType(value)}
+              >
+                <Select.Trigger>
+                  <Select.TriggerIcon as={RiCheckLine} />
+                  <Select.Value placeholder='Select approval type' />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value='formal_po'>Formal PO</Select.Item>
+                  <Select.Item value='email_approval'>Email Approval</Select.Item>
+                  <Select.Item value='whatsapp_approval'>WhatsApp Approval</Select.Item>
+                  <Select.Item value='phone_call_approval'>Phone Call Approval</Select.Item>
+                  <Select.Item value='in_person_approval'>In-Person Approval</Select.Item>
+                </Select.Content>
+              </Select.Root>
             </div>
 
             <div>
-              <label
-                htmlFor='responseNotes'
-                className='text-sm text-gray-700 mb-2 block font-medium'
+              <Label.Root
+                htmlFor='purchaseOrderNumber'
+                className='mb-2 block font-medium'
               >
-                Additional Notes (Optional)
-              </label>
+                Purchase Order Number *
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id='purchaseOrderNumber'
+                    type='text'
+                    placeholder='Enter PO number'
+                    value={purchaseOrderNumber}
+                    onChange={(e) => setPurchaseOrderNumber(e.target.value)}
+                    required
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
+
+            <div>
+              <Label.Root
+                htmlFor='purchaseOrderDate'
+                className='mb-2 block font-medium'
+              >
+                Purchase Order Date *
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id='purchaseOrderDate'
+                    type='date'
+                    value={purchaseOrderDate}
+                    onChange={(e) => setPurchaseOrderDate(e.target.value)}
+                    required
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
+
+            <div>
+              <Label.Root className='mb-2 block font-medium'>
+                Purchase Order Document (Optional)
+              </Label.Root>
+
+              {!selectedFile ? (
+                <div
+                  className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${isDragOver
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(true);
+                  }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={handleFileDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <RiUploadLine className='text-gray-400 mx-auto mb-4 h-12 w-12' />
+                  <p className='text-sm text-gray-600 mb-2'>
+                    Drag and drop a file here, or click to select
+                  </p>
+                  <p className='text-xs text-gray-500'>
+                    Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF (Max 10MB)
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type='file'
+                    className='hidden'
+                    accept='.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'
+                    onChange={handleFileInput}
+                  />
+                </div>
+              ) : (
+                <div className='bg-gray-50 rounded-lg border p-4'>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center space-x-3'>
+                      <RiFileTextLine className='h-8 w-8 text-blue-500' />
+                      <div>
+                        <p className='text-sm text-gray-900 font-medium'>
+                          {selectedFile.file.name}
+                        </p>
+                        <p className='text-xs text-gray-500'>
+                          {(selectedFile.file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <Button.Root
+                      type='button'
+                      variant='neutral'
+                      mode='stroke'
+                      size='small'
+                      onClick={removeFile}
+                    >
+                      <RiDeleteBinLine className='h-4 w-4' />
+                    </Button.Root>
+                  </div>
+                  {selectedFile.preview && (
+                    <div className='mt-3'>
+                      <img
+                        src={selectedFile.preview}
+                        alt='Preview'
+                        className='max-h-32 rounded border'
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label.Root
+                htmlFor='responseNotes'
+                className='mb-2 block font-medium'
+              >
+                Customer Notes (Optional)
+              </Label.Root>
               <TextArea.Root
                 id='responseNotes'
+                placeholder='Enter any additional notes about the acceptance'
                 value={responseNotes}
                 onChange={(e) => setResponseNotes(e.target.value)}
-                placeholder='Any additional notes or comments...'
-                disabled={isSubmitting}
+                rows={3}
               />
             </div>
           </Modal.Body>
@@ -150,7 +345,12 @@ export function AcceptQuotationModal({
             <Button.Root
               type='submit'
               variant='primary'
-              disabled={isSubmitting || !acceptanceInfo.trim()}
+              disabled={
+                isSubmitting ||
+                !approvalType.trim() ||
+                !purchaseOrderNumber.trim() ||
+                !purchaseOrderDate.trim()
+              }
             >
               <RiCheckLine className='size-4' />
               {isSubmitting ? 'Accepting...' : 'Accept Quotation'}

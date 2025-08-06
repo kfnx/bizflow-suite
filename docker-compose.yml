@@ -2,11 +2,11 @@ services:
   # MySQL Database
   mysql:
     image: mysql:8.0
-    container_name: bizdocgen-mysql
+    container_name: mysti-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: bizdocgen
+      MYSQL_DATABASE: mysti
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
@@ -15,7 +15,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
     networks:
-      - bizdocgen-network
+      - mysti-network
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 20s
@@ -26,7 +26,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bizdocgen-app
+    container_name: mysti-app
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -36,12 +36,12 @@ services:
       - DB_PORT=3306
       - DB_USER=user
       - DB_PASSWORD=password
-      - DB_NAME=bizdocgen
+      - DB_NAME=mysti
     depends_on:
       mysql:
         condition: service_healthy
     networks:
-      - bizdocgen-network
+      - mysti-network
     volumes:
       - ./uploads:/app/uploads
     healthcheck:
@@ -55,5 +55,5 @@ volumes:
     driver: local
 
 networks:
-  bizdocgen-network:
+  mysti-network:
     driver: bridge

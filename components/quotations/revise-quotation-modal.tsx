@@ -131,15 +131,9 @@ export function ReviseQuotationModal({
               />
             </div>
 
-            <div className='bg-amber-50 border-amber-200 rounded-md border p-3'>
-              <div className='flex items-center gap-2'>
-                <RiRefreshLine className='text-amber-600 size-4' />
-                <span className='text-sm text-amber-800 font-medium'>
-                  Note: This will return the quotation to draft status for
-                  editing.
-                </span>
-              </div>
-            </div>
+            <p className='p-2 text-paragraph-sm text-text-sub-600'>
+              *This will return the quotation to draft status for editing.
+            </p>
           </Modal.Body>
 
           <Modal.Footer>

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "37946636-8fb8-4b45-ace9-58a012c4f595",
+  "id": "f4829e44-304f-4624-9445-6ce9a61554de",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -1569,8 +1569,8 @@
           "autoincrement": false,
           "default": "'draft'"
         },
-        "payment_term": {
-          "name": "payment_term",
+        "payment_terms": {
+          "name": "payment_terms",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
@@ -2151,6 +2151,146 @@
       },
       "checkConstraint": {}
     },
+    "purchase_orders": {
+      "name": "purchase_orders",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(UUID())"
+        },
+        "quotation_id": {
+          "name": "quotation_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "number": {
+          "name": "number",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "approval_type": {
+          "name": "approval_type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "document": {
+          "name": "document",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "quotation_id_idx": {
+          "name": "quotation_id_idx",
+          "columns": [
+            "quotation_id"
+          ],
+          "isUnique": false
+        },
+        "number_idx": {
+          "name": "number_idx",
+          "columns": [
+            "number"
+          ],
+          "isUnique": false
+        },
+        "created_by_idx": {
+          "name": "created_by_idx",
+          "columns": [
+            "created_by"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_purchase_orders_quotation": {
+          "name": "fk_purchase_orders_quotation",
+          "tableFrom": "purchase_orders",
+          "tableTo": "quotations",
+          "columnsFrom": [
+            "quotation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_purchase_orders_created_by": {
+          "name": "fk_purchase_orders_created_by",
+          "tableFrom": "purchase_orders",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "purchase_orders_id": {
+          "name": "purchase_orders_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "purchase_orders_number_unique": {
+          "name": "purchase_orders_number_unique",
+          "columns": [
+            "number"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
     "quotation_items": {
       "name": "quotation_items",
       "columns": {
@@ -2375,22 +2515,22 @@
           "notNull": false,
           "autoincrement": false
         },
+        "purchase_order_id": {
+          "name": "purchase_order_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "customer_response_date": {
           "name": "customer_response_date",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "customer_response_notes": {
           "name": "customer_response_notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "customer_acceptance_info": {
-          "name": "customer_acceptance_info",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

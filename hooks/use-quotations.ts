@@ -84,7 +84,6 @@ export type QuotationDetail = Omit<Quotation, 'id' | 'tax'> & {
   customerContactPersonPhone?: string;
   customerResponseDate?: string;
   customerResponseNotes?: string;
-  customerAcceptanceInfo?: string;
   rejectionReason?: string;
   revisionReason?: string;
   invoicedAt?: string;

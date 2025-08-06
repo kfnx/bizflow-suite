@@ -52,7 +52,7 @@ export class OpenAPIGenerator {
       const spec: OpenAPISpec = {
         openapi: '3.0.3',
         info: {
-          title: 'BizDocGen API',
+          title: 'My STI API',
           description:
             'Auto-generated API documentation for business document generation and management system',
           version: '1.0.0',

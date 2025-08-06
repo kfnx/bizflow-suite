@@ -334,9 +334,9 @@ export const quotations = mysqlTable(
     termsAndConditions: text('terms_and_conditions'),
     createdBy: varchar('created_by', { length: 36 }).notNull(),
     approvedBy: varchar('approver_by', { length: 36 }),
-    customerResponseDate: timestamp('customer_response_date'),
+    purchaseOrderId: varchar('purchase_order_id', { length: 36 }),
+    customerResponseDate: date('customer_response_date'),
     customerResponseNotes: text('customer_response_notes'),
-    customerAcceptanceInfo: text('customer_acceptance_info'),
     rejectionReason: text('rejection_reason'),
     revisionReason: text('revision_reason'),
     revisionVersion: int('revision_version').default(0),
@@ -374,6 +374,8 @@ export const quotations = mysqlTable(
     // This relationship is handled through the invoices.quotationId instead
   ],
 );
+
+
 
 // Quotation Items table (for quotation line items)
 export const quotationItems = mysqlTable(
@@ -964,6 +966,40 @@ export const transferItems = mysqlTable(
   ],
 );
 
+// Purchase Orders table
+export const purchaseOrders = mysqlTable(
+  'purchase_orders',
+  {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
+    quotationId: varchar('quotation_id', { length: 36 }).notNull(),
+    number: varchar('number', { length: 50 }).notNull().unique(),
+    date: date('date').notNull(),
+    approvalType: varchar('approval_type', { length: 100 }).notNull(), // e.g., 'manager', 'director', 'auto'
+    document: varchar('document', { length: 500 }), // file path/URL
+    createdBy: varchar('created_by', { length: 36 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index('quotation_id_idx').on(table.quotationId),
+    index('number_idx').on(table.number),
+    index('created_by_idx').on(table.createdBy),
+    foreignKey({
+      columns: [table.quotationId],
+      foreignColumns: [quotations.id],
+      name: 'fk_purchase_orders_quotation',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'fk_purchase_orders_created_by',
+    }),
+  ],
+);
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   quotations: many(quotations),
@@ -1077,6 +1113,10 @@ export const quotationsRelations = relations(quotations, ({ one, many }) => ({
   quotationItems: many(quotationItems),
   // Note: invoices relation removed due to circular reference
   // This relationship is handled through the invoiceId field directly
+  purchaseOrder: one(purchaseOrders, {
+    fields: [quotations.purchaseOrderId],
+    references: [purchaseOrders.id],
+  }),
 }));
 
 export const quotationItemsRelations = relations(quotationItems, ({ one }) => ({
@@ -1251,6 +1291,17 @@ export const transferItemsRelations = relations(transferItems, ({ one }) => ({
   }),
 }));
 
+export const purchaseOrdersRelations = relations(purchaseOrders, ({ one }) => ({
+  quotation: one(quotations, {
+    fields: [purchaseOrders.quotationId],
+    references: [quotations.id],
+  }),
+  createdBy: one(users, {
+    fields: [purchaseOrders.createdBy],
+    references: [users.id],
+  }),
+}));
+
 // Roles and Permissions Relations
 export const rolesRelations = relations(roles, ({ many }) => ({
   userRoles: many(userRoles),
@@ -1327,18 +1378,18 @@ export interface ProductQueryParams {
   supplierId?: string;
   warehouseId?: string;
   sortBy?:
-    | 'name-asc'
-    | 'name-desc'
-    | 'code-asc'
-    | 'code-desc'
-    | 'price-asc'
-    | 'price-desc'
-    | 'category-asc'
-    | 'category-desc'
-    | 'year-asc'
-    | 'year-desc'
-    | 'created-asc'
-    | 'created-desc';
+  | 'name-asc'
+  | 'name-desc'
+  | 'code-asc'
+  | 'code-desc'
+  | 'price-asc'
+  | 'price-desc'
+  | 'category-asc'
+  | 'category-desc'
+  | 'year-asc'
+  | 'year-desc'
+  | 'created-asc'
+  | 'created-desc';
   page?: number;
   limit?: number;
 }
@@ -1451,6 +1502,9 @@ export type Transfer = typeof transfers.$inferSelect;
 export type InsertTransfer = typeof transfers.$inferInsert;
 export type TransferItem = typeof transferItems.$inferSelect;
 export type InsertTransferItem = typeof transferItems.$inferInsert;
+
+export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+export type InsertPurchaseOrder = typeof purchaseOrders.$inferInsert;
 
 // Roles and Permissions types
 export type Role = typeof roles.$inferSelect;

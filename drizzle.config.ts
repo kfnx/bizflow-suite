@@ -15,7 +15,7 @@ const dbCredentials = {
   port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'user',
   password: process.env.DB_PASSWORD || 'password',
-  database: process.env.DB_NAME || 'bizdocgen',
+  database: process.env.DB_NAME || 'mysti',
 };
 
 if (process.env.DB_SSL === 'required') {

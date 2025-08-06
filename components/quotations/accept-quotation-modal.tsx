@@ -197,7 +197,7 @@ export function AcceptQuotationModal({
         </Modal.Header>
 
         <form onSubmit={handleSubmit}>
-          <Modal.Body className='space-y-4'>
+          <Modal.Body className='max-h-[80vh] space-y-4 overflow-y-auto'>
             <div>
               <Label.Root
                 htmlFor='approvalType'

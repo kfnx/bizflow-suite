@@ -23,6 +23,7 @@ import {
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
+import { PurchaseOrderInfo } from '@/components/quotations/purchase-order-info';
 import { QuotationStatusBadge } from '@/components/quotations/quotation-status-badge';
 
 import { Asterisk } from '../ui/label';
@@ -86,6 +87,20 @@ function QuotationPreviewContent({
           Total Amount
         </div>
       </div>
+
+      {/* Purchase Order Section */}
+      {quotation.purchaseOrder && (
+        <>
+          <Divider.Root variant='solid-text'>Purchase Order</Divider.Root>
+          <div className='p-5'>
+            <PurchaseOrderInfo
+              purchaseOrder={quotation.purchaseOrder}
+              customerResponseDate={quotation.customerResponseDate}
+              customerResponseNotes={quotation.customerResponseNotes}
+            />
+          </div>
+        </>
+      )}
 
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 

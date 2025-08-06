@@ -1,16 +1,23 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { RiCheckLine, RiCloseLine, RiCalendarLine, RiFileTextLine, RiUploadLine, RiDeleteBinLine } from '@remixicon/react';
+import { useRef, useState } from 'react';
+import {
+  RiCalendarLine,
+  RiCheckLine,
+  RiCloseLine,
+  RiDeleteBinLine,
+  RiFileTextLine,
+  RiUploadLine,
+} from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import * as Button from '@/components/ui/button';
-import * as Modal from '@/components/ui/modal';
-import * as TextArea from '@/components/ui/textarea';
-import * as Select from '@/components/ui/select';
-import * as Label from '@/components/ui/label';
 import * as Input from '@/components/ui/input';
+import * as Label from '@/components/ui/label';
+import * as Modal from '@/components/ui/modal';
+import * as Select from '@/components/ui/select';
+import * as TextArea from '@/components/ui/textarea';
 
 interface AcceptQuotationModalProps {
   quotationId: string;
@@ -42,11 +49,23 @@ export function AcceptQuotationModal({
 
   const handleFileSelect = (file: File) => {
     // Validate file type
-    const allowedTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.gif'];
-    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    const allowedTypes = [
+      '.pdf',
+      '.doc',
+      '.docx',
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+    ];
+    const fileExtension = file.name
+      .toLowerCase()
+      .substring(file.name.lastIndexOf('.'));
 
     if (!allowedTypes.includes(fileExtension)) {
-      toast.error('Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF');
+      toast.error(
+        'Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF',
+      );
       return;
     }
 
@@ -170,9 +189,11 @@ export function AcceptQuotationModal({
 
   return (
     <Modal.Root open={isOpen} onOpenChange={handleClose}>
-      <Modal.Content>
+      <Modal.Content className='w-full max-w-2xl'>
         <Modal.Header>
-          <Modal.Title>Accept Quotation - Purchase Order Information</Modal.Title>
+          <Modal.Title>
+            Accept Quotation - Purchase Order Information
+          </Modal.Title>
         </Modal.Header>
 
         <form onSubmit={handleSubmit}>
@@ -182,7 +203,7 @@ export function AcceptQuotationModal({
                 htmlFor='approvalType'
                 className='mb-2 block font-medium'
               >
-                Approval Type *
+                Approval Type <Label.Asterisk />
               </Label.Root>
               <Select.Root
                 value={approvalType}
@@ -194,10 +215,18 @@ export function AcceptQuotationModal({
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value='formal_po'>Formal PO</Select.Item>
-                  <Select.Item value='email_approval'>Email Approval</Select.Item>
-                  <Select.Item value='whatsapp_approval'>WhatsApp Approval</Select.Item>
-                  <Select.Item value='phone_call_approval'>Phone Call Approval</Select.Item>
-                  <Select.Item value='in_person_approval'>In-Person Approval</Select.Item>
+                  <Select.Item value='email_approval'>
+                    Email Approval
+                  </Select.Item>
+                  <Select.Item value='whatsapp_approval'>
+                    WhatsApp Approval
+                  </Select.Item>
+                  <Select.Item value='phone_call_approval'>
+                    Phone Call Approval
+                  </Select.Item>
+                  <Select.Item value='in_person_approval'>
+                    In-Person Approval
+                  </Select.Item>
                 </Select.Content>
               </Select.Root>
             </div>
@@ -207,7 +236,7 @@ export function AcceptQuotationModal({
                 htmlFor='purchaseOrderNumber'
                 className='mb-2 block font-medium'
               >
-                Purchase Order Number *
+                Purchase Order Number <Label.Asterisk />
               </Label.Root>
               <Input.Root>
                 <Input.Wrapper>
@@ -250,7 +279,7 @@ export function AcceptQuotationModal({
 
               {!selectedFile ? (
                 <div
-                  className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${isDragOver
+                  className={`flex items-center rounded-lg border-2 border-dashed p-4 text-center transition-colors ${isDragOver
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-300 hover:border-gray-400'
                     }`}
@@ -262,12 +291,9 @@ export function AcceptQuotationModal({
                   onDrop={handleFileDrop}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <RiUploadLine className='text-gray-400 mx-auto mb-4 h-12 w-12' />
-                  <p className='text-sm text-gray-600 mb-2'>
+                  <RiUploadLine className='text-gray-400 h-16 w-16' />
+                  <p className='mb-2 text-label-sm text-text-soft-400'>
                     Drag and drop a file here, or click to select
-                  </p>
-                  <p className='text-xs text-gray-500'>
-                    Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF (Max 10MB)
                   </p>
                   <input
                     ref={fileInputRef}

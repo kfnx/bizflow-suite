@@ -64,6 +64,16 @@ export type QuotationItem = {
   notes?: string;
 };
 
+// Purchase order type
+export type PurchaseOrder = {
+  id: string;
+  number: string;
+  date: Date;
+  approvalType: string;
+  document?: string;
+  createdAt: Date;
+};
+
 // TODO: update, crosscheck with schema type
 export type QuotationDetail = Omit<Quotation, 'id' | 'tax'> & {
   id: string;
@@ -95,6 +105,13 @@ export type QuotationDetail = Omit<Quotation, 'id' | 'tax'> & {
   createdByUserFirstName?: string;
   createdByUserLastName?: string;
   createdByUserPhone?: string;
+  approvedByUserPrefix?: string;
+  approvedByUserFirstName?: string;
+  approvedByUserLastName?: string;
+  approvedByUserPhone?: string;
+  // Purchase order fields
+  purchaseOrderId?: string;
+  purchaseOrder?: PurchaseOrder;
 };
 
 export type QuotationsFilters = {

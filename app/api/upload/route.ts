@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { requireAuth } from '@/lib/auth/authorization';
-import { uploadFile, validateFileType, validateFileSize } from '@/lib/minio';
+import { uploadFile, validateFileSize, validateFileType } from '@/lib/minio';
 
 export async function POST(request: NextRequest) {
   const session = await requireAuth(request);
@@ -14,16 +15,16 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Validate file type
     if (!validateFileType(file.name)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF' },
+        {
+          error:
+            'Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF',
+        },
         { status: 400 },
       );
     }
@@ -58,4 +59,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-} 
+}

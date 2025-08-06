@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { quotations, purchaseOrders } from '@/lib/db/schema';
-import { uploadFile, validateFileType, validateFileSize } from '@/lib/minio';
+import { purchaseOrders, quotations } from '@/lib/db/schema';
+import { uploadFile, validateFileSize, validateFileType } from '@/lib/minio';
 
 const acceptQuotationSchema = z.object({
   approvalType: z.string().min(1, 'Approval type is required'),
@@ -104,7 +104,10 @@ export async function POST(
       // Validate file type
       if (!validateFileType(file.name)) {
         return NextResponse.json(
-          { error: 'Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF' },
+          {
+            error:
+              'Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF',
+          },
           { status: 400 },
         );
       }
@@ -123,16 +126,14 @@ export async function POST(
     }
 
     // Create purchase order
-    const [purchaseOrder] = await db
-      .insert(purchaseOrders)
-      .values({
-        quotationId: id,
-        number: purchaseOrderNumber.trim(),
-        date: purchaseOrderDateObj,
-        approvalType: approvalType.trim(),
-        document: documentUrl,
-        createdBy: session.user.id,
-      });
+    const [purchaseOrder] = await db.insert(purchaseOrders).values({
+      quotationId: id,
+      number: purchaseOrderNumber.trim(),
+      date: purchaseOrderDateObj,
+      approvalType: approvalType.trim(),
+      document: documentUrl,
+      createdBy: session.user.id,
+    });
 
     // Get the created purchase order data
     const [createdPurchaseOrder] = await db

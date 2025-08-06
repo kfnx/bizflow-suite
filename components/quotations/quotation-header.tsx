@@ -3,40 +3,27 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import {
-  RiArrowLeftLine,
   RiCheckLine,
   RiCloseLine,
-  RiDownloadLine,
   RiEditLine,
   RiFileTextLine,
   RiMailSendLine,
-  RiMoreLine,
-  RiPrinterLine,
   RiRefreshLine,
-  RiShareLine,
 } from '@remixicon/react';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
 import {
-  canCreateInvoice,
   isQuotationInvoiced,
   QuotationDetail,
   useSendQuotation,
 } from '@/hooks/use-quotations';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
-import * as Dropdown from '@/components/ui/dropdown';
 import { AcceptQuotationModal } from '@/components/quotations/accept-quotation-modal';
 import { MarkAsInvoiceModal } from '@/components/quotations/mark-as-invoice-modal';
-import {
-  downloadQuotationPDF,
-  printQuotationPDF,
-} from '@/components/quotations/quotation-pdf-download';
 import { RejectQuotationModal } from '@/components/quotations/reject-quotation-modal';
 import { ReviseQuotationModal } from '@/components/quotations/revise-quotation-modal';
-
-import { BackButton } from '../back-button';
 
 interface QuotationHeaderProps {
   quotation: QuotationDetail;

@@ -1,4 +1,4 @@
-import { minioClient, BUCKETS, initializeAllBuckets } from './minio';
+import { BUCKETS, initializeAllBuckets, minioClient } from './minio';
 
 async function initMinIO() {
   try {
@@ -7,7 +7,10 @@ async function initMinIO() {
     // Test connection
     const buckets = await minioClient.listBuckets();
     console.log('Connected to MinIO successfully');
-    console.log('Existing buckets:', buckets.map(b => b.name));
+    console.log(
+      'Existing buckets:',
+      buckets.map((b) => b.name),
+    );
 
     // Initialize all buckets
     await initializeAllBuckets();
@@ -24,4 +27,4 @@ if (require.main === module) {
   initMinIO();
 }
 
-export { initMinIO }; 
+export { initMinIO };

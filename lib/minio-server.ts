@@ -21,4 +21,4 @@ export async function initializeMinIOServer() {
 // Initialize on module load (for server-side)
 if (typeof window === 'undefined') {
   initializeMinIOServer();
-} 
+}

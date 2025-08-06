@@ -23,7 +23,7 @@ export const quotations = [
     quotationDate: new Date('2025-04-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer1,
-    approverBy: userIds.manager_kendari, // Manager
+    approvedBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
@@ -47,7 +47,7 @@ export const quotations = [
     quotationDate: new Date('2025-04-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer2,
-    approverBy: userIds.user4, // Director
+    approvedBy: userIds.user4, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
@@ -68,7 +68,7 @@ export const quotations = [
     quotationDate: new Date('2025-05-29'),
     validUntil: new Date('2025-07-29'),
     customerId: customerIds.customer3,
-    approverBy: userIds.manager_kendari, // Manager
+    approvedBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
@@ -99,7 +99,7 @@ export const quotations = [
     quotationDate: new Date('2025-01-30'),
     validUntil: new Date('2025-02-28'),
     customerId: customerIds.customer4,
-    approverBy: userIds.user4, // Director
+    approvedBy: userIds.user4, // Director
     createdBy: userIds.user4, // Rizky - HO Jakarta
     branchId: branchIds.ho_jakarta, // Created by Rizky at HO Jakarta
     isIncludePPN: true,
@@ -117,7 +117,7 @@ export const quotations = [
     quotationDate: new Date('2025-06-15'),
     validUntil: new Date('2025-07-15'),
     customerId: customerIds.customer5,
-    approverBy: userIds.manager_kendari, // Manager
+    approvedBy: userIds.manager_kendari, // Manager
     createdBy: userIds.user4, // Rini - Balikpapan branch
     branchId: branchIds.balikpapan, // Created by Rini at Balikpapan branch
     isIncludePPN: true,
@@ -135,7 +135,7 @@ export const quotations = [
     quotationDate: new Date('2025-06-20'),
     validUntil: new Date('2025-07-20'),
     customerId: customerIds.customer1,
-    approverBy: userIds.user4, // Director
+    approvedBy: userIds.user4, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,
@@ -153,7 +153,7 @@ export const quotations = [
     quotationDate: new Date('2025-09-10'),
     validUntil: new Date('2025-12-10'),
     customerId: customerIds.customer2,
-    approverBy: userIds.manager_kendari, // Manager
+    approvedBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
@@ -171,7 +171,7 @@ export const quotations = [
     quotationDate: new Date('2025-10-15'),
     validUntil: new Date('2025-11-15'),
     customerId: customerIds.customer3,
-    approverBy: userIds.manager_kendari, // Manager
+    approvedBy: userIds.manager_kendari, // Manager
     createdBy: userIds.staff_pekanbaru, // Asep - Pekanbaru branch
     branchId: branchIds.pekanbaru, // Created by Asep at Pekanbaru branch
     isIncludePPN: true,
@@ -189,7 +189,7 @@ export const quotations = [
     quotationDate: new Date('2025-10-20'),
     validUntil: new Date('2025-11-20'),
     customerId: customerIds.customer4,
-    approverBy: userIds.user4, // Director
+    approvedBy: userIds.user4, // Director
     createdBy: userIds.manager_kendari, // Budi - Kendari branch
     branchId: branchIds.kendari, // Created by Budi at Kendari branch
     isIncludePPN: false,

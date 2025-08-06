@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
-
-import { minioClient, BUCKETS, initializeAllBuckets } from '../lib/minio';
+import { BUCKETS, initializeAllBuckets, minioClient } from '../lib/minio';
 
 async function testMinIO() {
   try {
@@ -9,7 +8,10 @@ async function testMinIO() {
     // Test connection
     const buckets = await minioClient.listBuckets();
     console.log('✅ Connected to MinIO successfully');
-    console.log('📦 Existing buckets:', buckets.map(b => b.name));
+    console.log(
+      '📦 Existing buckets:',
+      buckets.map((b) => b.name),
+    );
 
     // Initialize all buckets
     await initializeAllBuckets();
@@ -30,11 +32,10 @@ async function testMinIO() {
     for (const [bucketKey, bucketName] of Object.entries(BUCKETS)) {
       console.log(`   ${bucketKey}: ${bucketName}`);
     }
-
   } catch (error) {
     console.error('❌ MinIO test failed:', error);
     process.exit(1);
   }
 }
 
-testMinIO(); 
+testMinIO();

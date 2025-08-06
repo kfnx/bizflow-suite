@@ -63,19 +63,15 @@ export async function uploadFile(
     const uniqueFileName = `${timestamp}-${fileName}`;
 
     // Upload file to MinIO
-    await minioClient.putObject(
-      bucketName,
-      uniqueFileName,
-      file,
-      file.length,
-      { 'Content-Type': contentType }
-    );
+    await minioClient.putObject(bucketName, uniqueFileName, file, file.length, {
+      'Content-Type': contentType,
+    });
 
     // Return the file URL
     const fileUrl = await minioClient.presignedGetObject(
       bucketName,
       uniqueFileName,
-      24 * 60 * 60 // 24 hours expiry
+      24 * 60 * 60, // 24 hours expiry
     );
 
     return fileUrl;
@@ -101,19 +97,15 @@ export async function uploadFileToFolder(
     const fullPath = `${folderPath}/${uniqueFileName}`;
 
     // Upload file to MinIO with folder structure
-    await minioClient.putObject(
-      bucketName,
-      fullPath,
-      file,
-      file.length,
-      { 'Content-Type': contentType }
-    );
+    await minioClient.putObject(bucketName, fullPath, file, file.length, {
+      'Content-Type': contentType,
+    });
 
     // Return the file URL
     const fileUrl = await minioClient.presignedGetObject(
       bucketName,
       fullPath,
-      24 * 60 * 60 // 24 hours expiry
+      24 * 60 * 60, // 24 hours expiry
     );
 
     return fileUrl;
@@ -124,7 +116,10 @@ export async function uploadFileToFolder(
 }
 
 // Delete file from specific bucket
-export async function deleteFile(fileName: string, bucketName: string = BUCKETS.PURCHASE_ORDERS): Promise<void> {
+export async function deleteFile(
+  fileName: string,
+  bucketName: string = BUCKETS.PURCHASE_ORDERS,
+): Promise<void> {
   try {
     await minioClient.removeObject(bucketName, fileName);
   } catch (error) {
@@ -134,12 +129,15 @@ export async function deleteFile(fileName: string, bucketName: string = BUCKETS.
 }
 
 // Get file URL (presigned URL for temporary access)
-export async function getFileUrl(fileName: string, bucketName: string = BUCKETS.PURCHASE_ORDERS): Promise<string> {
+export async function getFileUrl(
+  fileName: string,
+  bucketName: string = BUCKETS.PURCHASE_ORDERS,
+): Promise<string> {
   try {
     return await minioClient.presignedGetObject(
       bucketName,
       fileName,
-      24 * 60 * 60 // 24 hours expiry
+      24 * 60 * 60, // 24 hours expiry
     );
   } catch (error) {
     console.error('Error generating file URL:', error);
@@ -148,7 +146,10 @@ export async function getFileUrl(fileName: string, bucketName: string = BUCKETS.
 }
 
 // List files in a bucket (with optional prefix for folders)
-export async function listFiles(bucketName: string, prefix?: string): Promise<string[]> {
+export async function listFiles(
+  bucketName: string,
+  prefix?: string,
+): Promise<string[]> {
   try {
     const files: string[] = [];
     const stream = minioClient.listObjects(bucketName, prefix, true);
@@ -168,8 +169,18 @@ export async function listFiles(bucketName: string, prefix?: string): Promise<st
 
 // Validate file type
 export function validateFileType(fileName: string): boolean {
-  const allowedExtensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.gif'];
-  const fileExtension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
+  const allowedExtensions = [
+    '.pdf',
+    '.doc',
+    '.docx',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+  ];
+  const fileExtension = fileName
+    .toLowerCase()
+    .substring(fileName.lastIndexOf('.'));
   return allowedExtensions.includes(fileExtension);
 }
 
@@ -181,4 +192,5 @@ export function validateFileSize(fileSize: number): boolean {
 
 // Legacy function for backward compatibility
 export const PURCHASE_ORDER_BUCKET = BUCKETS.PURCHASE_ORDERS;
-export const initializePurchaseOrderBucket = () => initializeBucket(BUCKETS.PURCHASE_ORDERS); 
+export const initializePurchaseOrderBucket = () =>
+  initializeBucket(BUCKETS.PURCHASE_ORDERS);

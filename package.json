@@ -19,7 +19,14 @@
     "db:truncate": "dotenv -- tsx lib/db/truncate.ts",
     "db:seed": "dotenv -- tsx lib/db/seed/index.ts",
     "db:drop": "drizzle-kit drop",
-    "test:minio": "dotenv -- tsx scripts/test-minio.ts"
+    "test:minio": "dotenv -- tsx scripts/test-minio.ts",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:dev": "docker-compose up mysql minio -d",
+    "docker:logs": "docker-compose logs -f",
+    "docker:rebuild": "docker-compose up -d --build",
+    "docker:clean": "docker-compose down -v && docker system prune -f",
+    "init:minio": "./scripts/init-minio.sh"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",

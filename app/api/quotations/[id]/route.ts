@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
@@ -8,6 +8,7 @@ import {
   customerContactPersons,
   customers,
   products,
+  purchaseOrders,
   quotationItems,
   quotations,
   users,
@@ -39,7 +40,6 @@ export async function GET(
         customerContactPersonPhone: customerContactPersons.phone,
         branchId: quotations.branchId,
         branchName: branches.name,
-        approvedBy: quotations.approvedBy,
         isIncludePPN: quotations.isIncludePPN,
         subtotal: quotations.subtotal,
         tax: quotations.tax,
@@ -54,9 +54,22 @@ export async function GET(
         createdByUserFirstName: users.firstName,
         createdByUserLastName: users.lastName,
         createdByUserPhone: users.phone,
+        approvedBy: quotations.approvedBy,
+        approvedByUserPrefix: sql<string>`u2.prefix`.as('approvedByUserPrefix'),
+        approvedByUserFirstName: sql<string>`u2.first_name`.as(
+          'approvedByUserFirstName',
+        ),
+        approvedByUserLastName: sql<string>`u2.last_name`.as(
+          'approvedByUserLastName',
+        ),
+        approvedByUserPhone: sql<string>`u2.phone`.as('approvedByUserPhone'),
         createdAt: quotations.createdAt,
         updatedAt: quotations.updatedAt,
         revisionVersion: quotations.revisionVersion,
+        // Purchase order fields
+        purchaseOrderId: quotations.purchaseOrderId,
+        customerResponseDate: quotations.customerResponseDate,
+        customerResponseNotes: quotations.customerResponseNotes,
       })
       .from(quotations)
       .leftJoin(customers, eq(quotations.customerId, customers.id))
@@ -65,6 +78,7 @@ export async function GET(
         eq(quotations.customerId, customerContactPersons.customerId),
       )
       .leftJoin(users, eq(quotations.createdBy, users.id))
+      .leftJoin(sql`${users} AS u2`, sql`${quotations.approvedBy} = u2.id`)
       .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(eq(quotations.id, id))
       .limit(1);
@@ -90,10 +104,32 @@ export async function GET(
       .leftJoin(products, eq(quotationItems.productId, products.id))
       .where(eq(quotationItems.quotationId, id));
 
+    // Fetch purchase order data if exists
+    let purchaseOrder = null;
+    if (quotationData[0].purchaseOrderId) {
+      const purchaseOrderData = await db
+        .select({
+          id: purchaseOrders.id,
+          number: purchaseOrders.number,
+          date: purchaseOrders.date,
+          approvalType: purchaseOrders.approvalType,
+          document: purchaseOrders.document,
+          createdAt: purchaseOrders.createdAt,
+        })
+        .from(purchaseOrders)
+        .where(eq(purchaseOrders.id, quotationData[0].purchaseOrderId))
+        .limit(1);
+
+      if (purchaseOrderData.length > 0) {
+        purchaseOrder = purchaseOrderData[0];
+      }
+    }
+
     return NextResponse.json({
       data: {
         ...quotationData[0],
         items,
+        purchaseOrder,
       },
     });
   } catch (error) {
@@ -277,6 +313,14 @@ export async function PUT(
         customerContactPersonPhone: customerContactPersons.phone,
         branchName: branches.name,
         approvedBy: quotations.approvedBy,
+        approvedByUserPrefix: sql<string>`u2.prefix`.as('approvedByUserPrefix'),
+        approvedByUserFirstName: sql<string>`u2.first_name`.as(
+          'approvedByUserFirstName',
+        ),
+        approvedByUserLastName: sql<string>`u2.last_name`.as(
+          'approvedByUserLastName',
+        ),
+        approvedByUserPhone: sql<string>`u2.phone`.as('approvedByUserPhone'),
         subtotal: quotations.subtotal,
         tax: quotations.tax,
         total: quotations.total,
@@ -296,6 +340,7 @@ export async function PUT(
         eq(quotations.customerId, customerContactPersons.customerId),
       )
       .leftJoin(users, eq(quotations.createdBy, users.id))
+      .leftJoin(sql`${users} AS u2`, sql`${quotations.approvedBy} = u2.id`)
       .leftJoin(branches, eq(quotations.branchId, branches.id))
       .where(eq(quotations.id, id))
       .limit(1);

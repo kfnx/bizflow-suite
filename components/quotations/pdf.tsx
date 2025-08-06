@@ -182,7 +182,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
 
-  // Signatures Section
+  preparedBySection: {
+    flexDirection: 'row',
+    padding: '0 30px',
+    marginBottom: 30,
+  },
+  preparedByText: {
+    fontWeight: 'bold',
+  },
   signaturesSection: {
     flexDirection: 'row',
     padding: '0 30px',
@@ -443,8 +450,8 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               </View>
             </View>
           </View>
-          <View style={styles.signaturesSection}>
-            <Text style={styles.signatureTitle}>
+          <View style={styles.preparedBySection}>
+            <Text style={styles.preparedByText}>
               Prepared by: {quotation.createdByUser}{' '}
               {quotation.createdByUserPrefix} {quotation.createdByUserFirstName}{' '}
               {quotation.createdByUserLastName} ({quotation.createdByUserPhone})
@@ -456,8 +463,14 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
             <View style={styles.signatureColumn}>
               <Text style={styles.signatureTitle}>Approved by:</Text>
               <View style={styles.signatureLine} />
-              <Text style={styles.signatureName}>Tony Rafly</Text>
-              <Text style={styles.signatureContact}>+6221-2266-3500</Text>
+              <Text style={styles.signatureName}>
+                {quotation.approvedByUserPrefix}{' '}
+                {quotation.approvedByUserFirstName}{' '}
+                {quotation.approvedByUserLastName}
+              </Text>
+              <Text style={styles.signatureContact}>
+                {quotation.approvedByUserPhone}
+              </Text>
             </View>
             <View style={styles.signatureColumn}>
               <Text style={styles.signatureTitle}>Customer Approval:</Text>

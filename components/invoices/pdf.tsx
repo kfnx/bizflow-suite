@@ -25,9 +25,10 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '100%',
     height: 80,
+    marginBottom: 20,
   },
   content: {
-    padding: 30,
+    padding: '10px 30px 10px',
   },
 
   // Title

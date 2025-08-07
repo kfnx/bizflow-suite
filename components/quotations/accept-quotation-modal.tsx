@@ -279,10 +279,11 @@ export function AcceptQuotationModal({
 
               {!selectedFile ? (
                 <div
-                  className={`flex items-center rounded-lg border-2 border-dashed p-4 text-center transition-colors ${isDragOver
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                  className={`flex items-center rounded-lg border-2 border-dashed p-4 text-center transition-colors ${
+                    isDragOver
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setIsDragOver(true);

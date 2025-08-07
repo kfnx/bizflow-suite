@@ -10,9 +10,6 @@ import {
   RiArrowUpSFill,
   RiCalendarLine,
   RiExpandUpDownFill,
-  RiFileTextLine,
-  RiMapPinLine,
-  RiMoreLine,
   RiTruckLine,
   RiUserLine,
 } from '@remixicon/react';
@@ -24,18 +21,17 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
+import { toast } from 'sonner';
 
 import {
-  useDeleteDeliveryNote,
   useDeliveryNotes,
   type DeliveryNote,
-  type DeliveryNotesResponse,
 } from '@/hooks/use-delivery-notes';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
-import * as Dropdown from '@/components/ui/dropdown';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
+import { DeliveryNotePreviewDrawer } from '@/components/delivery-notes/delivery-note-preview-drawer';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -92,18 +88,33 @@ export function DeliveryNotesTable({
   onPageChange,
   onLimitChange,
 }: DeliveryNotesTableProps) {
-  const { data, isLoading, error } = useDeliveryNotes(filters);
+  const { data, isLoading, error, refetch } = useDeliveryNotes(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const deleteDeliveryNote = useDeleteDeliveryNote();
+  const [selectedDeliveryNoteId, setSelectedDeliveryNoteId] = React.useState<
+    string | null
+  >(null);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
-  const handleDelete = async (deliveryNoteId: string) => {
-    if (confirm('Are you sure you want to delete this delivery note?')) {
-      try {
-        await deleteDeliveryNote.mutateAsync(deliveryNoteId);
-      } catch (error) {
-        console.error('Error deleting delivery note:', error);
-      }
+  const handleRowClick = (deliveryNote: DeliveryNote) => {
+    setSelectedDeliveryNoteId(deliveryNote.id);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedDeliveryNoteId(null);
+  };
+
+  const handleEdit = (deliveryNote: DeliveryNote) => {
+    if (deliveryNote.status === 'delivered') {
+      toast.warning('Delivered delivery notes cannot be edited');
+      return;
     }
+    window.location.href = `/delivery-notes/${deliveryNote.id}/edit`;
+  };
+
+  const handleManualRefresh = () => {
+    refetch();
   };
 
   const columns: ColumnDef<DeliveryNote>[] = [
@@ -229,40 +240,6 @@ export function DeliveryNotesTable({
         </div>
       ),
     },
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => (
-        <Dropdown.Root>
-          <Dropdown.Trigger asChild>
-            <Button.Root mode='ghost' size='xsmall' className='h-8 w-8 p-0'>
-              <RiMoreLine className='size-4' />
-            </Button.Root>
-          </Dropdown.Trigger>
-          <Dropdown.Content align='end'>
-            <Dropdown.Item>
-              <RiFileTextLine className='size-4' />
-              View Details
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <RiTruckLine className='size-4' />
-              Track Delivery
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <RiMapPinLine className='size-4' />
-              View Route
-            </Dropdown.Item>
-            <Dropdown.Separator />
-            <Dropdown.Item
-              onClick={() => handleDelete(row.original.id)}
-              className='text-red-600'
-            >
-              Delete Delivery Note
-            </Dropdown.Item>
-          </Dropdown.Content>
-        </Dropdown.Root>
-      ),
-    },
   ];
 
   const table = useReactTable({
@@ -329,9 +306,22 @@ export function DeliveryNotesTable({
           </Table.Header>
           <Table.Body>
             {table.getRowModel().rows.map((row) => (
-              <Table.Row key={row.id}>
+              <Table.Row
+                key={row.id}
+                className='cursor-pointer hover:bg-bg-weak-50'
+              >
                 {row.getVisibleCells().map((cell) => (
-                  <Table.Cell key={cell.id}>
+                  <Table.Cell
+                    key={cell.id}
+                    className={
+                      cell.column.id !== 'actions' ? 'cursor-pointer' : ''
+                    }
+                    onClick={
+                      cell.column.id !== 'actions'
+                        ? () => handleRowClick(row.original)
+                        : undefined
+                    }
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Cell>
                 ))}
@@ -349,6 +339,13 @@ export function DeliveryNotesTable({
           onLimitChange={onLimitChange}
         />
       )}
+
+      {/* Delivery Note Preview Drawer */}
+      <DeliveryNotePreviewDrawer
+        deliveryNoteId={selectedDeliveryNoteId}
+        open={isDrawerOpen}
+        onClose={handleCloseDrawer}
+      />
     </div>
   );
 }

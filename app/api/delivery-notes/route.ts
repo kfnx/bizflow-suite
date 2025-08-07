@@ -35,8 +35,18 @@ export async function GET(request: NextRequest) {
     const whereConditions = [];
 
     // Branch-based access control
-    // HO users (ho_*) can see all branches, others can only see their own branch
-    if (session.user.branchId && !session.user.branchId.startsWith('ho_')) {
+    // HO users see all branches, others can only see their own branch
+    // get branch name from branchId
+    const branchName = session.user.branchId
+      ? await db
+          .select({ name: branches.name })
+          .from(branches)
+          .where(eq(branches.id, session.user.branchId))
+          .limit(1)
+          .then((result) => result[0]?.name || null)
+          .catch(() => null)
+      : null;
+    if (branchName && !branchName.startsWith('HO') && session.user.branchId) {
       whereConditions.push(eq(deliveryNotes.branchId, session.user.branchId));
     }
 
@@ -200,6 +210,89 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching delivery notes:', error);
     return NextResponse.json(
       { error: 'Failed to fetch delivery notes' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    // Basic validation
+    if (!body.customerId) {
+      return NextResponse.json(
+        { error: 'Customer is required' },
+        { status: 400 },
+      );
+    }
+
+    if (!body.deliveryDate) {
+      return NextResponse.json(
+        { error: 'Delivery date is required' },
+        { status: 400 },
+      );
+    }
+
+    if (!body.items || body.items.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one item is required' },
+        { status: 400 },
+      );
+    }
+
+    // Generate delivery number if not provided
+    let deliveryNumber = body.deliveryNumber;
+    if (!deliveryNumber) {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+      // Get count of delivery notes this month to generate sequence number
+      const monthDeliveryNotes = await db
+        .select({ count: deliveryNotes.id })
+        .from(deliveryNotes)
+        .where(like(deliveryNotes.deliveryNumber, `DN/${year}/${month}/%`));
+
+      const sequence = (monthDeliveryNotes.length + 1)
+        .toString()
+        .padStart(3, '0');
+      deliveryNumber = `DN/${year}/${month}/${sequence}`;
+    }
+
+    // Create delivery note
+    const deliveryNoteData = {
+      deliveryNumber,
+      customerId: body.customerId,
+      branchId: session.user.branchId || null,
+      deliveryDate: new Date(body.deliveryDate),
+      deliveryMethod: body.deliveryMethod || null,
+      driverName: body.driverName || null,
+      vehicleNumber: body.vehicleNumber || null,
+      status: DELIVERY_NOTE_STATUS.PENDING,
+      notes: body.notes || null,
+      createdBy: session.user.id,
+    };
+
+    await db.insert(deliveryNotes).values(deliveryNoteData);
+
+    return NextResponse.json(
+      {
+        message: 'Delivery note created successfully',
+        deliveryNumber,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error('Error creating delivery note:', error);
+    return NextResponse.json(
+      { error: 'Failed to create delivery note' },
       { status: 500 },
     );
   }

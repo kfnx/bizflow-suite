@@ -244,7 +244,7 @@ function QuotationPreviewFooter({
 
   const handleEdit = () => {
     if (quotation.status !== QUOTATION_STATUS.DRAFT) {
-      alert('Only draft quotations can be edited');
+      toast.warning('Only draft quotations can be edited');
       return;
     }
     window.location.href = `/quotations/${quotation.id}/edit`;
@@ -252,7 +252,7 @@ function QuotationPreviewFooter({
 
   const handleSubmit = async () => {
     if (quotation.status !== QUOTATION_STATUS.DRAFT) {
-      alert('Only draft quotations can be submitted');
+      toast.warning('Only draft quotations can be submitted');
       return;
     }
 
@@ -276,7 +276,7 @@ function QuotationPreviewFooter({
 
   const handleSend = async () => {
     if (quotation.status !== QUOTATION_STATUS.APPROVED) {
-      alert('Only approved quotations can be sent');
+      toast.warning('Only approved quotations can be sent');
       return;
     }
 
@@ -290,7 +290,7 @@ function QuotationPreviewFooter({
 
     try {
       await sendQuotationMutation.mutateAsync(quotation.id);
-      alert('Quotation sent successfully!');
+      toast.success('Quotation sent successfully!');
     } catch (error) {
       alert(
         error instanceof Error ? error.message : 'Failed to send quotation',
@@ -300,7 +300,7 @@ function QuotationPreviewFooter({
 
   const handleMarkAsInvoice = async () => {
     if (quotation.status !== QUOTATION_STATUS.ACCEPTED) {
-      alert('Only accepted quotations can be marked as invoice');
+      toast.warning('Only accepted quotations can be marked as invoice');
       return;
     }
 

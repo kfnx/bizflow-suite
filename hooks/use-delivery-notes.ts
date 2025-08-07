@@ -25,6 +25,18 @@ export type DeliveryNote = {
     id: string;
     code: string;
     name: string;
+    address?: string;
+    city?: string;
+    province?: string;
+    country?: string;
+    postalCode?: string;
+    contactPersons?: Array<{
+      id: string;
+      prefix?: string;
+      name: string;
+      email?: string;
+      phone?: string;
+    }>;
   };
   invoice?: {
     id: string;
@@ -45,6 +57,27 @@ export type DeliveryNote = {
     firstName: string;
     lastName: string;
   };
+};
+
+export type DeliveryNoteDetail = DeliveryNote & {
+  items: {
+    id: string;
+    productId: string;
+    quantity: number;
+    product?: {
+      id: string;
+      name: string;
+      code: string;
+      category?: string;
+      partNumber?: string;
+      modelNumber?: string;
+      engineNumber?: string;
+      serialNumber?: string;
+      additionalSpecs?: string;
+      machineTypeId?: string;
+      unitOfMeasureId?: string;
+    };
+  }[];
 };
 
 export type DeliveryNotesResponse = {
@@ -86,6 +119,48 @@ const fetchDeliveryNotes = async (
   return response.json();
 };
 
+const createDeliveryNote = async (data: any): Promise<void> => {
+  const response = await fetch('/api/delivery-notes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create delivery note');
+  }
+};
+
+const updateDeliveryNote = async (
+  deliveryNoteId: string,
+  data: any,
+): Promise<void> => {
+  const response = await fetch(`/api/delivery-notes/${deliveryNoteId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update delivery note');
+  }
+};
+
+const fetchDeliveryNoteDetail = async (
+  deliveryNoteId: string,
+): Promise<DeliveryNoteDetail> => {
+  const response = await fetch(`/api/delivery-notes/${deliveryNoteId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch delivery note details');
+  }
+  const data = await response.json();
+  return data.data;
+};
+
 const deleteDeliveryNote = async (deliveryNoteId: string): Promise<void> => {
   const response = await fetch(`/api/delivery-notes/${deliveryNoteId}`, {
     method: 'DELETE',
@@ -99,6 +174,63 @@ export function useDeliveryNotes(filters?: DeliveryNotesFilters) {
   return useQuery({
     queryKey: ['delivery-notes', filters],
     queryFn: () => fetchDeliveryNotes(filters),
+  });
+}
+
+export function useDeliveryNoteDetail(deliveryNoteId: string) {
+  return useQuery({
+    queryKey: ['delivery-note', deliveryNoteId],
+    queryFn: () => fetchDeliveryNoteDetail(deliveryNoteId),
+    enabled: !!deliveryNoteId,
+  });
+}
+
+export function useCreateDeliveryNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createDeliveryNote,
+    onSuccess: () => {
+      // Invalidate all delivery notes queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['delivery-notes'] });
+      // Also invalidate the delivery note number cache
+      queryClient.invalidateQueries({ queryKey: ['delivery-note-number'] });
+      console.log('Cache invalidated for delivery notes after creation');
+    },
+    onError: (error) => {
+      console.error('Failed to create delivery note:', error);
+    },
+  });
+}
+
+export function useUpdateDeliveryNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      deliveryNoteId,
+      data,
+    }: {
+      deliveryNoteId: string;
+      data: any;
+    }) => updateDeliveryNote(deliveryNoteId, data),
+    onSuccess: (_, variables) => {
+      // Invalidate delivery notes list
+      queryClient.invalidateQueries({ queryKey: ['delivery-notes'] });
+      // Invalidate specific delivery note detail
+      queryClient.invalidateQueries({
+        queryKey: ['delivery-note', variables.deliveryNoteId],
+      });
+      // Also invalidate all delivery note queries as fallback
+      queryClient.invalidateQueries({ queryKey: ['delivery-note'] });
+      console.log(
+        'Cache invalidated for delivery note after update:',
+        variables.deliveryNoteId,
+      );
+    },
+    onError: (error) => {
+      console.error('Failed to update delivery note:', error);
+    },
   });
 }
 

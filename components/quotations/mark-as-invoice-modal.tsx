@@ -74,17 +74,17 @@ export function MarkAsInvoiceModal({
     e.preventDefault();
 
     if (!invoiceNumber.trim()) {
-      alert('Please provide an Invoice Number');
+      toast.warning('Please provide an Invoice Number');
       return;
     }
 
     if (!invoiceDate.trim()) {
-      alert('Please provide an Invoice Date');
+      toast.warning('Please provide an Invoice Date');
       return;
     }
 
     if (!dueDate.trim()) {
-      alert('Please provide a Due Date');
+      toast.warning('Please provide a Due Date');
       return;
     }
 

@@ -14,6 +14,7 @@ import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
+import { toast } from 'sonner';
 
 interface InvoicePreviewDrawerProps {
   invoiceId: string | null;
@@ -176,7 +177,7 @@ function InvoicePreviewFooter({ invoice }: { invoice: InvoiceDetail }) {
 
   const handleEdit = () => {
     if (invoice.status !== 'draft') {
-      alert('Only draft invoices can be edited');
+      toast.warning('Only draft invoices can be edited');
       return;
     }
     window.location.href = `/invoices/${invoice.id}/edit`;
@@ -184,7 +185,7 @@ function InvoicePreviewFooter({ invoice }: { invoice: InvoiceDetail }) {
 
   const handleMarkAsPaid = async () => {
     if (invoice.status === 'paid') {
-      alert('Invoice is already marked as paid');
+      toast.warning('Invoice is already marked as paid');
       return;
     }
 
@@ -198,7 +199,7 @@ function InvoicePreviewFooter({ invoice }: { invoice: InvoiceDetail }) {
 
     try {
       // TODO: Implement mark as paid API call
-      alert('Invoice marked as paid successfully!');
+      toast.success('Invoice marked as paid successfully!');
     } catch (error) {
       alert(
         error instanceof Error

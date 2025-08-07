@@ -19,6 +19,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/date-formatter';
@@ -35,7 +36,6 @@ import {
 } from '@/components/ui/dropdown';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
-import { toast } from 'sonner';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -88,7 +88,7 @@ function ActionCell({ row }: { row: any }) {
 
     try {
       await resetPasswordMutation.mutateAsync(row.original.id);
-      toast.warning('Password reset successfully!');
+      toast.success('Password reset successfully!');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'An error occurred');
     }
@@ -372,9 +372,9 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
         </h3>
         <p className='text-sm text-gray-500 mt-1'>
           {filters?.search ||
-            filters?.role ||
-            filters?.status ||
-            filters?.branch
+          filters?.role ||
+          filters?.status ||
+          filters?.branch
             ? 'No users match your current filters. Try adjusting your search criteria.'
             : 'Get started by creating a new user account.'}
         </p>
@@ -396,9 +396,9 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               );
             })}

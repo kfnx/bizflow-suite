@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Button from '@/components/ui/button';
 import * as Modal from '@/components/ui/modal';
 import * as TextArea from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface ReviseQuotationModalProps {
   quotationId: string;
@@ -30,7 +31,7 @@ export function ReviseQuotationModal({
     e.preventDefault();
 
     if (!revisionReason.trim()) {
-      alert('Please provide a reason for revision');
+      toast.warning('Please provide a reason for revision');
       return;
     }
 

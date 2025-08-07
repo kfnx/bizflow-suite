@@ -31,7 +31,7 @@ export function RejectQuotationModal({
     e.preventDefault();
 
     if (!rejectionReason.trim()) {
-      alert('Please provide a reason for rejection');
+      toast.warning('Please provide a reason for rejection');
       return;
     }
 

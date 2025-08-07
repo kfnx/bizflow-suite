@@ -575,8 +575,6 @@ export const deliveryNoteItems = mysqlTable(
     deliveryNoteId: varchar('delivery_note_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
-    deliveredQuantity: int('delivered_quantity').default(0),
-    notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [

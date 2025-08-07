@@ -10,6 +10,7 @@ import {
   RiMailSendLine,
   RiRefreshLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { formatDate } from '@/utils/date-formatter';
@@ -107,7 +108,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
       quotation.status !== QUOTATION_STATUS.DRAFT &&
       quotation.status !== QUOTATION_STATUS.REVISED
     ) {
-      alert('Only draft and revised quotations can be edited');
+      toast.warning('Only draft and revised quotations can be edited');
       return;
     }
     window.location.href = `/quotations/${quotation.id}/edit`;
@@ -115,7 +116,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
 
   const handleSend = async () => {
     if (quotation.status !== 'approved') {
-      alert('Only approved quotations can be sent');
+      toast.warning('Only approved quotations can be sent');
       return;
     }
 
@@ -129,7 +130,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
 
     try {
       await sendQuotationMutation.mutateAsync(quotation.id);
-      alert('Quotation sent successfully!');
+      toast.success('Quotation sent successfully!');
     } catch (error) {
       alert(
         error instanceof Error ? error.message : 'Failed to send quotation',

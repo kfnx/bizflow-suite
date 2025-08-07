@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RiTruckLine } from '@remixicon/react';
 
 import { ActionButton } from '@/components/action-button';

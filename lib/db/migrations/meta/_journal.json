@@ -8,6 +8,13 @@
       "when": 1754461390587,
       "tag": "0000_dapper_loki",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1754555726486,
+      "tag": "0001_fuzzy_mongoose",
+      "breakpoints": true
     }
   ]
 }

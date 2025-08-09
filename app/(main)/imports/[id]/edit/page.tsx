@@ -64,7 +64,6 @@ export default function EditImportPage({ params }: EditImportPageProps) {
           machineTypeId: item.machineTypeId || '',
           unitOfMeasureId: item.unitOfMeasureId || '',
           partNumber: item.partNumber || '',
-          machineNumber: item.machineNumber || '',
           engineNumber: item.engineNumber || '',
           serialNumber: item.serialNumber || '',
           batchOrLotNumber: item.batchOrLotNumber || '',

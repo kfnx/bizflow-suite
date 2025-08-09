@@ -372,8 +372,8 @@ export function ImportDetail({ id }: ImportDetailProps) {
                       <span className='font-medium'>Subtotal (IDR):</span>{' '}
                       {formatCurrency(
                         parseFloat(item.priceRMB) *
-                          item.quantity *
-                          importData.exchangeRateRMBtoIDR,
+                        item.quantity *
+                        importData.exchangeRateRMBtoIDR,
                         'IDR',
                       )}
                     </div>
@@ -382,12 +382,6 @@ export function ImportDetail({ id }: ImportDetailProps) {
                   {/* Category-specific details */}
                   {item.category === 'serialized' && (
                     <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
-                      {item.machineNumber && (
-                        <div>
-                          <span className='font-medium'>Machine Number:</span>{' '}
-                          {item.machineNumber}
-                        </div>
-                      )}
                       {item.engineNumber && (
                         <div>
                           <span className='font-medium'>Engine Number:</span>{' '}
@@ -405,33 +399,27 @@ export function ImportDetail({ id }: ImportDetailProps) {
 
                   {(item.category === 'non_serialized' ||
                     item.category === 'bulk') && (
-                    <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
-                      {item.batchOrLotNumber && (
-                        <div>
-                          <span className='font-medium'>Batch/Lot:</span>{' '}
-                          {item.batchOrLotNumber}
-                        </div>
-                      )}
-                      {item.partNumber && (
-                        <div>
-                          <span className='font-medium'>Part Number:</span>{' '}
-                          {item.partNumber}
-                        </div>
-                      )}
-                      {item.brand && (
-                        <div>
-                          <span className='font-medium'>Brand:</span>{' '}
-                          {item.brand}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {item.notes && (
-                    <div className='mt-3 text-paragraph-sm text-text-sub-600'>
-                      <span className='font-medium'>Notes:</span> {item.notes}
-                    </div>
-                  )}
+                      <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
+                        {item.batchOrLotNumber && (
+                          <div>
+                            <span className='font-medium'>Batch/Lot:</span>{' '}
+                            {item.batchOrLotNumber}
+                          </div>
+                        )}
+                        {item.partNumber && (
+                          <div>
+                            <span className='font-medium'>Part Number:</span>{' '}
+                            {item.partNumber}
+                          </div>
+                        )}
+                        {item.brand && (
+                          <div>
+                            <span className='font-medium'>Brand:</span>{' '}
+                            {item.brand}
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>

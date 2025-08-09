@@ -19,12 +19,7 @@ import {
   parseNumberFromDots,
 } from '@/utils/number-formatter';
 import { useBrands, type Brand as BrandType } from '@/hooks/use-brands';
-import {
-  useCreateImport,
-  useUpdateImport,
-  type CreateImportData,
-  type ImportItem,
-} from '@/hooks/use-imports';
+import { useCreateImport, useUpdateImport } from '@/hooks/use-imports';
 import { useSuppliers } from '@/hooks/use-suppliers';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
@@ -43,27 +38,16 @@ interface ProductItem {
   priceRMB: string;
   quantity: string;
   notes?: string;
-
-  // Common fields
   brandId?: string;
   condition: 'new' | 'used' | 'refurbished';
-  year?: string;
-
-  // Category-specific fields
   machineTypeId?: string;
   unitOfMeasureId?: string;
   partNumber?: string;
-  machineNumber?: string;
+  modelNumber?: string;
   engineNumber?: string;
   serialNumber?: string;
-  model?: string;
-  engineModel?: string;
-  enginePower?: string;
-  operatingWeight?: string;
-
-  // Non-serialized specific
+  additionalSpecs?: string;
   batchOrLotNumber?: string;
-  modelNumber?: string;
 }
 
 interface ImportFormData {
@@ -180,7 +164,9 @@ function ProductItemForm({
           </Select.Root>
         </div>
         <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`brandInput-${index}`}>Brand</Label.Root>
+          <Label.Root htmlFor={`brandInput-${index}`}>
+            Brand <Label.Asterisk />
+          </Label.Root>
           <Select.Root
             value={item.brandId || ''}
             onValueChange={(value) => handleFieldChange('brandId', value)}
@@ -235,10 +221,33 @@ function ProductItemForm({
                 onChange={(e) =>
                   handleFieldChange('description', e.target.value)
                 }
-                placeholder='Enter description'
+                placeholder='Enter description (optional)'
               />
             </Input.Wrapper>
           </Input.Root>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <Label.Root htmlFor={`condition-${index}`}>
+            Condition <Label.Asterisk />
+          </Label.Root>
+          <Select.Root
+            value={item.condition}
+            onValueChange={(value) => handleFieldChange('condition', value)}
+          >
+            <Select.Trigger id={`condition-${index}`}>
+              <Select.Value placeholder='Select condition' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='new'>New</Select.Item>
+              <Select.Item value='used'>Used</Select.Item>
+              <Select.Item value='refurbished'>Refurbished</Select.Item>
+            </Select.Content>
+          </Select.Root>
+          {getFieldError('condition') && (
+            <div className='text-xs text-red-600'>
+              {getFieldError('condition')}
+            </div>
+          )}
         </div>
       </div>
 
@@ -296,7 +305,7 @@ function ProductItemForm({
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelNumber-${index}`}>
-              Model Number
+              Model Number <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
@@ -317,30 +326,8 @@ function ProductItemForm({
             )}
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`machineNumber-${index}`}>
-              Machine Number <Label.Asterisk />
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id={`machineNumber-${index}`}
-                  value={item.machineNumber || ''}
-                  onChange={(e) =>
-                    handleFieldChange('machineNumber', e.target.value)
-                  }
-                  placeholder='Machine Number'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-            {getFieldError('machineNumber') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('machineNumber')}
-              </div>
-            )}
-          </div>
-          <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`engineNumber-${index}`}>
-              Engine Number
+              Engine Number <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
@@ -360,13 +347,31 @@ function ProductItemForm({
               </div>
             )}
           </div>
+          <div className='col-span-full flex flex-col gap-2'>
+            <Label.Root htmlFor={`additionalSpecs-${index}`}>
+              Additional Specifications
+            </Label.Root>
+            <TextArea.Root
+              id={`additionalSpecs-${index}`}
+              value={item.additionalSpecs || ''}
+              onChange={(e) =>
+                handleFieldChange('additionalSpecs', e.target.value)
+              }
+              rows={3}
+              placeholder={`example:
+engine model WD10G220E23 220 hp
+operating weight 18,500 kg
+year 2023`}
+              simple
+            />
+          </div>
         </div>
       )}
       {item.category === 'non_serialized' && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`batchLotNumber-${index}`}>
-              Batch/Lot Number
+              Batch/Lot Number <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
@@ -392,7 +397,7 @@ function ProductItemForm({
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`modelPartNumber-${index}`}>
-              Part Number
+              Part Number <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
@@ -414,7 +419,7 @@ function ProductItemForm({
           </div>
           <div className='flex flex-col gap-2'>
             <Label.Root htmlFor={`batchLotNumberBulk-${index}`}>
-              Batch/Lot Number
+              Batch/Lot Number <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
@@ -608,12 +613,12 @@ export function ImportForm({
       quantity: '1',
       condition: 'new',
       modelNumber: '',
-      machineNumber: '',
       engineNumber: '',
       brandId: '',
       unitOfMeasureId: unitUoM ? unitUoM.id : '',
       batchOrLotNumber: '',
       partNumber: '',
+      additionalSpecs: '',
     };
   }
 
@@ -725,8 +730,15 @@ export function ImportForm({
     }
 
     formData.items.forEach((item, index) => {
+      // Common mandatory fields for all product types (except description)
       if (!item.name.trim()) {
         errors[`items.${index}.name`] = 'Name is required';
+      }
+      if (!item.brandId?.trim()) {
+        errors[`items.${index}.brandId`] = 'Brand is required';
+      }
+      if (!item.condition) {
+        errors[`items.${index}.condition`] = 'Condition is required';
       }
       if (!item.priceRMB.trim()) {
         errors[`items.${index}.priceRMB`] = 'Price is required';
@@ -753,10 +765,6 @@ export function ImportForm({
           errors[`items.${index}.machineTypeId`] =
             'Machine type is required for serialized products';
         }
-        if (!item.machineNumber?.trim()) {
-          errors[`items.${index}.machineNumber`] =
-            'Machine number is required for serialized products';
-        }
         if (!item.serialNumber?.trim()) {
           errors[`items.${index}.serialNumber`] =
             'Serial number is required for serialized products';
@@ -770,6 +778,15 @@ export function ImportForm({
         errors[`items.${index}.unitOfMeasureId`] =
           'Unit of measure is required';
       }
+
+      // Batch/Lot Number validation for non-serialized and bulk
+      if (item.category === 'non_serialized' || item.category === 'bulk') {
+        if (!item.batchOrLotNumber?.trim()) {
+          errors[`items.${index}.batchOrLotNumber`] =
+            'Batch/Lot number is required';
+        }
+      }
+
       if (item.category === 'bulk') {
         if (!item.partNumber?.trim()) {
           errors[`items.${index}.partNumber`] =
@@ -803,25 +820,18 @@ export function ImportForm({
       notes: item.notes?.trim() || undefined,
       brandId: item.brandId?.trim() || undefined,
       condition: item.condition,
-      year: item.year && item.year.trim() ? parseInt(item.year) : undefined,
       machineTypeId: item.machineTypeId?.trim() || undefined,
       unitOfMeasureId: item.unitOfMeasureId?.trim() || undefined,
       partNumber: item.partNumber?.trim() || undefined,
-      machineNumber: item.machineNumber?.trim() || undefined,
       engineNumber: item.engineNumber?.trim() || undefined,
       serialNumber: item.serialNumber?.trim() || undefined,
-      model: item.model?.trim() || undefined,
-      engineModel: item.engineModel?.trim() || undefined,
-      enginePower: item.enginePower?.trim() || undefined,
-      operatingWeight: item.operatingWeight?.trim() || undefined,
+      additionalSpecs: item.additionalSpecs?.trim() || undefined,
       batchOrLotNumber: item.batchOrLotNumber?.trim() || undefined,
       modelNumber: item.modelNumber?.trim() || undefined,
     }));
 
     const submitData = {
       ...formData,
-      billOfLadingNumber: formData.billOfLadingNumber?.trim() || undefined,
-      billOfLadingDate: formData.billOfLadingDate || undefined,
       items: transformedItems,
     };
 

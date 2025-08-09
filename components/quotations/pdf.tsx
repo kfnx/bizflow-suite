@@ -10,7 +10,6 @@ import {
   View,
 } from '@react-pdf/renderer';
 
-import { formatDate } from '@/utils/date-formatter';
 import { QuotationDetail } from '@/hooks/use-quotations';
 
 const styles = StyleSheet.create({
@@ -338,13 +337,13 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Date:</Text>
                 <Text style={styles.detailValue}>
-                  {formatDate(quotation.quotationDate)}
+                  {new Date(quotation.quotationDate).toLocaleDateString()}
                 </Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Valid Until:</Text>
                 <Text style={styles.detailValue}>
-                  {formatDate(quotation.validUntil)}
+                  {new Date(quotation.validUntil).toLocaleDateString()}
                 </Text>
               </View>
             </View>

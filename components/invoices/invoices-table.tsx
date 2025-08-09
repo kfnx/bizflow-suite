@@ -28,6 +28,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
+import { toast } from 'sonner';
 
 import {
   useDeleteInvoice,
@@ -40,7 +41,6 @@ import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
-import { toast } from 'sonner';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -325,14 +325,14 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
               )}
               {(row.original.status === 'draft' ||
                 row.original.status === 'sent') && (
-                  <Dropdown.Item
-                    onClick={() => handleVoidInvoice(row.original.id)}
-                    className='text-red-600'
-                  >
-                    <RiFileTextLine className='size-4' />
-                    Void Invoice
-                  </Dropdown.Item>
-                )}
+                <Dropdown.Item
+                  onClick={() => handleVoidInvoice(row.original.id)}
+                  className='text-red-600'
+                >
+                  <RiFileTextLine className='size-4' />
+                  Void Invoice
+                </Dropdown.Item>
+              )}
               <Dropdown.Separator />
               <Dropdown.Item
                 onClick={() => handleDelete(row.original.id)}
@@ -400,9 +400,9 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

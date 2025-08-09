@@ -9,7 +9,6 @@ import {
   RiUserLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useCustomerDetail } from '@/hooks/use-customers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -180,7 +179,7 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(customer.createdAt)}
+            {new Date(customer.createdAt).toLocaleDateString()}
           </div>
         </div>
 
@@ -192,7 +191,7 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
                 Last Updated
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
-                {formatDate(customer.updatedAt)}
+                {new Date(customer.updatedAt).toLocaleDateString()}
               </div>
             </div>
           </>

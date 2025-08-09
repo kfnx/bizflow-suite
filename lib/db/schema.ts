@@ -768,7 +768,6 @@ export const importItems = mysqlTable(
     // Category-specific fields
     machineTypeId: varchar('machine_type_id', { length: 36 }), // [serialized]
     modelNumber: varchar('model_number', { length: 100 }), // [serialized]
-    machineNumber: varchar('machine_number', { length: 100 }), // [serialized]
     engineNumber: varchar('engine_number', { length: 100 }), // [serialized]
     serialNumber: varchar('serial_number', { length: 100 }).unique(), // [serialized]
     additionalSpecs: text('additional_specs'), // [serialized]
@@ -781,7 +780,6 @@ export const importItems = mysqlTable(
     index('import_id_idx').on(table.importId),
     index('product_id_idx').on(table.productId),
     index('category_idx').on(table.category),
-    index('machine_number_idx').on(table.machineNumber), // for duplicate detection
     foreignKey({
       columns: [table.importId],
       foreignColumns: [imports.id],

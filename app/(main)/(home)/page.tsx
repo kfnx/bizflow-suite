@@ -20,7 +20,7 @@ export default function PageHome() {
       <div className='flex h-screen flex-col items-center'>
         <SplitText
           text='Hello, Welcome to MySTI!'
-          className='mt-20 text-center text-title-h1 font-semibold'
+          className='mt-20 text-center text-title-h2 font-semibold'
           delay={75}
           duration={1}
           ease='bounce.out'

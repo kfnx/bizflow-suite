@@ -12,7 +12,6 @@ import {
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { formatDate } from '@/utils/date-formatter';
 import {
   useMarkQuotationAsInvoiced,
   useQuotationDetail,
@@ -64,7 +63,8 @@ function QuotationPreviewContent({
               )}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {quotation.customerName} • {formatDate(quotation.quotationDate)}
+              {quotation.customerName} •{' '}
+              {new Date(quotation.quotationDate).toLocaleDateString()}
             </div>
           </div>
           <QuotationStatusBadge
@@ -110,7 +110,7 @@ function QuotationPreviewContent({
             Valid Until
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(quotation.validUntil)}
+            {new Date(quotation.validUntil).toLocaleDateString()}
           </div>
         </div>
 
@@ -154,7 +154,9 @@ function QuotationPreviewContent({
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {quotation.createdAt ? formatDate(quotation.createdAt) : '—'}
+            {quotation.createdAt
+              ? new Date(quotation.createdAt).toLocaleDateString()
+              : '—'}
           </div>
         </div>
 

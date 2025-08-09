@@ -7,7 +7,6 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { formatDate } from '@/utils/date-formatter';
 import { InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
 import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
@@ -93,7 +92,9 @@ export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
         </div>
         <div className='flex items-center gap-2'>
           <span className='text-gray-500'>Due Date:</span>
-          <span className='font-medium'>{formatDate(invoice.dueDate)}</span>
+          <span className='font-medium'>
+            {new Date(invoice.dueDate).toLocaleDateString()}
+          </span>
         </div>
         <div className='flex items-center gap-2'>
           <span className='text-gray-500'>Total:</span>

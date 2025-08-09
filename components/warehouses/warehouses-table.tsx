@@ -11,7 +11,6 @@ import {
 } from '@remixicon/react';
 import { type ColumnDef } from '@tanstack/react-table';
 
-import { formatDate } from '@/utils/date-formatter';
 import { type Warehouse } from '@/hooks/use-warehouses';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -171,7 +170,7 @@ const createColumns = (): ColumnDef<Warehouse>[] => [
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.createdAt)}
+        {new Date(row.original.createdAt).toLocaleDateString()}
       </div>
     ),
   },

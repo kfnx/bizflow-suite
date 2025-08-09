@@ -12,7 +12,6 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { formatDate } from '@/utils/date-formatter';
 import {
   DeliveryNote,
   DeliveryNoteDetail,
@@ -46,7 +45,7 @@ function DeliveryNotePreviewContent({
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
               {deliveryNote.customer?.name} •{' '}
-              {formatDate(deliveryNote.deliveryDate)}
+              {new Date(deliveryNote.deliveryDate).toLocaleDateString()}
             </div>
           </div>
           <DeliveryNoteStatusBadge status={deliveryNote.status} size='medium' />
@@ -62,7 +61,7 @@ function DeliveryNotePreviewContent({
           </div>
           <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
             <RiCalendarLine className='size-4 text-text-sub-600' />
-            {formatDate(deliveryNote.deliveryDate)}
+            {new Date(deliveryNote.deliveryDate).toLocaleDateString()}
           </div>
         </div>
 
@@ -168,7 +167,9 @@ function DeliveryNotePreviewContent({
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {deliveryNote.createdAt ? formatDate(deliveryNote.createdAt) : '—'}
+            {deliveryNote.createdAt
+              ? new Date(deliveryNote.createdAt).toLocaleDateString()
+              : '—'}
           </div>
         </div>
 

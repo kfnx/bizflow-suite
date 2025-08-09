@@ -6,7 +6,6 @@ import {
   RiTruckLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useDeliveryNoteDetail } from '@/hooks/use-delivery-notes';
 import { BackButton } from '@/components/back-button';
 import { DeliveryNoteHeader } from '@/components/delivery-notes/delivery-note-header';
@@ -99,7 +98,7 @@ export function DeliveryNoteDetail({ id }: DeliveryNoteDetailProps) {
           </div>
         }
         title={deliveryNote.deliveryNumber}
-        description={`${deliveryNote.customer?.name || 'Unknown Customer'} • ${formatDate(deliveryNote.deliveryDate)}`}
+        description={`${deliveryNote.customer?.name || 'Unknown Customer'} • ${new Date(deliveryNote.deliveryDate).toLocaleDateString()}`}
       >
         <BackButton href='/delivery-notes' label='Back to Delivery Notes' />
       </Header>

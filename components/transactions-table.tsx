@@ -30,7 +30,6 @@ import {
 import { atom, useSetAtom } from 'jotai';
 
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import { currencyFormatter } from '@/utils/number-formatter';
 import * as Avatar from '@/components/ui/avatar';
 import * as Button from '@/components/ui/button';
@@ -381,7 +380,7 @@ const columns: ColumnDef<TransactionTableData>[] = [
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.date.label)}
+        {new Date(row.original.date.label).toLocaleDateString()}
       </div>
     ),
   },

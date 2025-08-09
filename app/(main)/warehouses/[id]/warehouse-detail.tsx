@@ -13,7 +13,6 @@ import {
   RiUserLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useDeleteWarehouse, useWarehouse } from '@/hooks/use-warehouses';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -232,7 +231,7 @@ export function WarehouseDetail({ id }: WarehouseDetailProps) {
                 <div className='flex items-center gap-2'>
                   <RiCalendarLine className='size-4 text-text-sub-600' />
                   <span className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(warehouse.createdAt)}
+                    {new Date(warehouse.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -244,7 +243,7 @@ export function WarehouseDetail({ id }: WarehouseDetailProps) {
                 <div className='flex items-center gap-2'>
                   <RiCalendarLine className='size-4 text-text-sub-600' />
                   <span className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(warehouse.updatedAt)}
+                    {new Date(warehouse.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>

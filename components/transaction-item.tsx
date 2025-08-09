@@ -5,7 +5,6 @@ import { RiArrowRightSLine } from '@remixicon/react';
 
 import { type Transaction } from '@/lib/cards-data';
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import { currencyFormatter } from '@/utils/number-formatter';
 import * as CompactButton from '@/components/ui/compact-button';
 
@@ -66,7 +65,7 @@ export const TransactionItem = React.forwardRef<
             {currencyFormatter.format(transaction)}
           </div>
           <div className='text-paragraph-xs text-text-sub-600'>
-            {formatDate(date)}
+            {new Date(date).toLocaleDateString()}
           </div>
         </div>
         <CompactButton.Root size='medium' variant='ghost' asChild>

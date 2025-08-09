@@ -19,9 +19,9 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUsers, type User } from '@/hooks/use-users';
 import { Root as Avatar, Image as AvatarImage } from '@/components/ui/avatar';
@@ -35,7 +35,6 @@ import {
 } from '@/components/ui/dropdown';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
-import { toast } from 'sonner';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -281,7 +280,9 @@ const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {row.original.joinDate ? formatDate(row.original.joinDate) : '—'}
+        {row.original.joinDate
+          ? new Date(row.original.joinDate).toLocaleDateString()
+          : '—'}
       </div>
     ),
   },
@@ -372,9 +373,9 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
         </h3>
         <p className='text-sm text-gray-500 mt-1'>
           {filters?.search ||
-            filters?.role ||
-            filters?.status ||
-            filters?.branch
+          filters?.role ||
+          filters?.status ||
+          filters?.branch
             ? 'No users match your current filters. Try adjusting your search criteria.'
             : 'Get started by creating a new user account.'}
         </p>
@@ -396,9 +397,9 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               );
             })}

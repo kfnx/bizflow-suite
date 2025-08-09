@@ -13,7 +13,6 @@ import {
   RiUserLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { formatCurrency } from '@/utils/number-formatter';
 import {
   useApproveQuotation,
@@ -87,11 +86,17 @@ function PendingQuotationCard({
             <div className='text-sm text-text-600 flex items-center gap-4'>
               <div className='flex items-center gap-1'>
                 <RiCalendarLine className='h-4 w-4' />
-                <span>Created: {formatDate(quotation.quotationDate)}</span>
+                <span>
+                  Created:{' '}
+                  {new Date(quotation.quotationDate).toLocaleDateString()}
+                </span>
               </div>
               <div className='flex items-center gap-1'>
                 <RiTimeLine className='h-4 w-4' />
-                <span>Valid until: {formatDate(quotation.validUntil)}</span>
+                <span>
+                  Valid until:{' '}
+                  {new Date(quotation.validUntil).toLocaleDateString()}
+                </span>
               </div>
             </div>
           </div>
@@ -219,13 +224,13 @@ function PendingQuotationCard({
               <div>
                 <span className='text-text-600'>Created:</span>
                 <p className='text-text-sub-600'>
-                  {formatDate(quotation.createdAt)}
+                  {new Date(quotation.createdAt).toLocaleDateString()}
                 </p>
               </div>
               <div>
                 <span className='text-text-600'>Last Updated:</span>
                 <p className='text-text-sub-600'>
-                  {formatDate(quotation.updatedAt)}
+                  {new Date(quotation.updatedAt).toLocaleDateString()}
                 </p>
               </div>
             </div>

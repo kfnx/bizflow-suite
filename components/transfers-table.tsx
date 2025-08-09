@@ -29,7 +29,6 @@ import {
 } from '@tanstack/react-table';
 
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import { type Transfer } from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -340,7 +339,9 @@ const createColumns = (): ColumnDef<Transfer>[] => [
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.transferDate || row.original.createdAt)}
+        {new Date(
+          row.original.transferDate || row.original.createdAt,
+        ).toLocaleDateString()}
       </div>
     ),
   },

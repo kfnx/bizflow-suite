@@ -7,14 +7,13 @@ import {
   RiLoader4Line,
   RiMoneyDollarCircleLine,
 } from '@remixicon/react';
+import { toast } from 'sonner';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useInvoiceDetail, type InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
-import { toast } from 'sonner';
 
 interface InvoicePreviewDrawerProps {
   invoiceId: string | null;
@@ -43,7 +42,8 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
               {invoice.invoiceNumber}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {invoice.customerName} • {formatDate(invoice.invoiceDate)}
+              {invoice.customerName} •{' '}
+              {new Date(invoice.invoiceDate).toLocaleDateString()}
             </div>
           </div>
           <InvoiceStatusBadge status={invoice.status as any} size='medium' />
@@ -65,7 +65,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             Due Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(invoice.dueDate)}
+            {new Date(invoice.dueDate).toLocaleDateString()}
           </div>
         </div>
 
@@ -111,7 +111,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(invoice.createdAt)}
+            {new Date(invoice.createdAt).toLocaleDateString()}
           </div>
         </div>
 

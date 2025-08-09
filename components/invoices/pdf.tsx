@@ -10,7 +10,6 @@ import {
   View,
 } from '@react-pdf/renderer';
 
-import { formatDate } from '@/utils/date-formatter';
 import { InvoiceDetail } from '@/hooks/use-invoices';
 
 const styles = StyleSheet.create({
@@ -390,7 +389,7 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Date:</Text>
                     <Text style={styles.detailValue}>
-                      {formatDate(invoice.invoiceDate)}
+                      {new Date(invoice.invoiceDate).toLocaleDateString()}
                     </Text>
                   </View>
                   <View style={styles.detailRow}>

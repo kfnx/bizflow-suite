@@ -9,7 +9,6 @@ import {
   View,
 } from '@react-pdf/renderer';
 
-import { formatDate } from '@/utils/date-formatter';
 import { DeliveryNoteDetail } from '@/hooks/use-delivery-notes';
 
 const styles = StyleSheet.create({
@@ -428,7 +427,7 @@ export const DeliveryNotePDF = ({ deliveryNote }: DeliveryNotePDFProps) => {
             <View style={styles.dateSection}>
               <Text style={styles.dateLabel}>Tanggal:</Text>
               <Text style={styles.dateValue}>
-                {formatDate(deliveryNote.deliveryDate)}
+                {new Date(deliveryNote.deliveryDate).toLocaleDateString()}
               </Text>
             </View>
           </View>

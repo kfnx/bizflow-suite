@@ -36,30 +36,19 @@ export type ImportItem = {
   // Pricing & Quantity
   priceRMB: string;
   quantity: number;
-  notes?: string;
-
-  // Product Creation Data - Core fields
   category: 'serialized' | 'non_serialized' | 'bulk';
   name: string;
   description?: string;
   brandId?: string;
   brand?: string; // for display purposes
   condition: 'new' | 'used' | 'refurbished';
-  year?: number;
-
-  // Category-specific fields
   machineTypeId?: string; // for serialized
   unitOfMeasureId?: string; // for non-serialized/bulk
   partNumber?: string;
   machineNumber?: string;
-  engineNumber?: string;
   serialNumber?: string;
-  model?: string;
-  engineModel?: string;
-  enginePower?: string;
-  operatingWeight?: string;
-  batchOrLotNumber?: string;
   modelNumber?: string;
+  batchOrLotNumber?: string;
 };
 
 export type CreateImportData = {

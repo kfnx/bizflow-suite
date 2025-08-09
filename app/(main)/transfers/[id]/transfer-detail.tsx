@@ -17,7 +17,6 @@ import {
   RiTruckLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useDeleteTransfer, useTransfer } from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -240,7 +239,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                 <div className='flex items-center gap-2'>
                   <RiCalendarLine className='size-4 text-text-sub-600' />
                   <span className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(transfer.transferDate)}
+                    {new Date(transfer.transferDate).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -455,7 +454,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                       {transfer.createdByName || 'Unknown'}
                     </div>
                     <div className='text-xs text-text-sub-600'>
-                      {formatDate(transfer.createdAt)}
+                      {new Date(transfer.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
@@ -473,7 +472,8 @@ export function TransferDetail({ id }: TransferDetailProps) {
                         {transfer.approvedByName || 'Unknown'}
                       </div>
                       <div className='text-xs text-text-sub-600'>
-                        {transfer.approvedAt && formatDate(transfer.approvedAt)}
+                        {transfer.approvedAt &&
+                          new Date(transfer.approvedAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
@@ -488,7 +488,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                   <div className='flex items-center gap-2'>
                     <RiCheckLine className='size-4 text-green-600' />
                     <span className='text-paragraph-sm text-text-strong-950'>
-                      {formatDate(transfer.completedAt)}
+                      {new Date(transfer.completedAt).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export function TransferDetail({ id }: TransferDetailProps) {
                 <div className='flex items-center gap-2'>
                   <RiCalendarLine className='size-4 text-text-sub-600' />
                   <span className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(transfer.updatedAt)}
+                    {new Date(transfer.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>

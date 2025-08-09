@@ -7,7 +7,6 @@ import {
   RiLockPasswordLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUser } from '@/hooks/use-users';
 import * as Badge from '@/components/ui/badge';
@@ -135,7 +134,7 @@ function UserPreviewContent({ user }: { user: any }) {
             Join Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {user.joinDate ? formatDate(user.joinDate) : '—'}
+            {user.joinDate ? new Date(user.joinDate).toLocaleDateString() : '—'}
           </div>
         </div>
 
@@ -185,7 +184,7 @@ function UserPreviewContent({ user }: { user: any }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(user.createdAt)}
+            {new Date(user.createdAt).toLocaleDateString()}
           </div>
         </div>
 
@@ -197,7 +196,7 @@ function UserPreviewContent({ user }: { user: any }) {
                 Last Updated
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
-                {formatDate(user.updatedAt)}
+                {new Date(user.updatedAt).toLocaleDateString()}
               </div>
             </div>
           </>
@@ -219,7 +218,7 @@ function UserPreviewContent({ user }: { user: any }) {
                   Profile Picture
                 </div>
                 <div className='text-paragraph-sm text-text-sub-600'>
-                  Last updated {formatDate(user.updatedAt)}
+                  Last updated {new Date(user.updatedAt).toLocaleDateString()}
                 </div>
               </div>
             </div>

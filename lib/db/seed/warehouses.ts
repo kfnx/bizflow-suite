@@ -6,6 +6,7 @@ export const warehouseIds = {
   warehouse2: '30000002-0000-4000-a000-000000000001',
   warehouse3: '30000003-0000-4000-a000-000000000001',
   warehouse4: '30000004-0000-4000-a000-000000000001',
+  warehouse5: '30000005-0000-4000-a000-000000000001',
 };
 
 export const warehouses: InsertWarehouse[] = [
@@ -40,5 +41,13 @@ export const warehouses: InsertWarehouse[] = [
     managerId: null, // Will be set when users are created
     branchId: branchIds.balikpapan,
     isActive: true,
+  },
+  {
+    id: warehouseIds.warehouse5,
+    name: 'Gudang Lama Balikpapan',
+    address: 'Jl. Warehouse No. 5, Makassar, Sulawesi Tenggara',
+    managerId: null, // Will be set when users are created
+    branchId: branchIds.balikpapan,
+    isActive: false,
   },
 ];

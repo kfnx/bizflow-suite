@@ -31,7 +31,6 @@ import {
 } from '@tanstack/react-table';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
-import { formatDate } from '@/utils/date-formatter';
 import {
   useDeleteImport,
   useImports,
@@ -256,7 +255,7 @@ export function ImportsTable({
               </span>
               {row.original.billOfLadingDate && (
                 <span className='text-paragraph-sm text-text-soft-400'>
-                  {formatDate(row.original.billOfLadingDate)}
+                  {new Date(row.original.billOfLadingDate).toLocaleDateString()}
                 </span>
               )}
             </>

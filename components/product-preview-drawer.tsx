@@ -7,7 +7,6 @@ import {
 } from '@remixicon/react';
 
 import { type Product } from '@/lib/db/schema';
-import { formatDate } from '@/utils/date-formatter';
 import { type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -319,7 +318,9 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {product.createdAt ? formatDate(product.createdAt) : '-'}
+            {product.createdAt
+              ? new Date(product.createdAt).toLocaleDateString()
+              : '-'}
           </div>
         </div>
 
@@ -330,7 +331,9 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
             Last Updated
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {product.updatedAt ? formatDate(product.updatedAt) : '-'}
+            {product.updatedAt
+              ? new Date(product.updatedAt).toLocaleDateString()
+              : '-'}
           </div>
         </div>
 

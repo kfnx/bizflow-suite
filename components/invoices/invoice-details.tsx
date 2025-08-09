@@ -1,4 +1,3 @@
-import { formatDate } from '@/utils/date-formatter';
 import { InvoiceDetail } from '@/hooks/use-invoices';
 
 interface InvoiceDetailsProps {
@@ -34,7 +33,7 @@ export function InvoiceDetails({ invoice }: InvoiceDetailsProps) {
               Invoice Date
             </label>
             <p className='text-sm text-gray-900 mt-1'>
-              {formatDate(invoice.invoiceDate)}
+              {new Date(invoice.invoiceDate).toLocaleDateString()}
             </p>
           </div>
           <div>
@@ -42,7 +41,7 @@ export function InvoiceDetails({ invoice }: InvoiceDetailsProps) {
               Due Date
             </label>
             <p className='text-sm text-gray-900 mt-1'>
-              {formatDate(invoice.dueDate)}
+              {new Date(invoice.dueDate).toLocaleDateString()}
             </p>
           </div>
           <div>
@@ -79,7 +78,7 @@ export function InvoiceDetails({ invoice }: InvoiceDetailsProps) {
               {invoice.createdByUser
                 ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
                 : 'Unknown'}{' '}
-              • {formatDate(invoice.createdAt)}
+              • {new Date(invoice.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>

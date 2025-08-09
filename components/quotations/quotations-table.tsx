@@ -31,7 +31,6 @@ import { toast } from 'sonner';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { type Quotation } from '@/lib/db/schema';
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import {
   QuotationListItem,
   useQuotations,
@@ -287,7 +286,7 @@ const createColumns = (
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.quotationDate)}
+        {new Date(row.original.quotationDate).toLocaleDateString()}
       </div>
     ),
   },
@@ -307,7 +306,7 @@ const createColumns = (
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {formatDate(row.original.validUntil)}
+        {new Date(row.original.validUntil).toLocaleDateString()}
       </div>
     ),
   },
@@ -386,7 +385,9 @@ const createColumns = (
             .join(' ') || '—'}
         </div>
         <div className='text-paragraph-xs text-text-soft-400'>
-          {row.original.createdAt ? formatDate(row.original.createdAt) : '—'}
+          {row.original.createdAt
+            ? new Date(row.original.createdAt).toLocaleDateString()
+            : '—'}
         </div>
       </div>
     ),

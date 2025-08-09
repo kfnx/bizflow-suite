@@ -11,7 +11,6 @@ import {
   RiUserLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useTransfer, type Transfer } from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -245,7 +244,8 @@ function TransferPreviewContent({ transfer }: { transfer: Transfer }) {
         <div className='flex items-center gap-2'>
           <RiCalendarLine className='text-text-sub-400 size-4' />
           <span className='text-label-sm text-text-strong-950'>
-            Transfer Date: {formatDate(transfer.transferDate)}
+            Transfer Date:{' '}
+            {new Date(transfer.transferDate).toLocaleDateString()}
           </span>
         </div>
         {transfer.createdByName && (

@@ -8,7 +8,6 @@ import {
   RiLoader4Line,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useSupplierDetail } from '@/hooks/use-suppliers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -132,7 +131,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
             Created Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(supplier.createdAt)}
+            {new Date(supplier.createdAt).toLocaleDateString()}
           </div>
         </div>
 
@@ -144,7 +143,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
                 Last Updated
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
-                {formatDate(supplier.updatedAt)}
+                {new Date(supplier.updatedAt).toLocaleDateString()}
               </div>
             </div>
           </>

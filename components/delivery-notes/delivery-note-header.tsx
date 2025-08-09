@@ -9,7 +9,6 @@ import {
 import { toast } from 'sonner';
 
 import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
-import { formatDate } from '@/utils/date-formatter';
 import { DeliveryNoteDetail } from '@/hooks/use-delivery-notes';
 import * as Button from '@/components/ui/button';
 import { DeliveryNoteStatusBadge } from '@/components/delivery-notes/delivery-note-status-badge';
@@ -119,7 +118,7 @@ export function DeliveryNoteHeader({ deliveryNote }: DeliveryNoteHeaderProps) {
         <div className='flex items-center gap-2'>
           <span className='text-gray-500'>Delivery Date:</span>
           <span className='font-medium'>
-            {formatDate(deliveryNote.deliveryDate)}
+            {new Date(deliveryNote.deliveryDate).toLocaleDateString()}
           </span>
         </div>
 

@@ -8,7 +8,6 @@ import {
   RiFileTextLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import type { PurchaseOrder } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -64,7 +63,7 @@ export function PurchaseOrderInfo({
             PO Date
           </div>
           <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatDate(purchaseOrder.date)}
+            {new Date(purchaseOrder.date).toLocaleDateString()}
           </div>
         </div>
 
@@ -86,7 +85,7 @@ export function PurchaseOrderInfo({
               Customer Response Date
             </div>
             <div className='mt-1 text-label-sm text-text-strong-950'>
-              {formatDate(customerResponseDate)}
+              {new Date(customerResponseDate).toLocaleDateString()}
             </div>
           </div>
         </>

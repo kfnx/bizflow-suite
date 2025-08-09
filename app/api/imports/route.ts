@@ -144,6 +144,8 @@ export async function GET(request: NextRequest) {
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
+        billOfLadingNumber: imports.billOfLadingNumber,
+        billOfLadingDate: imports.billOfLadingDate,
         exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,
@@ -267,21 +269,15 @@ export async function POST(request: NextRequest) {
           productId: item.productId || null, // Only set if linking to existing product
           priceRMB: item.priceRMB,
           quantity: item.quantity,
-          notes: item.notes,
-
-          // Product creation data - store complete product info for verification
           category: item.category as PRODUCT_CATEGORY,
           name: item.name,
           description: item.description,
           brandId: item.brandId,
           condition: item.condition,
-
-          // Category-specific fields
           machineTypeId: item.machineTypeId,
           unitOfMeasureId: item.unitOfMeasureId,
           modelNumber: item.modelNumber,
           partNumber: item.partNumber,
-          machineNumber: item.machineNumber,
           engineNumber: item.engineNumber,
           batchOrLotNumber: item.batchOrLotNumber,
           serialNumber: item.serialNumber,
@@ -308,6 +304,8 @@ export async function POST(request: NextRequest) {
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
+        billOfLadingNumber: imports.billOfLadingNumber,
+        billOfLadingDate: imports.billOfLadingDate,
         exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,

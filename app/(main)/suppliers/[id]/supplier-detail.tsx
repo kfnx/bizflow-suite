@@ -12,7 +12,6 @@ import {
   RiPhoneLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useSupplierDetail } from '@/hooks/use-suppliers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -328,7 +327,9 @@ export function SupplierDetail({ id }: SupplierDetailProps) {
                 Created Date
               </div>
               <div className='text-paragraph-sm text-text-strong-950'>
-                {supplier.createdAt ? formatDate(supplier.createdAt) : 'N/A'}
+                {supplier.createdAt
+                  ? new Date(supplier.createdAt).toLocaleDateString()
+                  : 'N/A'}
               </div>
             </div>
 
@@ -339,7 +340,7 @@ export function SupplierDetail({ id }: SupplierDetailProps) {
                     Last Updated
                   </div>
                   <div className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(supplier.updatedAt)}
+                    {new Date(supplier.updatedAt).toLocaleDateString()}
                   </div>
                 </div>
               )}

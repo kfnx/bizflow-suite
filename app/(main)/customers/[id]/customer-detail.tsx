@@ -11,7 +11,6 @@ import {
   RiUserLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useCustomerDetail } from '@/hooks/use-customers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -339,7 +338,7 @@ export function CustomerDetail({ id }: CustomerDetailProps) {
                 Created Date
               </div>
               <div className='text-paragraph-sm text-text-strong-950'>
-                {formatDate(customer.createdAt)}
+                {new Date(customer.createdAt).toLocaleDateString()}
               </div>
             </div>
 
@@ -350,7 +349,7 @@ export function CustomerDetail({ id }: CustomerDetailProps) {
                     Last Updated
                   </div>
                   <div className='text-paragraph-sm text-text-strong-950'>
-                    {formatDate(customer.updatedAt)}
+                    {new Date(customer.updatedAt).toLocaleDateString()}
                   </div>
                 </div>
               )}

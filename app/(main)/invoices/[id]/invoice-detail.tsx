@@ -6,7 +6,6 @@ import {
   RiFileSearchLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
@@ -99,7 +98,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
           </div>
         }
         title={invoice.invoiceNumber}
-        description={`${invoice.customerName} • ${formatDate(invoice.invoiceDate)}`}
+        description={`${invoice.customerName} • ${new Date(invoice.invoiceDate).toLocaleDateString()}`}
       >
         <BackButton href='/invoices' label='Back to Invoices' />
       </Header>

@@ -45,6 +45,8 @@ export async function GET(
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
+        billOfLadingNumber: imports.billOfLadingNumber,
+        billOfLadingDate: imports.billOfLadingDate,
         exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,
@@ -162,6 +164,14 @@ export async function PUT(
 
     const validatedData = validationResult.data;
 
+    // Add safety check
+    if (!validatedData) {
+      return NextResponse.json(
+        { error: 'Invalid request data' },
+        { status: 400 },
+      );
+    }
+
     // Check if import exists
     const existingImport = await db
       .select({ id: imports.id })
@@ -176,7 +186,7 @@ export async function PUT(
     // Update import and items in a transaction
     await db.transaction(async (tx) => {
       // Update import record if any import-level fields are provided
-      const importUpdateData: any = {};
+      const importUpdateData: Record<string, any> = {};
       if (validatedData.supplierId)
         importUpdateData.supplierId = validatedData.supplierId;
       if (validatedData.warehouseId)
@@ -187,6 +197,10 @@ export async function PUT(
         importUpdateData.invoiceNumber = validatedData.invoiceNumber;
       if (validatedData.invoiceDate)
         importUpdateData.invoiceDate = validatedData.invoiceDate;
+      if (validatedData.billOfLadingNumber !== undefined)
+        importUpdateData.billOfLadingNumber = validatedData.billOfLadingNumber;
+      if (validatedData.billOfLadingDate !== undefined)
+        importUpdateData.billOfLadingDate = validatedData.billOfLadingDate;
       if (validatedData.exchangeRateRMBtoIDR)
         importUpdateData.exchangeRateRMBtoIDR =
           validatedData.exchangeRateRMBtoIDR;
@@ -194,7 +208,7 @@ export async function PUT(
       if (validatedData.notes !== undefined)
         importUpdateData.notes = validatedData.notes;
 
-      if (Object.keys(importUpdateData).length > 0) {
+      if (importUpdateData && Object.keys(importUpdateData).length > 0) {
         await tx
           .update(imports)
           .set(importUpdateData)
@@ -276,6 +290,8 @@ export async function PUT(
         importDate: imports.importDate,
         invoiceNumber: imports.invoiceNumber,
         invoiceDate: imports.invoiceDate,
+        billOfLadingNumber: imports.billOfLadingNumber,
+        billOfLadingDate: imports.billOfLadingDate,
         exchangeRateRMBtoIDR: imports.exchangeRateRMBtoIDR,
         total: imports.total,
         status: imports.status,

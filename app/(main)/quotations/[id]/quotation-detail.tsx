@@ -6,7 +6,6 @@ import {
   RiFileSearchLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { useQuotationDetail } from '@/hooks/use-quotations';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
@@ -93,7 +92,7 @@ export function QuotationDetail({ id }: QuotationDetailProps) {
           </div>
         }
         title={quotation.quotationNumber}
-        description={`${quotation.customerName} • ${formatDate(quotation.quotationDate)}`}
+        description={`${quotation.customerName} • ${new Date(quotation.quotationDate).toLocaleDateString()}`}
       >
         <BackButton href='/quotations' label='Back to Quotations' />
       </Header>

@@ -13,7 +13,6 @@ import {
 import { useSession } from 'next-auth/react';
 
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import { useCurrentUser } from '@/hooks/use-users';
 import * as Avatar from '@/components/ui/avatar';
 import * as Divider from '@/components/ui/divider';
@@ -238,7 +237,7 @@ export default function ProfilePage() {
                       Join Date
                     </div>
                     <div className='mt-1 text-label-sm text-text-strong-950'>
-                      {formatDate(userData.user.joinDate)}
+                      {new Date(userData.user.joinDate).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
@@ -326,7 +325,9 @@ export default function ProfilePage() {
                             Account Created
                           </div>
                           <div className='mt-1 text-label-sm text-text-strong-950'>
-                            {formatDate(userData.user.createdAt)}
+                            {new Date(
+                              userData.user.createdAt,
+                            ).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
@@ -342,7 +343,9 @@ export default function ProfilePage() {
                             Last Updated
                           </div>
                           <div className='mt-1 text-label-sm text-text-strong-950'>
-                            {formatDate(userData.user.updatedAt)}
+                            {new Date(
+                              userData.user.updatedAt,
+                            ).toLocaleDateString()}
                           </div>
                         </div>
                       </div>

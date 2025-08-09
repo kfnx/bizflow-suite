@@ -1,7 +1,6 @@
 'use client';
 
 /* eslint-disable tailwindcss/classnames-order */
-import { formatDate } from '@/utils/date-formatter';
 import { DeliveryNoteDetail } from '@/hooks/use-delivery-notes';
 
 interface DeliveryNoteContentProps {
@@ -59,7 +58,7 @@ export function DeliveryNoteContent({
               Delivery Date
             </label>
             <p className='mt-1 text-text-strong-950'>
-              {formatDate(deliveryNote.deliveryDate)}
+              {new Date(deliveryNote.deliveryDate).toLocaleDateString()}
             </p>
           </div>
 
@@ -112,7 +111,7 @@ export function DeliveryNoteContent({
               Created At
             </label>
             <p className='mt-1 text-text-strong-950'>
-              {formatDate(deliveryNote.createdAt)}
+              {new Date(deliveryNote.createdAt).toLocaleDateString()}
             </p>
           </div>
 

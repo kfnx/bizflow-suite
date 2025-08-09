@@ -13,7 +13,6 @@ import {
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
-import { formatDate } from '@/utils/date-formatter';
 import {
   isQuotationInvoiced,
   QuotationDetail,
@@ -171,7 +170,7 @@ export function QuotationHeader({ quotation }: QuotationHeaderProps) {
           <div className='flex items-center gap-2'>
             <span className='text-gray-500'>Valid Until:</span>
             <span className='font-medium'>
-              {formatDate(quotation.validUntil)}
+              {new Date(quotation.validUntil).toLocaleDateString()}
             </span>
           </div>
           <div className='flex items-center gap-2'>

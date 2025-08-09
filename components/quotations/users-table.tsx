@@ -22,7 +22,6 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
 import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date-formatter';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUsers, type User } from '@/hooks/use-users';
 import { Root as Avatar, Image as AvatarImage } from '@/components/ui/avatar';
@@ -281,7 +280,9 @@ const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => (
       <div className='text-paragraph-sm text-text-sub-600'>
-        {row.original.joinDate ? formatDate(row.original.joinDate) : '—'}
+        {row.original.joinDate
+          ? new Date(row.original.joinDate).toLocaleDateString()
+          : '—'}
       </div>
     ),
   },

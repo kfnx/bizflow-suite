@@ -9,7 +9,6 @@ import {
   RiUserLine,
 } from '@remixicon/react';
 
-import { formatDate } from '@/utils/date-formatter';
 import { QuotationDetail } from '@/hooks/use-quotations';
 
 interface QuotationDetailsProps {
@@ -130,14 +129,16 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
           <DetailItem
             icon={RiCalendarLine}
             label='Date'
-            value={formatDate(quotation.quotationDate)}
+            value={new Date(quotation.quotationDate).toLocaleDateString()}
           />
           <DetailItem
             icon={RiTimeLine}
             label='Valid Until'
             value={
               <div className='flex flex-col items-end'>
-                <span>{formatDate(quotation.validUntil)}</span>
+                <span>
+                  {new Date(quotation.validUntil).toLocaleDateString()}
+                </span>
                 {!isExpired && daysRemaining >= 0 && (
                   <span
                     className={`text-xs ${
@@ -208,7 +209,9 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
             icon={RiCalendarLine}
             label='Created At'
             value={
-              quotation.createdAt ? formatDate(quotation.createdAt) : 'Unknown'
+              quotation.createdAt
+                ? new Date(quotation.createdAt).toLocaleDateString()
+                : 'Unknown'
             }
           />
           {quotation.updatedAt &&
@@ -216,7 +219,7 @@ export function QuotationDetails({ quotation }: QuotationDetailsProps) {
               <DetailItem
                 icon={RiCalendarLine}
                 label='Last Updated'
-                value={formatDate(quotation.updatedAt)}
+                value={new Date(quotation.updatedAt).toLocaleDateString()}
               />
             )}
         </div>

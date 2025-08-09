@@ -5,9 +5,10 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
+import * as Sentry from '@sentry/nextjs';
 import { ThemeProvider } from 'next-themes';
 
-import { SearchMenu } from '@/components/search';
+// import { SearchMenu } from '@/components/search';
 import { Providers } from '@/app/providers';
 
 const fontInter = FontSans({
@@ -15,14 +16,17 @@ const fontInter = FontSans({
   variable: '--font-sans',
 });
 
-export const metadata: Metadata = {
-  title: 'MySTI',
-  description: 'MySTI',
-  // robots: {
-  //   index: false,
-  //   follow: false,
-  // },
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: 'MySTI',
+    description: 'MySTI',
+    applicationName: 'MySTI',
+
+    other: {
+      ...Sentry.getTraceData(),
+    },
+  };
+}
 
 export default function RootLayout({
   children,

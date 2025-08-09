@@ -41,6 +41,7 @@
     "@react-pdf/renderer": "^4.3.0",
     "@remixicon/react": "^4.2.0",
     "@scalar/api-reference": "^1.34.0",
+    "@sentry/nextjs": "^10.3.0",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-table": "^8.20.1",
     "@types/multer": "^2.0.0",

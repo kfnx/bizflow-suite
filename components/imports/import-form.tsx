@@ -769,6 +769,10 @@ export function ImportForm({
           errors[`items.${index}.serialNumber`] =
             'Serial number is required for serialized products';
         }
+        if (!item.engineNumber?.trim()) {
+          errors[`items.${index}.engineNumber`] =
+            'Engine number is required for serialized products';
+        }
       }
 
       if (

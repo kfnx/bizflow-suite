@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { asc, desc, eq, like, or } from 'drizzle-orm';
+import { and, asc, desc, eq, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -134,8 +134,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if brand with same name and type combination already exists
+    const existingBrand = await db
+      .select({ id: brands.id, name: brands.name, type: brands.type })
+      .from(brands)
+      .where(and(eq(brands.name, name.trim()), eq(brands.type, type)))
+      .limit(1);
+
+    if (existingBrand.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Brand with this name and type already exists',
+          details: `A brand named "${existingBrand[0].name}" already exists in the ${existingBrand[0].type} category`
+        },
+        { status: 409 }
+      );
+    }
+
     // Create brand with slugified ID
-    const brandId = createSlug(name.trim());
+    const brandId = createSlug(`${type}-${name.trim()}`);
     const newBrand = {
       id: brandId,
       type: type,

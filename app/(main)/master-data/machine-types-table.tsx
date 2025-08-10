@@ -1,18 +1,37 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   RiAddLine,
   RiCloseLine,
   RiDeleteBinLine,
   RiEditLine,
   RiSaveLine,
+  RiArrowUpSFill,
+  RiArrowDownSFill,
+  RiExpandUpDownFill,
 } from '@remixicon/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  type ColumnDef,
+  flexRender,
+} from '@tanstack/react-table';
 import { toast } from 'sonner';
 
+const getSortingIcon = (state: 'asc' | 'desc' | false) => {
+  if (state === 'asc')
+    return <RiArrowUpSFill className='size-5 text-text-sub-600' />;
+  if (state === 'desc')
+    return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
+  return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
+};
+
 import { Root as Button } from '@/components/ui/button';
-import { Input, Root as InputRoot } from '@/components/ui/input';
+import * as Input from '@/components/ui/input';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
@@ -30,6 +49,7 @@ export function MachineTypesTable() {
   const [editingItems, setEditingItems] = useState<
     Record<string, EditingMachineType>
   >({});
+  const [sorting, setSorting] = useState<SortingState>([]);
   const newItemIdRef = useRef(0);
 
   // Fetch machine types
@@ -51,7 +71,10 @@ export function MachineTypesTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(machineType),
       });
-      if (!response.ok) throw new Error('Failed to create machine type');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to create machine type');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -77,7 +100,10 @@ export function MachineTypesTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(machineType),
       });
-      if (!response.ok) throw new Error('Failed to update machine type');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to update machine type');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -95,7 +121,10 @@ export function MachineTypesTable() {
       const response = await fetch(`/api/machine-types/${id}`, {
         method: 'DELETE',
       });
-      if (!response.ok) throw new Error('Failed to delete machine type');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to delete machine type');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -190,6 +219,118 @@ export function MachineTypesTable() {
   const machineTypes = data || [];
   const isEditing = (id: string) => id in editingItems;
 
+  // Define columns
+  const columns = useMemo<ColumnDef<MachineType>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Name
+            <button
+              type='button'
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const machineType = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(machineType.id) ? (
+                <Input.Root className='w-full'>
+                  <Input.Wrapper>
+                    <Input.Input
+                      value={editingItems[machineType.id]?.name || ''}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          machineType.id,
+                          'name',
+                          e.target.value,
+                        )
+                      }
+                      placeholder='Enter machine type (e.g., Excavator)'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              ) : (
+                <span className='font-medium'>{machineType.name}</span>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const machineType = row.original;
+          return (
+            <Table.Cell>
+              <div className='flex gap-2'>
+                {isEditing(machineType.id) ? (
+                  <>
+                    <Button
+                      size='small'
+                      onClick={() => handleSave(machineType.id)}
+                      disabled={updateMutation.isPending}
+                    >
+                      <RiSaveLine className='size-4' />
+                    </Button>
+                    <Button
+                      size='small'
+                      mode='stroke'
+                      onClick={() => handleCancel(machineType.id)}
+                    >
+                      <RiCloseLine className='size-4' />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <PermissionGate permission='products:update'>
+                      <Button
+                        size='small'
+                        mode='stroke'
+                        onClick={() => handleEdit(machineType)}
+                      >
+                        <RiEditLine className='size-4' />
+                      </Button>
+                    </PermissionGate>
+                    <PermissionGate permission='products:delete'>
+                      <Button
+                        size='small'
+                        mode='stroke'
+                        onClick={() => handleDelete(machineType.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <RiDeleteBinLine className='size-4' />
+                      </Button>
+                    </PermissionGate>
+                  </>
+                )}
+              </div>
+            </Table.Cell>
+          );
+        },
+      },
+    ],
+    [editingItems, isEditing, handleFieldChange, handleSave, handleCancel, handleEdit, handleDelete, updateMutation.isPending, deleteMutation.isPending],
+  );
+
+  // Initialize table
+  const table = useReactTable({
+    data: machineTypes,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+  });
+
   if (isLoading) {
     return (
       <div className='flex justify-center py-8'>Loading machine types...</div>
@@ -212,10 +353,17 @@ export function MachineTypesTable() {
 
       <Table.Root>
         <Table.Header>
-          <Table.Row>
-            <Table.Head>Name</Table.Head>
-            <Table.Head className='w-32'>Actions</Table.Head>
-          </Table.Row>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Row key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.Head key={header.id} className={header.id === 'actions' ? 'w-32' : ''}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </Table.Head>
+              ))}
+            </Table.Row>
+          ))}
         </Table.Header>
         <Table.Body>
           {/* New items being added */}
@@ -224,15 +372,17 @@ export function MachineTypesTable() {
             .map((item) => (
               <Table.Row key={item.id}>
                 <Table.Cell>
-                  <InputRoot className='w-full'>
-                    <Input
-                      value={item.name}
-                      onChange={(e) =>
-                        handleFieldChange(item.id, 'name', e.target.value)
-                      }
-                      placeholder='Enter machine type (e.g., Excavator)'
-                    />
-                  </InputRoot>
+                  <Input.Root className='w-full'>
+                    <Input.Wrapper>
+                      <Input.Input
+                        value={item.name}
+                        onChange={(e) =>
+                          handleFieldChange(item.id, 'name', e.target.value)
+                        }
+                        placeholder='Enter machine type (e.g., Excavator)'
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
                 </Table.Cell>
                 <Table.Cell>
                   <div className='flex gap-2'>
@@ -256,70 +406,13 @@ export function MachineTypesTable() {
             ))}
 
           {/* Existing items */}
-          {machineTypes.map((machineType) => (
-            <Table.Row key={machineType.id}>
-              <Table.Cell>
-                {isEditing(machineType.id) ? (
-                  <InputRoot className='w-full'>
-                    <Input
-                      value={editingItems[machineType.id]?.name || ''}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          machineType.id,
-                          'name',
-                          e.target.value,
-                        )
-                      }
-                    />
-                  </InputRoot>
-                ) : (
-                  <span className='font-medium'>{machineType.name}</span>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                <div className='flex gap-2'>
-                  {isEditing(machineType.id) ? (
-                    <>
-                      <Button
-                        size='small'
-                        onClick={() => handleSave(machineType.id)}
-                        disabled={updateMutation.isPending}
-                      >
-                        <RiSaveLine className='size-4' />
-                      </Button>
-                      <Button
-                        size='small'
-                        mode='stroke'
-                        onClick={() => handleCancel(machineType.id)}
-                      >
-                        <RiCloseLine className='size-4' />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <PermissionGate permission='products:update'>
-                        <Button
-                          size='small'
-                          mode='stroke'
-                          onClick={() => handleEdit(machineType)}
-                        >
-                          <RiEditLine className='size-4' />
-                        </Button>
-                      </PermissionGate>
-                      <PermissionGate permission='products:delete'>
-                        <Button
-                          size='small'
-                          mode='stroke'
-                          onClick={() => handleDelete(machineType.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <RiDeleteBinLine className='size-4' />
-                        </Button>
-                      </PermissionGate>
-                    </>
-                  )}
-                </div>
-              </Table.Cell>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <Table.Cell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Cell>
+              ))}
             </Table.Row>
           ))}
 

@@ -1,15 +1,34 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   RiAddLine,
   RiCloseLine,
   RiDeleteBinLine,
   RiEditLine,
   RiSaveLine,
+  RiArrowUpSFill,
+  RiArrowDownSFill,
+  RiExpandUpDownFill,
 } from '@remixicon/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  type ColumnDef,
+  flexRender,
+} from '@tanstack/react-table';
 import { toast } from 'sonner';
+
+const getSortingIcon = (state: 'asc' | 'desc' | false) => {
+  if (state === 'asc')
+    return <RiArrowUpSFill className='size-5 text-text-sub-600' />;
+  if (state === 'desc')
+    return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
+  return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
+};
 
 import { Root as Button } from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -31,6 +50,7 @@ export function UnitOfMeasuresTable() {
   const [editingItems, setEditingItems] = useState<
     Record<string, EditingUnitOfMeasure>
   >({});
+  const [sorting, setSorting] = useState<SortingState>([]);
   const newItemIdRef = useRef(0);
 
   // Fetch unit of measures
@@ -52,7 +72,10 @@ export function UnitOfMeasuresTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(uom),
       });
-      if (!response.ok) throw new Error('Failed to create unit of measure');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to create unit of measure');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -79,7 +102,10 @@ export function UnitOfMeasuresTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(uom),
       });
-      if (!response.ok) throw new Error('Failed to update unit of measure');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to update unit of measure');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -97,7 +123,10 @@ export function UnitOfMeasuresTable() {
       const response = await fetch(`/api/unit-of-measures/${id}`, {
         method: 'DELETE',
       });
-      if (!response.ok) throw new Error('Failed to delete unit of measure');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to delete unit of measure');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -200,6 +229,154 @@ export function UnitOfMeasuresTable() {
   const unitOfMeasures = data || [];
   const isEditing = (id: string) => id in editingItems;
 
+  // Define columns
+  const columns = useMemo<ColumnDef<UnitOfMeasure>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Name
+            <button
+              type='button'
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const uom = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(uom.id) ? (
+                <Input.Root className='w-full'>
+                  <Input.Wrapper>
+                    <Input.Input
+                      value={editingItems[uom.id]?.name || ''}
+                      onChange={(e) =>
+                        handleFieldChange(uom.id, 'name', e.target.value)
+                      }
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              ) : (
+                <span className='font-medium'>{uom.name}</span>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
+        accessorKey: 'abbreviation',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Abbreviation
+            <button
+              type='button'
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const uom = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(uom.id) ? (
+                <Input.Root className='w-full'>
+                  <Input.Wrapper>
+                    <Input.Input
+                      value={editingItems[uom.id]?.abbreviation || ''}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          uom.id,
+                          'abbreviation',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              ) : (
+                <span className='text-sm bg-gray-100 rounded px-2 py-1 font-mono'>
+                  {uom.abbreviation}
+                </span>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const uom = row.original;
+          return (
+            <Table.Cell>
+              <div className='flex gap-2'>
+                {isEditing(uom.id) ? (
+                  <>
+                    <Button
+                      size='small'
+                      onClick={() => handleSave(uom.id)}
+                      disabled={updateMutation.isPending}
+                    >
+                      <RiSaveLine className='size-4' />
+                    </Button>
+                    <Button
+                      size='small'
+                      mode='stroke'
+                      onClick={() => handleCancel(uom.id)}
+                    >
+                      <RiCloseLine className='size-4' />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <PermissionGate permission='products:update'>
+                      <Button
+                        size='small'
+                        mode='stroke'
+                        onClick={() => handleEdit(uom)}
+                      >
+                        <RiEditLine className='size-4' />
+                      </Button>
+                    </PermissionGate>
+                    <PermissionGate permission='products:delete'>
+                      <Button
+                        size='small'
+                        mode='stroke'
+                        onClick={() => handleDelete(uom.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <RiDeleteBinLine className='size-4' />
+                      </Button>
+                    </PermissionGate>
+                  </>
+                )}
+              </div>
+            </Table.Cell>
+          );
+        },
+      },
+    ],
+    [editingItems, isEditing, handleFieldChange, handleSave, handleCancel, handleEdit, handleDelete, updateMutation.isPending, deleteMutation.isPending],
+  );
+
+  // Initialize table
+  const table = useReactTable({
+    data: unitOfMeasures,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+  });
+
   if (isLoading) {
     return (
       <div className='flex justify-center py-8'>
@@ -224,11 +401,17 @@ export function UnitOfMeasuresTable() {
 
       <Table.Root>
         <Table.Header>
-          <Table.Row>
-            <Table.Head>Name</Table.Head>
-            <Table.Head>Abbreviation</Table.Head>
-            <Table.Head className='w-32'>Actions</Table.Head>
-          </Table.Row>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Row key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.Head key={header.id} className={header.id === 'actions' ? 'w-32' : ''}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </Table.Head>
+              ))}
+            </Table.Row>
+          ))}
         </Table.Header>
         <Table.Body>
           {/* New items being added */}
@@ -288,90 +471,13 @@ export function UnitOfMeasuresTable() {
             ))}
 
           {/* Existing items */}
-          {unitOfMeasures.map((uom) => (
-            <Table.Row key={uom.id}>
-              <Table.Cell>
-                {isEditing(uom.id) ? (
-                  <Input.Root className='w-full'>
-                    <Input.Wrapper>
-                      <Input.Input
-                        value={editingItems[uom.id]?.name || ''}
-                        onChange={(e) =>
-                          handleFieldChange(uom.id, 'name', e.target.value)
-                        }
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                ) : (
-                  <span className='font-medium'>{uom.name}</span>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                {isEditing(uom.id) ? (
-                  <Input.Root className='w-full'>
-                    <Input.Wrapper>
-                      <Input.Input
-                        value={editingItems[uom.id]?.abbreviation || ''}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            uom.id,
-                            'abbreviation',
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                ) : (
-                  <span className='text-sm bg-gray-100 rounded px-2 py-1 font-mono'>
-                    {uom.abbreviation}
-                  </span>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                <div className='flex gap-2'>
-                  {isEditing(uom.id) ? (
-                    <>
-                      <Button
-                        size='small'
-                        onClick={() => handleSave(uom.id)}
-                        disabled={updateMutation.isPending}
-                      >
-                        <RiSaveLine className='size-4' />
-                      </Button>
-                      <Button
-                        size='small'
-                        mode='stroke'
-                        onClick={() => handleCancel(uom.id)}
-                      >
-                        <RiCloseLine className='size-4' />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <PermissionGate permission='products:update'>
-                        <Button
-                          size='small'
-                          mode='stroke'
-                          onClick={() => handleEdit(uom)}
-                        >
-                          <RiEditLine className='size-4' />
-                        </Button>
-                      </PermissionGate>
-                      <PermissionGate permission='products:delete'>
-                        <Button
-                          size='small'
-                          mode='stroke'
-                          onClick={() => handleDelete(uom.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <RiDeleteBinLine className='size-4' />
-                        </Button>
-                      </PermissionGate>
-                    </>
-                  )}
-                </div>
-              </Table.Cell>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <Table.Cell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Cell>
+              ))}
             </Table.Row>
           ))}
 

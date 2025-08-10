@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { asc, desc, like, or } from 'drizzle-orm';
+import { asc, desc, like, or, eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -126,6 +126,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unit of measure abbreviation is required' },
         { status: 400 },
+      );
+    }
+
+    // Check if unit of measure with same name already exists
+    const existingUomByName = await db
+      .select({ id: unitOfMeasures.id, name: unitOfMeasures.name })
+      .from(unitOfMeasures)
+      .where(eq(unitOfMeasures.name, name.trim()))
+      .limit(1);
+
+    if (existingUomByName.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Unit of measure with this name already exists',
+          details: `A unit of measure named "${existingUomByName[0].name}" already exists`
+        },
+        { status: 409 }
+      );
+    }
+
+    // Check if unit of measure with same abbreviation already exists
+    const existingUomByAbbreviation = await db
+      .select({ id: unitOfMeasures.id, abbreviation: unitOfMeasures.abbreviation })
+      .from(unitOfMeasures)
+      .where(eq(unitOfMeasures.abbreviation, abbreviation.trim()))
+      .limit(1);
+
+    if (existingUomByAbbreviation.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Unit of measure with this abbreviation already exists',
+          details: `A unit of measure with abbreviation "${existingUomByAbbreviation[0].abbreviation}" already exists`
+        },
+        { status: 409 }
       );
     }
 

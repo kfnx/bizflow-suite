@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { brands } from '@/lib/db/schema';
+import { brands, products, importItems } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,6 +99,40 @@ export async function DELETE(
 
     if (existingBrand.length === 0) {
       return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
+    }
+
+    // Check if brand is referenced in products table
+    const productsUsingBrand = await db
+      .select({ id: products.id, name: products.name })
+      .from(products)
+      .where(eq(products.brandId, params.id))
+      .limit(1);
+
+    if (productsUsingBrand.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete brand. It is being used by products.',
+          details: `Brand is referenced by product: ${productsUsingBrand[0].name}`
+        },
+        { status: 409 }
+      );
+    }
+
+    // Check if brand is referenced in import items table
+    const importItemsUsingBrand = await db
+      .select({ id: importItems.id, name: importItems.name })
+      .from(importItems)
+      .where(eq(importItems.brandId, params.id))
+      .limit(1);
+
+    if (importItemsUsingBrand.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete brand. It is being used by import items.',
+          details: `Brand is referenced by import item: ${importItemsUsingBrand[0].name}`
+        },
+        { status: 409 }
+      );
     }
 
     // Delete brand

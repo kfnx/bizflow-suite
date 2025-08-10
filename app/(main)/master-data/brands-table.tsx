@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   RiAddLine,
   RiCloseLine,
@@ -9,9 +9,28 @@ import {
   RiSaveLine,
   RiSettings3Line,
   RiToolsLine,
+  RiArrowUpSFill,
+  RiArrowDownSFill,
+  RiExpandUpDownFill,
 } from '@remixicon/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  type ColumnDef,
+  flexRender,
+} from '@tanstack/react-table';
 import { toast } from 'sonner';
+
+const getSortingIcon = (state: 'asc' | 'desc' | false) => {
+  if (state === 'asc')
+    return <RiArrowUpSFill className='size-5 text-text-sub-600' />;
+  if (state === 'desc')
+    return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
+  return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
+};
 
 import { Root as Button } from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -40,6 +59,7 @@ export function BrandsTable() {
   const [editingItems, setEditingItems] = useState<
     Record<string, EditingBrand>
   >({});
+  const [sorting, setSorting] = useState<SortingState>([]);
   const newItemIdRef = useRef(0);
 
   // Fetch brands
@@ -61,7 +81,10 @@ export function BrandsTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(brand),
       });
-      if (!response.ok) throw new Error('Failed to create brand');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to create brand');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -88,7 +111,10 @@ export function BrandsTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(brand),
       });
-      if (!response.ok) throw new Error('Failed to update brand');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to update brand');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -106,7 +132,10 @@ export function BrandsTable() {
       const response = await fetch(`/api/brands/${id}`, {
         method: 'DELETE',
       });
-      if (!response.ok) throw new Error('Failed to delete brand');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.details || error?.error || 'Failed to delete brand');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -114,7 +143,7 @@ export function BrandsTable() {
       toast.success('Brand deleted successfully');
     },
     onError: (error) => {
-      toast.error(`Failed to delete brand: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
@@ -204,6 +233,169 @@ export function BrandsTable() {
   const brands = data || [];
   const isEditing = (id: string) => id in editingItems;
 
+  // Define columns
+  const columns = useMemo<ColumnDef<Brand>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Name
+            <button
+              type='button'
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const brand = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(brand.id) ? (
+                <Input.Root className='w-full'>
+                  <Input.Wrapper>
+                    <Input.Input
+                      value={editingItems[brand.id]?.name || ''}
+                      onChange={(e) =>
+                        handleFieldChange(brand.id, 'name', e.target.value)
+                      }
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              ) : (
+                <span className='font-medium'>{brand.name}</span>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
+        accessorKey: 'type',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Type
+            <button
+              type='button'
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const brand = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(brand.id) ? (
+                <Select
+                  value={editingItems[brand.id]?.type || ''}
+                  onValueChange={(value) =>
+                    handleFieldChange(brand.id, 'type', value)
+                  }
+                >
+                  <SelectTrigger className='w-full'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='machine'>
+                      <div className='flex items-center gap-2'>
+                        <RiSettings3Line className='size-4' />
+                        Machine
+                      </div>
+                    </SelectItem>
+                    <SelectItem value='sparepart'>
+                      <div className='flex items-center gap-2'>
+                        <RiToolsLine className='size-4' />
+                        Sparepart
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className='text-sm text-gray-600 flex items-center gap-2 capitalize'>
+                  {brand.type === 'machine' ? (
+                    <RiSettings3Line className='size-5' />
+                  ) : (
+                    <RiToolsLine className='size-5' />
+                  )}
+                  {brand.type}
+                </div>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const brand = row.original;
+          return (
+            <Table.Cell>
+              <div className='flex items-center gap-2'>
+                {isEditing(brand.id) ? (
+                  <>
+                    <Button
+                      size='small'
+                      onClick={() => handleSave(brand.id)}
+                      disabled={updateMutation.isPending}
+                    >
+                      <RiSaveLine className='size-4' />
+                    </Button>
+                    <Button
+                      size='small'
+                      mode='stroke'
+                      onClick={() => handleCancel(brand.id)}
+                    >
+                      <RiCloseLine className='size-4' />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <PermissionGate permission='products:update'>
+                      <Button
+                        size='small'
+                        mode='stroke'
+                        onClick={() => handleEdit(brand)}
+                      >
+                        <RiEditLine className='size-4' />
+                      </Button>
+                    </PermissionGate>
+                    <PermissionGate permission='products:delete'>
+                      <Button
+                        size='small'
+                        mode='stroke'
+                        onClick={() => handleDelete(brand.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <RiDeleteBinLine className='size-4' />
+                      </Button>
+                    </PermissionGate>
+                  </>
+                )}
+              </div>
+            </Table.Cell>
+          );
+        },
+      },
+    ],
+    [editingItems, isEditing, handleFieldChange, handleSave, handleCancel, handleEdit, handleDelete, updateMutation.isPending, deleteMutation.isPending],
+  );
+
+  // Initialize table
+  const table = useReactTable({
+    data: brands,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+  });
+
   if (isLoading) {
     return <div className='flex justify-center py-8'>Loading brands...</div>;
   }
@@ -222,11 +414,17 @@ export function BrandsTable() {
 
       <Table.Root>
         <Table.Header>
-          <Table.Row>
-            <Table.Head>Name</Table.Head>
-            <Table.Head>Type</Table.Head>
-            <Table.Head className='w-32'>Actions</Table.Head>
-          </Table.Row>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Row key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.Head key={header.id} className={header.id === 'actions' ? 'w-32' : ''}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </Table.Head>
+              ))}
+            </Table.Row>
+          ))}
         </Table.Header>
         <Table.Body>
           {/* New items being added */}
@@ -295,105 +493,13 @@ export function BrandsTable() {
             ))}
 
           {/* Existing items */}
-          {brands.map((brand) => (
-            <Table.Row key={brand.id}>
-              <Table.Cell>
-                {isEditing(brand.id) ? (
-                  <Input.Root className='w-full'>
-                    <Input.Wrapper>
-                      <Input.Input
-                        value={editingItems[brand.id]?.name || ''}
-                        onChange={(e) =>
-                          handleFieldChange(brand.id, 'name', e.target.value)
-                        }
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                ) : (
-                  <span className='font-medium'>{brand.name}</span>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                {isEditing(brand.id) ? (
-                  <Select
-                    value={editingItems[brand.id]?.type || ''}
-                    onValueChange={(value) =>
-                      handleFieldChange(brand.id, 'type', value)
-                    }
-                  >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='machine'>
-                        <div className='flex items-center gap-2'>
-                          <RiSettings3Line className='size-4' />
-                          Machine
-                        </div>
-                      </SelectItem>
-                      <SelectItem value='sparepart'>
-                        <div className='flex items-center gap-2'>
-                          <RiToolsLine className='size-4' />
-                          Sparepart
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <div className='text-sm text-gray-600 flex items-center gap-2 capitalize'>
-                    {brand.type === 'machine' ? (
-                      <RiSettings3Line className='size-5' />
-                    ) : (
-                      <RiToolsLine className='size-5' />
-                    )}
-                    {brand.type}
-                  </div>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                <div className='flex gap-2'>
-                  {isEditing(brand.id) ? (
-                    <>
-                      <Button
-                        size='small'
-                        onClick={() => handleSave(brand.id)}
-                        disabled={updateMutation.isPending}
-                      >
-                        <RiSaveLine className='size-4' />
-                      </Button>
-                      <Button
-                        size='small'
-                        mode='stroke'
-                        onClick={() => handleCancel(brand.id)}
-                      >
-                        <RiCloseLine className='size-4' />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <PermissionGate permission='products:update'>
-                        <Button
-                          size='small'
-                          mode='stroke'
-                          onClick={() => handleEdit(brand)}
-                        >
-                          <RiEditLine className='size-4' />
-                        </Button>
-                      </PermissionGate>
-                      <PermissionGate permission='products:delete'>
-                        <Button
-                          size='small'
-                          mode='stroke'
-                          onClick={() => handleDelete(brand.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <RiDeleteBinLine className='size-4' />
-                        </Button>
-                      </PermissionGate>
-                    </>
-                  )}
-                </div>
-              </Table.Cell>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <Table.Cell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Cell>
+              ))}
             </Table.Row>
           ))}
 

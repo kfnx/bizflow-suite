@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { machineTypes } from '@/lib/db/schema';
+import { machineTypes, products, importItems } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,6 +88,40 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Machine type not found' },
         { status: 404 },
+      );
+    }
+
+    // Check if machine type is referenced in products table
+    const productsUsingMachineType = await db
+      .select({ id: products.id, name: products.name })
+      .from(products)
+      .where(eq(products.machineTypeId, params.id))
+      .limit(1);
+
+    if (productsUsingMachineType.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete machine type. It is being used by products.',
+          details: `Machine type is referenced by product: ${productsUsingMachineType[0].name}`
+        },
+        { status: 409 }
+      );
+    }
+
+    // Check if machine type is referenced in import items table
+    const importItemsUsingMachineType = await db
+      .select({ id: importItems.id, name: importItems.name })
+      .from(importItems)
+      .where(eq(importItems.machineTypeId, params.id))
+      .limit(1);
+
+    if (importItemsUsingMachineType.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete machine type. It is being used by import items.',
+          details: `Machine type is referenced by import item: ${importItemsUsingMachineType[0].name}`
+        },
+        { status: 409 }
       );
     }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { asc, desc, like, or } from 'drizzle-orm';
+import { asc, desc, like, or, eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -107,6 +107,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Machine type name is required' },
         { status: 400 },
+      );
+    }
+
+    // Check if machine type with same name already exists
+    const existingMachineType = await db
+      .select({ id: machineTypes.id, name: machineTypes.name })
+      .from(machineTypes)
+      .where(eq(machineTypes.name, name.trim()))
+      .limit(1);
+
+    if (existingMachineType.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Machine type with this name already exists',
+          details: `A machine type named "${existingMachineType[0].name}" already exists`
+        },
+        { status: 409 }
       );
     }
 

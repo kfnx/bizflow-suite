@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { unitOfMeasures } from '@/lib/db/schema';
+import { unitOfMeasures, products, importItems } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,6 +96,40 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Unit of measure not found' },
         { status: 404 },
+      );
+    }
+
+    // Check if unit of measure is referenced in products table
+    const productsUsingUom = await db
+      .select({ id: products.id, name: products.name })
+      .from(products)
+      .where(eq(products.unitOfMeasureId, params.id))
+      .limit(1);
+
+    if (productsUsingUom.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete unit of measure. It is being used by products.',
+          details: `Unit of measure is referenced by product: ${productsUsingUom[0].name}`
+        },
+        { status: 409 }
+      );
+    }
+
+    // Check if unit of measure is referenced in import items table
+    const importItemsUsingUom = await db
+      .select({ id: importItems.id, name: importItems.name })
+      .from(importItems)
+      .where(eq(importItems.unitOfMeasureId, params.id))
+      .limit(1);
+
+    if (importItemsUsingUom.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete unit of measure. It is being used by import items.',
+          details: `Unit of measure is referenced by import item: ${importItemsUsingUom[0].name}`
+        },
+        { status: 409 }
       );
     }
 

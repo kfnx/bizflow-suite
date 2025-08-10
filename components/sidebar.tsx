@@ -282,18 +282,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
       links: category.links.filter((link) => {
         // Admin bypass permission check
         if (session?.user?.isAdmin) return true;
-        // Check role-based access for specific routes first
-        const roleBasedRoutes: Record<string, string[]> = {
-          '/quotations/pending': ['manager', 'director'],
-          '/imports/pending': ['import-manager', 'director'],
-          '/users': ['manager', 'director'],
-        };
-
-        const requiredRoles = roleBasedRoutes[link.href];
-        if (requiredRoles) {
-          const hasAccess = requiredRoles.includes(userRole);
-          return hasAccess;
-        }
 
         // Check if user has permission for this route
         const routePermissions: Record<string, Permission[]> = {
@@ -308,6 +296,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           '/customers': ['customers:read'],
           '/users': ['users:read'],
           '/branches': ['branches:read'],
+          // '/master-data': ['master-data:read'],
         };
 
         const requiredPermissions = routePermissions[link.href];

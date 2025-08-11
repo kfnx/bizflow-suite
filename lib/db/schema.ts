@@ -1372,18 +1372,18 @@ export interface ProductQueryParams {
   supplierId?: string;
   warehouseId?: string;
   sortBy?:
-  | 'name-asc'
-  | 'name-desc'
-  | 'code-asc'
-  | 'code-desc'
-  | 'price-asc'
-  | 'price-desc'
-  | 'category-asc'
-  | 'category-desc'
-  | 'year-asc'
-  | 'year-desc'
-  | 'created-asc'
-  | 'created-desc';
+    | 'name-asc'
+    | 'name-desc'
+    | 'code-asc'
+    | 'code-desc'
+    | 'price-asc'
+    | 'price-desc'
+    | 'category-asc'
+    | 'category-desc'
+    | 'year-asc'
+    | 'year-desc'
+    | 'created-asc'
+    | 'created-desc';
   page?: number;
   limit?: number;
 }

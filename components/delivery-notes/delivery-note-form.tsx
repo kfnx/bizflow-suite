@@ -300,7 +300,6 @@ export function DeliveryNoteForm({
               onValueChange={(value: string) =>
                 handleInputChange('customerId', value)
               }
-              placeholder='Select a customer'
             />
             {validationErrors.customerId && (
               <p className='text-sm mt-1 text-error-base'>

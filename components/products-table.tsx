@@ -155,7 +155,7 @@ export function ProductsTable({
       cell: ({ row }) => {
         const config =
           conditionConfig[
-          row.original.condition as keyof typeof conditionConfig
+            row.original.condition as keyof typeof conditionConfig
           ];
         return (
           <Badge.Root variant={config?.variant} color={config?.color}>
@@ -311,10 +311,10 @@ export function ProductsTable({
         </h3>
         <p className='text-gray-500 mt-1 text-paragraph-sm'>
           {filters?.search ||
-            filters?.status ||
-            filters?.category ||
-            filters?.brand ||
-            filters?.location
+          filters?.status ||
+          filters?.category ||
+          filters?.brand ||
+          filters?.location
             ? 'No products match your current filters. Try adjusting your search criteria.'
             : 'Get started by adding a new product.'}
         </p>
@@ -334,9 +334,9 @@ export function ProductsTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </Table.Head>
                 ))}
               </Table.Row>

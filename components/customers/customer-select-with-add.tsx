@@ -8,15 +8,13 @@ import * as Select from '@/components/ui/select';
 interface CustomerSelectWithAddProps {
   value: string;
   onValueChange: (value: string) => void;
-  placeholder?: string;
 }
 
 export function CustomerSelectWithAdd({
   value,
   onValueChange,
-  placeholder = 'Select a customer',
 }: CustomerSelectWithAddProps) {
-  const { data: customers } = useCustomers();
+  const { data: customers, isLoading } = useCustomers();
 
   return (
     <Select.Root
@@ -28,9 +26,12 @@ export function CustomerSelectWithAdd({
           onValueChange(newValue);
         }
       }}
+      disabled={!customers}
     >
       <Select.Trigger>
-        <Select.Value placeholder={placeholder} />
+        <Select.Value
+          placeholder={isLoading ? 'Loading customers...' : 'Select customer'}
+        />
       </Select.Trigger>
       <Select.Content>
         {customers?.data?.map((customer) => (

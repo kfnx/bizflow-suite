@@ -374,7 +374,6 @@ export function InvoiceForm({
             <CustomerSelectWithAdd
               value={formData.customerId}
               onValueChange={(value) => handleInputChange('customerId', value)}
-              placeholder='Select a customer'
             />
             {validationErrors.customerId && (
               <p className='text-sm mt-1 text-error-base'>

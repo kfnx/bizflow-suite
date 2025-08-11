@@ -1141,20 +1141,10 @@ export function ImportForm({
           <Divider.Root />
 
           {/* Products */}
-          <div>
-            <div className='mb-4 flex items-center justify-between'>
-              <h3 className='text-lg text-gray-900 font-medium'>Items</h3>
-              <Button.Root
-                type='button'
-                variant='neutral'
-                mode='stroke'
-                size='small'
-                onClick={addProductItem}
-              >
-                <RiAddLine className='mr-2 size-4' />
-                Add item
-              </Button.Root>
-            </div>
+          <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
+            <h3 className='text-lg mb-4 font-semibold text-text-strong-950'>
+              Items
+            </h3>
 
             <div className='space-y-6'>
               {formData.items.map((item, index) => (
@@ -1175,6 +1165,19 @@ export function ImportForm({
                   brandsLoading={brandsLoading}
                 />
               ))}
+            </div>
+
+            <div className='mt-4 flex justify-end'>
+              <Button.Root
+                variant='neutral'
+                mode='stroke'
+                size='small'
+                onClick={addProductItem}
+                type='button'
+              >
+                <RiAddLine className='size-4' />
+                Add Item
+              </Button.Root>
             </div>
 
             {/* Total Calculation */}

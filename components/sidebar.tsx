@@ -8,18 +8,15 @@ import {
   RiArrowRightSLine,
   RiBillLine,
   RiBox1Line,
-  RiBuildingLine,
   RiCheckLine,
   RiDatabaseLine,
   RiExchangeFundsLine,
   RiFileTextLine,
   RiGitBranchLine,
-  RiHeadphoneLine,
   RiImportLine,
   RiLayoutGridLine,
   RiMenuFoldLine,
   RiMenuUnfoldLine,
-  RiSettings2Line,
   RiStoreLine,
   RiTeamLine,
   RiTruckLine,
@@ -34,7 +31,6 @@ import { cn } from '@/utils/cn';
 import * as Divider from '@/components/ui/divider';
 import { UserButton } from '@/components/user-button';
 
-import IconCmd from '~/icons/icon-cmd.svg';
 
 type NavigationLink = {
   icon: React.ComponentType<{ className?: string }>;
@@ -261,8 +257,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
 
   if (!session?.user) return null;
 
-  const userRole = session?.user?.role || 'guest';
-
   const toggleGroup = (groupLabel: string) => {
     setCollapsedGroups((prev) => {
       const newSet = new Set(prev);
@@ -388,88 +382,6 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   });
 }
 
-function SettingsAndSupport({ collapsed }: { collapsed: boolean }) {
-  const pathname = usePathname();
-
-  const links = [
-    {
-      href: '/settings/profile-settings',
-      icon: RiSettings2Line,
-      label: 'Settings',
-    },
-    {
-      href: '#',
-      icon: RiHeadphoneLine,
-      label: 'Support',
-      disabled: true,
-    },
-  ];
-
-  return (
-    <div className='space-y-2'>
-      <div
-        className={cn('p-1 text-subheading-xs uppercase text-text-soft-400', {
-          '-mx-2.5 w-14 px-0 text-center': collapsed,
-        })}
-      >
-        Others
-      </div>
-      <div className='space-y-1'>
-        {links.map(({ icon: Icon, label, href, disabled }, i) => {
-          const isActivePage = pathname.startsWith(href);
-
-          return (
-            <Link
-              key={i}
-              href={href}
-              aria-current={isActivePage ? 'page' : undefined}
-              aria-disabled={disabled}
-              className={cn(
-                'group relative flex items-center gap-2 whitespace-nowrap rounded-lg py-2 text-text-sub-600 hover:bg-bg-weak-50',
-                'transition-default',
-                'aria-[current=page]:bg-bg-weak-50',
-                'aria-disabled:pointer-events-none aria-disabled:opacity-50',
-                {
-                  'w-9 px-2': collapsed,
-                  'w-full px-3': !collapsed,
-                },
-              )}
-            >
-              <div
-                className={cn(
-                  'transition-default absolute top-1/2 h-5 w-1 origin-left -translate-y-1/2 rounded-r-full bg-primary-base',
-                  {
-                    '-left-[22px]': collapsed,
-                    '-left-5': !collapsed,
-                    'scale-100': isActivePage,
-                    'scale-0': !isActivePage,
-                  },
-                )}
-              />
-              <Icon
-                className={cn(
-                  'transition-default size-5 shrink-0 text-text-sub-600',
-                  'group-aria-[current=page]:text-primary-base',
-                )}
-              />
-
-              <div
-                className='flex w-[180px] shrink-0 items-center gap-2'
-                data-hide-collapsed
-              >
-                <div className='flex-1 text-label-sm'>{label}</div>
-                {isActivePage && (
-                  <RiArrowRightSLine className='size-5 text-text-sub-600' />
-                )}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function UserProfile({ collapsed }: { collapsed: boolean }) {
   return (
     <div
@@ -539,7 +451,6 @@ export default function Sidebar({
             })}
           >
             <NavigationMenu collapsed={collapsed} />
-            {/* <SettingsAndSupport collapsed={collapsed} /> */}
           </div>
 
           <SidebarDivider collapsed={collapsed} />

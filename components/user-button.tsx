@@ -127,10 +127,6 @@ export function UserButton({ className }: { className?: string }) {
             <Dropdown.ItemIcon as={RiUserLine} />
             Profile
           </Dropdown.Item>
-          <Dropdown.Item disabled>
-            <Dropdown.ItemIcon as={RiSettings2Line} />
-            Settings
-          </Dropdown.Item>
         </Dropdown.Group>
         <Divider.Root variant='line-spacing' />
         <Dropdown.Group>
@@ -249,10 +245,6 @@ export function UserButtonMobile({ className }: { className?: string }) {
           <Dropdown.Item onSelect={handleProfileClick}>
             <Dropdown.ItemIcon as={RiUserLine} />
             Profile
-          </Dropdown.Item>
-          <Dropdown.Item disabled>
-            <Dropdown.ItemIcon as={RiSettings2Line} />
-            Settings
           </Dropdown.Item>
         </Dropdown.Group>
         <Divider.Root variant='line-spacing' />

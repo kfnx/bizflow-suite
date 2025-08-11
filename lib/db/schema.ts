@@ -617,7 +617,7 @@ export const products = mysqlTable(
     partNumber: varchar('part_number', { length: 100 }), // [non-serialized, bulk]
     batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }), // [non-serialized, bulk]
     // ================================
-    status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock, discontinued
+    status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock
     price: decimal('price', { precision: 17, scale: 2 })
       .notNull()
       .default('0.00'),
@@ -1372,18 +1372,18 @@ export interface ProductQueryParams {
   supplierId?: string;
   warehouseId?: string;
   sortBy?:
-    | 'name-asc'
-    | 'name-desc'
-    | 'code-asc'
-    | 'code-desc'
-    | 'price-asc'
-    | 'price-desc'
-    | 'category-asc'
-    | 'category-desc'
-    | 'year-asc'
-    | 'year-desc'
-    | 'created-asc'
-    | 'created-desc';
+  | 'name-asc'
+  | 'name-desc'
+  | 'code-asc'
+  | 'code-desc'
+  | 'price-asc'
+  | 'price-desc'
+  | 'category-asc'
+  | 'category-desc'
+  | 'year-asc'
+  | 'year-desc'
+  | 'created-asc'
+  | 'created-desc';
   page?: number;
   limit?: number;
 }

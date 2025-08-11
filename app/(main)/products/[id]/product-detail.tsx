@@ -92,8 +92,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
         return 'green';
       case 'out_of_stock':
         return 'red';
-      case 'discontinued':
-        return 'gray';
       default:
         return 'blue';
     }

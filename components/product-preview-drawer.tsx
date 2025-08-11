@@ -30,11 +30,6 @@ const statusConfig = {
     variant: 'lighter' as const,
     color: 'red' as const,
   },
-  discontinued: {
-    label: 'Discontinued',
-    variant: 'lighter' as const,
-    color: 'gray' as const,
-  },
 };
 
 const conditionConfig = {

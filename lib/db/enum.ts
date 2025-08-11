@@ -48,7 +48,6 @@ export enum PRODUCT_CONDITION {
 export enum PRODUCT_STATUS {
   IN_STOCK = 'in_stock',
   OUT_OF_STOCK = 'out_of_stock',
-  DISCONTINUED = 'discontinued',
 }
 
 export enum STOCK_CONDITION {

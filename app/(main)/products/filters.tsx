@@ -15,7 +15,7 @@ import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
 
-type ProductStatus = 'all' | 'in_stock' | 'out_of_stock' | 'discontinued';
+type ProductStatus = 'all' | 'in_stock' | 'out_of_stock';
 type ProductCategory = 'all' | 'serialized' | 'non_serialized' | 'bulk';
 type ProductBrand =
   | 'all'
@@ -168,7 +168,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               <Select.Item value='all'>All Status</Select.Item>
               <Select.Item value='in_stock'>In Stock</Select.Item>
               <Select.Item value='out_of_stock'>Out of Stock</Select.Item>
-              <Select.Item value='discontinued'>Discontinued</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>

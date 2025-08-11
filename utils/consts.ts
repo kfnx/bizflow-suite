@@ -95,7 +95,6 @@ export type ProductCondition =
 export const PRODUCT_STATUS = {
   IN_STOCK: 'in_stock',
   OUT_OF_STOCK: 'out_of_stock',
-  DISCONTINUED: 'discontinued',
 } as const;
 
 export type ProductStatus =

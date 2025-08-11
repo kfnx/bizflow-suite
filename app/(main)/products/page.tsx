@@ -14,6 +14,7 @@ export default function PageProducts() {
     status: 'all',
     category: 'all',
     brand: 'all',
+    location: 'all',
     sortBy: '',
     page: 1,
     limit: 10,

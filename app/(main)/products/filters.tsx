@@ -10,6 +10,7 @@ import {
 } from '@remixicon/react';
 
 import { cn } from '@/utils/cn';
+import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Select from '@/components/ui/select';
@@ -33,6 +34,7 @@ export interface ProductsFilters {
   status: ProductStatus;
   category: ProductCategory;
   brand: ProductBrand;
+  location: string;
   sortBy: string;
   page?: number;
   limit?: number;
@@ -45,12 +47,14 @@ interface FiltersProps {
 export function Filters({ onFiltersChange }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: warehousesData } = useWarehouses({ limit: 100 });
 
   const [filters, setFilters] = useState<ProductsFilters>({
     search: searchParams.get('search') || '',
     status: (searchParams.get('status') as ProductStatus) || 'all',
     category: (searchParams.get('category') as ProductCategory) || 'all',
     brand: (searchParams.get('brand') as ProductBrand) || 'all',
+    location: searchParams.get('location') || 'all',
     sortBy: searchParams.get('sortBy') || 'newest-first',
     page: parseInt(searchParams.get('page') || '1'),
     limit: parseInt(searchParams.get('limit') || '10'),
@@ -64,6 +68,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
       if (newFilters.category !== 'all')
         params.set('category', newFilters.category);
       if (newFilters.brand !== 'all') params.set('brand', newFilters.brand);
+      if (newFilters.location !== 'all')
+        params.set('location', newFilters.location);
       if (newFilters.sortBy !== 'newest-first')
         params.set('sortBy', newFilters.sortBy);
       if (newFilters.page && newFilters.page > 1)
@@ -98,6 +104,10 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     setFilters((prev) => ({ ...prev, brand: value, page: 1 }));
   };
 
+  const handleLocationChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, location: value, page: 1 }));
+  };
+
   const handleSortChange = (value: string) => {
     setFilters((prev) => ({ ...prev, sortBy: value, page: 1 }));
   };
@@ -108,6 +118,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     filters.status !== 'all' ||
     filters.category !== 'all' ||
     filters.brand !== 'all' ||
+    filters.location !== 'all' ||
     filters.sortBy !== 'newest-first';
 
   // Handle Enter key press in search input
@@ -205,6 +216,28 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           </Select.Root>
         </div>
 
+        {/* Location Filter */}
+        <div className='flex items-center gap-2'>
+          <span className='text-paragraph-sm text-text-sub-600'>Location:</span>
+          <Select.Root
+            value={filters.location}
+            onValueChange={handleLocationChange}
+          >
+            <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiFilterLine} />
+              <Select.Value placeholder='Location' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='all'>All Locations</Select.Item>
+              {warehousesData?.data?.map((warehouse) => (
+                <Select.Item key={warehouse.id} value={warehouse.id}>
+                  {warehouse.name}
+                </Select.Item>
+              )) || []}
+            </Select.Content>
+          </Select.Root>
+        </div>
+
         {/* Sort Filter */}
         <div className='flex items-center gap-2'>
           <span className='text-paragraph-sm text-text-sub-600'>Sort by:</span>
@@ -237,6 +270,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               status: 'all' as ProductStatus,
               category: 'all' as ProductCategory,
               brand: 'all' as ProductBrand,
+              location: 'all',
               sortBy: 'newest-first',
               page: 1,
               limit: 10,

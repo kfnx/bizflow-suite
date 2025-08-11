@@ -91,6 +91,7 @@ interface ProductsTableProps {
     status: string;
     category: string;
     brand: string;
+    location: string;
     sortBy: string;
     page?: number;
     limit?: number;
@@ -104,7 +105,12 @@ export function ProductsTable({
   onPageChange,
   onLimitChange,
 }: ProductsTableProps) {
-  const { data, isLoading, error } = useProducts(filters);
+  // Map location filter to warehouseId for the API call
+  const apiFilters = {
+    ...filters,
+    warehouseId: filters.location,
+  };
+  const { data, isLoading, error } = useProducts(apiFilters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [quickViewProduct, setQuickViewProduct] =
     React.useState<ProductWithRelations | null>(null);
@@ -312,7 +318,8 @@ export function ProductsTable({
           {filters?.search ||
           filters?.status ||
           filters?.category ||
-          filters?.brand
+          filters?.brand ||
+          filters?.location
             ? 'No products match your current filters. Try adjusting your search criteria.'
             : 'Get started by adding a new product.'}
         </p>

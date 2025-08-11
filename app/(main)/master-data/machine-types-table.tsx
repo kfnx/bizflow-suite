@@ -3,24 +3,29 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   RiAddLine,
+  RiArrowDownSFill,
+  RiArrowUpSFill,
   RiCloseLine,
   RiDeleteBinLine,
   RiEditLine,
-  RiSaveLine,
-  RiArrowUpSFill,
-  RiArrowDownSFill,
   RiExpandUpDownFill,
+  RiSaveLine,
 } from '@remixicon/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  useReactTable,
+  flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  type SortingState,
+  useReactTable,
   type ColumnDef,
-  flexRender,
+  type SortingState,
 } from '@tanstack/react-table';
 import { toast } from 'sonner';
+
+import { Root as Button } from '@/components/ui/button';
+import * as Input from '@/components/ui/input';
+import * as Table from '@/components/ui/table';
+import { PermissionGate } from '@/components/auth/permission-gate';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -29,11 +34,6 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
     return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
-
-import { Root as Button } from '@/components/ui/button';
-import * as Input from '@/components/ui/input';
-import * as Table from '@/components/ui/table';
-import { PermissionGate } from '@/components/auth/permission-gate';
 
 interface MachineType {
   id: string;
@@ -73,7 +73,9 @@ export function MachineTypesTable() {
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error?.details || error?.error || 'Failed to create machine type');
+        throw new Error(
+          error?.details || error?.error || 'Failed to create machine type',
+        );
       }
       return response.json();
     },
@@ -102,7 +104,9 @@ export function MachineTypesTable() {
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error?.details || error?.error || 'Failed to update machine type');
+        throw new Error(
+          error?.details || error?.error || 'Failed to update machine type',
+        );
       }
       return response.json();
     },
@@ -123,7 +127,9 @@ export function MachineTypesTable() {
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error?.details || error?.error || 'Failed to delete machine type');
+        throw new Error(
+          error?.details || error?.error || 'Failed to delete machine type',
+        );
       }
       return response.json();
     },
@@ -229,7 +235,9 @@ export function MachineTypesTable() {
             Name
             <button
               type='button'
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
             >
               {getSortingIcon(column.getIsSorted())}
             </button>
@@ -316,7 +324,17 @@ export function MachineTypesTable() {
         },
       },
     ],
-    [editingItems, isEditing, handleFieldChange, handleSave, handleCancel, handleEdit, handleDelete, updateMutation.isPending, deleteMutation.isPending],
+    [
+      editingItems,
+      isEditing,
+      handleFieldChange,
+      handleSave,
+      handleCancel,
+      handleEdit,
+      handleDelete,
+      updateMutation.isPending,
+      deleteMutation.isPending,
+    ],
   );
 
   // Initialize table
@@ -356,10 +374,16 @@ export function MachineTypesTable() {
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Row key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.Head key={header.id} className={header.id === 'actions' ? 'w-32' : ''}>
+                <Table.Head
+                  key={header.id}
+                  className={header.id === 'actions' ? 'w-32' : ''}
+                >
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

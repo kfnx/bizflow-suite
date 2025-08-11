@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { brands, products, importItems } from '@/lib/db/schema';
+import { brands, importItems, products } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,9 +112,9 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: 'Cannot delete brand. It is being used by products.',
-          details: `Brand is referenced by product: ${productsUsingBrand[0].name}`
+          details: `Brand is referenced by product: ${productsUsingBrand[0].name}`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -129,9 +129,9 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: 'Cannot delete brand. It is being used by import items.',
-          details: `Brand is referenced by import item: ${importItemsUsingBrand[0].name}`
+          details: `Brand is referenced by import item: ${importItemsUsingBrand[0].name}`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 

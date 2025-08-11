@@ -145,9 +145,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Brand with this name and type already exists',
-          details: `A brand named "${existingBrand[0].name}" already exists in the ${existingBrand[0].type} category`
+          details: `A brand named "${existingBrand[0].name}" already exists in the ${existingBrand[0].type} category`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 

@@ -31,7 +31,6 @@ import { cn } from '@/utils/cn';
 import * as Divider from '@/components/ui/divider';
 import { UserButton } from '@/components/user-button';
 
-
 type NavigationLink = {
   icon: React.ComponentType<{ className?: string }>;
   label: string;

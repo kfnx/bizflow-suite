@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { machineTypes, products, importItems } from '@/lib/db/schema';
+import { importItems, machineTypes, products } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -102,9 +102,9 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: 'Cannot delete machine type. It is being used by products.',
-          details: `Machine type is referenced by product: ${productsUsingMachineType[0].name}`
+          details: `Machine type is referenced by product: ${productsUsingMachineType[0].name}`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -118,10 +118,11 @@ export async function DELETE(
     if (importItemsUsingMachineType.length > 0) {
       return NextResponse.json(
         {
-          error: 'Cannot delete machine type. It is being used by import items.',
-          details: `Machine type is referenced by import item: ${importItemsUsingMachineType[0].name}`
+          error:
+            'Cannot delete machine type. It is being used by import items.',
+          details: `Machine type is referenced by import item: ${importItemsUsingMachineType[0].name}`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { unitOfMeasures, products, importItems } from '@/lib/db/schema';
+import { importItems, products, unitOfMeasures } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,9 +110,9 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: 'Cannot delete unit of measure. It is being used by products.',
-          details: `Unit of measure is referenced by product: ${productsUsingUom[0].name}`
+          details: `Unit of measure is referenced by product: ${productsUsingUom[0].name}`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -126,10 +126,11 @@ export async function DELETE(
     if (importItemsUsingUom.length > 0) {
       return NextResponse.json(
         {
-          error: 'Cannot delete unit of measure. It is being used by import items.',
-          details: `Unit of measure is referenced by import item: ${importItemsUsingUom[0].name}`
+          error:
+            'Cannot delete unit of measure. It is being used by import items.',
+          details: `Unit of measure is referenced by import item: ${importItemsUsingUom[0].name}`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 

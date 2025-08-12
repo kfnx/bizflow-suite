@@ -33,6 +33,8 @@ import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import InvoiceNumberDisplay from '@/components/invoices/invoice-number-display';
 
+import { SelectProduct } from '../products/select-product';
+
 export type InvoiceFormMode = 'create' | 'edit';
 
 interface InvoiceFormProps {
@@ -562,8 +564,10 @@ export function InvoiceForm({
                 className='grid grid-cols-12 items-end gap-2 pb-4'
               >
                 <div className='col-span-12 flex flex-col gap-1 lg:col-span-4'>
-                  <Label.Root htmlFor={`product-${index}`}>Product</Label.Root>
-                  <Select.Root
+                  <Label.Root htmlFor={`product-${index}`}>
+                    Product <Label.Asterisk />
+                  </Label.Root>
+                  <SelectProduct
                     value={item.productId}
                     onValueChange={(value) => {
                       const product = products?.data?.find(
@@ -588,22 +592,7 @@ export function InvoiceForm({
                         );
                       }
                     }}
-                  >
-                    <Select.Trigger id={`product-${index}`}>
-                      <Select.TriggerIcon as={RiShoppingCartLine} />
-                      <Select.Value placeholder='Select product' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {products?.data?.map((product) => (
-                        <Select.Item key={product.id} value={product.id}>
-                          {product.name}{' '}
-                          <small className='text-text-soft-400'>
-                            {product.category}
-                          </small>
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
+                  />
                 </div>
 
                 <div className='col-span-3 flex flex-col gap-1 lg:col-span-1'>

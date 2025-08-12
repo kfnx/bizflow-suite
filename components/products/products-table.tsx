@@ -31,7 +31,7 @@ import * as Dropdown from '@/components/ui/dropdown';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
-import { ProductPreviewDrawer } from '@/components/product-preview-drawer';
+import { ProductPreviewDrawer } from '@/components/products/product-preview-drawer';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')

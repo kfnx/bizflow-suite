@@ -4,7 +4,7 @@ import { Suspense, useCallback, useState } from 'react';
 import { RiBox1Line } from '@remixicon/react';
 
 import Header from '@/components/header';
-import { ProductsTable } from '@/components/products-table';
+import { ProductsTable } from '@/components/products/products-table';
 
 import { Filters, type ProductsFilters } from './filters';
 

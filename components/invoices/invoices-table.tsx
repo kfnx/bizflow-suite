@@ -9,8 +9,6 @@ import {
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
   RiArrowUpSFill,
-  RiBillLine,
-  RiCalendarLine,
   RiEditLine,
   RiExpandUpDownFill,
   RiEyeLine,
@@ -34,7 +32,6 @@ import {
   useDeleteInvoice,
   useInvoices,
   type Invoice,
-  type InvoicesResponse,
 } from '@/hooks/use-invoices';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -101,56 +98,6 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
   const router = useRouter();
   const { data, isLoading, error } = useInvoices(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const deleteInvoice = useDeleteInvoice();
-
-  const handleDelete = async (invoiceId: string) => {
-    if (confirm('Are you sure you want to delete this invoice?')) {
-      try {
-        await deleteInvoice.mutateAsync(invoiceId);
-      } catch (error) {
-        console.error('Error deleting invoice:', error);
-      }
-    }
-  };
-
-  const handleSendInvoice = async (invoiceId: string) => {
-    if (
-      confirm('Are you sure you want to send this invoice to the customer?')
-    ) {
-      try {
-        // TODO: Implement send invoice API call
-        toast.success('Invoice sent successfully!');
-      } catch (error) {
-        console.error('Error sending invoice:', error);
-      }
-    }
-  };
-
-  const handleMarkAsPaid = async (invoiceId: string) => {
-    if (confirm('Are you sure you want to mark this invoice as paid?')) {
-      try {
-        // TODO: Implement mark as paid API call
-        toast.success('Invoice marked as paid successfully!');
-      } catch (error) {
-        console.error('Error marking invoice as paid:', error);
-      }
-    }
-  };
-
-  const handleVoidInvoice = async (invoiceId: string) => {
-    if (
-      confirm(
-        'Are you sure you want to void this invoice? This action cannot be undone.',
-      )
-    ) {
-      try {
-        // TODO: Implement void invoice API call
-        toast.success('Invoice voided successfully!');
-      } catch (error) {
-        console.error('Error voiding invoice:', error);
-      }
-    }
-  };
 
   const columns: ColumnDef<Invoice>[] = [
     {
@@ -293,52 +240,11 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
                 <RiEyeLine className='size-4' />
                 View Details
               </Dropdown.Item>
-              <Dropdown.Item onClick={() => onPreview?.(row.original.id)}>
-                <RiFileTextLine className='size-4' />
-                Quick View
-              </Dropdown.Item>
               <Dropdown.Item
                 onClick={() => router.push(`/invoices/${row.original.id}/edit`)}
               >
                 <RiEditLine className='size-4' />
                 Edit Invoice
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <RiBillLine className='size-4' />
-                Download PDF
-              </Dropdown.Item>
-              {row.original.status === 'draft' && (
-                <Dropdown.Item
-                  onClick={() => handleSendInvoice(row.original.id)}
-                >
-                  <RiMailSendLine className='size-4' />
-                  Send Invoice
-                </Dropdown.Item>
-              )}
-              {row.original.status === 'sent' && (
-                <Dropdown.Item
-                  onClick={() => handleMarkAsPaid(row.original.id)}
-                >
-                  <RiMoneyDollarCircleLine className='size-4' />
-                  Mark as Paid
-                </Dropdown.Item>
-              )}
-              {(row.original.status === 'draft' ||
-                row.original.status === 'sent') && (
-                <Dropdown.Item
-                  onClick={() => handleVoidInvoice(row.original.id)}
-                  className='text-red-600'
-                >
-                  <RiFileTextLine className='size-4' />
-                  Void Invoice
-                </Dropdown.Item>
-              )}
-              <Dropdown.Separator />
-              <Dropdown.Item
-                onClick={() => handleDelete(row.original.id)}
-                className='text-red-600'
-              >
-                Delete Invoice
               </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown.Root>

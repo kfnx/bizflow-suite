@@ -7,7 +7,6 @@ import {
   RiCalendarLine,
   RiDeleteBinLine,
   RiMoneyDollarCircleLine,
-  RiShoppingCartLine,
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
@@ -20,7 +19,6 @@ import {
   formatNumberWithDots,
   parseNumberFromDots,
 } from '@/utils/number-formatter';
-import { useProducts } from '@/hooks/use-products';
 import { useQuotationNumber } from '@/hooks/use-quotation-number';
 import {
   useCreateQuotation,
@@ -31,10 +29,10 @@ import {
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
-import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
-import QuotationNumberDisplay from '@/components/quotations/quotation-number-display';
+import { SelectProduct } from '@/components/products/select-product';
+import { QuotationNumberDisplay } from '@/components/quotations/quotation-number-display';
 
 import { SimplePageLoading } from '../simple-page-loading';
 
@@ -109,7 +107,6 @@ export function QuotationForm({
 
   const router = useRouter();
 
-  const { data: products } = useProducts();
   const { data: quotationNumber, isLoading: isLoadingQuotationNumber } =
     useQuotationNumber();
 
@@ -532,55 +529,35 @@ export function QuotationForm({
                 className='grid grid-cols-12 items-end gap-2 pb-4'
               >
                 <div className='col-span-12 flex flex-col gap-1 lg:col-span-4'>
-                  <Label.Root htmlFor={`product-${index}`}>Product</Label.Root>
-                  <Select.Root
+                  <Label.Root htmlFor={`product-${index}`}>
+                    Product <Label.Asterisk />
+                  </Label.Root>
+                  <SelectProduct
                     value={item.productId}
-                    onValueChange={(value) => {
-                      const product = products?.data?.find(
-                        (p) => p.id === value,
-                      );
-                      updateItem(index, 'productId', value);
-                      updateItem(index, 'category', product?.category || '');
-                      updateItem(index, 'name', product?.name || '');
+                    onValueChange={(value) =>
+                      updateItem(index, 'productId', value)
+                    }
+                    onProductSelect={(product) => {
+                      updateItem(index, 'category', product.category || '');
+                      updateItem(index, 'name', product.name || '');
                       updateItem(
                         index,
                         'unitPrice',
-                        formatNumberWithDots(product?.price || 0),
+                        formatNumberWithDots(product.price || 0),
                       );
                       if (
-                        product?.category === 'serialized' &&
-                        product?.additionalSpecs
+                        product.category === 'serialized' &&
+                        product.additionalSpecs
                       ) {
                         updateItem(
                           index,
                           'additionalSpecs',
-                          product?.additionalSpecs,
+                          product.additionalSpecs,
                         );
                       }
                     }}
-                  >
-                    <Select.Trigger
-                      id={`product-${index}`}
-                      className={
-                        validationErrors.items?.[index]
-                          ? 'border-error-500'
-                          : ''
-                      }
-                    >
-                      <Select.TriggerIcon as={RiShoppingCartLine} />
-                      <Select.Value placeholder='Select product' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {products?.data?.map((product) => (
-                        <Select.Item key={product.id} value={product.id}>
-                          {product.name}{' '}
-                          <small className='text-text-soft-400'>
-                            {product.category}
-                          </small>
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
+                    error={!!validationErrors.items?.[index]}
+                  />
                   {validationErrors.items?.[index] && (
                     <p className='text-sm mt-1 text-error-base'>
                       {validationErrors.items[index]}

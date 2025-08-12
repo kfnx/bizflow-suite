@@ -33,6 +33,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
 
+    // Handle special case for getting all products (no pagination)
+    const getAllProducts = limit === -1;
+
     // Build query conditions
     const conditions = [];
     if (status && status !== 'all') {
@@ -106,7 +109,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch products with related data
-    const productsData = await db
+    const query = db
       .select({
         id: products.id,
         name: products.name,
@@ -146,9 +149,14 @@ export async function GET(request: NextRequest) {
       .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
       .leftJoin(warehouses, eq(products.warehouseId, warehouses.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(orderByClause)
-      .limit(limit)
-      .offset(offset);
+      .orderBy(orderByClause);
+
+    // Apply pagination only if not getting all products
+    if (!getAllProducts) {
+      query.limit(limit).offset(offset);
+    }
+
+    const productsData = await query;
 
     // Get total count for pagination
     const totalCount = await db
@@ -163,12 +171,19 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: productsData,
-      pagination: {
-        page,
-        limit,
-        total: totalCount.length,
-        totalPages: Math.ceil(totalCount.length / limit),
-      },
+      pagination: getAllProducts
+        ? {
+            page: 1,
+            limit: -1,
+            total: productsData.length,
+            totalPages: 1,
+          }
+        : {
+            page,
+            limit,
+            total: totalCount.length,
+            totalPages: Math.ceil(totalCount.length / limit),
+          },
     });
   } catch (error) {
     console.error('Error fetching products:', error);

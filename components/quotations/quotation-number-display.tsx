@@ -4,7 +4,7 @@ interface QuotationNumberDisplayProps {
   quotationNumber?: string | null;
 }
 
-export default function QuotationNumberDisplay({
+export function QuotationNumberDisplay({
   quotationNumber,
 }: QuotationNumberDisplayProps) {
   return (

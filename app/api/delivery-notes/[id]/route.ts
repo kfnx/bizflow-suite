@@ -133,7 +133,11 @@ export async function GET(
         id: deliveryNoteItems.id,
         productId: deliveryNoteItems.productId,
         quantity: deliveryNoteItems.quantity,
-        // Product data
+        // Product data - include category and additionalSpecs at top level for consistency
+        name: products.name,
+        category: products.category,
+        additionalSpecs: products.additionalSpecs,
+        // Product data for backward compatibility
         product: {
           id: products.id,
           name: products.name,
@@ -197,7 +201,15 @@ export async function GET(
       receivedByUser: deliveryNote.receivedBy
         ? userData[deliveryNote.receivedBy] || null
         : null,
-      items,
+      items: items.map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        name: item.name,
+        category: item.category,
+        additionalSpecs: item.additionalSpecs,
+        quantity: item.quantity,
+        product: item.product,
+      })),
     };
 
     return NextResponse.json({

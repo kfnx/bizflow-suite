@@ -62,6 +62,8 @@ export default function EditQuotationPage() {
           items: quotationData.items.map((item: any) => ({
             productId: item.productId,
             name: item.name,
+            category: item.category || '',
+            additionalSpecs: item.additionalSpecs || '',
             quantity: Number(item.quantity),
             unitPrice: item.unitPrice.toString(),
             notes: item.notes || '',

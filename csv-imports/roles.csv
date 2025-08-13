@@ -1,0 +1,6 @@
+id,name,description,createdAt,updatedAt
+admin,admin,Administrator with full system access,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+staff,staff,Regular staff member with basic permissions,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+manager,manager,Manager with approval and management permissions,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+import-manager,import-manager,Import manager with import verification permissions,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+director,director,Director with highest level permissions,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z

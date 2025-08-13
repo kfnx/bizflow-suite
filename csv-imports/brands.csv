@@ -1,0 +1,11 @@
+id,type,name,createdAt
+shantui,machine,Shantui,2024-01-01T00:00:00Z
+caterpillar,machine,Caterpillar,2024-01-01T00:00:00Z
+komatsu,machine,Komatsu,2024-01-01T00:00:00Z
+hitachi,machine,Hitachi,2024-01-01T00:00:00Z
+volvo,machine,Volvo,2024-01-01T00:00:00Z
+jcb,machine,JCB,2024-01-01T00:00:00Z
+sparepart_shantui,sparepart,Shantui,2024-01-01T00:00:00Z
+oliolio,sparepart,Oliolio,2024-01-01T00:00:00Z
+spare_xyz,sparepart,Spare XYZ,2024-01-01T00:00:00Z
+sparepart_abc,sparepart,Sparepart ABC,2024-01-01T00:00:00Z

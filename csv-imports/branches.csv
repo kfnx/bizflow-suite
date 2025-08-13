@@ -1,0 +1,5 @@
+id,name,address,postalCode,phone,fax,email,createdAt
+b0000001-0000-4000-a000-000000000001,HO Jakarta,Jl. Sudirman No. 123 Jakarta Pusat DKI Jakarta,12190,+62-21-555-0123,+62-21-555-0124,ho.jakarta@sti.com,2024-01-01T00:00:00Z
+b0000002-0000-4000-a000-000000000001,Pekanbaru,Jl. Soekarno-Hatta No. 456 Pekanbaru Riau,28112,+62-761-555-0456,+62-761-555-0457,pekanbaru@sti.com,2024-01-01T00:00:00Z
+b0000003-0000-4000-a000-000000000001,Kendari,Jl. Ahmad Yani No. 789 Kendari Sulawesi Tenggara,93111,+62-401-555-0789,+62-401-555-0790,kendari@sti.com,2024-01-01T00:00:00Z
+b0000004-0000-4000-a000-000000000001,Balikpapan,Jl. Jenderal Sudirman No. 321 Balikpapan Kalimantan Timur,76112,+62-542-555-0321,+62-542-555-0322,balikpapan@sti.com,2024-01-01T00:00:00Z

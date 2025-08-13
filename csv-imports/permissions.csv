@@ -1,0 +1,17 @@
+id,name,description,createdAt,updatedAt
+quotation:read,quotation:read,Read quotation data,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+quotation:create,quotation:create,Create new quotations,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+quotation:update,quotation:update,Update existing quotations,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+quotation:delete,quotation:delete,Delete quotations,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+quotation:approve,quotation:approve,Approve quotations,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+invoice:read,invoice:read,Read invoice data,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+invoice:create,invoice:create,Create new invoices,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+invoice:update,invoice:update,Update existing invoices,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+invoice:delete,invoice:delete,Delete invoices,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+product:read,product:read,Read product data,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+product:create,product:create,Create new products,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+product:update,product:update,Update existing products,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+product:delete,product:delete,Delete products,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+import:read,import:read,Read import data,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+import:create,import:create,Create new imports,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+import:verify,import:verify,Verify imports,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z

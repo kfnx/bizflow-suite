@@ -1,0 +1,6 @@
+id,code,name,address,city,province,country,postalCode,transactionCurrency,isActive,createdAt,updatedAt
+20000001-0000-4000-a000-000000000001,SUPP001,PT Supplier Pertama,Jl. Supplier No. 1 Jakarta Pusat DKI Jakarta,Jakarta,DKI Jakarta,Indonesia,10110,USD,true,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+20000002-0000-4000-a000-000000000001,SUPP002,CV Supplier Kedua,Jl. Supplier No. 2 Surabaya Jawa Timur,Surabaya,Jawa Timur,Indonesia,60111,USD,true,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+20000003-0000-4000-a000-000000000001,SUPP003,PT Supplier Ketiga,Jl. Supplier No. 3 Bandung Jawa Barat,Bandung,Jawa Barat,Indonesia,40111,USD,true,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+20000004-0000-4000-a000-000000000001,SUPP004,CV Supplier Keempat,Jl. Supplier No. 4 Semarang Jawa Tengah,Semarang,Jawa Tengah,Indonesia,50111,USD,false,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+20000005-0000-4000-a000-000000000001,SUPP005,PT Supplier Kelima,Jl. Supplier No. 5 Yogyakarta DI Yogyakarta,Yogyakarta,DI Yogyakarta,Indonesia,55111,USD,true,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z

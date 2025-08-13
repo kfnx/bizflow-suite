@@ -7,7 +7,7 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className='items-cente flex min-h-screen flex-col '>
+    <div className='flex min-h-screen flex-col items-center'>
       {/* <AuthHeader /> */}
       <div className='relative isolate flex w-full flex-1 flex-col items-center justify-center'>
         <img

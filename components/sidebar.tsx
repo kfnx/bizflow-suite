@@ -211,7 +211,7 @@ export function SidebarHeader({
   return (
     <div
       className={cn('flex justify-between lg:p-3', {
-        'lg:px-2 flex-col': collapsed,
+        'flex-col lg:px-2': collapsed,
         'items-center': !collapsed,
       })}
     >
@@ -312,7 +312,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           className={cn(
             'flex w-full items-center justify-between p-1 text-subheading-xs uppercase text-text-soft-400 transition-colors hover:text-text-sub-600',
             {
-              '-mx-2.5 w-14 px-0 justify-center': collapsed,
+              '-mx-2.5 w-14 justify-center px-0': collapsed,
             },
           )}
         >

@@ -57,7 +57,7 @@ const DigitInputSlot = React.forwardRef<
         // disabled
         'disabled:bg-bg-weak-50 disabled:text-text-disabled-300 disabled:shadow-none disabled:ring-transparent',
         {
-          'ring-error-base hover:ring-error-base focus:ring-error-base focus:shadow-button-error-focus':
+          'ring-error-base hover:ring-error-base focus:shadow-button-error-focus focus:ring-error-base':
             hasError,
         },
         className,

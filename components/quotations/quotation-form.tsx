@@ -528,7 +528,7 @@ export function QuotationForm({
             {validationErrors.items &&
               validationErrors.items[0] &&
               formData.items.length === 0 && (
-                <p className='text-sm  mb-2 text-error-base'>
+                <p className='text-sm mb-2 text-error-base'>
                   {validationErrors.items[0]}
                 </p>
               )}

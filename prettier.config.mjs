@@ -5,7 +5,10 @@ const config = {
   tabWidth: 2,
   semi: true,
   printWidth: 80,
-  plugins: ['@ianvs/prettier-plugin-sort-imports'],
+  plugins: [
+    '@ianvs/prettier-plugin-sort-imports',
+    'prettier-plugin-tailwindcss', // Add Tailwind class sorting
+  ],
   importOrder: [
     '^(react/(.*)$)|^(react$)',
     '^(next/(.*)$)|^(next$)',

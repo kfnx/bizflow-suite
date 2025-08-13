@@ -33,7 +33,7 @@ import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import InvoiceNumberDisplay from '@/components/invoices/invoice-number-display';
 
-import { SelectProduct } from '../products/select-product';
+import { ProductSelect } from '../products/product-select';
 
 export type InvoiceFormMode = 'create' | 'edit';
 
@@ -567,7 +567,7 @@ export function InvoiceForm({
                   <Label.Root htmlFor={`product-${index}`}>
                     Product <Label.Asterisk />
                   </Label.Root>
-                  <SelectProduct
+                  <ProductSelect
                     value={item.productId}
                     onValueChange={(value) => {
                       const product = products?.data?.find(

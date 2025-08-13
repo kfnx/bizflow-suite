@@ -1,6 +1,6 @@
 'use client';
 
-import { RiAddLine } from '@remixicon/react';
+import { RiAddLine, RiUserLine } from '@remixicon/react';
 
 import { useCustomers } from '@/hooks/use-customers';
 import * as Select from '@/components/ui/select';
@@ -26,9 +26,10 @@ export function CustomerSelectWithAdd({
           onValueChange(newValue);
         }
       }}
-      disabled={!customers}
+      disabled={isLoading}
     >
       <Select.Trigger>
+        <Select.TriggerIcon as={RiUserLine} />
         <Select.Value
           placeholder={isLoading ? 'Loading customers...' : 'Select customer'}
         />

@@ -6,19 +6,19 @@ import { useProducts } from '@/hooks/use-products';
 import type { ProductWithRelations } from '@/hooks/use-products';
 import * as Select from '@/components/ui/select';
 
-interface SelectProductProps {
+interface ProductSelectProps {
   value?: string;
   onValueChange: (value: string) => void;
   onProductSelect?: (product: ProductWithRelations) => void;
   error?: boolean;
 }
 
-export function SelectProduct({
+export function ProductSelect({
   value,
   onValueChange,
   onProductSelect,
   error = false,
-}: SelectProductProps) {
+}: ProductSelectProps) {
   // Use limit=-1 to get all products
   const { data: products, isLoading } = useProducts({
     limit: -1,

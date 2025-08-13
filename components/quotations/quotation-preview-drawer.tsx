@@ -245,16 +245,16 @@ function QuotationPreviewFooter({
   };
 
   const handleEdit = () => {
-    if (quotation.status !== QUOTATION_STATUS.DRAFT) {
-      toast.warning('Only draft quotations can be edited');
+    if (quotation.status !== QUOTATION_STATUS.DRAFT && quotation.status !== QUOTATION_STATUS.REVISED) {
+      toast.warning('Only draft and revised quotations can be edited');
       return;
     }
     window.location.href = `/quotations/${quotation.id}/edit`;
   };
 
   const handleSubmit = async () => {
-    if (quotation.status !== QUOTATION_STATUS.DRAFT) {
-      toast.warning('Only draft quotations can be submitted');
+    if (quotation.status !== QUOTATION_STATUS.DRAFT && quotation.status !== QUOTATION_STATUS.REVISED) {
+      toast.warning('Only draft and revised quotations can be submitted');
       return;
     }
 
@@ -342,7 +342,7 @@ function QuotationPreviewFooter({
         View Full
       </Button.Root>
 
-      {quotation.status === QUOTATION_STATUS.DRAFT && (
+      {(quotation.status === QUOTATION_STATUS.DRAFT || quotation.status === QUOTATION_STATUS.REVISED) && (
         <>
           <Button.Root
             variant='neutral'
@@ -354,16 +354,30 @@ function QuotationPreviewFooter({
             <Button.Icon as={RiEditLine} />
             Edit
           </Button.Root>
-          <Button.Root
-            variant='primary'
-            size='medium'
-            className='w-full'
-            onClick={handleSubmit}
-            disabled={submitQuotationMutation.isPending}
-          >
-            <Button.Icon as={RiSendPlaneLine} />
-            {submitQuotationMutation.isPending ? 'Submitting...' : 'Submit'}
-          </Button.Root>
+          {quotation.status === QUOTATION_STATUS.DRAFT && (
+            <Button.Root
+              variant='primary'
+              size='medium'
+              className='w-full'
+              onClick={handleSubmit}
+              disabled={submitQuotationMutation.isPending}
+            >
+              <Button.Icon as={RiSendPlaneLine} />
+              {submitQuotationMutation.isPending ? 'Submitting...' : 'Submit'}
+            </Button.Root>
+          )}
+          {quotation.status === QUOTATION_STATUS.REVISED && (
+            <Button.Root
+              variant='primary'
+              size='medium'
+              className='w-full'
+              onClick={handleSubmit}
+              disabled={submitQuotationMutation.isPending}
+            >
+              <Button.Icon as={RiSendPlaneLine} />
+              {submitQuotationMutation.isPending ? 'Resubmitting...' : 'Resubmit'}
+            </Button.Root>
+          )}
         </>
       )}
 

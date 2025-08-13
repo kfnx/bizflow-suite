@@ -32,9 +32,9 @@ export default function EditQuotationPage() {
           return;
         }
 
-        // Check if quotation is in draft status
-        if (data.data.status !== 'draft') {
-          toast.error('Only draft quotations can be edited');
+        // Check if quotation is in draft or revised status
+        if (data.data.status !== 'draft' && data.data.status !== 'revised') {
+          toast.error('Only draft and revised quotations can be edited');
           router.push('/quotations');
           return;
         }

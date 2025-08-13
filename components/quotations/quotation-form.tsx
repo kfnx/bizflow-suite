@@ -31,7 +31,7 @@ import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
-import { SelectProduct } from '@/components/products/select-product';
+import { ProductSelect } from '@/components/products/product-select';
 import { QuotationNumberDisplay } from '@/components/quotations/quotation-number-display';
 
 import { SimplePageLoading } from '../simple-page-loading';
@@ -532,7 +532,7 @@ export function QuotationForm({
                   <Label.Root htmlFor={`product-${index}`}>
                     Product <Label.Asterisk />
                   </Label.Root>
-                  <SelectProduct
+                  <ProductSelect
                     value={item.productId}
                     onValueChange={(value) =>
                       updateItem(index, 'productId', value)

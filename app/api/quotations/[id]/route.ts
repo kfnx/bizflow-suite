@@ -153,7 +153,7 @@ export async function PUT(
 
     const validatedData = body as UpdateQuotationRequest;
 
-    // Check if quotation exists and is in draft status
+    // Check if quotation exists and is in editable status
     const existingQuotation = await db
       .select({
         status: quotations.status,
@@ -167,6 +167,14 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Quotation not found' },
         { status: 404 },
+      );
+    }
+
+    // Only allow editing of draft and revised quotations
+    if (existingQuotation[0].status !== QUOTATION_STATUS.DRAFT && existingQuotation[0].status !== QUOTATION_STATUS.REVISED) {
+      return NextResponse.json(
+        { error: 'Only draft and revised quotations can be edited' },
+        { status: 400 },
       );
     }
 

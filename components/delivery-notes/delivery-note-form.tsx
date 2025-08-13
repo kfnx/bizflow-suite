@@ -28,7 +28,7 @@ import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import DeliveryNoteNumberDisplay from '@/components/delivery-notes/delivery-note-number-display';
 
-import { SelectProduct } from '../products/select-product';
+import { ProductSelect } from '../products/product-select';
 import { SimplePageLoading } from '../simple-page-loading';
 
 export type DeliveryNoteFormMode = 'create' | 'edit';
@@ -426,7 +426,7 @@ export function DeliveryNoteForm({
                   <Label.Root htmlFor={`product-${index}`}>
                     Product <Label.Asterisk />
                   </Label.Root>
-                  <SelectProduct
+                  <ProductSelect
                     value={item.productId}
                     onValueChange={(value) => {
                       updateItem(index, 'productId', value);

@@ -375,7 +375,14 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
                   </Text>
                   <View style={styles.descriptionCell}>
                     <Text style={styles.productName}>{item.name}</Text>
-                    <Text style={styles.productType}>Excavator</Text>
+                    <Text style={styles.productType}>
+                      {item.category || 'Category'}
+                    </Text>
+                    {item.additionalSpecs && (
+                      <Text style={styles.productType}>
+                        {item.additionalSpecs}
+                      </Text>
+                    )}
                   </View>
                   <Text style={styles.quantityCell}>{item.quantity}</Text>
                   <Text style={styles.priceCell}>

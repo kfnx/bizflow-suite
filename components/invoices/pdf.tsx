@@ -445,12 +445,12 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
                       {index + 1}
                     </Text>
                     <Text style={styles.serialCell}>
-                      {item.additionalSpecs || 'CHSRA10AVRB000615'}
+                      {item.additionalSpecs || 'N/A'}
                     </Text>
                     <View style={styles.descriptionCell}>
                       <Text>{item.name}</Text>
                       <Text style={{ fontSize: 8, color: '#666666' }}>
-                        {item.category || 'SHANTUI-ROLLER-SR 10B6, 2025'}
+                        {item.category || 'Category'}
                       </Text>
                     </View>
                     <Text style={styles.quantityCell}>{item.quantity}</Text>

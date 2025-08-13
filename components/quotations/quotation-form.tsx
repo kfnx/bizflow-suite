@@ -2,12 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  RiAddLine,
-  RiCalendarLine,
-  RiDeleteBinLine,
-  RiMoneyDollarCircleLine,
-} from '@remixicon/react';
+import { RiAddLine, RiCalendarLine, RiDeleteBinLine } from '@remixicon/react';
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
@@ -612,7 +607,6 @@ export function QuotationForm({
                     </Label.Root>
                     <Input.Root>
                       <Input.Wrapper>
-                        <Input.Icon as={RiMoneyDollarCircleLine} />
                         <Input.Input
                           id={`unitPrice-${index}`}
                           type='text'

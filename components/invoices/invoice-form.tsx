@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiAddLine,
@@ -41,6 +41,7 @@ interface InvoiceFormProps {
   mode: InvoiceFormMode;
   invoiceId?: string;
   initialFormData?: InvoiceFormData;
+  onFormDataChange?: (formData: InvoiceFormData) => void;
 }
 
 const emptyFormData: InvoiceFormData = {
@@ -62,11 +63,13 @@ export function InvoiceForm({
   mode,
   invoiceId,
   initialFormData,
+  onFormDataChange,
 }: InvoiceFormProps) {
   const [formData, setFormData] = useState<InvoiceFormData>(
     initialFormData || emptyFormData,
   );
   const [isLoading, setIsLoading] = useState(false);
+  const isInitialLoadRef = useRef(true);
   const [isInitialized, setIsInitialized] = useState(mode === 'create');
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -121,6 +124,18 @@ export function InvoiceForm({
       setIsInitialized(true);
     }
   }, [initialFormData, isInitialized, mode]);
+
+  // Call callback when form data changes (for PDF preview)
+  useEffect(() => {
+    if (onFormDataChange && formData) {
+      // Skip the initial load to prevent infinite loops in edit mode
+      if (isInitialLoadRef.current && mode === 'edit') {
+        isInitialLoadRef.current = false;
+        return;
+      }
+      onFormDataChange(formData);
+    }
+  }, [onFormDataChange, formData, mode]);
 
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
@@ -561,9 +576,10 @@ export function InvoiceForm({
             {formData.items.map((item, index) => (
               <div
                 key={index}
-                className='grid grid-cols-12 items-end gap-2 pb-4'
+                className='space-y-4 rounded-lg border border-stroke-soft-200 bg-bg-weak-50 p-4'
               >
-                <div className='col-span-12 flex flex-col gap-1 lg:col-span-4'>
+                {/* First row - Product (always full width) */}
+                <div className='flex flex-col gap-1'>
                   <Label.Root htmlFor={`product-${index}`}>
                     Product <Label.Asterisk />
                   </Label.Root>
@@ -595,72 +611,84 @@ export function InvoiceForm({
                   />
                 </div>
 
-                <div className='col-span-3 flex flex-col gap-1 lg:col-span-1'>
-                  <Label.Root htmlFor={`quantity-${index}`}>
-                    Quantity
-                  </Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Input
-                        id={`quantity-${index}`}
-                        type='number'
-                        min='1'
-                        step='1'
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateItem(index, 'quantity', Number(e.target.value))
-                        }
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                </div>
-
-                <div className='col-span-9 flex flex-col gap-1 lg:col-span-3'>
-                  <Label.Root htmlFor={`unitPrice-${index}`}>
-                    Unit Price
-                  </Label.Root>
-                  <Input.Root>
-                    <Input.Wrapper>
-                      <Input.Icon as={RiMoneyDollarCircleLine} />
-                      <Input.Input
-                        id={`unitPrice-${index}`}
-                        type='text'
-                        value={formatNumberWithDots(item.unitPrice)}
-                        onChange={(e) => {
-                          const rawValue = parseNumberFromDots(e.target.value);
-                          updateItem(index, 'unitPrice', rawValue);
-                        }}
-                        placeholder='0'
-                      />
-                    </Input.Wrapper>
-                  </Input.Root>
-                </div>
-
-                <div className='col-span-10 flex flex-col gap-1 lg:col-span-3'>
-                  <Label.Root>Total</Label.Root>
-                  <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2'>
-                    {(
-                      item.quantity *
-                      (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)
-                    ).toLocaleString()}
+                {/* Second row - Quantity, Unit Price, Total, Delete in responsive grid */}
+                <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4'>
+                  <div className='flex flex-col gap-1'>
+                    <Label.Root htmlFor={`quantity-${index}`}>
+                      Quantity
+                    </Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Input
+                          id={`quantity-${index}`}
+                          type='number'
+                          min='1'
+                          step='1'
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateItem(
+                              index,
+                              'quantity',
+                              Number(e.target.value),
+                            )
+                          }
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
                   </div>
-                </div>
 
-                <div className='col-span-2 lg:col-span-1'>
-                  <Button.Root
-                    variant='error'
-                    mode='stroke'
-                    onClick={() => removeItem(index)}
-                    type='button'
-                    className='w-full'
-                  >
-                    <RiDeleteBinLine className='size-4' />
-                  </Button.Root>
+                  <div className='flex flex-col gap-1'>
+                    <Label.Root htmlFor={`unitPrice-${index}`}>
+                      Unit Price
+                    </Label.Root>
+                    <Input.Root>
+                      <Input.Wrapper>
+                        <Input.Icon as={RiMoneyDollarCircleLine} />
+                        <Input.Input
+                          id={`unitPrice-${index}`}
+                          type='text'
+                          value={formatNumberWithDots(item.unitPrice)}
+                          onChange={(e) => {
+                            const rawValue = parseNumberFromDots(
+                              e.target.value,
+                            );
+                            updateItem(index, 'unitPrice', rawValue);
+                          }}
+                          placeholder='0'
+                        />
+                      </Input.Wrapper>
+                    </Input.Root>
+                  </div>
+
+                  <div className='flex flex-col gap-1'>
+                    <Label.Root>Total</Label.Root>
+                    <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-white-0 px-3 py-2 font-medium'>
+                      {(
+                        item.quantity *
+                        (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)
+                      ).toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className='flex flex-col gap-1'>
+                    <Label.Root>Actions</Label.Root>
+                    <Button.Root
+                      variant='error'
+                      mode='stroke'
+                      onClick={() => removeItem(index)}
+                      type='button'
+                      size='medium'
+                      className='w-full'
+                    >
+                      <RiDeleteBinLine className='size-4' />
+                      <span className='sm:hidden'>Delete</span>
+                    </Button.Root>
+                  </div>
                 </div>
 
                 {/* Only show Additional Specs for serialized products */}
                 {item.category === 'serialized' && (
-                  <div className='col-span-12 flex flex-col gap-1'>
+                  <div className='flex flex-col gap-1'>
                     <Label.Root htmlFor={`additionalSpecs-${index}`}>
                       Additional Specs
                     </Label.Root>

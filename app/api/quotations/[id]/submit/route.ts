@@ -37,7 +37,10 @@ export async function POST(
       );
     }
 
-    if (existingQuotation[0].status !== QUOTATION_STATUS.DRAFT && existingQuotation[0].status !== QUOTATION_STATUS.REVISED) {
+    if (
+      existingQuotation[0].status !== QUOTATION_STATUS.DRAFT &&
+      existingQuotation[0].status !== QUOTATION_STATUS.REVISED
+    ) {
       return NextResponse.json(
         { error: 'Only draft and revised quotations can be submitted' },
         { status: 400 },

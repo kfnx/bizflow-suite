@@ -115,7 +115,10 @@ function ActionCell({
   };
 
   const handleSubmit = async () => {
-    if (row.original.status !== QUOTATION_STATUS.DRAFT && row.original.status !== QUOTATION_STATUS.REVISED) {
+    if (
+      row.original.status !== QUOTATION_STATUS.DRAFT &&
+      row.original.status !== QUOTATION_STATUS.REVISED
+    ) {
       toast.warning('Only draft and revised quotations can be submitted');
       return;
     }
@@ -164,18 +167,23 @@ function ActionCell({
             Send to Customer
           </Dropdown.Item>
         )}
-        {(row.original.status === QUOTATION_STATUS.DRAFT || row.original.status === QUOTATION_STATUS.REVISED) && (
+        {(row.original.status === QUOTATION_STATUS.DRAFT ||
+          row.original.status === QUOTATION_STATUS.REVISED) && (
           <Dropdown.Item
             onClick={handleSubmit}
             disabled={sendQuotationMutation.isPending}
           >
             <RiSendPlaneLine className='size-4' />
-            {row.original.status === QUOTATION_STATUS.REVISED ? 'Resubmit' : 'Submit'}
+            {row.original.status === QUOTATION_STATUS.REVISED
+              ? 'Resubmit'
+              : 'Submit'}
           </Dropdown.Item>
         )}
         <Dropdown.Item
           onClick={handleEditQuotation}
-          disabled={row.original.status !== 'draft' && row.original.status !== 'revised'}
+          disabled={
+            row.original.status !== 'draft' && row.original.status !== 'revised'
+          }
         >
           <RiEditLine className='size-4' />
           Edit Quotation

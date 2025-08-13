@@ -245,7 +245,10 @@ function QuotationPreviewFooter({
   };
 
   const handleEdit = () => {
-    if (quotation.status !== QUOTATION_STATUS.DRAFT && quotation.status !== QUOTATION_STATUS.REVISED) {
+    if (
+      quotation.status !== QUOTATION_STATUS.DRAFT &&
+      quotation.status !== QUOTATION_STATUS.REVISED
+    ) {
       toast.warning('Only draft and revised quotations can be edited');
       return;
     }
@@ -253,7 +256,10 @@ function QuotationPreviewFooter({
   };
 
   const handleSubmit = async () => {
-    if (quotation.status !== QUOTATION_STATUS.DRAFT && quotation.status !== QUOTATION_STATUS.REVISED) {
+    if (
+      quotation.status !== QUOTATION_STATUS.DRAFT &&
+      quotation.status !== QUOTATION_STATUS.REVISED
+    ) {
       toast.warning('Only draft and revised quotations can be submitted');
       return;
     }
@@ -342,7 +348,8 @@ function QuotationPreviewFooter({
         View Full
       </Button.Root>
 
-      {(quotation.status === QUOTATION_STATUS.DRAFT || quotation.status === QUOTATION_STATUS.REVISED) && (
+      {(quotation.status === QUOTATION_STATUS.DRAFT ||
+        quotation.status === QUOTATION_STATUS.REVISED) && (
         <>
           <Button.Root
             variant='neutral'
@@ -375,7 +382,9 @@ function QuotationPreviewFooter({
               disabled={submitQuotationMutation.isPending}
             >
               <Button.Icon as={RiSendPlaneLine} />
-              {submitQuotationMutation.isPending ? 'Resubmitting...' : 'Resubmit'}
+              {submitQuotationMutation.isPending
+                ? 'Resubmitting...'
+                : 'Resubmit'}
             </Button.Root>
           )}
         </>

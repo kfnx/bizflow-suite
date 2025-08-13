@@ -171,7 +171,10 @@ export async function PUT(
     }
 
     // Only allow editing of draft and revised quotations
-    if (existingQuotation[0].status !== QUOTATION_STATUS.DRAFT && existingQuotation[0].status !== QUOTATION_STATUS.REVISED) {
+    if (
+      existingQuotation[0].status !== QUOTATION_STATUS.DRAFT &&
+      existingQuotation[0].status !== QUOTATION_STATUS.REVISED
+    ) {
       return NextResponse.json(
         { error: 'Only draft and revised quotations can be edited' },
         { status: 400 },

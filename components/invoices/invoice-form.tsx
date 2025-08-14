@@ -91,9 +91,17 @@ export function InvoiceForm({
   useEffect(() => {
     if (mode === 'edit' && invoice?.data && !isInitialized) {
       const invoiceData = invoice.data;
+
+      // Convert ISO date strings to YYYY-MM-DD format for date inputs
+      const formatDateForInput = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+      };
+
       setFormData({
-        invoiceDate: invoiceData.invoiceDate || '',
-        dueDate: invoiceData.dueDate || '',
+        invoiceDate: formatDateForInput(invoiceData.invoiceDate),
+        dueDate: formatDateForInput(invoiceData.dueDate),
         customerId: invoiceData.customerId || '',
         contractNumber: invoiceData.contractNumber || '',
         customerPoNumber: invoiceData.customerPoNumber || '',

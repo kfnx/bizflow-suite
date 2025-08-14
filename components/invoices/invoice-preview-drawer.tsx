@@ -49,11 +49,31 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
           <InvoiceStatusBadge status={invoice.status as any} size='medium' />
         </div>
 
-        <div className='text-title-h4 text-text-strong-950'>
-          {formatCurrency(invoice.total, invoice.currency)}
-        </div>
-        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-          Total Amount
+        <div className='space-y-2'>
+          <div className='flex items-center justify-between'>
+            <span className='text-paragraph-sm text-text-sub-600'>
+              Subtotal:
+            </span>
+            <span className='text-paragraph-sm text-text-strong-950'>
+              {formatCurrency(invoice.subtotal, invoice.currency)}
+            </span>
+          </div>
+          {invoice.isIncludePPN && parseFloat(invoice.tax) > 0 && (
+            <div className='flex items-center justify-between'>
+              <span className='text-paragraph-sm text-text-sub-600'>
+                PPN (11%):
+              </span>
+              <span className='text-paragraph-sm text-text-strong-950'>
+                {formatCurrency(invoice.tax, invoice.currency)}
+              </span>
+            </div>
+          )}
+          <div className='flex items-center justify-between border-t border-stroke-soft-200 pt-2'>
+            <span className='text-title-h4 text-text-strong-950'>Total:</span>
+            <span className='text-title-h4 text-text-strong-950'>
+              {formatCurrency(invoice.total, invoice.currency)}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -70,6 +90,59 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
         </div>
 
         <Divider.Root variant='line-spacing' />
+
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Currency
+          </div>
+          <div className='mt-1 text-label-sm text-text-strong-950'>
+            {invoice.currency}
+          </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        {invoice.contractNumber && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Contract Number
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {invoice.contractNumber}
+              </div>
+            </div>
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
+
+        {invoice.customerPoNumber && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Customer PO Number
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {invoice.customerPoNumber}
+              </div>
+            </div>
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
+
+        {invoice.paymentTerms && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Payment Terms
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {invoice.paymentTerms}
+              </div>
+            </div>
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
 
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
@@ -92,6 +165,36 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
         </div>
 
         <Divider.Root variant='line-spacing' />
+
+        {invoice.quotationNumber && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                From Quotation
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {invoice.quotationNumber}
+              </div>
+            </div>
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
+
+        {(invoice.salesmanUser || invoice.salesmanUserId) && (
+          <>
+            <div>
+              <div className='text-subheading-xs uppercase text-text-soft-400'>
+                Salesman
+              </div>
+              <div className='mt-1 text-label-sm text-text-strong-950'>
+                {invoice.salesmanUser
+                  ? `${invoice.salesmanUser.firstName} ${invoice.salesmanUser.lastName}`
+                  : invoice.salesmanUserId}
+              </div>
+            </div>
+            <Divider.Root variant='line-spacing' />
+          </>
+        )}
 
         <div>
           <div className='text-subheading-xs uppercase text-text-soft-400'>
@@ -135,25 +238,36 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
           <Divider.Root variant='solid-text'>Items Preview</Divider.Root>
           <div className='p-5'>
             <div className='space-y-3'>
-              {invoice.items.slice(0, 3).map((item) => (
-                <div
-                  key={item.productId}
-                  className='flex items-center justify-between'
-                >
-                  <div className='min-w-0 flex-1'>
-                    <div className='truncate text-label-sm text-text-strong-950'>
-                      {item.name}
+              {invoice.items.slice(0, 3).map((item, index) => (
+                <div key={`${item.productId}-${index}`} className='space-y-1'>
+                  <div className='flex items-center justify-between'>
+                    <div className='min-w-0 flex-1'>
+                      <div className='truncate text-label-sm text-text-strong-950'>
+                        {item.name}
+                      </div>
+                      {item.category && (
+                        <div className='text-paragraph-xs capitalize text-text-soft-400'>
+                          {item.category}
+                        </div>
+                      )}
+                    </div>
+                    <div className='ml-4 text-right'>
+                      <div className='text-label-sm text-text-strong-950'>
+                        {parseFloat(item.quantity)} ×{' '}
+                        {formatCurrency(item.unitPrice, invoice.currency)}
+                      </div>
+                      <div className='text-paragraph-sm text-text-sub-600'>
+                        {formatCurrency(item.total, invoice.currency)}
+                      </div>
                     </div>
                   </div>
-                  <div className='ml-4 text-right'>
-                    <div className='text-label-sm text-text-strong-950'>
-                      {parseFloat(item.quantity)} ×{' '}
-                      {formatCurrency(item.unitPrice, invoice.currency)}
+                  {item.additionalSpecs && (
+                    <div className='text-paragraph-xs italic text-text-sub-600'>
+                      {item.additionalSpecs.length > 60
+                        ? `${item.additionalSpecs.substring(0, 60)}...`
+                        : item.additionalSpecs}
                     </div>
-                    <div className='text-paragraph-sm text-text-sub-600'>
-                      {formatCurrency(item.total, invoice.currency)}
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -27,6 +27,8 @@ export async function GET(
 
     const { id } = params;
 
+    // Create alias for salesman user table
+
     // Get invoice with all related data
     const invoice = await db
       .select({
@@ -45,6 +47,10 @@ export async function GET(
         status: invoices.status,
         paymentTerms: invoices.paymentTerms,
         isIncludePPN: invoices.isIncludePPN,
+        salesmanUserId: invoices.salesmanUserId,
+        contractNumber: invoices.contractNumber,
+        customerPoNumber: invoices.customerPoNumber,
+        notes: invoices.notes,
         createdBy: invoices.createdBy,
         createdAt: invoices.createdAt,
         updatedAt: invoices.updatedAt,
@@ -69,11 +75,18 @@ export async function GET(
           firstName: users.firstName,
           lastName: users.lastName,
         },
+        // Salesman user data
+        salesmanUser: {
+          id: sql<string>`u2.id`.as('salesmanUserId'),
+          firstName: sql<string>`u2.first_name`.as('salesmanUserFirstName'),
+          lastName: sql<string>`u2.last_name`.as('salesmanUserLastName'),
+        },
       })
       .from(invoices)
       .leftJoin(customers, eq(invoices.customerId, customers.id))
       .leftJoin(quotations, eq(invoices.quotationId, quotations.id))
       .leftJoin(users, eq(invoices.createdBy, users.id))
+      .leftJoin(sql`${users} AS u2`, sql`${invoices.salesmanUserId} = u2.id`)
       .leftJoin(branches, eq(invoices.branchId, branches.id))
       .where(eq(invoices.id, id))
       .limit(1);
@@ -94,6 +107,8 @@ export async function GET(
         name: products.name,
         category: products.category,
         additionalSpecs: products.additionalSpecs,
+        serialNumber: products.serialNumber,
+        partNumber: products.partNumber,
         // Product data for backward compatibility
         product: {
           id: products.id,
@@ -117,6 +132,8 @@ export async function GET(
           total: item.total.toString(),
           additionalSpecs: item.additionalSpecs,
           category: item.category,
+          serialNumber: item.serialNumber,
+          partNumber: item.partNumber,
         })),
       },
     });
@@ -174,12 +191,16 @@ export async function PUT(
         invoiceDate: new Date(validatedData.invoiceDate),
         dueDate: new Date(validatedData.dueDate),
         customerId: validatedData.customerId,
+        contractNumber: validatedData.contractNumber,
+        customerPoNumber: validatedData.customerPoNumber,
+        salesmanUserId: validatedData.salesmanUserId,
         subtotal: subtotal.toString(),
         tax: tax.toString(),
         total: total.toString(),
         currency: validatedData.currency,
         status: validatedData.status as INVOICE_STATUS,
         paymentTerms: validatedData.paymentTerms,
+        notes: validatedData.notes,
         isIncludePPN: validatedData.isIncludePPN,
         updatedAt: new Date(),
       })

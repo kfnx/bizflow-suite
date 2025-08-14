@@ -88,14 +88,21 @@ export type InvoiceDetail = {
     lastName: string;
   };
   salesmanUserId?: string;
+  salesmanUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
   items: {
     productId: string;
     name: string;
     quantity: string;
     unitPrice: string;
     total: string;
-    additionalSpecs?: string;
+    serialNumber?: string;
+    partNumber?: string;
     category?: string;
+    additionalSpecs?: string;
   }[];
 };
 

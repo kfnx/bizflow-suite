@@ -31,6 +31,16 @@ export default function EditQuotationPage() {
   } | null>(null);
   const [currentFormData, setCurrentFormData] =
     useState<QuotationFormData | null>(null);
+  const [userDataForPDF, setUserDataForPDF] = useState<{
+    createdByUserPrefix?: string;
+    createdByUserFirstName?: string;
+    createdByUserLastName?: string;
+    createdByUserPhone?: string;
+    approvedByUserPrefix?: string;
+    approvedByUserFirstName?: string;
+    approvedByUserLastName?: string;
+    approvedByUserPhone?: string;
+  } | null>(null);
 
   const router = useRouter();
 
@@ -119,6 +129,18 @@ export default function EditQuotationPage() {
             name: quotationData.branchName,
           });
         }
+
+        // Set user data for PDF preview
+        setUserDataForPDF({
+          createdByUserPrefix: quotationData.createdByUserPrefix,
+          createdByUserFirstName: quotationData.createdByUserFirstName,
+          createdByUserLastName: quotationData.createdByUserLastName,
+          createdByUserPhone: quotationData.createdByUserPhone,
+          approvedByUserPrefix: quotationData.approvedByUserPrefix,
+          approvedByUserFirstName: quotationData.approvedByUserFirstName,
+          approvedByUserLastName: quotationData.approvedByUserLastName,
+          approvedByUserPhone: quotationData.approvedByUserPhone,
+        });
       } catch (error) {
         console.error('Error fetching quotation:', error);
         toast.error('Failed to load quotation');
@@ -186,6 +208,7 @@ export default function EditQuotationPage() {
                   formData={currentFormData || formData!}
                   customerData={currentCustomerData || undefined}
                   branchData={branchData || undefined}
+                  userDataForPDF={userDataForPDF || undefined}
                 />
               ) : (
                 <div className='flex h-full items-center justify-center p-8 text-center'>

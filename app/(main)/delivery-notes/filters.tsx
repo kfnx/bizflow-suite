@@ -115,7 +115,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
       <div className='flex flex-wrap items-center justify-between gap-4'>
         {/* Status Filter */}
         <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Status:</span>
           <Select.Root
             value={filters.status}
             onValueChange={handleStatusChange}
@@ -135,7 +134,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
         {/* Sort Filter */}
         <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Sort by:</span>
           <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
             <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
               <Select.TriggerIcon as={RiSortDesc} />

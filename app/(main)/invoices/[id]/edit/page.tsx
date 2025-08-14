@@ -7,12 +7,12 @@ import { toast } from 'sonner';
 
 import { InvoiceFormData } from '@/lib/validations/invoice';
 import { useCustomerDetail } from '@/hooks/use-customers';
+import * as Button from '@/components/ui/button';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 import { InvoiceForm } from '@/components/invoices/invoice-form';
 import { InvoicePDFPreview } from '@/components/invoices/invoice-pdf-preview';
-import * as Button from '@/components/ui/button';
 
 export default function EditInvoicePage() {
   const params = useParams();
@@ -26,22 +26,29 @@ export default function EditInvoicePage() {
     contactPerson?: string;
     contactPersonPrefix?: string;
   } | null>(null);
-  const [currentFormData, setCurrentFormData] = useState<InvoiceFormData | null>(null);
+  const [currentFormData, setCurrentFormData] =
+    useState<InvoiceFormData | null>(null);
 
   const router = useRouter();
 
   // Get customer details for PDF preview when customer ID changes
   const currentCustomerId = currentFormData?.customerId || formData?.customerId;
-  const { data: dynamicCustomerData } = useCustomerDetail(currentCustomerId || '');
+  const { data: dynamicCustomerData } = useCustomerDetail(
+    currentCustomerId || '',
+  );
 
   // Compute current customer data for PDF preview
-  const currentCustomerData = dynamicCustomerData ? {
-    name: dynamicCustomerData.name,
-    address: dynamicCustomerData.address || dynamicCustomerData.billingAddress || '',
-    npwp: dynamicCustomerData.npwp,
-    contactPerson: dynamicCustomerData.contactPersons?.[0]?.name,
-    contactPersonPrefix: dynamicCustomerData.contactPersons?.[0]?.prefix,
-  } : customerData;
+  const currentCustomerData = dynamicCustomerData
+    ? {
+      name: dynamicCustomerData.name,
+      address:
+        dynamicCustomerData.address ||
+        dynamicCustomerData.billingAddress ||
+        '',
+      npwp: dynamicCustomerData.npwp,
+      contactPerson: dynamicCustomerData.contactPersons?.[0]?.name,
+      contactPersonPrefix: dynamicCustomerData.contactPersons?.[0]?.prefix,
+    } : customerData;
 
   // Fetch invoice data
   useEffect(() => {
@@ -141,8 +148,12 @@ export default function EditInvoicePage() {
           <BackButton href='/invoices' label='Back to Invoices' />
         </div>
       </Header>
-      <div className={`${showPDFPreview ? 'lg:flex lg:h-[calc(100vh-100px)]' : ''}`}>
-        <div className={`${showPDFPreview ? 'lg:w-1/2 lg:overflow-y-auto' : 'w-full'}`}>
+      <div
+        className={`${showPDFPreview ? 'lg:flex lg:h-[calc(100vh-100px)]' : ''}`}
+      >
+        <div
+          className={`${showPDFPreview ? 'lg:w-1/2 lg:overflow-y-auto' : 'w-full'}`}
+        >
           {formData && (
             <InvoiceForm
               mode='edit'
@@ -153,14 +164,18 @@ export default function EditInvoicePage() {
           )}
         </div>
         {showPDFPreview && (
-          <div className='w-full border-t border-stroke-soft-200 bg-bg-weak-50 px-4 py-6 lg:border-l lg:border-t-0 lg:bg-transparent lg:w-1/2'>
+          <div className='w-full border-t border-stroke-soft-200 bg-bg-weak-50 px-4 py-6 lg:w-1/2 lg:border-l lg:border-t-0 lg:bg-transparent'>
             {/* Mobile title */}
             <div className='mb-4 lg:hidden'>
-              <h3 className='text-lg font-semibold text-text-strong-950'>PDF Preview</h3>
-              <p className='text-sm text-text-sub-600'>Live preview of how your invoice will look</p>
+              <h3 className='text-lg font-semibold text-text-strong-950'>
+                PDF Preview
+              </h3>
+              <p className='text-sm text-text-sub-600'>
+                Live preview of how your invoice will look
+              </p>
             </div>
             <div className='h-[60vh] lg:h-full'>
-              {(currentFormData || formData) ? (
+              {currentFormData || formData ? (
                 <InvoicePDFPreview
                   formData={currentFormData || formData!}
                   customerData={currentCustomerData || undefined}

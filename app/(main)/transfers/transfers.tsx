@@ -28,8 +28,12 @@ export function Transfers({ initialFilters }: TransfersProps) {
 
   const { data, isLoading, error } = useTransfers(filters);
 
-  const handleFilterChange = (newFilters: typeof filters) => {
-    setFilters(newFilters);
+  const handleFilterChange = (newFilters: Parameters<NonNullable<React.ComponentProps<typeof TransfersFilters>['onFiltersChange']>>[0]) => {
+    setFilters({
+      ...newFilters,
+      page: newFilters.page ?? 1,
+      limit: newFilters.limit ?? 10,
+    });
   };
 
   const handleTransferSelect = (transferId: string) => {
@@ -43,7 +47,7 @@ export function Transfers({ initialFilters }: TransfersProps) {
   return (
     <>
       <TransfersFilters
-        filters={filters}
+        initialFilters={filters}
         onFiltersChange={handleFilterChange}
       />
 

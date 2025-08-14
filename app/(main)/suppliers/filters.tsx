@@ -124,35 +124,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
       {/* Filters */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
-        {/* Country Filter */}
-        <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Country:</span>
-          <Select.Root
-            value={filters.country}
-            onValueChange={handleCountryChange}
-          >
-            <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
-              <Select.TriggerIcon as={RiFilterLine} />
-              <Select.Value placeholder='Country' />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value='all'>All Countries</Select.Item>
-              <Select.Item value='Indonesia'>Indonesia</Select.Item>
-              <Select.Item value='China'>China</Select.Item>
-              <Select.Item value='Japan'>Japan</Select.Item>
-              <Select.Item value='Singapore'>Singapore</Select.Item>
-              <Select.Item value='Malaysia'>Malaysia</Select.Item>
-              <Select.Item value='Thailand'>Thailand</Select.Item>
-              <Select.Item value='Vietnam'>Vietnam</Select.Item>
-              <Select.Item value='Philippines'>Philippines</Select.Item>
-              <Select.Item value='Other'>Other</Select.Item>
-            </Select.Content>
-          </Select.Root>
-        </div>
-
         {/* Sort Filter */}
         <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Sort by:</span>
           <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
             <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
               <Select.TriggerIcon as={RiSortDesc} />

@@ -1,63 +1,129 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { RiArrowDownSLine, RiSearchLine } from '@remixicon/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  RiFilter3Fill,
+  RiFilterLine,
+  RiSearch2Line,
+  RiSortDesc,
+} from '@remixicon/react';
 
+import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
+import * as Kbd from '@/components/ui/kbd';
 import * as Select from '@/components/ui/select';
 
-interface FiltersProps {
-  onFiltersChange: (filters: { search: string; sortBy: string }) => void;
+import IconCmd from '~/icons/icon-cmd.svg';
+
+export interface BranchesFilters {
+  search: string;
+  sortBy: string;
+  page?: number;
+  limit?: number;
 }
 
-export function Filters({ onFiltersChange }: FiltersProps) {
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('name-asc');
+interface FiltersProps {
+  onFiltersChange?: (filters: BranchesFilters) => void;
+  initialFilters?: BranchesFilters;
+}
 
-  const handleApplyFilters = useCallback(() => {
-    onFiltersChange({
-      search,
-      sortBy,
-    });
-  }, [search, sortBy, onFiltersChange]);
-
-  const handleResetFilters = useCallback(() => {
-    setSearch('');
-    setSortBy('name-asc');
-    onFiltersChange({
+export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
+  const [filters, setFilters] = useState<BranchesFilters>(
+    initialFilters || {
       search: '',
       sortBy: 'name-asc',
-    });
+      page: 1,
+      limit: 10,
+    },
+  );
+
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<BranchesFilters>) => {
+      const updatedFilters = { ...filters, ...newFilters };
+      setFilters(updatedFilters);
+      onFiltersChange?.(updatedFilters);
+    },
+    [filters, onFiltersChange],
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ search: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleSortChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ sortBy: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        const searchInput = document.getElementById('search-input');
+        searchInput?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const filterActive = useMemo(
+    () =>
+      filters.search ||
+      filters.sortBy !== 'name-asc' ||
+      filters.page !== 1 ||
+      filters.limit !== 10,
+    [filters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    const clearedFilters = {
+      search: '',
+      sortBy: 'name-asc',
+      page: 1,
+      limit: 10,
+    };
+    setFilters(clearedFilters);
+    onFiltersChange?.(clearedFilters);
   }, [onFiltersChange]);
 
   return (
-    <div className='flex flex-col gap-4 rounded-lg border border-stroke-soft-200 p-4'>
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-        {/* Search */}
-        <div className='flex flex-col gap-2'>
-          <label className='text-sm text-gray-700 font-medium'>Search</label>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Icon as={RiSearchLine} />
-              <Input.Input
-                placeholder='Search branches...'
-                value={search}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSearch(e.target.value)
-                }
-              />
-            </Input.Wrapper>
-          </Input.Root>
-        </div>
+    <div className='flex flex-col gap-4 lg:flex-row lg:justify-between'>
+      {/* Search Bar */}
+      <div className='relative flex-1'>
+        <Input.Root>
+          <Input.Wrapper>
+            <Input.Icon as={RiSearch2Line} />
+            <Input.Input
+              id='search-input'
+              type='text'
+              placeholder='Search branches...'
+              value={filters.search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <Kbd.Root>
+              <IconCmd className='size-3' />K
+            </Kbd.Root>
+          </Input.Wrapper>
+        </Input.Root>
+      </div>
 
-        {/* Sort By */}
-        <div className='flex flex-col gap-2'>
-          <label className='text-sm text-gray-700 font-medium'>Sort By</label>
-          <Select.Root value={sortBy} onValueChange={setSortBy}>
-            <Select.Trigger>
-              <Select.TriggerIcon as={RiArrowDownSLine} />
-              <Select.Value />
+      {/* Filters */}
+      <div className='flex flex-wrap items-center justify-between gap-4'>
+        {/* Sort Filter */}
+        <div className='flex items-center gap-2'>
+          <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
+            <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiSortDesc} />
+              <Select.Value placeholder='Sort by' />
             </Select.Trigger>
             <Select.Content>
               <Select.Item value='name-asc'>Name (A-Z)</Select.Item>
@@ -65,23 +131,19 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             </Select.Content>
           </Select.Root>
         </div>
-      </div>
 
-      {/* Filter Actions */}
-      <div className='flex gap-3'>
+        {/* Clear Filters Button */}
         <Button.Root
-          onClick={handleApplyFilters}
-          variant='primary'
-          className='flex-1 sm:flex-none'
-        >
-          Apply Filters
-        </Button.Root>
-        <Button.Root
-          onClick={handleResetFilters}
-          variant='neutral'
           mode='ghost'
+          size='xsmall'
+          onClick={handleClearFilters}
+          className={cn(
+            'transition-opacity',
+            filterActive ? 'opacity-100' : 'pointer-events-none opacity-0',
+          )}
         >
-          Reset
+          <RiFilter3Fill className='size-4' />
+          Clear filters
         </Button.Root>
       </div>
     </div>

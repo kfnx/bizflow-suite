@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, asc, desc, eq, like, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -218,6 +218,72 @@ export async function POST(request: NextRequest) {
     }
 
     const validatedData = validationResult.data;
+
+    // Check for duplicate serial numbers within the submitted items array
+    const serialsInRequest = validatedData.items
+      .map((item) => item.serialNumber?.trim())
+      .filter((sn): sn is string => Boolean(sn));
+
+    if (serialsInRequest.length > 0) {
+      const serialCounts = new Map<string, number>();
+      for (const sn of serialsInRequest) {
+        serialCounts.set(sn, (serialCounts.get(sn) || 0) + 1);
+      }
+      const duplicatesInRequest = Array.from(serialCounts.entries())
+        .filter(([, count]) => count > 1)
+        .map(([sn]) => sn);
+
+      if (duplicatesInRequest.length > 0) {
+        return NextResponse.json(
+          {
+            error: 'Duplicate serial numbers in request',
+            details: duplicatesInRequest,
+          },
+          { status: 400 },
+        );
+      }
+    }
+
+    // Check for duplicate serial numbers against existing products
+    const serialNumbers = Array.from(
+      new Set(
+        validatedData.items
+          .map((item) => item.serialNumber?.trim())
+          .filter((sn): sn is string => Boolean(sn)),
+      ),
+    );
+
+    if (serialNumbers.length > 0) {
+      const existingSerials = await db
+        .select({ serialNumber: products.serialNumber })
+        .from(products)
+        .where(inArray(products.serialNumber, serialNumbers));
+
+      const existingSerialsImport = await db
+        .select({ serialNumber: importItems.serialNumber })
+        .from(importItems)
+        .where(inArray(importItems.serialNumber, serialNumbers));
+
+      if (existingSerials.length > 0) {
+        return NextResponse.json(
+          {
+            error: 'Serial numbers already exist in Products',
+            details: existingSerials.map((s) => s.serialNumber),
+          },
+          { status: 400 },
+        );
+      }
+
+      if (existingSerialsImport.length > 0) {
+        return NextResponse.json(
+          {
+            error: 'Serial numbers already exist in Import Items',
+            details: existingSerialsImport.map((s) => s.serialNumber),
+          },
+          { status: 400 },
+        );
+      }
+    }
 
     // Calculate totals from items
     let subtotal = 0;

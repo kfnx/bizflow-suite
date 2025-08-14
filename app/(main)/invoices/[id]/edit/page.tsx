@@ -40,15 +40,16 @@ export default function EditInvoicePage() {
   // Compute current customer data for PDF preview
   const currentCustomerData = dynamicCustomerData
     ? {
-      name: dynamicCustomerData.name,
-      address:
-        dynamicCustomerData.address ||
-        dynamicCustomerData.billingAddress ||
-        '',
-      npwp: dynamicCustomerData.npwp,
-      contactPerson: dynamicCustomerData.contactPersons?.[0]?.name,
-      contactPersonPrefix: dynamicCustomerData.contactPersons?.[0]?.prefix,
-    } : customerData;
+        name: dynamicCustomerData.name,
+        address:
+          dynamicCustomerData.address ||
+          dynamicCustomerData.billingAddress ||
+          '',
+        npwp: dynamicCustomerData.npwp,
+        contactPerson: dynamicCustomerData.contactPersons?.[0]?.name,
+        contactPersonPrefix: dynamicCustomerData.contactPersons?.[0]?.prefix,
+      }
+    : customerData;
 
   // Fetch invoice data
   useEffect(() => {

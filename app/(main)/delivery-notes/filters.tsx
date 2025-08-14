@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   RiFilter3Fill,
   RiFilterLine,
@@ -16,7 +16,7 @@ import * as Select from '@/components/ui/select';
 
 import IconCmd from '~/icons/icon-cmd.svg';
 
-type DeliveryNoteStatus = 'all' | 'pending' | 'delivered' | 'canceled';
+export type DeliveryNoteStatus = 'all' | 'pending' | 'delivered' | 'canceled';
 
 export interface DeliveryNotesFilters {
   search: string;
@@ -28,16 +28,25 @@ export interface DeliveryNotesFilters {
 
 interface FiltersProps {
   onFiltersChange?: (filters: DeliveryNotesFilters) => void;
+  initialFilters?: DeliveryNotesFilters;
 }
 
-export function Filters({ onFiltersChange }: FiltersProps) {
-  const [filters, setFilters] = useState<DeliveryNotesFilters>({
-    search: '',
-    status: 'all',
-    sortBy: 'newest-first',
-    page: 1,
-    limit: 10,
-  });
+export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
+  const [filters, setFilters] = useState<DeliveryNotesFilters>(
+    initialFilters || {
+      search: '',
+      status: 'all',
+      sortBy: 'newest-first',
+      page: 1,
+      limit: 10,
+    },
+  );
+
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(initialFilters);
+    }
+  }, [initialFilters]);
 
   const handleFiltersChange = useCallback(
     (newFilters: Partial<DeliveryNotesFilters>) => {
@@ -83,12 +92,15 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const filterActive =
-    filters.search ||
-    filters.status !== 'all' ||
-    filters.sortBy !== 'newest-first' ||
-    filters.page !== 1 ||
-    filters.limit !== 10;
+  const filterActive = useMemo(
+    () =>
+      filters.search ||
+      filters.status !== 'all' ||
+      filters.sortBy !== 'newest-first' ||
+      filters.page !== 1 ||
+      filters.limit !== 10,
+    [filters],
+  );
 
   return (
     <div className='flex flex-col gap-4 lg:flex-row lg:justify-between'>

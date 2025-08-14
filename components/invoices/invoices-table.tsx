@@ -36,9 +36,9 @@ import {
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
+import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
-import * as Pagination from '@/components/ui/pagination';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -307,9 +307,9 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>
@@ -454,10 +454,16 @@ export function InvoicesTablePagination({
         </span>
 
         <Pagination.Root>
-          <Pagination.NavButton onClick={() => handlePageSelect(1)} disabled={page <= 1}>
+          <Pagination.NavButton
+            onClick={() => handlePageSelect(1)}
+            disabled={page <= 1}
+          >
             <Pagination.NavIcon as={RiArrowLeftDoubleLine} />
           </Pagination.NavButton>
-          <Pagination.NavButton onClick={handlePreviousPage} disabled={page <= 1}>
+          <Pagination.NavButton
+            onClick={handlePreviousPage}
+            disabled={page <= 1}
+          >
             <Pagination.NavIcon as={RiArrowLeftSLine} />
           </Pagination.NavButton>
 
@@ -475,16 +481,26 @@ export function InvoicesTablePagination({
             ),
           )}
 
-          <Pagination.NavButton onClick={handleNextPage} disabled={page >= totalPages}>
+          <Pagination.NavButton
+            onClick={handleNextPage}
+            disabled={page >= totalPages}
+          >
             <Pagination.NavIcon as={RiArrowRightSLine} />
           </Pagination.NavButton>
-          <Pagination.NavButton onClick={() => handlePageSelect(totalPages)} disabled={page >= totalPages}>
+          <Pagination.NavButton
+            onClick={() => handlePageSelect(totalPages)}
+            disabled={page >= totalPages}
+          >
             <Pagination.NavIcon as={RiArrowRightDoubleLine} />
           </Pagination.NavButton>
         </Pagination.Root>
 
         <div className='flex flex-1 justify-end'>
-          <Select.Root size='xsmall' value={limit.toString()} onValueChange={handleLimitSelect}>
+          <Select.Root
+            size='xsmall'
+            value={limit.toString()}
+            onValueChange={handleLimitSelect}
+          >
             <Select.Trigger className='w-auto'>
               <Select.Value />
             </Select.Trigger>

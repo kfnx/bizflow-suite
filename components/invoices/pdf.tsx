@@ -1,9 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from 'react';
-import {
-  Document,
-  PDFViewer,
-} from '@react-pdf/renderer';
+import { Document, PDFViewer } from '@react-pdf/renderer';
 
 import { InvoiceDetail } from '@/hooks/use-invoices';
 
@@ -29,7 +26,7 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
     isIncludePPN: invoice.isIncludePPN,
     notes: invoice.notes,
     customerName: invoice.customerName,
-    items: invoice.items.map(item => ({
+    items: invoice.items.map((item) => ({
       productId: item.productId,
       name: item.name,
       category: item.category,
@@ -51,10 +48,7 @@ export const InvoicePDF = ({ invoice }: InvoicePDFProps) => {
   return (
     <PDFViewer style={{ width: '100%', height: '100vh' }}>
       <Document>
-        <InvoicePDFContent
-          data={pdfData}
-          mode='final'
-        />
+        <InvoicePDFContent data={pdfData} mode='final' />
       </Document>
     </PDFViewer>
   );

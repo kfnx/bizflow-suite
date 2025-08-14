@@ -1,38 +1,12 @@
-'use client';
-
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import { RiTruckLine } from '@remixicon/react';
 
 import { ActionButton } from '@/components/action-button';
-import { DeliveryNotesTable } from '@/components/delivery-notes-table';
+import { ErrorBoundary } from '@/components/error-boundary';
 import Header from '@/components/header';
-
-import { Filters, type DeliveryNotesFilters } from './filters';
+import { DeliveryNotesPageContent } from '@/app/(main)/delivery-notes/content';
 
 export default function PageDeliveryNotes() {
-  const [filters, setFilters] = useState<DeliveryNotesFilters>({
-    search: '',
-    status: 'all',
-    sortBy: 'newest-first',
-    page: 1,
-    limit: 10,
-  });
-
-  const handleFiltersChange = useCallback(
-    (newFilters: DeliveryNotesFilters) => {
-      setFilters(newFilters);
-    },
-    [],
-  );
-
-  const handlePageChange = useCallback((page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
-  }, []);
-
-  const handleLimitChange = useCallback((limit: number) => {
-    setFilters((prev) => ({ ...prev, limit, page: 1 })); // Reset to first page when changing limit
-  }, []);
-
   return (
     <>
       <Header
@@ -52,12 +26,17 @@ export default function PageDeliveryNotes() {
       </Header>
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
-        <Filters onFiltersChange={handleFiltersChange} />
-        <DeliveryNotesTable
-          filters={filters}
-          onPageChange={handlePageChange}
-          onLimitChange={handleLimitChange}
-        />
+        <ErrorBoundary context='delivery-notes'>
+          <Suspense
+            fallback={
+              <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
+                Loading...
+              </div>
+            }
+          >
+            <DeliveryNotesPageContent />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </>
   );

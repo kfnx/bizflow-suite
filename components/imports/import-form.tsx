@@ -86,6 +86,7 @@ interface ProductItemFormProps {
   validationErrors: Record<string, string>;
   exchangeRateRMBtoIDR: string;
   brandsLoading?: boolean;
+  onValidateSerialNumber?: (serial: string) => void;
 }
 
 function ProductItemForm({
@@ -100,6 +101,7 @@ function ProductItemForm({
   validationErrors,
   exchangeRateRMBtoIDR,
   brandsLoading = false,
+  onValidateSerialNumber,
 }: ProductItemFormProps) {
   const handleFieldChange = (field: keyof ProductItem, value: any) => {
     // Handle category changes - reset quantity to 1 only when changing category
@@ -293,6 +295,7 @@ function ProductItemForm({
                   onChange={(e) =>
                     handleFieldChange('serialNumber', e.target.value)
                   }
+                  onBlur={(e) => onValidateSerialNumber?.(e.target.value)}
                   placeholder='e.g. SD32'
                 />
               </Input.Wrapper>
@@ -639,6 +642,58 @@ export function ImportForm({
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  // Debounced validators cache
+  const [serialValidationTimer, setSerialValidationTimer] =
+    useState<NodeJS.Timeout | null>(null);
+
+  const validateSerialNumber = async (
+    index: number,
+    serialRaw: string,
+  ): Promise<void> => {
+    const serial = serialRaw.trim();
+    const fieldKey = `items.${index}.serialNumber`;
+
+    // Clear when empty
+    if (!serial) {
+      setValidationErrors((prev) => ({ ...prev, [fieldKey]: '' }));
+      return;
+    }
+
+    // Check duplicate within form
+    const duplicatesInForm = formData.items.some(
+      (it, i) => i !== index && it.serialNumber?.trim() === serial,
+    );
+    if (duplicatesInForm) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [fieldKey]: 'Duplicate with another item in this form',
+      }));
+      return;
+    }
+
+    // Debounce network check
+    if (serialValidationTimer) clearTimeout(serialValidationTimer);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/products?limit=5&search=${encodeURIComponent(serial)}`,
+        );
+        if (!res.ok) return; // silent fail
+        const data = await res.json();
+        const exists = (data?.data || []).some(
+          (p: any) => p.serialNumber && p.serialNumber === serial,
+        );
+        setValidationErrors((prev) => ({
+          ...prev,
+          [fieldKey]: exists ? 'Serial number already exists' : '',
+        }));
+      } catch (err) {
+        // ignore; server-side will still validate
+      }
+    }, 300);
+    setSerialValidationTimer(timer);
+  };
 
   // Load reference data
   useEffect(() => {
@@ -1163,6 +1218,9 @@ export function ImportForm({
                   validationErrors={validationErrors}
                   exchangeRateRMBtoIDR={formData.exchangeRateRMBtoIDR}
                   brandsLoading={brandsLoading}
+                  onValidateSerialNumber={(serial) =>
+                    validateSerialNumber(index, serial)
+                  }
                 />
               ))}
             </div>

@@ -170,12 +170,7 @@ export function DataTable<TData>({
 
   if (isLoading) {
     return (
-      <div
-        className={cn(
-          'rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-8',
-          className,
-        )}
-      >
+      <div className={cn('rounded-lg bg-bg-white-0 p-8', className)}>
         <div className='flex items-center justify-center'>
           <div className='text-text-sub-600'>Loading...</div>
         </div>
@@ -232,12 +227,7 @@ export function DataTable<TData>({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <div
-        className={cn(
-          'rounded-lg border border-stroke-soft-200 bg-bg-white-0',
-          tableClassName,
-        )}
-      >
+      <div className={cn('rounded-lg bg-bg-white-0', tableClassName)}>
         <Table.Root className='relative left-1/2 w-screen -translate-x-1/2 px-4 lg:mx-0 lg:w-full lg:px-0 [&>table]:min-w-[960px]'>
           <Table.Header className='whitespace-nowrap'>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -114,31 +114,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
       {/* Filters */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
-        {/* Type Filter */}
-        <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Type:</span>
-          <SegmentedControl.Root
-            value={filters.type}
-            onValueChange={handleTypeChange}
-            className='h-8'
-          >
-            <SegmentedControl.List>
-              <SegmentedControl.Trigger value='all'>
-                All
-              </SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='individual'>
-                Individual
-              </SegmentedControl.Trigger>
-              <SegmentedControl.Trigger value='company'>
-                Company
-              </SegmentedControl.Trigger>
-            </SegmentedControl.List>
-          </SegmentedControl.Root>
-        </div>
-
         {/* Sort Filter */}
         <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Sort by:</span>
           <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
             <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
               <Select.TriggerIcon as={RiSortDesc} />

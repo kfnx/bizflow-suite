@@ -1,33 +1,55 @@
 'use client';
 
-import * as React from 'react';
-import { RiSearchLine } from '@remixicon/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  RiFilter3Fill,
+  RiFilterLine,
+  RiSearch2Line,
+  RiSortDesc,
+} from '@remixicon/react';
 
+import { cn } from '@/utils/cn';
 import { useProducts } from '@/hooks/use-products';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
+import * as Kbd from '@/components/ui/kbd';
 import * as Select from '@/components/ui/select';
 
+import IconCmd from '~/icons/icon-cmd.svg';
+
+export interface TransfersFilters {
+  search: string;
+  movementType: 'all' | 'in' | 'out' | 'transfer' | 'adjustment';
+  warehouseFrom: string;
+  warehouseTo: string;
+  productId: string;
+  sortBy: string;
+  page?: number;
+  limit?: number;
+}
+
 interface TransfersFiltersProps {
-  filters: {
-    search: string;
-    movementType: 'all' | 'in' | 'out' | 'transfer' | 'adjustment';
-    warehouseFrom: string;
-    warehouseTo: string;
-    productId: string;
-    sortBy: string;
-    page: number;
-    limit: number;
-  };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange?: (filters: TransfersFilters) => void;
+  initialFilters?: TransfersFilters;
 }
 
 export function TransfersFilters({
-  filters,
   onFiltersChange,
+  initialFilters,
 }: TransfersFiltersProps) {
-  const [localSearch, setLocalSearch] = React.useState(filters.search);
+  const [filters, setFilters] = useState<TransfersFilters>(
+    initialFilters || {
+      search: '',
+      movementType: 'all',
+      warehouseFrom: 'all',
+      warehouseTo: 'all',
+      productId: 'all',
+      sortBy: 'date-desc',
+      page: 1,
+      limit: 10,
+    },
+  );
 
   // Fetch reference data
   const { data: warehousesData } = useWarehouses({ limit: 100 });
@@ -36,190 +58,183 @@ export function TransfersFilters({
   const warehouses = warehousesData?.data || [];
   const products = productsData?.data || [];
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onFiltersChange({ ...filters, search: localSearch, page: 1 });
-  };
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<TransfersFilters>) => {
+      const updatedFilters = { ...filters, ...newFilters };
+      setFilters(updatedFilters);
+      onFiltersChange?.(updatedFilters);
+    },
+    [filters, onFiltersChange],
+  );
 
-  const handleFilterChange = (key: string, value: string) => {
-    onFiltersChange({ ...filters, [key]: value, page: 1 });
-  };
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ search: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
 
-  const clearFilters = () => {
-    setLocalSearch('');
-    onFiltersChange({
+  const handleMovementTypeChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({
+        movementType: value as 'all' | 'in' | 'out' | 'transfer' | 'adjustment',
+        page: 1,
+      });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleWarehouseFromChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ warehouseFrom: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleWarehouseToChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ warehouseTo: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleProductChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ productId: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleSortChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ sortBy: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        const searchInput = document.getElementById('search-input');
+        searchInput?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const filterActive = useMemo(
+    () =>
+      filters.search ||
+      filters.movementType !== 'all' ||
+      filters.warehouseFrom !== 'all' ||
+      filters.warehouseTo !== 'all' ||
+      filters.productId !== 'all' ||
+      filters.sortBy !== 'date-desc' ||
+      filters.page !== 1 ||
+      filters.limit !== 10,
+    [filters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    const clearedFilters = {
       search: '',
-      movementType: 'all',
+      movementType: 'all' as const,
       warehouseFrom: 'all',
       warehouseTo: 'all',
       productId: 'all',
       sortBy: 'date-desc',
       page: 1,
-      limit: filters.limit,
-    });
-  };
+      limit: 10,
+    };
+    setFilters(clearedFilters);
+    onFiltersChange?.(clearedFilters);
+  }, [onFiltersChange]);
 
   return (
-    <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-      <form onSubmit={handleSearchSubmit} className='space-y-4'>
-        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Search
-            </label>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
-                  placeholder='Search products, notes, invoices...'
-                />
-                <Input.Affix>
-                  <RiSearchLine className='size-5 text-text-sub-600' />
-                </Input.Affix>
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
+    <div className='flex flex-col gap-4 lg:flex-row lg:justify-between'>
+      {/* Search Bar */}
+      <div className='relative flex-1'>
+        <Input.Root>
+          <Input.Wrapper>
+            <Input.Icon as={RiSearch2Line} />
+            <Input.Input
+              id='search-input'
+              type='text'
+              placeholder='Search products, notes, invoices...'
+              value={filters.search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <Kbd.Root>
+              <IconCmd className='size-3' />K
+            </Kbd.Root>
+          </Input.Wrapper>
+        </Input.Root>
+      </div>
 
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Movement Type
-            </label>
-            <Select.Root
-              value={filters.movementType}
-              onValueChange={(value) =>
-                handleFilterChange('movementType', value)
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='All types' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='all'>All Types</Select.Item>
-                <Select.Item value='in'>In</Select.Item>
-                <Select.Item value='out'>Out</Select.Item>
-                <Select.Item value='transfer'>Transfer</Select.Item>
-                <Select.Item value='adjustment'>Adjustment</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              From Warehouse
-            </label>
-            <Select.Root
-              value={filters.warehouseFrom}
-              onValueChange={(value) =>
-                handleFilterChange('warehouseFrom', value)
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Any warehouse' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='all'>Any Warehouse</Select.Item>
-                {warehouses.map((warehouse) => (
-                  <Select.Item key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              To Warehouse
-            </label>
-            <Select.Root
-              value={filters.warehouseTo}
-              onValueChange={(value) =>
-                handleFilterChange('warehouseTo', value)
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Any warehouse' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='all'>Any Warehouse</Select.Item>
-                {warehouses.map((warehouse) => (
-                  <Select.Item key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Product
-            </label>
-            <Select.Root
-              value={filters.productId}
-              onValueChange={(value) => handleFilterChange('productId', value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Any product' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='all'>Any Product</Select.Item>
-                {products.map((product) => (
-                  <Select.Item key={product.id} value={product.id}>
-                    {product.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Sort By
-            </label>
-            <Select.Root
-              value={filters.sortBy}
-              onValueChange={(value) => handleFilterChange('sortBy', value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Sort by' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='date-desc'>Latest First</Select.Item>
-                <Select.Item value='date-asc'>Oldest First</Select.Item>
-                <Select.Item value='product-asc'>Product (A-Z)</Select.Item>
-                <Select.Item value='product-desc'>Product (Z-A)</Select.Item>
-                <Select.Item value='movement-type-asc'>Type (A-Z)</Select.Item>
-                <Select.Item value='movement-type-desc'>Type (Z-A)</Select.Item>
-                <Select.Item value='quantity-asc'>
-                  Quantity (Low-High)
-                </Select.Item>
-                <Select.Item value='quantity-desc'>
-                  Quantity (High-Low)
-                </Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col justify-end gap-2'>
-            <div className='grid grid-cols-2 gap-2'>
-              <Button.Root type='submit' variant='primary' size='small'>
-                Search
-              </Button.Root>
-              <Button.Root
-                type='button'
-                variant='neutral'
-                mode='ghost'
-                size='small'
-                onClick={clearFilters}
-              >
-                Clear
-              </Button.Root>
-            </div>
-          </div>
+      {/* Filters */}
+      <div className='flex flex-wrap items-center justify-between gap-4'>
+        {/* Movement Type Filter */}
+        <div className='flex items-center gap-2'>
+          <Select.Root
+            value={filters.movementType}
+            onValueChange={handleMovementTypeChange}
+          >
+            <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiFilterLine} />
+              <Select.Value placeholder='Movement Type' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='all'>All Types</Select.Item>
+              <Select.Item value='in'>In</Select.Item>
+              <Select.Item value='out'>Out</Select.Item>
+              <Select.Item value='transfer'>Transfer</Select.Item>
+              <Select.Item value='adjustment'>Adjustment</Select.Item>
+            </Select.Content>
+          </Select.Root>
         </div>
-      </form>
+
+        {/* Sort Filter */}
+        <div className='flex items-center gap-2'>
+          <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
+            <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiSortDesc} />
+              <Select.Value placeholder='Sort by' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='date-desc'>Latest First</Select.Item>
+              <Select.Item value='date-asc'>Oldest First</Select.Item>
+              <Select.Item value='product-asc'>Product (A-Z)</Select.Item>
+              <Select.Item value='product-desc'>Product (Z-A)</Select.Item>
+              <Select.Item value='movement-type-asc'>Type (A-Z)</Select.Item>
+              <Select.Item value='movement-type-desc'>Type (Z-A)</Select.Item>
+              <Select.Item value='quantity-asc'>
+                Quantity (Low-High)
+              </Select.Item>
+              <Select.Item value='quantity-desc'>
+                Quantity (High-Low)
+              </Select.Item>
+            </Select.Content>
+          </Select.Root>
+        </div>
+
+        {/* Clear Filters Button */}
+        <Button.Root
+          mode='ghost'
+          size='xsmall'
+          onClick={handleClearFilters}
+          className={cn(
+            'transition-opacity',
+            filterActive ? 'opacity-100' : 'pointer-events-none opacity-0',
+          )}
+        >
+          <RiFilter3Fill className='size-4' />
+          Clear filters
+        </Button.Root>
+      </div>
     </div>
   );
 }

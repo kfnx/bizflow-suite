@@ -1,130 +1,190 @@
 'use client';
 
-import * as React from 'react';
-import { RiSearchLine } from '@remixicon/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  RiFilter3Fill,
+  RiFilterLine,
+  RiSearch2Line,
+  RiSortDesc,
+} from '@remixicon/react';
 
+import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
+import * as Kbd from '@/components/ui/kbd';
 import * as Select from '@/components/ui/select';
 
+import IconCmd from '~/icons/icon-cmd.svg';
+
+export interface WarehousesFilters {
+  search: string;
+  isActive: 'all' | 'true' | 'false';
+  sortBy: string;
+  page?: number;
+  limit?: number;
+}
+
 interface WarehousesFiltersProps {
-  filters: {
-    search: string;
-    isActive: 'all' | 'true' | 'false';
-    sortBy: string;
-    page: number;
-    limit: number;
-  };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange?: (filters: WarehousesFilters) => void;
+  initialFilters?: WarehousesFilters;
 }
 
 export function WarehousesFilters({
-  filters,
   onFiltersChange,
+  initialFilters,
 }: WarehousesFiltersProps) {
-  const [localSearch, setLocalSearch] = React.useState(filters.search);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onFiltersChange({ ...filters, search: localSearch, page: 1 });
-  };
-
-  const handleFilterChange = (key: string, value: string) => {
-    onFiltersChange({ ...filters, [key]: value, page: 1 });
-  };
-
-  const clearFilters = () => {
-    setLocalSearch('');
-    onFiltersChange({
+  const [filters, setFilters] = useState<WarehousesFilters>(
+    initialFilters || {
       search: '',
       isActive: 'all',
       sortBy: 'name-asc',
       page: 1,
-      limit: filters.limit,
-    });
-  };
+      limit: 10,
+    },
+  );
+
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<WarehousesFilters>) => {
+      const updatedFilters = { ...filters, ...newFilters };
+      setFilters(updatedFilters);
+      onFiltersChange?.(updatedFilters);
+    },
+    [filters, onFiltersChange],
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ search: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleStatusChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({
+        isActive: value as 'all' | 'true' | 'false',
+        page: 1,
+      });
+    },
+    [handleFiltersChange],
+  );
+
+  const handleSortChange = useCallback(
+    (value: string) => {
+      handleFiltersChange({ sortBy: value, page: 1 });
+    },
+    [handleFiltersChange],
+  );
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        const searchInput = document.getElementById('search-input');
+        searchInput?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const filterActive = useMemo(
+    () =>
+      filters.search ||
+      filters.isActive !== 'all' ||
+      filters.sortBy !== 'name-asc' ||
+      filters.page !== 1 ||
+      filters.limit !== 10,
+    [filters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    const clearedFilters = {
+      search: '',
+      isActive: 'all' as const,
+      sortBy: 'name-asc',
+      page: 1,
+      limit: 10,
+    };
+    setFilters(clearedFilters);
+    onFiltersChange?.(clearedFilters);
+  }, [onFiltersChange]);
 
   return (
-    <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-      <form onSubmit={handleSearchSubmit} className='space-y-4'>
-        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Search
-            </label>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
-                  placeholder='Search warehouses, addresses, managers...'
-                />
-                <Input.Icon>
-                  <RiSearchLine className='size-5 text-text-sub-600' />
-                </Input.Icon>
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
+    <div className='flex flex-col gap-4 lg:flex-row lg:justify-between'>
+      {/* Search Bar */}
+      <div className='relative flex-1'>
+        <Input.Root>
+          <Input.Wrapper>
+            <Input.Icon as={RiSearch2Line} />
+            <Input.Input
+              id='search-input'
+              type='text'
+              placeholder='Search warehouses, addresses, managers...'
+              value={filters.search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <Kbd.Root>
+              <IconCmd className='size-3' />K
+            </Kbd.Root>
+          </Input.Wrapper>
+        </Input.Root>
+      </div>
 
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Status
-            </label>
-            <Select.Root
-              value={filters.isActive}
-              onValueChange={(value) => handleFilterChange('isActive', value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='All status' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='all'>All Status</Select.Item>
-                <Select.Item value='true'>Active</Select.Item>
-                <Select.Item value='false'>Inactive</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <label className='text-subheading-sm text-text-strong-950'>
-              Sort By
-            </label>
-            <Select.Root
-              value={filters.sortBy}
-              onValueChange={(value) => handleFilterChange('sortBy', value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder='Sort by' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='name-asc'>Name (A-Z)</Select.Item>
-                <Select.Item value='name-desc'>Name (Z-A)</Select.Item>
-                <Select.Item value='manager-asc'>Manager (A-Z)</Select.Item>
-                <Select.Item value='manager-desc'>Manager (Z-A)</Select.Item>
-                <Select.Item value='created-desc'>Recently Created</Select.Item>
-                <Select.Item value='created-asc'>Oldest First</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col justify-end gap-2'>
-            <div className='grid grid-cols-2 gap-2'>
-              <Button.Root type='submit' variant='primary' size='small'>
-                Search
-              </Button.Root>
-              <Button.Root
-                type='button'
-                variant='neutral'
-                mode='ghost'
-                size='small'
-                onClick={clearFilters}
-              >
-                Clear
-              </Button.Root>
-            </div>
-          </div>
+      {/* Filters */}
+      <div className='flex flex-wrap items-center justify-between gap-4'>
+        {/* Status Filter */}
+        <div className='flex items-center gap-2'>
+          <Select.Root
+            value={filters.isActive}
+            onValueChange={handleStatusChange}
+          >
+            <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiFilterLine} />
+              <Select.Value placeholder='Status' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='all'>All Status</Select.Item>
+              <Select.Item value='true'>Active</Select.Item>
+              <Select.Item value='false'>Inactive</Select.Item>
+            </Select.Content>
+          </Select.Root>
         </div>
-      </form>
+
+        {/* Sort Filter */}
+        <div className='flex items-center gap-2'>
+          <Select.Root value={filters.sortBy} onValueChange={handleSortChange}>
+            <Select.Trigger className='h-8 w-auto flex-1 min-[560px]:flex-none'>
+              <Select.TriggerIcon as={RiSortDesc} />
+              <Select.Value placeholder='Sort by' />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='name-asc'>Name (A-Z)</Select.Item>
+              <Select.Item value='name-desc'>Name (Z-A)</Select.Item>
+              <Select.Item value='manager-asc'>Manager (A-Z)</Select.Item>
+              <Select.Item value='manager-desc'>Manager (Z-A)</Select.Item>
+              <Select.Item value='created-desc'>Recently Created</Select.Item>
+              <Select.Item value='created-asc'>Oldest First</Select.Item>
+            </Select.Content>
+          </Select.Root>
+        </div>
+
+        {/* Clear Filters Button */}
+        <Button.Root
+          mode='ghost'
+          size='xsmall'
+          onClick={handleClearFilters}
+          className={cn(
+            'transition-opacity',
+            filterActive ? 'opacity-100' : 'pointer-events-none opacity-0',
+          )}
+        >
+          <RiFilter3Fill className='size-4' />
+          Clear filters
+        </Button.Root>
+      </div>
     </div>
   );
 }

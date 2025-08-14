@@ -470,8 +470,8 @@ export const QuotationPDFContent = ({
               const unitPrice =
                 typeof item.unitPrice === 'string'
                   ? parseFloat(
-                    item.unitPrice.replace(/\./g, '').replace(',', '.'),
-                  )
+                      item.unitPrice.replace(/\./g, '').replace(',', '.'),
+                    )
                   : item.unitPrice;
               const quantity =
                 typeof item.quantity === 'string'
@@ -582,7 +582,7 @@ export const QuotationPDFContent = ({
       {/* Prepared By */}
       <View style={styles.preparedBySection}>
         <Text style={styles.preparedByText}>
-          {(data.createdByUserFirstName || data.createdByUserLastName)
+          {data.createdByUserFirstName || data.createdByUserLastName
             ? `Prepared by: ${data.createdByUserPrefix || ''} ${data.createdByUserFirstName || ''} ${data.createdByUserLastName || ''} ${data.createdByUserPhone ? `(${data.createdByUserPhone})` : ''}`.trim()
             : 'Prepared by: [Current User]'}
         </Text>

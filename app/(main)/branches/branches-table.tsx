@@ -196,7 +196,6 @@ export function BranchesTable({
         onPageChange={onPageChange}
         onLimitChange={onLimitChange}
         emptyState={emptyState}
-        tableClassName='rounded-lg border border-stroke-soft-200 bg-bg-white-0'
       />
 
       {/* Delete Confirmation Modal */}

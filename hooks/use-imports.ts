@@ -176,8 +176,28 @@ const createImport = async (data: CreateImportData): Promise<Import> => {
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to create import');
+    let message = 'Failed to create import';
+    try {
+      const errorData = await response.json();
+      const baseMessage =
+        errorData.message || errorData.error || errorData.detail || message;
+      if (Array.isArray(errorData.details) && errorData.details.length > 0) {
+        message = `${baseMessage}: ${errorData.details.join(', ')}`;
+      } else {
+        message = baseMessage;
+      }
+    } catch {
+      if (response.status === 403) {
+        message = 'Forbidden - Insufficient permissions';
+      } else if (response.status === 401) {
+        message = 'Unauthorized - Please log in again';
+      } else if (response.status >= 500) {
+        message = 'Server error - Please try again later';
+      } else {
+        message = `Request failed with status ${response.status}`;
+      }
+    }
+    throw new Error(message);
   }
 
   return response.json();
@@ -329,11 +349,6 @@ export function useCreateImport() {
       queryClient.invalidateQueries({ queryKey: ['imports'] });
       toast.success('Import created successfully!', {
         description: 'The import has been saved and is ready for verification.',
-      });
-    },
-    onError: (error) => {
-      toast.error('Failed to create import', {
-        description: error.message,
       });
     },
   });

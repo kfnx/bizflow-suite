@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   // Bank Information Section
   bankSection: {
     flexDirection: 'row',
-    marginBottom: 10
+    marginBottom: 10,
   },
   bankLeft: {
     flex: 2,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     height: 30,
     marginBottom: 10,
     width: 180,
-    padding: "0px 20px"
+    padding: '0px 20px',
   },
   signatureName: {
     fontSize: 10,
@@ -448,19 +448,20 @@ export const InvoicePDFContent = ({
   const displayCustomerAddress =
     customerData?.address ||
     data.customerAddress ||
-    (mode === 'preview' ? 'BFI TOWER SUNBURST CBD Lot 1.2 JL. KAPT. SOEBIJANTO\nDJOJOHADIKUSUMO BSD CITY - TANGERANG SELATAN, 15322' : '');
+    (mode === 'preview'
+      ? 'BFI TOWER SUNBURST CBD Lot 1.2 JL. KAPT. SOEBIJANTO\nDJOJOHADIKUSUMO BSD CITY - TANGERANG SELATAN, 15322'
+      : '');
   const displayCustomerNpwp =
     customerData?.npwp || data.customerNpwp || '0757149844211000';
 
   // Determine salesman info
-  const displaySalesman =
-    data.salesmanUser
-      ? `${data.salesmanUser.firstName} ${data.salesmanUser.lastName}`
-      : data.createdByUser
-        ? `${data.createdByUser.firstName} ${data.createdByUser.lastName}`
-        : mode === 'preview'
-          ? '[Current User]'
-          : 'Rino';
+  const displaySalesman = data.salesmanUser
+    ? `${data.salesmanUser.firstName} ${data.salesmanUser.lastName}`
+    : data.createdByUser
+      ? `${data.createdByUser.firstName} ${data.createdByUser.lastName}`
+      : mode === 'preview'
+        ? '[Current User]'
+        : 'Rino';
 
   return (
     <Page size='A4' style={styles.page}>
@@ -481,9 +482,7 @@ export const InvoicePDFContent = ({
           <View style={styles.leftColumn}>
             <View style={styles.recipientSection}>
               <Text style={styles.sectionTitle}>TO:</Text>
-              <Text style={styles.recipientName}>
-                {displayCustomerName}
-              </Text>
+              <Text style={styles.recipientName}>{displayCustomerName}</Text>
               <Text style={styles.addressLine}>
                 {displayCustomerAddress.split('\n')[0]}
               </Text>
@@ -500,7 +499,8 @@ export const InvoicePDFContent = ({
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Invoice No.</Text>
                 <Text style={styles.detailValue}>
-                  : {data.invoiceNumber ||
+                  :{' '}
+                  {data.invoiceNumber ||
                     (mode === 'preview' ? 'Auto-generated' : '-')}
                 </Text>
               </View>
@@ -525,15 +525,14 @@ export const InvoicePDFContent = ({
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Payment Term</Text>
                 <Text style={styles.detailValue}>
-                  : {data.paymentTerms ||
+                  :{' '}
+                  {data.paymentTerms ||
                     '30% DP, 70% BP oleh leasing 30 hari proses'}
                 </Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Salesman</Text>
-                <Text style={styles.detailValue}>
-                  : {displaySalesman}
-                </Text>
+                <Text style={styles.detailValue}>: {displaySalesman}</Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Currency</Text>
@@ -548,7 +547,12 @@ export const InvoicePDFContent = ({
           <View style={styles.table}>
             {/* Table Header */}
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { width: styles.numberCell.width }]}>
+              <Text
+                style={[
+                  styles.tableHeaderCell,
+                  { width: styles.numberCell.width },
+                ]}
+              >
                 No.
               </Text>
               <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
@@ -557,13 +561,28 @@ export const InvoicePDFContent = ({
               <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
                 Description
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: styles.quantityCell.width }]}>
+              <Text
+                style={[
+                  styles.tableHeaderCell,
+                  { width: styles.quantityCell.width },
+                ]}
+              >
                 Qty.
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: styles.priceCell.width }]}>
+              <Text
+                style={[
+                  styles.tableHeaderCell,
+                  { width: styles.priceCell.width },
+                ]}
+              >
                 Unit Price
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: styles.totalCell.width }]}>
+              <Text
+                style={[
+                  styles.tableHeaderCell,
+                  { width: styles.totalCell.width },
+                ]}
+              >
                 Amount
               </Text>
             </View>
@@ -587,9 +606,7 @@ export const InvoicePDFContent = ({
 
                 return (
                   <View key={item.productId || index} style={styles.tableRow}>
-                    <Text style={styles.numberCell}>
-                      {index + 1}
-                    </Text>
+                    <Text style={styles.numberCell}>{index + 1}</Text>
                     <Text style={styles.serialCell}>
                       {item.serialNumber || item.partNumber || 'N/A'}
                     </Text>
@@ -617,31 +634,23 @@ export const InvoicePDFContent = ({
         <View style={styles.summarySection}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal:</Text>
-            <Text style={styles.summaryValue}>
-              Rp {formatNumber(subtotal)}
-            </Text>
+            <Text style={styles.summaryValue}>Rp {formatNumber(subtotal)}</Text>
           </View>
           {data.isIncludePPN && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>VAT:</Text>
-              <Text style={styles.summaryValue}>
-                Rp {formatNumber(tax)}
-              </Text>
+              <Text style={styles.summaryValue}>Rp {formatNumber(tax)}</Text>
             </View>
           )}
           <View style={[styles.summaryRow, styles.summaryTotal]}>
             <Text style={styles.summaryLabel}>Total Amount:</Text>
-            <Text style={styles.summaryValue}>
-              Rp {formatNumber(total)}
-            </Text>
+            <Text style={styles.summaryValue}>Rp {formatNumber(total)}</Text>
           </View>
         </View>
 
         {/* Thank You Section */}
         <View style={styles.thankYouSection}>
-          <Text style={styles.thankYouText}>
-            THANK YOU FOR YOUR BUSINESS
-          </Text>
+          <Text style={styles.thankYouText}>THANK YOU FOR YOUR BUSINESS</Text>
         </View>
 
         {/* Bank Information and Signature */}
@@ -673,9 +682,7 @@ export const InvoicePDFContent = ({
 
           {/* Signature */}
           <View style={styles.signatureColumn}>
-            <Text style={styles.signatureTitle}>
-              Tanda Tangan dan Materai
-            </Text>
+            <Text style={styles.signatureTitle}>Tanda Tangan dan Materai</Text>
             <View style={styles.signatureLine} />
             <Text style={styles.signatureName}>Tony Raflv Teh</Text>
             <Text style={styles.signaturePosition}>Direktur Utama</Text>
@@ -690,9 +697,8 @@ export const InvoicePDFContent = ({
           <Text style={styles.disclaimerTitle}>ATTENTION</Text>
           <Text style={styles.disclaimerText}>
             When within 14 days from the date of the Invoice and Tax Invoice
-            received no objections from the customer, the customer is deemed
-            to have agreed to everything contained in this Invoice and Tax
-            Invoice.
+            received no objections from the customer, the customer is deemed to
+            have agreed to everything contained in this Invoice and Tax Invoice.
           </Text>
         </View>
       </View>

@@ -22,7 +22,6 @@ interface InvoicePDFPreviewProps {
   };
 }
 
-
 export const InvoicePDFPreview = ({
   formData,
   customerData,

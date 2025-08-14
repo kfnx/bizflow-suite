@@ -406,7 +406,7 @@ export function TransfersTable({
 
   if (isLoading) {
     return (
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-8'>
+      <div className='rounded-lg bg-bg-white-0 p-8'>
         <div className='flex items-center justify-center'>
           <div className='text-text-sub-600'>Loading transfers...</div>
         </div>
@@ -416,7 +416,7 @@ export function TransfersTable({
 
   if (error) {
     return (
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-8'>
+      <div className='rounded-lg bg-bg-white-0 p-8'>
         <div className='text-center text-red-600'>
           {error.message || 'Failed to load transfers'}
         </div>
@@ -426,7 +426,7 @@ export function TransfersTable({
 
   if (!transfers || transfers.length === 0) {
     return (
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-8'>
+      <div className='rounded-lg bg-bg-white-0 p-8'>
         <div className='text-center'>
           <RiExchangeFundsLine className='text-text-sub-400 mx-auto size-12' />
           <h3 className='mt-2 text-title-h5 text-text-strong-950'>
@@ -454,7 +454,7 @@ export function TransfersTable({
 
   return (
     <div className='space-y-4'>
-      <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0'>
+      <div className='rounded-lg bg-bg-white-0'>
         <Table.Root>
           <Table.Header>
             {table.getHeaderGroups().map((headerGroup) => (

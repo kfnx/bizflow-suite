@@ -135,21 +135,19 @@ export function Filters({ onFiltersChange }: FiltersProps) {
   }, []);
 
   return (
-    <div className='flex flex-col gap-4 rounded-xl bg-bg-white-0 p-4 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+    <div className='flex flex-col gap-4 bg-bg-white-0 shadow-regular-xs'>
       {/* Search Bar */}
-      <div className='relative'>
-        <Input.Root>
-          <Input.Wrapper>
-            <Input.Icon as={RiSearchLine} />
-            <Input.Input
-              placeholder='Search products by name, code, or description...'
-              value={filters.search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className='pl-10'
-            />
-          </Input.Wrapper>
-        </Input.Root>
-      </div>
+      <Input.Root>
+        <Input.Wrapper>
+          <Input.Icon as={RiSearchLine} />
+          <Input.Input
+            placeholder='Search products by name, code, or description...'
+            value={filters.search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className='pl-10'
+          />
+        </Input.Wrapper>
+      </Input.Root>
 
       {/* Filters Row */}
       <div className='flex flex-wrap items-center gap-4'>
@@ -188,29 +186,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               <Select.Item value='serialized'>Serialized</Select.Item>
               <Select.Item value='non_serialized'>Non-Serialized</Select.Item>
               <Select.Item value='bulk'>Bulk</Select.Item>
-            </Select.Content>
-          </Select.Root>
-        </div>
-
-        {/* Brand Filter */}
-        <div className='flex items-center gap-2'>
-          <span className='text-paragraph-sm text-text-sub-600'>Brand:</span>
-          <Select.Root value={filters.brand} onValueChange={handleBrandChange}>
-            <Select.Trigger className='w-auto flex-1 min-[560px]:flex-none'>
-              <Select.TriggerIcon as={RiFilterLine} />
-              <Select.Value placeholder='Brand' />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value='all'>All Brands</Select.Item>
-              <Select.Item value='shantui'>Shantui</Select.Item>
-              <Select.Item value='caterpillar'>Caterpillar</Select.Item>
-              <Select.Item value='komatsu'>Komatsu</Select.Item>
-              <Select.Item value='hitachi'>Hitachi</Select.Item>
-              <Select.Item value='volvo'>Volvo</Select.Item>
-              <Select.Item value='jcb'>JCB</Select.Item>
-              <Select.Item value='oliolio'>Oliolio</Select.Item>
-              <Select.Item value='spare_xyz'>Spare XYZ</Select.Item>
-              <Select.Item value='sparepart_abc'>Sparepart ABC</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>

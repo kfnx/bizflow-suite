@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   signaturesSection: {
     flexDirection: 'row',
-    padding: '0 30px',
+    padding: '30px 30px 10px',
     marginBottom: 80, // Increased to provide more space for the footer
     gap: 64,
   },
@@ -465,7 +465,7 @@ export const QuotationPDF = ({ quotation }: QuotationPDFProps) => {
           </View>
 
           {/* Signatures */}
-          <View style={styles.signaturesSection}>
+          <View style={styles.signaturesSection} wrap={false}>
             <View style={styles.signatureColumn}>
               <Text style={styles.signatureTitle}>Approved by:</Text>
               <View style={styles.signatureLine} />

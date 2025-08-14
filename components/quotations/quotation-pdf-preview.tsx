@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   signaturesSection: {
     flexDirection: 'row',
-    padding: '0 30px',
+    padding: '30px 30px 10px',
     marginBottom: 80,
     gap: 64,
   },
@@ -546,7 +546,7 @@ export const QuotationPDFPreview = ({
             </View>
 
             {/* Signatures */}
-            <View style={styles.signaturesSection}>
+            <View style={styles.signaturesSection} wrap={false}>
               <View style={styles.signatureColumn}>
                 <Text style={styles.signatureTitle}>Approved by:</Text>
                 <View style={styles.signatureLine} />

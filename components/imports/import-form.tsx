@@ -82,6 +82,8 @@ interface ProductItemFormProps {
   brands: BrandType[];
   machineTypes: MachineType[];
   unitOfMeasures: UnitOfMeasure[];
+  partNumbers: { id: string; name: string }[];
+  modelNumbers: { id: string; name: string }[];
   canRemove: boolean;
   validationErrors: Record<string, string>;
   exchangeRateRMBtoIDR: string;
@@ -97,6 +99,8 @@ function ProductItemForm({
   brands,
   machineTypes,
   unitOfMeasures,
+  partNumbers,
+  modelNumbers,
   canRemove,
   validationErrors,
   exchangeRateRMBtoIDR,
@@ -310,18 +314,22 @@ function ProductItemForm({
             <Label.Root htmlFor={`modelNumber-${index}`}>
               Model Number <Label.Asterisk />
             </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id={`modelNumber-${index}`}
-                  value={item.modelNumber || ''}
-                  onChange={(e) =>
-                    handleFieldChange('modelNumber', e.target.value)
-                  }
-                  placeholder='e.g. SD32'
-                />
-              </Input.Wrapper>
-            </Input.Root>
+            <Select.Root
+              value={item.modelNumber || ''}
+              onValueChange={(value) => handleFieldChange('modelNumber', value)}
+              disabled={!modelNumbers}
+            >
+              <Select.Trigger id={`modelNumber-${index}`}>
+                <Select.Value placeholder={!modelNumbers ? "Loading..." : 'Select model number'} />
+              </Select.Trigger>
+              <Select.Content>
+                {modelNumbers.map((modelNumber) => (
+                  <Select.Item key={modelNumber.id} value={modelNumber.id}>
+                    {modelNumber.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
             {getFieldError('modelNumber') && (
               <div className='text-xs text-red-600'>
                 {getFieldError('modelNumber')}
@@ -402,18 +410,22 @@ year 2023`}
             <Label.Root htmlFor={`modelPartNumber-${index}`}>
               Part Number <Label.Asterisk />
             </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id={`modelPartNumber-${index}`}
-                  value={item.partNumber || ''}
-                  onChange={(e) =>
-                    handleFieldChange('partNumber', e.target.value)
-                  }
-                  placeholder='Part Number'
-                />
-              </Input.Wrapper>
-            </Input.Root>
+            <Select.Root
+              value={item.partNumber || ''}
+              onValueChange={(value) => handleFieldChange('partNumber', value)}
+              disabled={!partNumbers}
+            >
+              <Select.Trigger id={`modelPartNumber-${index}`}>
+                <Select.Value placeholder={!partNumbers ? "Loading..." : 'Select part number'} />
+              </Select.Trigger>
+              <Select.Content>
+                {partNumbers.map((partNumber) => (
+                  <Select.Item key={partNumber.id} value={partNumber.id}>
+                    {partNumber.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
             {getFieldError('partNumber') && (
               <div className='text-xs text-red-600'>
                 {getFieldError('partNumber')}
@@ -602,6 +614,8 @@ export function ImportForm({
   const updateImportMutation = useUpdateImport();
   const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
   const [unitOfMeasures, setUnitOfMeasures] = useState<UnitOfMeasure[]>([]);
+  const [partNumbers, setPartNumbers] = useState<{ id: string; name: string }[]>([]);
+  const [modelNumbers, setModelNumbers] = useState<{ id: string; name: string }[]>([]);
 
   // Create empty product item
   function createEmptyProductItem(): ProductItem {
@@ -699,9 +713,11 @@ export function ImportForm({
   useEffect(() => {
     const loadReferenceData = async () => {
       try {
-        const [machineTypesRes, unitOfMeasuresRes] = await Promise.all([
-          fetch('/api/machine-types'),
-          fetch('/api/unit-of-measures'),
+        const [machineTypesRes, unitOfMeasuresRes, partNumbersRes, modelNumbersRes] = await Promise.all([
+          fetch('/api/machine-types?limit=1000'),
+          fetch('/api/unit-of-measures?limit=1000'),
+          fetch('/api/part-numbers?limit=1000'),
+          fetch('/api/model-numbers?limit=1000'),
         ]);
 
         if (machineTypesRes.ok) {
@@ -712,6 +728,16 @@ export function ImportForm({
         if (unitOfMeasuresRes.ok) {
           const unitOfMeasuresData = await unitOfMeasuresRes.json();
           setUnitOfMeasures(unitOfMeasuresData.data || []);
+        }
+
+        if (partNumbersRes.ok) {
+          const partNumbersData = await partNumbersRes.json();
+          setPartNumbers(partNumbersData.data || []);
+        }
+
+        if (modelNumbersRes.ok) {
+          const modelNumbersData = await modelNumbersRes.json();
+          setModelNumbers(modelNumbersData.data || []);
         }
       } catch (error) {
         console.error('Error loading reference data:', error);
@@ -1214,6 +1240,8 @@ export function ImportForm({
                   brands={getFilteredBrands(item.category)}
                   machineTypes={machineTypes}
                   unitOfMeasures={unitOfMeasures}
+                  partNumbers={partNumbers}
+                  modelNumbers={modelNumbers}
                   canRemove={formData.items.length > 1}
                   validationErrors={validationErrors}
                   exchangeRateRMBtoIDR={formData.exchangeRateRMBtoIDR}

@@ -520,39 +520,6 @@ export function DeliveryNoteForm({
               : 'Update Delivery Note'}
         </Button.Root>
       </div>
-
-      {/* Debug Panel - Only show in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className='border-gray-200 bg-gray-50 mt-4 rounded-lg border p-4'>
-          <h4 className='text-sm text-gray-700 mb-2 font-semibold'>
-            Debug Info
-          </h4>
-          <div className='text-xs text-gray-600 space-y-1'>
-            <div>Mode: {mode}</div>
-            <div>Items Count: {formData.items.length}</div>
-            <div>Customer ID: {formData.customerId}</div>
-            <div>Delivery Date: {formData.deliveryDate}</div>
-            <div>Validation Errors: {Object.keys(validationErrors).length}</div>
-            <div>Is Submitting: {isSubmitting.toString()}</div>
-            <details className='mt-2'>
-              <summary className='text-xs cursor-pointer font-medium'>
-                Form Data
-              </summary>
-              <pre className='text-xs mt-1 max-h-32 overflow-auto rounded border bg-white p-2'>
-                {JSON.stringify(formData, null, 2)}
-              </pre>
-            </details>
-            <details className='mt-2'>
-              <summary className='text-xs cursor-pointer font-medium'>
-                Validation Errors
-              </summary>
-              <pre className='text-xs mt-1 max-h-32 overflow-auto rounded border bg-white p-2'>
-                {JSON.stringify(validationErrors, null, 2)}
-              </pre>
-            </details>
-          </div>
-        </div>
-      )}
     </form>
   );
 }

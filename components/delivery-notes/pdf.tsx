@@ -114,9 +114,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableHeaderCell: {
-    padding: 8,
+    padding: 6,
     fontWeight: 'bold',
-    textAlign: 'center',
+    textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
@@ -127,14 +127,21 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableCell: {
-    padding: 8,
-    textAlign: 'center',
+    padding: 6,
+    textAlign: 'left',
+    borderRightWidth: 1,
+    borderRightColor: '#000000',
+    fontSize: 9,
+  },
+  productCell: {
+    padding: 6,
+    textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   descriptionCell: {
-    padding: 8,
+    padding: 6,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
@@ -142,71 +149,55 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   serialCell: {
-    padding: 8,
+    padding: 6,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    flex: 1.5,
-    fontSize: 9,
-  },
-  quantityCell: {
-    padding: 8,
-    textAlign: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#000000',
-    width: 60,
     fontSize: 9,
   },
   partNumberCell: {
-    padding: 8,
+    padding: 6,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    flex: 1.5,
     fontSize: 9,
   },
   unitModelCell: {
-    padding: 8,
+    padding: 6,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    flex: 1.2,
     fontSize: 9,
   },
   engineNumberCell: {
-    padding: 8,
+    padding: 6,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    flex: 1.2,
     fontSize: 9,
   },
   remarksCell: {
-    padding: 8,
+    padding: 6,
     textAlign: 'left',
-    width: 120,
     fontSize: 9,
   },
 
   // Footer Section
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  deliveryDetail: {
+    flex: 1,
     paddingHorizontal: 30,
-    marginTop: 30,
   },
-  footerLeft: {
-    flex: 1,
+  deliveryDetailItem: {
+    height: 30,
+    flexDirection: 'row',
   },
-  footerRight: {
-    flex: 1,
-  },
-  footerLabel: {
+  deliveryLabel: {
     fontSize: 10,
     fontWeight: 'bold',
     marginBottom: 5,
+    marginRight: 6
   },
-  footerValue: {
+  deliveryValue: {
     fontSize: 10,
     marginBottom: 15,
   },
@@ -231,7 +222,7 @@ const styles = StyleSheet.create({
   signatureLine: {
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
-    height: 20,
+    height: 30,
     width: 150,
     marginBottom: 5,
   },
@@ -245,163 +236,13 @@ interface DeliveryNotePDFProps {
   deliveryNote: DeliveryNoteDetail;
 }
 
-const formatCurrency = (amount: string | number) => {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(num);
-};
-
-const formatNumber = (amount: string | number) => {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(num);
-};
-
-// Helper function to determine product category from item data
-const getProductCategory = (
-  item: any,
-): 'serialized' | 'non_serialized' | 'bulk' => {
-  // Check if product has serial number (serialized)
-  if (item.product?.serialNumber) {
-    return 'serialized';
-  }
-
-  // Check if product has part number but no serial number (non-serialized)
-  if (item.product?.partNumber && !item.product?.serialNumber) {
-    return 'non_serialized';
-  }
-
-  // Default to bulk
-  return 'bulk';
-};
-
-// Component for serialized products table (like the second image example)
-const SerializedProductsTable = ({ items }: { items: any[] }) => (
-  <View style={styles.tableSection}>
-    <View style={styles.table}>
-      <View style={styles.tableHeader}>
-        <Text style={[styles.tableHeaderCell, { width: 40 }]}>No.</Text>
-        <Text style={[styles.tableHeaderCell, { width: 60 }]}>Qty</Text>
-        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Unit Model</Text>
-        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Serial No</Text>
-        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Engine No</Text>
-        <Text style={[styles.tableHeaderCell, { width: 120 }]}>Keterangan</Text>
-      </View>
-      {items.map((item, index) => (
-        <View key={item.id || index} style={styles.tableRow}>
-          <Text style={[styles.tableCell, { width: 40 }]}>{index + 1}</Text>
-          <Text style={[styles.tableCell, { width: 60 }]}>
-            {item.quantity} Unit
-          </Text>
-          <Text style={[styles.unitModelCell, { borderRightWidth: 1 }]}>
-            {item.product?.name || 'N/A'}
-          </Text>
-          <Text style={[styles.serialCell, { borderRightWidth: 1 }]}>
-            {item.product?.serialNumber || 'N/A'}
-          </Text>
-          <Text style={[styles.engineNumberCell, { borderRightWidth: 1 }]}>
-            {item.product?.engineNumber || 'N/A'}
-          </Text>
-          <Text style={styles.remarksCell}>
-            {item.product?.additionalSpecs || ''}
-          </Text>
-        </View>
-      ))}
-      {/* Add empty rows for additional items */}
-      {Array.from({ length: Math.max(0, 5 - items.length) }).map((_, index) => (
-        <View key={`empty-${index}`} style={styles.tableRow}>
-          <Text style={[styles.tableCell, { width: 40 }]}>
-            {items.length + index + 1}
-          </Text>
-          <Text style={[styles.tableCell, { width: 60 }]}></Text>
-          <Text style={[styles.unitModelCell, { borderRightWidth: 1 }]}></Text>
-          <Text style={[styles.serialCell, { borderRightWidth: 1 }]}></Text>
-          <Text
-            style={[styles.engineNumberCell, { borderRightWidth: 1 }]}
-          ></Text>
-          <Text style={styles.remarksCell}></Text>
-        </View>
-      ))}
-    </View>
-  </View>
-);
-
-// Component for non-serialized/bulk products table (like the first image example)
-const NonSerializedProductsTable = ({ items }: { items: any[] }) => (
-  <View style={styles.tableSection}>
-    <View style={styles.table}>
-      <View style={styles.tableHeader}>
-        <Text style={[styles.tableHeaderCell, { width: 40 }]}>No.</Text>
-        <Text style={[styles.tableHeaderCell, { width: 60 }]}>Qty</Text>
-        <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>
-          Part No Shantui
-        </Text>
-        <Text style={[styles.tableHeaderCell, { width: 80 }]}>Replace</Text>
-        <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Description</Text>
-        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Untuk Unit</Text>
-      </View>
-      {items.map((item, index) => (
-        <View key={item.id || index} style={styles.tableRow}>
-          <Text style={[styles.tableCell, { width: 40 }]}>{index + 1}</Text>
-          <Text style={[styles.tableCell, { width: 60 }]}>
-            {item.quantity} Pcs
-          </Text>
-          <Text style={[styles.partNumberCell, { borderRightWidth: 1 }]}>
-            {item.product?.partNumber || item.product?.code || 'N/A'}
-          </Text>
-          <Text
-            style={[styles.tableCell, { width: 80, borderRightWidth: 1 }]}
-          ></Text>
-          <Text style={[styles.descriptionCell, { borderRightWidth: 1 }]}>
-            {item.product?.name || 'N/A'}
-          </Text>
-          <Text style={styles.tableCell}>
-            {item.product?.modelNumber || 'N/A'}
-          </Text>
-        </View>
-      ))}
-      {/* Add empty rows for additional items */}
-      {Array.from({ length: Math.max(0, 8 - items.length) }).map((_, index) => (
-        <View key={`empty-${index}`} style={styles.tableRow}>
-          <Text style={[styles.tableCell, { width: 40 }]}>
-            {items.length + index + 1}
-          </Text>
-          <Text style={[styles.tableCell, { width: 60 }]}></Text>
-          <Text style={[styles.partNumberCell, { borderRightWidth: 1 }]}></Text>
-          <Text
-            style={[styles.tableCell, { width: 80, borderRightWidth: 1 }]}
-          ></Text>
-          <Text
-            style={[styles.descriptionCell, { borderRightWidth: 1 }]}
-          ></Text>
-          <Text style={styles.tableCell}></Text>
-        </View>
-      ))}
-    </View>
-  </View>
-);
+const tableWidth = {
+  no: 40,
+  qty: 70,
+  product: 150,
+}
 
 export const DeliveryNotePDF = ({ deliveryNote }: DeliveryNotePDFProps) => {
-  // Determine the table type based on the first item's product category
-  const firstItem = deliveryNote.items[0];
-  const productCategory = firstItem
-    ? getProductCategory(firstItem)
-    : 'non_serialized';
-
-  // Group items by category
-  const serializedItems = deliveryNote.items.filter(
-    (item) => getProductCategory(item) === 'serialized',
-  );
-  const nonSerializedItems = deliveryNote.items.filter(
-    (item) => getProductCategory(item) !== 'serialized',
-  );
-
   return (
     <PDFViewer style={{ width: '100%', height: '100vh' }}>
       <Document>
@@ -461,43 +302,58 @@ export const DeliveryNotePDF = ({ deliveryNote }: DeliveryNotePDFProps) => {
               )}
           </View>
 
-          {/* Items Table - Dynamic based on product type */}
-          {productCategory === 'serialized' ? (
-            <SerializedProductsTable items={serializedItems} />
-          ) : (
-            <NonSerializedProductsTable items={nonSerializedItems} />
-          )}
+          <View style={styles.tableSection}>
+            <View style={styles.table}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderCell, { width: tableWidth.no }]}>No.</Text>
+                <Text style={[styles.tableHeaderCell, { width: tableWidth.qty }]}>Qty</Text>
+                <Text style={[styles.tableHeaderCell, { flex: 1 }]}>
+                  Produk
+                </Text>
+              </View>
+              {deliveryNote.items.map((item, index) => (
+                <View key={item.id || index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, { width: tableWidth.no }]}>{index + 1}</Text>
+                  <Text style={[styles.tableCell, { width: tableWidth.qty }]}>
+                    {item.quantity} Pcs
+                  </Text>
+                  <Text style={[styles.productCell, { flex: 1 }]}>
+                    {item.product?.name || item.product?.partNumber || item.product?.code || 'N/A'}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <View style={styles.footerLeft}>
-              <Text style={styles.footerLabel}>Via:</Text>
-              <Text style={styles.footerValue}>
+          <View style={styles.deliveryDetail}>
+            <View style={styles.deliveryDetailItem}>
+              <Text style={styles.deliveryLabel}>Via:</Text>
+              <Text style={styles.deliveryValue}>
                 {deliveryNote.deliveryMethod || 'Laut'}
               </Text>
-
-              <Text style={styles.footerLabel}>Expedisi:</Text>
-              <Text style={styles.footerValue}></Text>
             </View>
-            <View style={styles.footerRight}>
-              <View style={styles.signatureSection}>
-                <View style={styles.signatureRow}>
-                  <View style={styles.signatureColumn}>
-                    <Text style={styles.signatureTitle}>Expedisi,</Text>
-                    <View style={styles.signatureLine} />
-                    <Text style={styles.signatureName}></Text>
-                  </View>
-                  <View style={styles.signatureColumn}>
-                    <Text style={styles.signatureTitle}>Diterima,</Text>
-                    <View style={styles.signatureLine} />
-                    <Text style={styles.signatureName}></Text>
-                  </View>
-                  <View style={styles.signatureColumn}>
-                    <Text style={styles.signatureTitle}>Hormat kami,</Text>
-                    <View style={styles.signatureLine} />
-                    <Text style={styles.signatureName}></Text>
-                  </View>
-                </View>
+            <View style={styles.deliveryDetailItem}>
+              <Text style={styles.deliveryLabel}>Expedisi:</Text>
+              <Text style={styles.deliveryValue}></Text>
+            </View>
+          </View>
+
+          <View style={styles.signatureSection}>
+            <View style={styles.signatureRow}>
+              <View style={styles.signatureColumn}>
+                <Text style={styles.signatureTitle}>Expedisi,</Text>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureName}></Text>
+              </View>
+              <View style={styles.signatureColumn}>
+                <Text style={styles.signatureTitle}>Diterima,</Text>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureName}></Text>
+              </View>
+              <View style={styles.signatureColumn}>
+                <Text style={styles.signatureTitle}>Hormat kami,</Text>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureName}></Text>
               </View>
             </View>
           </View>

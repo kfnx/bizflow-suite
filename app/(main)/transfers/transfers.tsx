@@ -28,7 +28,13 @@ export function Transfers({ initialFilters }: TransfersProps) {
 
   const { data, isLoading, error } = useTransfers(filters);
 
-  const handleFilterChange = (newFilters: Parameters<NonNullable<React.ComponentProps<typeof TransfersFilters>['onFiltersChange']>>[0]) => {
+  const handleFilterChange = (
+    newFilters: Parameters<
+      NonNullable<
+        React.ComponentProps<typeof TransfersFilters>['onFiltersChange']
+      >
+    >[0],
+  ) => {
     setFilters({
       ...newFilters,
       page: newFilters.page ?? 1,

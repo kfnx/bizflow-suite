@@ -22,6 +22,20 @@
       "when": 1754731217142,
       "tag": "0002_true_madame_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1755512296991,
+      "tag": "0003_flashy_franklin_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1755512461881,
+      "tag": "0004_slippery_nighthawk",
+      "breakpoints": true
     }
   ]
 }

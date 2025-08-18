@@ -233,7 +233,7 @@ export function UnitOfMeasuresTable() {
   );
 
   const unitOfMeasures = data || [];
-  const isEditing = (id: string) => id in editingItems;
+  const isEditing = useCallback((id: string) => id in editingItems, [editingItems]);
 
   // Define columns
   const columns = useMemo<ColumnDef<UnitOfMeasure>[]>(
@@ -265,6 +265,7 @@ export function UnitOfMeasuresTable() {
                       onChange={(e) =>
                         handleFieldChange(uom.id, 'name', e.target.value)
                       }
+                      maxLength={36}
                     />
                   </Input.Wrapper>
                 </Input.Root>
@@ -431,9 +432,9 @@ export function UnitOfMeasuresTable() {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
                 </Table.Head>
               ))}
             </Table.Row>
@@ -454,6 +455,7 @@ export function UnitOfMeasuresTable() {
                           handleFieldChange(item.id, 'name', e.target.value)
                         }
                         placeholder='Enter unit name (e.g., Kilogram)'
+                        maxLength={36}
                       />
                     </Input.Wrapper>
                   </Input.Root>

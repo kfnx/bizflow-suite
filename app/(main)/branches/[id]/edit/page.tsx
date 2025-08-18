@@ -242,6 +242,7 @@ export default function EditBranchPage({ params }: EditBranchPageProps) {
                           handleInputChange('name', e.target.value)
                         }
                         placeholder='Enter branch name (e.g., Jakarta HQ, Surabaya Office)'
+                        maxLength={36}
                       />
                     </Input.Wrapper>
                   </Input.Root>

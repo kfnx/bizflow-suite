@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     marginBottom: 5,
-    marginRight: 6
+    marginRight: 6,
   },
   deliveryValue: {
     fontSize: 10,
@@ -240,7 +240,7 @@ const tableWidth = {
   no: 40,
   qty: 70,
   product: 150,
-}
+};
 
 export const DeliveryNotePDF = ({ deliveryNote }: DeliveryNotePDFProps) => {
   return (
@@ -305,20 +305,33 @@ export const DeliveryNotePDF = ({ deliveryNote }: DeliveryNotePDFProps) => {
           <View style={styles.tableSection}>
             <View style={styles.table}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.tableHeaderCell, { width: tableWidth.no }]}>No.</Text>
-                <Text style={[styles.tableHeaderCell, { width: tableWidth.qty }]}>Qty</Text>
+                <Text
+                  style={[styles.tableHeaderCell, { width: tableWidth.no }]}
+                >
+                  No.
+                </Text>
+                <Text
+                  style={[styles.tableHeaderCell, { width: tableWidth.qty }]}
+                >
+                  Qty
+                </Text>
                 <Text style={[styles.tableHeaderCell, { flex: 1 }]}>
                   Produk
                 </Text>
               </View>
               {deliveryNote.items.map((item, index) => (
                 <View key={item.id || index} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { width: tableWidth.no }]}>{index + 1}</Text>
+                  <Text style={[styles.tableCell, { width: tableWidth.no }]}>
+                    {index + 1}
+                  </Text>
                   <Text style={[styles.tableCell, { width: tableWidth.qty }]}>
                     {item.quantity} Pcs
                   </Text>
                   <Text style={[styles.productCell, { flex: 1 }]}>
-                    {item.product?.name || item.product?.partNumber || item.product?.code || 'N/A'}
+                    {item.product?.name ||
+                      item.product?.partNumber ||
+                      item.product?.code ||
+                      'N/A'}
                   </Text>
                 </View>
               ))}

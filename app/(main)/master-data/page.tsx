@@ -12,6 +12,8 @@ import { PermissionGate } from '@/components/auth/permission-gate';
 
 import { BrandsTable } from './brands-table';
 import { MachineTypesTable } from './machine-types-table';
+import { ModelNumbersTable } from './model-numbers-table';
+import { PartNumbersTable } from './part-numbers-table';
 import { UnitOfMeasuresTable } from './unit-of-measures-table';
 
 export default function MasterDataPage() {
@@ -28,7 +30,8 @@ export default function MasterDataPage() {
         <div>
           <h1 className='text-2xl text-gray-900 font-semibold'>Master Data</h1>
           <p className='text-sm text-gray-600'>
-            Manage brands, units of measurement, and machine types
+            Manage brands, units of measurement, machine types, part numbers,
+            and model numbers
           </p>
         </div>
       </div>
@@ -41,6 +44,8 @@ export default function MasterDataPage() {
             Unit of Measures
           </TabMenuTrigger>
           <TabMenuTrigger value='machine-types'>Machine Types</TabMenuTrigger>
+          <TabMenuTrigger value='part-numbers'>Part Numbers</TabMenuTrigger>
+          <TabMenuTrigger value='model-numbers'>Model Numbers</TabMenuTrigger>
         </TabMenuList>
 
         <TabMenuContent value='brands'>
@@ -58,6 +63,18 @@ export default function MasterDataPage() {
         <TabMenuContent value='machine-types'>
           <PermissionGate permission='products:read'>
             <MachineTypesTable />
+          </PermissionGate>
+        </TabMenuContent>
+
+        <TabMenuContent value='part-numbers'>
+          <PermissionGate permission='products:read'>
+            <PartNumbersTable />
+          </PermissionGate>
+        </TabMenuContent>
+
+        <TabMenuContent value='model-numbers'>
+          <PermissionGate permission='products:read'>
+            <ModelNumbersTable />
           </PermissionGate>
         </TabMenuContent>
       </TabMenuHorizontal>

@@ -10,8 +10,6 @@ import {
   RiEditLine,
   RiExpandUpDownFill,
   RiSaveLine,
-  RiSettings3Line,
-  RiToolsLine,
 } from '@remixicon/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -26,13 +24,6 @@ import { toast } from 'sonner';
 
 import { Root as Button } from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
-import {
-  Root as Select,
-  Content as SelectContent,
-  Item as SelectItem,
-  Trigger as SelectTrigger,
-  Value as SelectValue,
-} from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
@@ -44,109 +35,101 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-interface Brand {
+interface PartNumber {
   id: string;
   name: string;
-  type: 'machine' | 'sparepart';
 }
 
-interface EditingBrand extends Brand {
+interface EditingPartNumber extends PartNumber {
   isNew?: boolean;
 }
 
-export function BrandsTable() {
+export function PartNumbersTable() {
   const queryClient = useQueryClient();
   const [editingItems, setEditingItems] = useState<
-    Record<string, EditingBrand>
+    Record<string, EditingPartNumber>
   >({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const newItemIdRef = useRef(0);
 
-  // Fetch brands
+  // Fetch part numbers
   const { data, isLoading } = useQuery({
-    queryKey: ['brands'],
+    queryKey: ['part-numbers'],
     queryFn: async () => {
-      const response = await fetch('/api/brands');
-      if (!response.ok) throw new Error('Failed to fetch brands');
+      const response = await fetch('/api/part-numbers');
+      if (!response.ok) throw new Error('Failed to fetch part numbers');
       const result = await response.json();
-      return result.data as Brand[];
+      return result.data as PartNumber[];
     },
   });
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (brand: { name: string; type: string }) => {
-      const response = await fetch('/api/brands', {
+    mutationFn: async (partNumber: { name: string }) => {
+      const response = await fetch('/api/part-numbers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(brand),
+        body: JSON.stringify(partNumber),
       });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error?.details || error?.error || 'Failed to create brand',
+          error?.details || error?.error || 'Failed to create part number',
         );
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['brands'] });
-      toast.success('Brand created successfully');
+      queryClient.invalidateQueries({ queryKey: ['part-numbers'] });
+      toast.success('Part number created successfully');
     },
     onError: (error) => {
-      toast.error(`Failed to create brand: ${error.message}`);
+      toast.error(`Failed to create part number: ${error.message}`);
     },
   });
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({
-      id,
-      ...brand
-    }: {
-      id: string;
-      name: string;
-      type: string;
-    }) => {
-      const response = await fetch(`/api/brands/${id}`, {
+    mutationFn: async ({ id, ...partNumber }: { id: string; name: string }) => {
+      const response = await fetch(`/api/part-numbers/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(brand),
+        body: JSON.stringify(partNumber),
       });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error?.details || error?.error || 'Failed to update brand',
+          error?.details || error?.error || 'Failed to update part number',
         );
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['brands'] });
-      toast.success('Brand updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['part-numbers'] });
+      toast.success('Part number updated successfully');
     },
     onError: (error) => {
-      toast.error(`Failed to update brand: ${error.message}`);
+      toast.error(`Failed to update part number: ${error.message}`);
     },
   });
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/brands/${id}`, {
+      const response = await fetch(`/api/part-numbers/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error?.details || error?.error || 'Failed to delete brand',
+          error?.details || error?.error || 'Failed to delete part number',
         );
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['brands'] });
-      toast.success('Brand deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['part-numbers'] });
+      toast.success('Part number deleted successfully');
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -160,40 +143,37 @@ export function BrandsTable() {
       [newId]: {
         id: newId,
         name: '',
-        type: 'machine',
         isNew: true,
       },
     }));
   }, []);
 
-  const handleEdit = useCallback((brand: Brand) => {
+  const handleEdit = useCallback((partNumber: PartNumber) => {
     setEditingItems((prev) => ({
       ...prev,
-      [brand.id]: { ...brand },
+      [partNumber.id]: { ...partNumber },
     }));
   }, []);
 
   const handleSave = useCallback(
     async (id: string) => {
-      const editingBrand = editingItems[id];
-      if (!editingBrand) return;
+      const editingPartNumber = editingItems[id];
+      if (!editingPartNumber) return;
 
-      if (!editingBrand.name.trim()) {
-        toast.error('Brand name is required');
+      if (!editingPartNumber.name.trim()) {
+        toast.error('Part number name is required');
         return;
       }
 
       try {
-        if (editingBrand.isNew) {
+        if (editingPartNumber.isNew) {
           await createMutation.mutateAsync({
-            name: editingBrand.name,
-            type: editingBrand.type,
+            name: editingPartNumber.name,
           });
         } else {
           await updateMutation.mutateAsync({
-            id: editingBrand.id,
-            name: editingBrand.name,
-            type: editingBrand.type,
+            id: editingPartNumber.id,
+            name: editingPartNumber.name,
           });
         }
         setEditingItems((prev) => {
@@ -216,7 +196,7 @@ export function BrandsTable() {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (confirm('Are you sure you want to delete this brand?')) {
+      if (confirm('Are you sure you want to delete this part number?')) {
         await deleteMutation.mutateAsync(id);
       }
     },
@@ -224,7 +204,7 @@ export function BrandsTable() {
   );
 
   const handleFieldChange = useCallback(
-    (id: string, field: keyof EditingBrand, value: string) => {
+    (id: string, field: keyof EditingPartNumber, value: string) => {
       setEditingItems((prev) => ({
         ...prev,
         [id]: {
@@ -236,11 +216,11 @@ export function BrandsTable() {
     [],
   );
 
-  const brands = data || [];
+  const partNumbers = data || [];
   const isEditing = useCallback((id: string) => id in editingItems, [editingItems]);
 
   // Define columns
-  const columns = useMemo<ColumnDef<Brand>[]>(
+  const columns = useMemo<ColumnDef<PartNumber>[]>(
     () => [
       {
         accessorKey: 'name',
@@ -258,80 +238,23 @@ export function BrandsTable() {
           </div>
         ),
         cell: ({ row }) => {
-          const brand = row.original;
+          const partNumber = row.original;
           return (
             <Table.Cell>
-              {isEditing(brand.id) ? (
+              {isEditing(partNumber.id) ? (
                 <Input.Root className='w-full'>
                   <Input.Wrapper>
                     <Input.Input
-                      value={editingItems[brand.id]?.name || ''}
+                      value={editingItems[partNumber.id]?.name || ''}
                       onChange={(e) =>
-                        handleFieldChange(brand.id, 'name', e.target.value)
+                        handleFieldChange(partNumber.id, 'name', e.target.value)
                       }
+                      maxLength={36}
                     />
                   </Input.Wrapper>
                 </Input.Root>
               ) : (
-                <span className='font-medium'>{brand.name}</span>
-              )}
-            </Table.Cell>
-          );
-        },
-      },
-      {
-        accessorKey: 'type',
-        header: ({ column }) => (
-          <div className='flex items-center gap-0.5'>
-            Type
-            <button
-              type='button'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-            >
-              {getSortingIcon(column.getIsSorted())}
-            </button>
-          </div>
-        ),
-        cell: ({ row }) => {
-          const brand = row.original;
-          return (
-            <Table.Cell>
-              {isEditing(brand.id) ? (
-                <Select
-                  value={editingItems[brand.id]?.type || ''}
-                  onValueChange={(value) =>
-                    handleFieldChange(brand.id, 'type', value)
-                  }
-                >
-                  <SelectTrigger className='w-full'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='machine'>
-                      <div className='flex items-center gap-2'>
-                        <RiSettings3Line className='size-4' />
-                        Machine
-                      </div>
-                    </SelectItem>
-                    <SelectItem value='sparepart'>
-                      <div className='flex items-center gap-2'>
-                        <RiToolsLine className='size-4' />
-                        Sparepart
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className='text-sm text-gray-600 flex items-center gap-2 capitalize'>
-                  {brand.type === 'machine' ? (
-                    <RiSettings3Line className='size-5' />
-                  ) : (
-                    <RiToolsLine className='size-5' />
-                  )}
-                  {brand.type}
-                </div>
+                <span className='font-medium'>{partNumber.name}</span>
               )}
             </Table.Cell>
           );
@@ -341,15 +264,15 @@ export function BrandsTable() {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => {
-          const brand = row.original;
+          const partNumber = row.original;
           return (
             <Table.Cell>
               <div className='flex items-center gap-2'>
-                {isEditing(brand.id) ? (
+                {isEditing(partNumber.id) ? (
                   <>
                     <Button
                       size='small'
-                      onClick={() => handleSave(brand.id)}
+                      onClick={() => handleSave(partNumber.id)}
                       disabled={updateMutation.isPending}
                     >
                       <RiSaveLine className='size-4' />
@@ -357,7 +280,7 @@ export function BrandsTable() {
                     <Button
                       size='small'
                       mode='stroke'
-                      onClick={() => handleCancel(brand.id)}
+                      onClick={() => handleCancel(partNumber.id)}
                     >
                       <RiCloseLine className='size-4' />
                     </Button>
@@ -368,7 +291,7 @@ export function BrandsTable() {
                       <Button
                         size='small'
                         mode='stroke'
-                        onClick={() => handleEdit(brand)}
+                        onClick={() => handleEdit(partNumber)}
                       >
                         <RiEditLine className='size-4' />
                       </Button>
@@ -377,7 +300,7 @@ export function BrandsTable() {
                       <Button
                         size='small'
                         mode='stroke'
-                        onClick={() => handleDelete(brand.id)}
+                        onClick={() => handleDelete(partNumber.id)}
                         disabled={deleteMutation.isPending}
                       >
                         <RiDeleteBinLine className='size-4' />
@@ -406,7 +329,7 @@ export function BrandsTable() {
 
   // Initialize table
   const table = useReactTable({
-    data: brands,
+    data: partNumbers,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -417,17 +340,19 @@ export function BrandsTable() {
   });
 
   if (isLoading) {
-    return <div className='flex justify-center py-8'>Loading brands...</div>;
+    return (
+      <div className='flex justify-center py-8'>Loading part numbers...</div>
+    );
   }
 
   return (
     <div className='space-y-4 py-4'>
       <div className='flex items-center justify-between'>
-        <p className='text-sm text-gray-600'>Manage product brands</p>
+        <p className='text-sm text-gray-600'>Manage part numbers</p>
         <PermissionGate permission='products:create'>
           <Button onClick={handleAdd} className='flex items-center gap-2'>
             <RiAddLine className='size-4' />
-            Add Brand
+            Add Part Number
           </Button>
         </PermissionGate>
       </div>
@@ -466,36 +391,11 @@ export function BrandsTable() {
                         onChange={(e) =>
                           handleFieldChange(item.id, 'name', e.target.value)
                         }
-                        placeholder='Enter brand name'
+                        placeholder='Enter part number name'
+                        maxLength={36}
                       />
                     </Input.Wrapper>
                   </Input.Root>
-                </Table.Cell>
-                <Table.Cell>
-                  <Select
-                    value={item.type}
-                    onValueChange={(value) =>
-                      handleFieldChange(item.id, 'type', value)
-                    }
-                  >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='machine'>
-                        <div className='flex items-center gap-2'>
-                          <RiSettings3Line className='size-4' />
-                          Machine
-                        </div>
-                      </SelectItem>
-                      <SelectItem value='sparepart'>
-                        <div className='flex items-center gap-2'>
-                          <RiToolsLine className='size-4' />
-                          Sparepart
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
                 </Table.Cell>
                 <Table.Cell>
                   <div className='flex gap-2'>
@@ -529,16 +429,18 @@ export function BrandsTable() {
             </Table.Row>
           ))}
 
-          {brands.length === 0 && Object.keys(editingItems).length === 0 && (
-            <Table.Row>
-              <Table.Cell
-                colSpan={3}
-                className='text-gray-500 py-8 text-center'
-              >
-                No brands found. Click &apos;Add Brand&apos; to create one.
-              </Table.Cell>
-            </Table.Row>
-          )}
+          {partNumbers.length === 0 &&
+            Object.keys(editingItems).length === 0 && (
+              <Table.Row>
+                <Table.Cell
+                  colSpan={2}
+                  className='text-gray-500 py-8 text-center'
+                >
+                  No part numbers found. Click &apos;Add Part Number&apos; to
+                  create one.
+                </Table.Cell>
+              </Table.Row>
+            )}
         </Table.Body>
       </Table.Root>
     </div>

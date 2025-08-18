@@ -25,7 +25,13 @@ export function Warehouses({ initialFilters }: WarehousesProps) {
 
   const { data, isLoading, error } = useWarehouses(filters);
 
-  const handleFilterChange = (newFilters: Parameters<NonNullable<React.ComponentProps<typeof WarehousesFilters>['onFiltersChange']>>[0]) => {
+  const handleFilterChange = (
+    newFilters: Parameters<
+      NonNullable<
+        React.ComponentProps<typeof WarehousesFilters>['onFiltersChange']
+      >
+    >[0],
+  ) => {
     setFilters({
       ...newFilters,
       page: newFilters.page ?? 1,

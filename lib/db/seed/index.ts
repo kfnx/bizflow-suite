@@ -9,6 +9,8 @@ import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
 import { importItems, imports } from './imports';
 import { invoiceItems, invoices } from './invoices';
 import { machineTypes } from './machine-types';
+import { modelNumbers } from './model-number';
+import { partNumbers } from './part-number';
 import { permissions, rolePermissions, roles, userRoles } from './permissions';
 import { products } from './products';
 import { quotationItems, quotations } from './quotations';
@@ -69,6 +71,18 @@ async function main() {
     schema.machineTypes,
     machineTypes,
     'machine types',
+  );
+
+  await insertWithErrorHandling(
+    schema.modelNumbers,
+    modelNumbers,
+    'model numbers',
+  );
+
+  await insertWithErrorHandling(
+    schema.partNumbers,
+    partNumbers,
+    'part numbers',
   );
 
   await insertWithErrorHandling(

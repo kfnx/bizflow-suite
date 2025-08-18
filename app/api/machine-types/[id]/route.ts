@@ -29,6 +29,13 @@ export async function PUT(
       );
     }
 
+    if (name.trim().length > 36) {
+      return NextResponse.json(
+        { error: 'Machine type name must be 36 characters or less' },
+        { status: 400 },
+      );
+    }
+
     // Check if machine type exists
     const existingMachineType = await db
       .select()

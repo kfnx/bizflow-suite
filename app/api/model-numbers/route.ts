@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { asc, desc, eq, like, or } from 'drizzle-orm';
+import { asc, desc, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { machineTypes } from '@/lib/db/schema';
+import { modelNumbers } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
+
+// Helper function to create slug from name
+function createSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
 
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'products:read');
@@ -21,7 +29,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || undefined;
     const sortBy = searchParams.get('sortBy') || undefined;
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100'); // Default higher limit for dropdown usage
+    const limit = parseInt(searchParams.get('limit') || '100');
 
     const offset = (page - 1) * limit;
 
@@ -29,37 +37,37 @@ export async function GET(request: NextRequest) {
     const conditions = [];
 
     if (search) {
-      conditions.push(like(machineTypes.name, `%${search}%`));
+      conditions.push(like(modelNumbers.name, `%${search}%`));
     }
 
     // Build order by clause
-    let orderByClause = desc(machineTypes.createdAt); // Default newest first
+    let orderByClause = desc(modelNumbers.createdAt);
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':
-          orderByClause = asc(machineTypes.name);
+          orderByClause = asc(modelNumbers.name);
           break;
         case 'name-desc':
-          orderByClause = desc(machineTypes.name);
+          orderByClause = desc(modelNumbers.name);
           break;
         case 'created-asc':
-          orderByClause = asc(machineTypes.createdAt);
+          orderByClause = asc(modelNumbers.createdAt);
           break;
         case 'created-desc':
-          orderByClause = desc(machineTypes.createdAt);
+          orderByClause = desc(modelNumbers.createdAt);
           break;
         default:
-          orderByClause = desc(machineTypes.createdAt);
+          orderByClause = desc(modelNumbers.createdAt);
       }
     }
 
-    // Fetch machine types
-    const machineTypesData = await db
+    // Fetch model numbers
+    const modelNumbersData = await db
       .select({
-        id: machineTypes.id,
-        name: machineTypes.name,
+        id: modelNumbers.id,
+        name: modelNumbers.name,
       })
-      .from(machineTypes)
+      .from(modelNumbers)
       .where(conditions.length > 0 ? or(...conditions) : undefined)
       .orderBy(orderByClause)
       .limit(limit)
@@ -67,14 +75,14 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     const totalCountResult = await db
-      .select({ count: machineTypes.id })
-      .from(machineTypes)
+      .select({ count: modelNumbers.id })
+      .from(modelNumbers)
       .where(conditions.length > 0 ? or(...conditions) : undefined);
 
     const totalCount = totalCountResult.length;
 
     return NextResponse.json({
-      data: machineTypesData,
+      data: modelNumbersData,
       pagination: {
         page,
         limit,
@@ -83,9 +91,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching machine types:', error);
+    console.error('Error fetching model numbers:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch machine types' },
+      { error: 'Failed to fetch model numbers' },
       { status: 500 },
     );
   }
@@ -105,54 +113,55 @@ export async function POST(request: NextRequest) {
     // Basic validation
     if (!name?.trim()) {
       return NextResponse.json(
-        { error: 'Machine type name is required' },
+        { error: 'Model number name is required' },
         { status: 400 },
       );
     }
 
     if (name.trim().length > 36) {
       return NextResponse.json(
-        { error: 'Machine type name must be 36 characters or less' },
+        { error: 'Model number name must be 36 characters or less' },
         { status: 400 },
       );
     }
 
-    // Check if machine type with same name already exists
-    const existingMachineType = await db
-      .select({ id: machineTypes.id, name: machineTypes.name })
-      .from(machineTypes)
-      .where(eq(machineTypes.name, name.trim()))
+    // Check if model number with same name already exists
+    const existingModelNumber = await db
+      .select({ id: modelNumbers.id, name: modelNumbers.name })
+      .from(modelNumbers)
+      .where(like(modelNumbers.name, name.trim()))
       .limit(1);
 
-    if (existingMachineType.length > 0) {
+    if (existingModelNumber.length > 0) {
       return NextResponse.json(
         {
-          error: 'Machine type with this name already exists',
-          details: `A machine type named "${existingMachineType[0].name}" already exists`,
+          error: 'Model number with this name already exists',
+          details: `A model number named "${existingModelNumber[0].name}" already exists`,
         },
         { status: 409 },
       );
     }
 
-    // Create machine type
-    const newMachineType = {
-      id: crypto.randomUUID(),
+    // Create model number with slugified ID
+    const modelNumberId = createSlug(name.trim());
+    const newModelNumber = {
+      id: modelNumberId,
       name: name.trim(),
     };
 
-    await db.insert(machineTypes).values(newMachineType);
+    await db.insert(modelNumbers).values(newModelNumber);
 
     return NextResponse.json(
       {
-        message: 'Machine type created successfully',
-        data: newMachineType,
+        message: 'Model number created successfully',
+        data: newModelNumber,
       },
       { status: 201 },
     );
   } catch (error) {
-    console.error('Error creating machine type:', error);
+    console.error('Error creating model number:', error);
     return NextResponse.json(
-      { error: 'Failed to create machine type' },
+      { error: 'Failed to create model number' },
       { status: 500 },
     );
   }

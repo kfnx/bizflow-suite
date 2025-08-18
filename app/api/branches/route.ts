@@ -115,6 +115,13 @@ export async function POST(request: NextRequest) {
 
     const name = body.name.trim();
 
+    if (name.length > 36) {
+      return NextResponse.json(
+        { error: 'Branch name must be 36 characters or less' },
+        { status: 400 },
+      );
+    }
+
     // Check if branch already exists
     const existingBranch = await db
       .select()

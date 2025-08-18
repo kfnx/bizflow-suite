@@ -684,6 +684,18 @@ export const unitOfMeasures = mysqlTable('unit_of_measures', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const partNumbers = mysqlTable('part_numbers', {
+  id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  name: varchar('name', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const modelNumbers = mysqlTable('model_numbers', {
+  id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  name: varchar('name', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // Imports table
 export const imports = mysqlTable(
   'imports',
@@ -1491,14 +1503,16 @@ export type ImportItem = typeof importItems.$inferSelect;
 export type InsertImportItem = typeof importItems.$inferInsert;
 export type WarehouseStock = typeof warehouseStocks.$inferSelect;
 export type InsertWarehouseStock = typeof warehouseStocks.$inferInsert;
-
 export type Transfer = typeof transfers.$inferSelect;
 export type InsertTransfer = typeof transfers.$inferInsert;
 export type TransferItem = typeof transferItems.$inferSelect;
 export type InsertTransferItem = typeof transferItems.$inferInsert;
-
 export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
 export type InsertPurchaseOrder = typeof purchaseOrders.$inferInsert;
+export type PartNumber = typeof partNumbers.$inferSelect;
+export type InsertPartNumber = typeof partNumbers.$inferInsert;
+export type ModelNumber = typeof modelNumbers.$inferSelect;
+export type InsertModelNumber = typeof modelNumbers.$inferInsert;
 
 // Roles and Permissions types
 export type Role = typeof roles.$inferSelect;

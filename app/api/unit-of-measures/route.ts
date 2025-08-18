@@ -122,6 +122,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (name.trim().length > 36) {
+      return NextResponse.json(
+        { error: 'Unit of measure name must be 36 characters or less' },
+        { status: 400 },
+      );
+    }
+
     if (!abbreviation?.trim()) {
       return NextResponse.json(
         { error: 'Unit of measure abbreviation is required' },

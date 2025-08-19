@@ -88,16 +88,15 @@ const styles = StyleSheet.create({
 
   // Quotation Details Section
   detailsSection: {
+    justifyContent: 'space-between',
     flexDirection: 'row',
     padding: '0 30px 10px',
   },
   leftColumn: {
-    flex: 1,
-    paddingRight: 20,
+    flex: 2,
   },
   rightColumn: {
     flex: 1,
-    paddingLeft: 20,
   },
   detailRow: {
     flexDirection: 'row',
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontWeight: 'bold',
-    width: 120,
+    minWidth: 100,
   },
   detailLabelSoft: {
     width: 180,
@@ -424,22 +423,22 @@ export const QuotationPDFContent = ({
         </View>
         <View style={styles.rightColumn}>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Quotation Number:</Text>
+            <Text style={styles.detailLabel}>Quotation Number</Text>
             <Text style={styles.detailValue}>
-              {data.quotationNumber ||
+              : {data.quotationNumber ||
                 (mode === 'preview' ? 'Auto-generated' : '-')}
             </Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Date:</Text>
+            <Text style={styles.detailLabel}>Date</Text>
             <Text style={styles.detailValue}>
-              {formatDateForDisplay(data.quotationDate)}
+              : {formatDateForDisplay(data.quotationDate)}
             </Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Valid Until:</Text>
+            <Text style={styles.detailLabel}>Valid Until</Text>
             <Text style={styles.detailValue}>
-              {formatDateForDisplay(data.validUntil)}
+              : {formatDateForDisplay(data.validUntil)}
             </Text>
           </View>
         </View>

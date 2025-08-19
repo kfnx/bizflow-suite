@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 30,
+    marginBottom: 20,
     paddingHorizontal: 30,
   },
   logoSection: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
 
   // Recipient Section
   recipientSection: {
-    marginBottom: 30,
+    marginBottom: 20,
     paddingHorizontal: 30,
   },
   recipientTitle: {
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
 
   // Items Table Section
   tableSection: {
-    marginBottom: 30,
+    marginBottom: 20,
     paddingHorizontal: 30,
   },
   table: {
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableHeaderCell: {
-    padding: 6,
+    padding: 4,
     fontWeight: 'bold',
     textAlign: 'left',
     borderRightWidth: 1,
@@ -127,21 +127,21 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   productCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   descriptionCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
@@ -149,35 +149,35 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   serialCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   partNumberCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   unitModelCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   engineNumberCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
   },
   remarksCell: {
-    padding: 6,
+    padding: 4,
     textAlign: 'left',
     fontSize: 9,
   },
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   signatureTitle: {
     fontSize: 10,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 20,
     textAlign: 'center',
   },
   signatureLine: {

@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '100%',
     height: 80,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   content: {
     padding: '10px 30px 10px',
@@ -101,14 +101,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 20,
     textTransform: 'uppercase',
   },
 
   // Main Content Section
   mainContent: {
     flexDirection: 'row',
-    marginBottom: 30,
+    marginBottom: 10,
   },
 
   // Left Column - Recipient Info
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   recipientSection: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 12,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
   },
   invoiceDetails: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   detailRow: {
     flexDirection: 'row',
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 
   // Items Table
   tableSection: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   table: {
     borderWidth: 1,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableHeaderCell: {
-    padding: 8,
+    padding: 4,
     fontWeight: 'bold',
     textAlign: 'center',
     borderRightWidth: 1,
@@ -189,23 +189,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   numberCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     fontSize: 9,
-    width: 30,
+    width: 35,
   },
   descriptionCell: {
-    padding: 8,
-    textAlign: 'left',
-    borderRightWidth: 1,
-    borderRightColor: '#000000',
-    flex: 2,
-    fontSize: 9,
-  },
-  serialCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
@@ -213,15 +205,15 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   quantityCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    width: 30,
+    width: 35,
     fontSize: 9,
   },
   priceCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'right',
     borderRightWidth: 1,
     borderRightColor: '#000000',
@@ -229,7 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   totalCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'right',
     width: 120,
     fontSize: 9,
@@ -238,7 +230,7 @@ const styles = StyleSheet.create({
   // Summary Section
   summarySection: {
     alignItems: 'flex-end',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -269,7 +261,7 @@ const styles = StyleSheet.create({
   thankYouSection: {
     textAlign: 'center',
     marginTop: 10,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   thankYouText: {
     fontSize: 14,
@@ -366,16 +358,6 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
 });
-
-const formatCurrency = (amount: string | number) => {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(num);
-};
 
 const formatNumber = (amount: string | number) => {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -556,9 +538,6 @@ export const InvoicePDFContent = ({
                 No.
               </Text>
               <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
-                Serial No.
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
                 Description
               </Text>
               <Text
@@ -607,9 +586,6 @@ export const InvoicePDFContent = ({
                 return (
                   <View key={item.productId || index} style={styles.tableRow}>
                     <Text style={styles.numberCell}>{index + 1}</Text>
-                    <Text style={styles.serialCell}>
-                      {item.serialNumber || item.partNumber || 'N/A'}
-                    </Text>
                     <View style={styles.descriptionCell}>
                       <Text>{item.name}</Text>
                       <Text style={{ fontSize: 8, color: '#666666' }}>

@@ -89,8 +89,7 @@ const styles = StyleSheet.create({
   // Quotation Details Section
   detailsSection: {
     flexDirection: 'row',
-    padding: '0 30px',
-    marginBottom: 20,
+    padding: '0 30px 10px',
   },
   leftColumn: {
     flex: 1,
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
   // Items Table
   tableSection: {
     padding: '0 30px',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   table: {
     borderWidth: 1,
@@ -131,7 +130,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableHeaderCell: {
-    padding: 8,
+    padding: 4,
     fontWeight: 'bold',
     textAlign: 'center',
     borderRightWidth: 1,
@@ -143,34 +142,33 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
   },
   tableCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000000',
   },
   descriptionCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'left',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     flex: 2,
   },
   quantityCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    width: 60,
   },
   priceCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'right',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     width: 120,
   },
   totalCell: {
-    padding: 8,
+    padding: 4,
     textAlign: 'right',
     width: 120,
   },
@@ -182,12 +180,12 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#666666',
     marginLeft: 10,
+    marginBottom: 5
   },
 
   // Summary Section
   summarySection: {
     padding: '0 30px',
-    marginBottom: 20,
     alignItems: 'flex-end',
   },
   summaryRow: {
@@ -215,12 +213,12 @@ const styles = StyleSheet.create({
   // Terms Section
   termsSection: {
     padding: '0 30px',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   termsTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 4,
   },
   termsList: {
     marginLeft: 20,
@@ -236,7 +234,7 @@ const styles = StyleSheet.create({
   preparedBySection: {
     flexDirection: 'row',
     padding: '0 30px',
-    marginBottom: 30,
+    marginBottom: 15,
   },
   preparedByText: {
     fontWeight: 'bold',
@@ -257,8 +255,8 @@ const styles = StyleSheet.create({
   signatureLine: {
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
-    height: 30,
-    marginBottom: 10,
+    height: 25,
+    marginBottom: 5,
   },
   signatureName: {
     fontWeight: 'bold',
@@ -317,6 +315,11 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
 });
+
+const tableWidth = {
+  number: 35,
+  quantity: 35,
+}
 
 const formatNumber = (amount: string | number) => {
   const num =
@@ -447,11 +450,11 @@ export const QuotationPDFContent = ({
         <View style={styles.table}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderCell, { width: 50 }]}>No.</Text>
+            <Text style={[styles.tableHeaderCell, { width: tableWidth.number }]}>No.</Text>
             <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
               Description
             </Text>
-            <Text style={[styles.tableHeaderCell, { width: 60 }]}>Qty</Text>
+            <Text style={[styles.tableHeaderCell, { width: tableWidth.quantity }]}>Qty</Text>
             <Text style={[styles.tableHeaderCell, { width: 120 }]}>
               Unit Price (Rp.)
             </Text>
@@ -470,8 +473,8 @@ export const QuotationPDFContent = ({
               const unitPrice =
                 typeof item.unitPrice === 'string'
                   ? parseFloat(
-                      item.unitPrice.replace(/\./g, '').replace(',', '.'),
-                    )
+                    item.unitPrice.replace(/\./g, '').replace(',', '.'),
+                  )
                   : item.unitPrice;
               const quantity =
                 typeof item.quantity === 'string'
@@ -481,7 +484,7 @@ export const QuotationPDFContent = ({
 
               return (
                 <View key={item.id || index} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { width: 50 }]}>
+                  <Text style={[styles.tableCell, { width: tableWidth.number }]}>
                     {index + 1}
                   </Text>
                   <View style={styles.descriptionCell}>
@@ -494,7 +497,7 @@ export const QuotationPDFContent = ({
                       </Text>
                     )}
                   </View>
-                  <Text style={styles.quantityCell}>{quantity}</Text>
+                  <Text style={[styles.quantityCell, { width: tableWidth.quantity }]}>{quantity}</Text>
                   <Text style={styles.priceCell}>
                     {formatNumber(unitPrice || 0)}
                   </Text>
@@ -529,45 +532,8 @@ export const QuotationPDFContent = ({
       {/* Terms and Conditions */}
       <View style={styles.termsSection}>
         <Text style={styles.termsTitle}>Terms and Conditions:</Text>
-        {data.termsAndConditions ? (
+        {data.termsAndConditions && (
           <Text>{data.termsAndConditions}</Text>
-        ) : (
-          <View style={styles.termsList}>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>Franco Jakarta</Text>
-            </View>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>
-                Pembayaran: 30% Down Payment; 70% Pelunasan, bagi 3 bulan
-              </Text>
-            </View>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>Free Jasa service 3x (250, 500 and 1000 jam).</Text>
-            </View>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>Free Filter 1x untuk service 250 jam.</Text>
-            </View>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>
-                Warranty 12 bulan atau 2000 HM (yang tercapai dahulu).
-              </Text>
-            </View>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>
-                Penawaran berlaku selama 14 hari dari tenggal penawaran
-              </Text>
-            </View>
-            <View style={styles.termItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text>Ready stok selama belum terjual</Text>
-            </View>
-          </View>
         )}
       </View>
 

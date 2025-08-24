@@ -3,9 +3,9 @@
 import { useState } from 'react';
 
 import { useTransfers } from '@/hooks/use-transfers';
-import { TransferPreviewDrawer } from '@/components/transfer-preview-drawer';
-import { TransfersFilters } from '@/components/transfers-filters';
-import { TransfersTable } from '@/components/transfers-table';
+import { TransferPreviewDrawer } from '@/components/transfers/transfer-preview-drawer';
+import { TransfersFilters } from '@/components/transfers/transfers-filters';
+import { TransfersTable } from '@/components/transfers/transfers-table';
 
 interface TransfersProps {
   initialFilters: {

@@ -46,6 +46,7 @@ export default function AuthHeader() {
   return (
     <div className='mx-auto flex w-full max-w-[1400px] items-center justify-between p-6'>
       <div className='p-2 text-label-md'>MySTI</div>
+      <img src='/logo.png' alt='logo' className='h-8 w-8' />
 
       <div className='flex items-center gap-1.5'>
         <div className='text-paragraph-sm text-text-sub-600'>{action.text}</div>

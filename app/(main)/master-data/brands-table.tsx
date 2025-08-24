@@ -237,7 +237,10 @@ export function BrandsTable() {
   );
 
   const brands = data || [];
-  const isEditing = useCallback((id: string) => id in editingItems, [editingItems]);
+  const isEditing = useCallback(
+    (id: string) => id in editingItems,
+    [editingItems],
+  );
 
   // Define columns
   const columns = useMemo<ColumnDef<Brand>[]>(
@@ -444,9 +447,9 @@ export function BrandsTable() {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

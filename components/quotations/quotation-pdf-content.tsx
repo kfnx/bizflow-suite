@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#666666',
     marginLeft: 10,
-    marginBottom: 5
+    marginBottom: 5,
   },
 
   // Summary Section
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
 const tableWidth = {
   number: 35,
   quantity: 35,
-}
+};
 
 const formatNumber = (amount: string | number) => {
   const num =
@@ -425,7 +425,8 @@ export const QuotationPDFContent = ({
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Quotation Number</Text>
             <Text style={styles.detailValue}>
-              : {data.quotationNumber ||
+              :{' '}
+              {data.quotationNumber ||
                 (mode === 'preview' ? 'Auto-generated' : '-')}
             </Text>
           </View>
@@ -449,11 +450,19 @@ export const QuotationPDFContent = ({
         <View style={styles.table}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderCell, { width: tableWidth.number }]}>No.</Text>
+            <Text
+              style={[styles.tableHeaderCell, { width: tableWidth.number }]}
+            >
+              No.
+            </Text>
             <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
               Description
             </Text>
-            <Text style={[styles.tableHeaderCell, { width: tableWidth.quantity }]}>Qty</Text>
+            <Text
+              style={[styles.tableHeaderCell, { width: tableWidth.quantity }]}
+            >
+              Qty
+            </Text>
             <Text style={[styles.tableHeaderCell, { width: 120 }]}>
               Unit Price (Rp.)
             </Text>
@@ -472,8 +481,8 @@ export const QuotationPDFContent = ({
               const unitPrice =
                 typeof item.unitPrice === 'string'
                   ? parseFloat(
-                    item.unitPrice.replace(/\./g, '').replace(',', '.'),
-                  )
+                      item.unitPrice.replace(/\./g, '').replace(',', '.'),
+                    )
                   : item.unitPrice;
               const quantity =
                 typeof item.quantity === 'string'
@@ -483,7 +492,9 @@ export const QuotationPDFContent = ({
 
               return (
                 <View key={item.id || index} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { width: tableWidth.number }]}>
+                  <Text
+                    style={[styles.tableCell, { width: tableWidth.number }]}
+                  >
                     {index + 1}
                   </Text>
                   <View style={styles.descriptionCell}>
@@ -496,7 +507,14 @@ export const QuotationPDFContent = ({
                       </Text>
                     )}
                   </View>
-                  <Text style={[styles.quantityCell, { width: tableWidth.quantity }]}>{quantity}</Text>
+                  <Text
+                    style={[
+                      styles.quantityCell,
+                      { width: tableWidth.quantity },
+                    ]}
+                  >
+                    {quantity}
+                  </Text>
                   <Text style={styles.priceCell}>
                     {formatNumber(unitPrice || 0)}
                   </Text>
@@ -531,9 +549,7 @@ export const QuotationPDFContent = ({
       {/* Terms and Conditions */}
       <View style={styles.termsSection}>
         <Text style={styles.termsTitle}>Terms and Conditions:</Text>
-        {data.termsAndConditions && (
-          <Text>{data.termsAndConditions}</Text>
-        )}
+        {data.termsAndConditions && <Text>{data.termsAndConditions}</Text>}
       </View>
 
       {/* Notes */}

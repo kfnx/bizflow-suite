@@ -217,7 +217,10 @@ export function PartNumbersTable() {
   );
 
   const partNumbers = data || [];
-  const isEditing = useCallback((id: string) => id in editingItems, [editingItems]);
+  const isEditing = useCallback(
+    (id: string) => id in editingItems,
+    [editingItems],
+  );
 
   // Define columns
   const columns = useMemo<ColumnDef<PartNumber>[]>(
@@ -369,9 +372,9 @@ export function PartNumbersTable() {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

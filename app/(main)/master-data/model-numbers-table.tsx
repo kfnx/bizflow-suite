@@ -223,7 +223,10 @@ export function ModelNumbersTable() {
   );
 
   const modelNumbers = data || [];
-  const isEditing = useCallback((id: string) => id in editingItems, [editingItems]);
+  const isEditing = useCallback(
+    (id: string) => id in editingItems,
+    [editingItems],
+  );
 
   // Define columns
   const columns = useMemo<ColumnDef<ModelNumber>[]>(
@@ -379,9 +382,9 @@ export function ModelNumbersTable() {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

@@ -220,7 +220,9 @@ export function SidebarHeader({
           {collapsed ? (
             <div className='px-5 text-label-md'>STI</div>
           ) : (
-            <div className='px-4 text-label-xl'>MySTI</div>
+            <div className='max-w-'>
+              <img src='/logo-small.png' alt='logo' />
+            </div>
           )}
         </div>
       </Link>

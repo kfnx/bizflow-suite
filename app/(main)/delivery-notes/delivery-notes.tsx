@@ -7,7 +7,7 @@ import { useDeliveryNotes } from '@/hooks/use-delivery-notes';
 import {
   DeliveryNotesTable,
   DeliveryNotesTablePagination,
-} from '@/components/delivery-notes-table';
+} from '@/components/delivery-notes/delivery-notes-table';
 
 import { Filters, type DeliveryNotesFilters } from './filters';
 

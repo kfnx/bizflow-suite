@@ -5,8 +5,8 @@ import { RiBuildingLine } from '@remixicon/react';
 
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
-import { SupplierPreviewDrawer } from '@/components/supplier-preview-drawer';
-import { SuppliersTable } from '@/components/suppliers-table';
+import { SupplierPreviewDrawer } from '@/components/suppliers/supplier-preview-drawer';
+import { SuppliersTable } from '@/components/suppliers/suppliers-table';
 
 import { Filters, type SuppliersFilters } from './filters';
 

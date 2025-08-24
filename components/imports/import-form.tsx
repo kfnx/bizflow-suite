@@ -320,7 +320,11 @@ function ProductItemForm({
               disabled={!modelNumbers}
             >
               <Select.Trigger id={`modelNumber-${index}`}>
-                <Select.Value placeholder={!modelNumbers ? "Loading..." : 'Select model number'} />
+                <Select.Value
+                  placeholder={
+                    !modelNumbers ? 'Loading...' : 'Select model number'
+                  }
+                />
               </Select.Trigger>
               <Select.Content>
                 {modelNumbers.map((modelNumber) => (
@@ -416,7 +420,11 @@ year 2023`}
               disabled={!partNumbers}
             >
               <Select.Trigger id={`modelPartNumber-${index}`}>
-                <Select.Value placeholder={!partNumbers ? "Loading..." : 'Select part number'} />
+                <Select.Value
+                  placeholder={
+                    !partNumbers ? 'Loading...' : 'Select part number'
+                  }
+                />
               </Select.Trigger>
               <Select.Content>
                 {partNumbers.map((partNumber) => (
@@ -614,8 +622,12 @@ export function ImportForm({
   const updateImportMutation = useUpdateImport();
   const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
   const [unitOfMeasures, setUnitOfMeasures] = useState<UnitOfMeasure[]>([]);
-  const [partNumbers, setPartNumbers] = useState<{ id: string; name: string }[]>([]);
-  const [modelNumbers, setModelNumbers] = useState<{ id: string; name: string }[]>([]);
+  const [partNumbers, setPartNumbers] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [modelNumbers, setModelNumbers] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   // Create empty product item
   function createEmptyProductItem(): ProductItem {
@@ -713,7 +725,12 @@ export function ImportForm({
   useEffect(() => {
     const loadReferenceData = async () => {
       try {
-        const [machineTypesRes, unitOfMeasuresRes, partNumbersRes, modelNumbersRes] = await Promise.all([
+        const [
+          machineTypesRes,
+          unitOfMeasuresRes,
+          partNumbersRes,
+          modelNumbersRes,
+        ] = await Promise.all([
           fetch('/api/machine-types?limit=1000'),
           fetch('/api/unit-of-measures?limit=1000'),
           fetch('/api/part-numbers?limit=1000'),

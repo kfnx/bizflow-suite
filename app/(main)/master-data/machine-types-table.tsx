@@ -223,7 +223,10 @@ export function MachineTypesTable() {
   );
 
   const machineTypes = data || [];
-  const isEditing = useCallback((id: string) => id in editingItems, [editingItems]);
+  const isEditing = useCallback(
+    (id: string) => id in editingItems,
+    [editingItems],
+  );
 
   // Define columns
   const columns = useMemo<ColumnDef<MachineType>[]>(
@@ -382,9 +385,9 @@ export function MachineTypesTable() {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </Table.Head>
               ))}
             </Table.Row>

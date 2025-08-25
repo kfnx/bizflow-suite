@@ -44,6 +44,7 @@ export function usePermissions() {
       user ? canCreateRole(user, targetRole) : false,
 
     // Get available roles for creation
-    getAvailableRolesForCreation: () => getAvailableRolesForCreation(userRole),
+    getAvailableRolesForCreation: () =>
+      getAvailableRolesForCreation(userRole, !!user?.isAdmin),
   };
 }

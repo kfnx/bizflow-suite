@@ -241,7 +241,12 @@ export function canCreateRole(user: User, targetRole: string): boolean {
 }
 
 // Get available roles for creation based on user's role
-export function getAvailableRolesForCreation(userRole: string): string[] {
+export function getAvailableRolesForCreation(
+  userRole: string,
+  isAdmin: boolean,
+): string[] {
+  if (isAdmin) return ['staff', 'import-manager', 'manager', 'director'];
+
   switch (userRole) {
     case 'director':
       return ['staff', 'import-manager', 'manager', 'director'];

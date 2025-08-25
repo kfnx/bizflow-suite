@@ -220,7 +220,7 @@ export function SidebarHeader({
           {collapsed ? (
             <div className='px-5 text-label-md'>STI</div>
           ) : (
-            <div className='max-w-'>
+            <div className='p-2'>
               <img src='/logo-small.png' alt='logo' />
             </div>
           )}

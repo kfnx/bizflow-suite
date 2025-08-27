@@ -5,6 +5,7 @@ import { RiBarChart2Line } from '@remixicon/react';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import SplitText from '@/components/split-text';
+import { SummaryCountCards } from '@/components/summary-count-cards';
 
 export default function PageHome() {
   return (
@@ -33,12 +34,15 @@ export default function PageHome() {
           />
           <ActionButton size='small' label='New Import' href='/imports/new' />
         </div>
-        <div className='flex'>
-          {/*  */}
+
+        {/* Summary Count Cards */}
+        <div className='mt-8 w-full max-w-6xl'>
+          <SummaryCountCards />
         </div>
+
         <SplitText
           text='Hello, Welcome to MySTI!'
-          className='mt-20 text-center text-title-h2 font-semibold'
+          className='mt-16 text-center text-title-h2 font-semibold'
           delay={75}
           duration={1}
           ease='bounce.out'

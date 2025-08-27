@@ -2,6 +2,7 @@
 
 import { RiBarChart2Line } from '@remixicon/react';
 
+import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import SplitText from '@/components/split-text';
 
@@ -18,6 +19,23 @@ export default function PageHome() {
         description='Welcome back 👋🏻'
       />
       <div className='flex h-screen flex-col items-center'>
+        <div className='flex w-full justify-end gap-4 px-16'>
+          <ActionButton
+            size='small'
+            label='New Quotation'
+            href='/quotations/new'
+          />
+          <ActionButton size='small' label='New Invoice' href='/invoices/new' />
+          <ActionButton
+            size='small'
+            label='New Delivery'
+            href='/delivery-notes/new'
+          />
+          <ActionButton size='small' label='New Import' href='/imports/new' />
+        </div>
+        <div className='flex'>
+          {/*  */}
+        </div>
         <SplitText
           text='Hello, Welcome to MySTI!'
           className='mt-20 text-center text-title-h2 font-semibold'

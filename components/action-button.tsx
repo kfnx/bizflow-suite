@@ -10,14 +10,16 @@ export function ActionButton({
   className,
   label,
   href,
+  size = 'medium',
 }: {
   className?: string;
   label: string;
   href: string;
+  size?: 'small' | 'medium' | 'xsmall' | 'xxsmall';
 }) {
   return (
     <Link href={href}>
-      <Button.Root className={cn('rounded-xl', className)}>
+      <Button.Root className={cn('rounded-xl', className)} size={size}>
         <Button.Icon as={RiAddLine} />
         {label}
       </Button.Root>

@@ -36,6 +36,13 @@
       "when": 1755512461881,
       "tag": "0004_slippery_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1756345536220,
+      "tag": "0005_dark_moon_knight",
+      "breakpoints": true
     }
   ]
 }

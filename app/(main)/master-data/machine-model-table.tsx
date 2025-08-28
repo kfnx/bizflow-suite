@@ -52,12 +52,12 @@ export function ModelNumbersTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const newItemIdRef = useRef(0);
 
-  // Fetch model numbers
+  // Fetch machine model
   const { data, isLoading } = useQuery({
-    queryKey: ['model-numbers'],
+    queryKey: ['machine-model'],
     queryFn: async () => {
-      const response = await fetch('/api/model-numbers');
-      if (!response.ok) throw new Error('Failed to fetch model numbers');
+      const response = await fetch('/api/machine-model');
+      if (!response.ok) throw new Error('Failed to fetch machine model');
       const result = await response.json();
       return result.data as ModelNumber[];
     },
@@ -66,7 +66,7 @@ export function ModelNumbersTable() {
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async (modelNumber: { name: string }) => {
-      const response = await fetch('/api/model-numbers', {
+      const response = await fetch('/api/machine-model', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(modelNumber),
@@ -80,7 +80,7 @@ export function ModelNumbersTable() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['model-numbers'] });
+      queryClient.invalidateQueries({ queryKey: ['machine-model'] });
       toast.success('Model number created successfully');
     },
     onError: (error) => {
@@ -97,7 +97,7 @@ export function ModelNumbersTable() {
       id: string;
       name: string;
     }) => {
-      const response = await fetch(`/api/model-numbers/${id}`, {
+      const response = await fetch(`/api/machine-model/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(modelNumber),
@@ -111,7 +111,7 @@ export function ModelNumbersTable() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['model-numbers'] });
+      queryClient.invalidateQueries({ queryKey: ['machine-model'] });
       toast.success('Model number updated successfully');
     },
     onError: (error) => {
@@ -122,7 +122,7 @@ export function ModelNumbersTable() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/model-numbers/${id}`, {
+      const response = await fetch(`/api/machine-model/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -134,7 +134,7 @@ export function ModelNumbersTable() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['model-numbers'] });
+      queryClient.invalidateQueries({ queryKey: ['machine-model'] });
       toast.success('Model number deleted successfully');
     },
     onError: (error) => {
@@ -222,7 +222,7 @@ export function ModelNumbersTable() {
     [],
   );
 
-  const modelNumbers = data || [];
+  const machineModel = data || [];
   const isEditing = useCallback(
     (id: string) => id in editingItems,
     [editingItems],
@@ -342,7 +342,7 @@ export function ModelNumbersTable() {
 
   // Initialize table
   const table = useReactTable({
-    data: modelNumbers,
+    data: machineModel,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -354,14 +354,14 @@ export function ModelNumbersTable() {
 
   if (isLoading) {
     return (
-      <div className='flex justify-center py-8'>Loading model numbers...</div>
+      <div className='flex justify-center py-8'>Loading machine model...</div>
     );
   }
 
   return (
     <div className='space-y-4 py-4'>
       <div className='flex items-center justify-between'>
-        <p className='text-sm text-gray-600'>Manage model numbers</p>
+        <p className='text-sm text-gray-600'>Manage machine model</p>
         <PermissionGate permission='products:create'>
           <Button onClick={handleAdd} className='flex items-center gap-2'>
             <RiAddLine className='size-4' />
@@ -442,14 +442,14 @@ export function ModelNumbersTable() {
             </Table.Row>
           ))}
 
-          {modelNumbers.length === 0 &&
+          {machineModel.length === 0 &&
             Object.keys(editingItems).length === 0 && (
               <Table.Row>
                 <Table.Cell
                   colSpan={2}
                   className='text-gray-500 py-8 text-center'
                 >
-                  No model numbers found. Click &apos;Add Model Number&apos; to
+                  No machine model found. Click &apos;Add Model Number&apos; to
                   create one.
                 </Table.Cell>
               </Table.Row>

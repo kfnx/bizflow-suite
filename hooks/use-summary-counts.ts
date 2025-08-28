@@ -2,11 +2,16 @@
 
 import { useQuery } from '@tanstack/react-query';
 
+export type SummaryCountItem = {
+  total: number;
+  byStatus: Record<string, number>;
+};
+
 export type SummaryCountsData = {
-  quotations: number;
-  invoices: number;
-  deliveryNotes: number;
-  products: number;
+  quotations: SummaryCountItem;
+  invoices: SummaryCountItem;
+  deliveryNotes: SummaryCountItem;
+  products: SummaryCountItem;
 };
 
 const fetchSummaryCounts = async (): Promise<{ data: SummaryCountsData }> => {

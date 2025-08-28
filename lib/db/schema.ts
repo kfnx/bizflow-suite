@@ -690,7 +690,7 @@ export const partNumbers = mysqlTable('part_numbers', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const modelNumbers = mysqlTable('model_numbers', {
+export const machineModel = mysqlTable('machine_model', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
@@ -1511,8 +1511,8 @@ export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
 export type InsertPurchaseOrder = typeof purchaseOrders.$inferInsert;
 export type PartNumber = typeof partNumbers.$inferSelect;
 export type InsertPartNumber = typeof partNumbers.$inferInsert;
-export type ModelNumber = typeof modelNumbers.$inferSelect;
-export type InsertModelNumber = typeof modelNumbers.$inferInsert;
+export type ModelNumber = typeof machineModel.$inferSelect;
+export type InsertModelNumber = typeof machineModel.$inferInsert;
 
 // Roles and Permissions types
 export type Role = typeof roles.$inferSelect;

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { importItems, modelNumbers, products } from '@/lib/db/schema';
+import { importItems, machineModel, products } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,8 +39,8 @@ export async function PUT(
     // Check if model number exists
     const existingModelNumber = await db
       .select()
-      .from(modelNumbers)
-      .where(eq(modelNumbers.id, params.id))
+      .from(machineModel)
+      .where(eq(machineModel.id, params.id))
       .limit(1);
 
     if (existingModelNumber.length === 0) {
@@ -56,9 +56,9 @@ export async function PUT(
     };
 
     await db
-      .update(modelNumbers)
+      .update(machineModel)
       .set(updatedModelNumber)
-      .where(eq(modelNumbers.id, params.id));
+      .where(eq(machineModel.id, params.id));
 
     return NextResponse.json({
       message: 'Model number updated successfully',
@@ -87,8 +87,8 @@ export async function DELETE(
     // Check if model number exists
     const existingModelNumber = await db
       .select()
-      .from(modelNumbers)
-      .where(eq(modelNumbers.id, params.id))
+      .from(machineModel)
+      .where(eq(machineModel.id, params.id))
       .limit(1);
 
     if (existingModelNumber.length === 0) {
@@ -134,7 +134,7 @@ export async function DELETE(
     }
 
     // Delete model number
-    await db.delete(modelNumbers).where(eq(modelNumbers.id, params.id));
+    await db.delete(machineModel).where(eq(machineModel.id, params.id));
 
     return NextResponse.json({
       message: 'Model number deleted successfully',

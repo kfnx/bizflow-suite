@@ -69,7 +69,7 @@ Complete business document workflow with proper foreign key relationships:
 
 - `brands` - Product brands
 - `machine_types` - Equipment categories
-- `model_numbers` - Product model specifications
+- `machine_model` - Product model specifications
 - `part_numbers` - Parts catalog
 - `unit_of_measures` - Units for inventory (pcs, kg, etc.)
 

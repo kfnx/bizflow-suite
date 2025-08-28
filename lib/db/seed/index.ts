@@ -8,8 +8,8 @@ import { customerContactPersons, customers } from './customers';
 import { deliveryNoteItems, deliveryNotes } from './delivery-notes';
 import { importItems, imports } from './imports';
 import { invoiceItems, invoices } from './invoices';
+import { machineModel } from './machine-model';
 import { machineTypes } from './machine-types';
-import { modelNumbers } from './model-number';
 import { partNumbers } from './part-number';
 import { permissions, rolePermissions, roles, userRoles } from './permissions';
 import { products } from './products';
@@ -74,9 +74,9 @@ async function main() {
   );
 
   await insertWithErrorHandling(
-    schema.modelNumbers,
-    modelNumbers,
-    'model numbers',
+    schema.machineModel,
+    machineModel,
+    'machine model',
   );
 
   await insertWithErrorHandling(

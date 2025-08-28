@@ -83,7 +83,7 @@ interface ProductItemFormProps {
   machineTypes: MachineType[];
   unitOfMeasures: UnitOfMeasure[];
   partNumbers: { id: string; name: string }[];
-  modelNumbers: { id: string; name: string }[];
+  machineModel: { id: string; name: string }[];
   canRemove: boolean;
   validationErrors: Record<string, string>;
   exchangeRateRMBtoIDR: string;
@@ -100,7 +100,7 @@ function ProductItemForm({
   machineTypes,
   unitOfMeasures,
   partNumbers,
-  modelNumbers,
+  machineModel,
   canRemove,
   validationErrors,
   exchangeRateRMBtoIDR,
@@ -317,17 +317,17 @@ function ProductItemForm({
             <Select.Root
               value={item.modelNumber || ''}
               onValueChange={(value) => handleFieldChange('modelNumber', value)}
-              disabled={!modelNumbers}
+              disabled={!machineModel}
             >
               <Select.Trigger id={`modelNumber-${index}`}>
                 <Select.Value
                   placeholder={
-                    !modelNumbers ? 'Loading...' : 'Select model number'
+                    !machineModel ? 'Loading...' : 'Select model number'
                   }
                 />
               </Select.Trigger>
               <Select.Content>
-                {modelNumbers.map((modelNumber) => (
+                {machineModel.map((modelNumber) => (
                   <Select.Item key={modelNumber.id} value={modelNumber.id}>
                     {modelNumber.name}
                   </Select.Item>
@@ -625,7 +625,7 @@ export function ImportForm({
   const [partNumbers, setPartNumbers] = useState<
     { id: string; name: string }[]
   >([]);
-  const [modelNumbers, setModelNumbers] = useState<
+  const [machineModel, setModelNumbers] = useState<
     { id: string; name: string }[]
   >([]);
 
@@ -734,7 +734,7 @@ export function ImportForm({
           fetch('/api/machine-types?limit=1000'),
           fetch('/api/unit-of-measures?limit=1000'),
           fetch('/api/part-numbers?limit=1000'),
-          fetch('/api/model-numbers?limit=1000'),
+          fetch('/api/machine-model?limit=1000'),
         ]);
 
         if (machineTypesRes.ok) {
@@ -1258,7 +1258,7 @@ export function ImportForm({
                   machineTypes={machineTypes}
                   unitOfMeasures={unitOfMeasures}
                   partNumbers={partNumbers}
-                  modelNumbers={modelNumbers}
+                  machineModel={machineModel}
                   canRemove={formData.items.length > 1}
                   validationErrors={validationErrors}
                   exchangeRateRMBtoIDR={formData.exchangeRateRMBtoIDR}

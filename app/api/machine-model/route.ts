@@ -3,7 +3,7 @@ import { asc, desc, like, or } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
-import { modelNumbers } from '@/lib/db/schema';
+import { machineModel } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,37 +37,37 @@ export async function GET(request: NextRequest) {
     const conditions = [];
 
     if (search) {
-      conditions.push(like(modelNumbers.name, `%${search}%`));
+      conditions.push(like(machineModel.name, `%${search}%`));
     }
 
     // Build order by clause
-    let orderByClause = desc(modelNumbers.createdAt);
+    let orderByClause = desc(machineModel.createdAt);
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':
-          orderByClause = asc(modelNumbers.name);
+          orderByClause = asc(machineModel.name);
           break;
         case 'name-desc':
-          orderByClause = desc(modelNumbers.name);
+          orderByClause = desc(machineModel.name);
           break;
         case 'created-asc':
-          orderByClause = asc(modelNumbers.createdAt);
+          orderByClause = asc(machineModel.createdAt);
           break;
         case 'created-desc':
-          orderByClause = desc(modelNumbers.createdAt);
+          orderByClause = desc(machineModel.createdAt);
           break;
         default:
-          orderByClause = desc(modelNumbers.createdAt);
+          orderByClause = desc(machineModel.createdAt);
       }
     }
 
-    // Fetch model numbers
+    // Fetch machine model
     const modelNumbersData = await db
       .select({
-        id: modelNumbers.id,
-        name: modelNumbers.name,
+        id: machineModel.id,
+        name: machineModel.name,
       })
-      .from(modelNumbers)
+      .from(machineModel)
       .where(conditions.length > 0 ? or(...conditions) : undefined)
       .orderBy(orderByClause)
       .limit(limit)
@@ -75,8 +75,8 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     const totalCountResult = await db
-      .select({ count: modelNumbers.id })
-      .from(modelNumbers)
+      .select({ count: machineModel.id })
+      .from(machineModel)
       .where(conditions.length > 0 ? or(...conditions) : undefined);
 
     const totalCount = totalCountResult.length;
@@ -91,9 +91,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching model numbers:', error);
+    console.error('Error fetching machine model:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch model numbers' },
+      { error: 'Failed to fetch machine model' },
       { status: 500 },
     );
   }
@@ -127,9 +127,9 @@ export async function POST(request: NextRequest) {
 
     // Check if model number with same name already exists
     const existingModelNumber = await db
-      .select({ id: modelNumbers.id, name: modelNumbers.name })
-      .from(modelNumbers)
-      .where(like(modelNumbers.name, name.trim()))
+      .select({ id: machineModel.id, name: machineModel.name })
+      .from(machineModel)
+      .where(like(machineModel.name, name.trim()))
       .limit(1);
 
     if (existingModelNumber.length > 0) {
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       name: name.trim(),
     };
 
-    await db.insert(modelNumbers).values(newModelNumber);
+    await db.insert(machineModel).values(newModelNumber);
 
     return NextResponse.json(
       {

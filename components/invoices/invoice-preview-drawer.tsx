@@ -31,6 +31,14 @@ const formatCurrency = (amount: string, currency: string) => {
 };
 
 function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
+  const renderDetailField = (label: string, value: string | number) => (
+    <div>
+      <div className='text-subheading-xs uppercase text-text-soft-400'>
+        {label}
+      </div>
+      <div className='mt-1 text-label-sm text-text-strong-950'>{value}</div>
+    </div>
+  );
   return (
     <>
       <Divider.Root variant='solid-text'>Invoice Info</Divider.Root>
@@ -42,11 +50,15 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
               {invoice.invoiceNumber}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-              {invoice.customerName} •{' '}
+              {invoice.customerName}
+            </div>
+          </div>
+          <div className='flex flex-col items-end gap-2'>
+            <InvoiceStatusBadge status={invoice.status as any} size='medium' />
+            <div className='mt-1 text-paragraph-sm text-text-sub-600'>
               {new Date(invoice.invoiceDate).toLocaleDateString()}
             </div>
           </div>
-          <InvoiceStatusBadge status={invoice.status as any} size='medium' />
         </div>
 
         <div className='space-y-2'>
@@ -80,141 +92,54 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Due Date
+        <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
+          {/* Left Column */}
+          <div className='space-y-4'>
+            {renderDetailField(
+              'Due Date',
+              new Date(invoice.dueDate).toLocaleDateString(),
+            )}
+
+            {invoice.contractNumber &&
+              renderDetailField('Contract Number', invoice.contractNumber)}
+
+            {invoice.paymentTerms &&
+              renderDetailField('Payment Terms', invoice.paymentTerms)}
+
+            {invoice.quotationNumber &&
+              renderDetailField('From Quotation', invoice.quotationNumber)}
+
+            {renderDetailField(
+              'Created Date',
+              new Date(invoice.createdAt).toLocaleDateString(),
+            )}
+
+            {renderDetailField(
+              'Created By',
+              invoice.createdByUser
+                ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
+                : 'Unknown',
+            )}
           </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {new Date(invoice.dueDate).toLocaleDateString()}
-          </div>
-        </div>
 
-        <Divider.Root variant='line-spacing' />
+          {/* Right Column */}
+          <div className='space-y-4'>
+            {renderDetailField('Currency', invoice.currency)}
 
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Currency
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.currency}
-          </div>
-        </div>
+            {invoice.customerPoNumber &&
+              renderDetailField('Customer PO Number', invoice.customerPoNumber)}
 
-        <Divider.Root variant='line-spacing' />
+            {renderDetailField('Branch', invoice.branchName || '—')}
 
-        {invoice.contractNumber && (
-          <>
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Contract Number
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {invoice.contractNumber}
-              </div>
-            </div>
-            <Divider.Root variant='line-spacing' />
-          </>
-        )}
+            {renderDetailField('Items', `${invoice.items.length} items`)}
 
-        {invoice.customerPoNumber && (
-          <>
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Customer PO Number
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {invoice.customerPoNumber}
-              </div>
-            </div>
-            <Divider.Root variant='line-spacing' />
-          </>
-        )}
-
-        {invoice.paymentTerms && (
-          <>
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Payment Terms
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {invoice.paymentTerms}
-              </div>
-            </div>
-            <Divider.Root variant='line-spacing' />
-          </>
-        )}
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Branch
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.branchName || '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Items
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.items.length} items
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        {invoice.quotationNumber && (
-          <>
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                From Quotation
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {invoice.quotationNumber}
-              </div>
-            </div>
-            <Divider.Root variant='line-spacing' />
-          </>
-        )}
-
-        {(invoice.salesmanUser || invoice.salesmanUserId) && (
-          <>
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Salesman
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {invoice.salesmanUser
+            {(invoice.salesmanUser || invoice.salesmanUserId) &&
+              renderDetailField(
+                'Salesman',
+                invoice.salesmanUser
                   ? `${invoice.salesmanUser.firstName} ${invoice.salesmanUser.lastName}`
-                  : invoice.salesmanUserId}
-              </div>
-            </div>
-            <Divider.Root variant='line-spacing' />
-          </>
-        )}
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created By
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {invoice.createdByUser
-              ? `${invoice.createdByUser.firstName} ${invoice.createdByUser.lastName}`
-              : 'Unknown'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {new Date(invoice.createdAt).toLocaleDateString()}
+                  : (invoice.salesmanUserId ?? '—'),
+              )}
           </div>
         </div>
 

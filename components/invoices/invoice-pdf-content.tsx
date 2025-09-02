@@ -501,7 +501,7 @@ export const InvoicePDFContent = ({
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Customer PO NO.</Text>
                 <Text style={styles.detailValue}>
-                  : {data.customerPoNumber || '20250625P000009'}
+                  : {data.customerPoNumber}
                 </Text>
               </View>
             </View>
@@ -520,9 +520,7 @@ export const InvoicePDFContent = ({
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Contract No.</Text>
-                <Text style={styles.detailValue}>
-                  : {data.contractNumber || '001/PJB/STI-JKI/V/2025'}
-                </Text>
+                <Text style={styles.detailValue}>: {data.contractNumber}</Text>
               </View>
 
               <View style={styles.detailRow}>

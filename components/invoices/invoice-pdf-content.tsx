@@ -484,10 +484,6 @@ export const InvoicePDFContent = ({
           {/* Left Column - Recipient Info */}
           <View style={styles.leftColumn}>
             <View style={styles.recipientSection}>
-              <View style={styles.detailRow}>
-                <Text style={styles.sectionTitleTo}>To :</Text>
-                <Text style={styles.recipientName}> {displayCustomerName}</Text>
-              </View>
               <Text style={styles.addressLine}>
                 {displayCustomerAddress.split('\n')[0]}
               </Text>

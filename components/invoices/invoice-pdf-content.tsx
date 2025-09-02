@@ -660,7 +660,7 @@ export const InvoicePDFContent = ({
           <View style={styles.signatureColumn}>
             <Text style={styles.signatureTitle}>Tanda Tangan dan Materai</Text>
             <View style={styles.signatureLine} />
-            <Text style={styles.signatureName}>Tony Raflv Teh</Text>
+            <Text style={styles.signatureName}>Tony Rafly Teh</Text>
             <Text style={styles.signaturePosition}>Direktur Utama</Text>
             <Text style={styles.signatureCompany}>
               PT SAN TRAKTOR INDONESIA

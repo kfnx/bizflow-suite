@@ -125,8 +125,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textTransform: 'uppercase',
   },
+  sectionTitleTo: {
+    fontSize: 12,
+    marginBottom: 8,
+  },
   recipientName: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 5,
   },
@@ -203,6 +207,13 @@ const styles = StyleSheet.create({
     borderRightColor: '#000000',
     flex: 2,
     fontSize: 9,
+  },
+  additionalSpecs: {
+    fontSize: 9,
+    color: '#555555',
+    marginTop: 3,
+    lineHeight: 1.3,
+    fontWeight: 'normal',
   },
   quantityCell: {
     padding: 4,
@@ -320,7 +331,7 @@ const styles = StyleSheet.create({
   signatureName: {
     fontSize: 10,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 3,
     textAlign: 'center',
   },
   signaturePosition: {
@@ -358,6 +369,16 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
 });
+
+const formatAdditionalSpecs = (specs: string) => {
+  if (!specs || specs.trim() === '') return '';
+
+  return specs
+    .trim()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 
 const formatNumber = (amount: string | number) => {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -463,15 +484,30 @@ export const InvoicePDFContent = ({
           {/* Left Column - Recipient Info */}
           <View style={styles.leftColumn}>
             <View style={styles.recipientSection}>
-              <Text style={styles.sectionTitle}>TO:</Text>
-              <Text style={styles.recipientName}>{displayCustomerName}</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.sectionTitleTo}>To :</Text>
+                <Text style={styles.recipientName}> {displayCustomerName}</Text>
+              </View>
               <Text style={styles.addressLine}>
                 {displayCustomerAddress.split('\n')[0]}
               </Text>
               <Text style={styles.addressLine}>
                 {displayCustomerAddress.split('\n')[1]}
               </Text>
-              <Text style={styles.npwp}>NPWP: {displayCustomerNpwp}</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>To</Text>
+                <Text style={styles.detailValue}>: {displayCustomerName}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>NPWP</Text>
+                <Text style={styles.detailValue}>: {displayCustomerNpwp}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Customer PO NO.</Text>
+                <Text style={styles.detailValue}>
+                  : {data.customerPoNumber || '20250625P000009'}
+                </Text>
+              </View>
             </View>
           </View>
 
@@ -492,14 +528,9 @@ export const InvoicePDFContent = ({
                   : {data.contractNumber || '001/PJB/STI-JKI/V/2025'}
                 </Text>
               </View>
+
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Customer PO NO.</Text>
-                <Text style={styles.detailValue}>
-                  : {data.customerPoNumber || '20250625P000009'}
-                </Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Date</Text>
+                <Text style={styles.detailLabel}>Invoice Date</Text>
                 <Text style={styles.detailValue}>
                   : {formatDateForDisplay(data.invoiceDate)}
                 </Text>
@@ -508,17 +539,14 @@ export const InvoicePDFContent = ({
                 <Text style={styles.detailLabel}>Payment Term</Text>
                 <Text style={styles.detailValue}>
                   :{' '}
-                  {data.paymentTerms ||
-                    '30% DP, 70% BP oleh leasing 30 hari proses'}
+                  {data.paymentTerms
+                    ? `${data.paymentTerms} (${data.currency})`
+                    : '30% DP, 70% BP oleh leasing 30 hari proses'}
                 </Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Salesman</Text>
                 <Text style={styles.detailValue}>: {displaySalesman}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Currency</Text>
-                <Text style={styles.detailValue}>: {data.currency}</Text>
               </View>
             </View>
           </View>
@@ -588,9 +616,11 @@ export const InvoicePDFContent = ({
                     <Text style={styles.numberCell}>{index + 1}</Text>
                     <View style={styles.descriptionCell}>
                       <Text>{item.name}</Text>
-                      <Text style={{ fontSize: 8, color: '#666666' }}>
-                        {item.additionalSpecs}
-                      </Text>
+                      {item.additionalSpecs && (
+                        <Text style={styles.additionalSpecs}>
+                          {formatAdditionalSpecs(item.additionalSpecs.trim())}
+                        </Text>
+                      )}
                     </View>
                     <Text style={styles.quantityCell}>{quantity}</Text>
                     <Text style={styles.priceCell}>
@@ -626,14 +656,16 @@ export const InvoicePDFContent = ({
 
         {/* Thank You Section */}
         <View style={styles.thankYouSection}>
-          <Text style={styles.thankYouText}>THANK YOU FOR YOUR BUSINESS</Text>
+          <Text style={styles.thankYouText}>
+            Thank You For Your Trust & Partnership
+          </Text>
         </View>
 
         {/* Bank Information and Signature */}
         <View style={styles.bankSection} wrap={false}>
           {/* Bank Information */}
           <View style={styles.bankLeft}>
-            <Text style={styles.bankTitle}>Please Remit to Us.</Text>
+            <Text style={styles.bankTitle}>Payment Details</Text>
             <View style={styles.bankDetailRow}>
               <Text style={styles.bankLabel}>BANK NAME</Text>
               <Text style={styles.bankValue}>: Bank Central Asia (BCA)</Text>
@@ -672,9 +704,11 @@ export const InvoicePDFContent = ({
         <View style={styles.disclaimerSection} wrap={false}>
           <Text style={styles.disclaimerTitle}>ATTENTION</Text>
           <Text style={styles.disclaimerText}>
-            When within 14 days from the date of the Invoice and Tax Invoice
-            received no objections from the customer, the customer is deemed to
-            have agreed to everything contained in this Invoice and Tax Invoice.
+            Please review this invoice and Tax Invoice carefully.
+          </Text>
+          <Text style={styles.disclaimerText}>
+            If we do not receive any objections within 14 days of the invoice
+            date, the details will be deemed accurate and accepted.
           </Text>
         </View>
       </View>

@@ -133,7 +133,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
 
       <div className='p-5'>
         <div className='mb-3'>
-          <div className='text-title-h4 text-text-strong-950'>
+          <div className='text-title-h5 text-text-strong-950'>
             {importData.invoiceNumber}
           </div>
           <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -142,7 +142,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
           </div>
         </div>
 
-        <div className='text-title-h4 text-text-strong-950'>
+        <div className='text-title-h5 text-text-strong-950'>
           {formatCurrency(importData.total, 'IDR')}
         </div>
         <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -153,11 +153,11 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
+        {importData.warehouseName &&
+          renderDetailField('Warehouse', importData.warehouseName)}
         <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
           {/* Left Column */}
           <div className='space-y-4'>
-            {importData.warehouseName &&
-              renderDetailField('Warehouse', importData.warehouseName)}
             {importData.billOfLadingDate &&
               renderDetailField(
                 'Bill of Lading Date',

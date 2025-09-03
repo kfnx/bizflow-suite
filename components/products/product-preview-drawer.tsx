@@ -66,7 +66,7 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
       <div className='p-5'>
         <div className='mb-3 flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {product.name || 'Unnamed Product'}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -115,7 +115,7 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
           </div>
         </div>
 
-        <div className='text-title-h4 text-text-strong-950'>
+        <div className='text-title-h5 text-text-strong-950'>
           {formatCurrency(Number(product.price ?? 0), 'IDR')}
         </div>
       </div>

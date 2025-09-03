@@ -47,7 +47,7 @@ function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {invoice.invoiceNumber}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>

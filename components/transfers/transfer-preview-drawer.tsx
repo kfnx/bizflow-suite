@@ -116,7 +116,7 @@ function TransferPreviewContent({ transfer }: { transfer: Transfer }) {
       <div className='p-5'>
         <div className='flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {transfer.transferNumber}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>

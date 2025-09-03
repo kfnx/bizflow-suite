@@ -63,7 +63,7 @@ function QuotationPreviewContent({
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {quotation.quotationNumber}
               {quotation.revisionVersion > 0 && (
                 <small className='ml-2 text-paragraph-sm text-text-sub-600'>
@@ -89,7 +89,7 @@ function QuotationPreviewContent({
           </div>
         )}
 
-        <div className='text-title-h4 text-text-strong-950'>
+        <div className='text-title-h5 text-text-strong-950'>
           {formatCurrency(quotation.total, 'IDR')}
         </div>
         <div className='mt-1 text-paragraph-sm text-text-sub-600'>

@@ -29,7 +29,7 @@ function SupplierPreviewContent({ supplier }: { supplier: any }) {
         <div className='mb-3 flex items-center gap-2'>
           <RiBuildingLine className='size-5 min-w-5 text-text-sub-600' />
           <div>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {supplier.name}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>

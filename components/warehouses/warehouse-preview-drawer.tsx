@@ -128,7 +128,7 @@ function WarehousePreviewContent({ warehouse }: { warehouse: Warehouse }) {
       <div className='p-5'>
         <div className='mb-3 flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {warehouse.name}
             </div>
           </div>

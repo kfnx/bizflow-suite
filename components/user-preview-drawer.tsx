@@ -48,6 +48,15 @@ const getTypeColor = (type: string) => {
 };
 
 function UserPreviewContent({ user }: { user: any }) {
+  const renderDetailField = (label: string, value: string | number) => (
+    <div>
+      <div className='text-subheading-xs uppercase text-text-soft-400'>
+        {label}
+      </div>
+      <div className='mt-1 text-label-sm text-text-strong-950'>{value}</div>
+    </div>
+  );
+
   return (
     <>
       <Divider.Root variant='solid-text'>User Info</Divider.Root>
@@ -55,7 +64,7 @@ function UserPreviewContent({ user }: { user: any }) {
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {user.firstName} {user.lastName}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -96,111 +105,52 @@ function UserPreviewContent({ user }: { user: any }) {
       <Divider.Root variant='solid-text'>Preview</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            NIK
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {user.NIK || '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Phone
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {user.phone || '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Branch
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {user.branchName || '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Join Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {user.joinDate ? new Date(user.joinDate).toLocaleDateString() : '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Status
-          </div>
-          <div className='mt-1'>
-            <Badge.Root
-              variant='lighter'
-              color={user.isActive ? 'green' : 'red'}
-              size='small'
-            >
-              {user.isActive ? 'Active' : 'Inactive'}
-            </Badge.Root>
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Employee Code
-          </div>
-          <div className='mt-1 font-mono text-label-sm text-text-strong-950'>
-            {user.code}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Department Role
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {new Date(user.createdAt).toLocaleDateString()}
-          </div>
-        </div>
-
-        {user.updatedAt !== user.createdAt && (
-          <>
-            <Divider.Root variant='line-spacing' />
+        <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
+          {/* Left Column */}
+          <div className='space-y-4'>
+            {renderDetailField('NIK', user.NIK || '—')}
+            {renderDetailField('Branch', user.branchName || '—')}
+            {renderDetailField(
+              'Join Date',
+              user.joinDate
+                ? new Date(user.joinDate).toLocaleDateString()
+                : '—',
+            )}
             <div>
               <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Last Updated
+                Status
               </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {new Date(user.updatedAt).toLocaleDateString()}
+              <div className='mt-1'>
+                <Badge.Root
+                  variant='lighter'
+                  color={user.isActive ? 'green' : 'red'}
+                  size='small'
+                >
+                  {user.isActive ? 'Active' : 'Inactive'}
+                </Badge.Root>
               </div>
             </div>
-          </>
-        )}
+          </div>
+
+          {/* Right Column */}
+          <div className='space-y-4'>
+            {renderDetailField('Phone', user.phone || '—')}
+            {renderDetailField(
+              'Department Role',
+              user.role.charAt(0).toUpperCase() + user.role.slice(1),
+            )}
+            {renderDetailField(
+              'Created Date',
+              new Date(user.createdAt).toLocaleDateString(),
+            )}
+            {user.updatedAt !== user.createdAt &&
+              renderDetailField(
+                'Last Updated',
+                new Date(user.updatedAt).toLocaleDateString(),
+              )}
+            {renderDetailField('Employee Code', user.code)}
+          </div>
+        </div>
       </div>
 
       {user.avatar && (
@@ -297,13 +247,13 @@ export function UserPreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content>
+      <Drawer.Content className='flex h-full flex-col'>
         {/* Header */}
         <Drawer.Header>
           <Drawer.Title>User Preview</Drawer.Title>
         </Drawer.Header>
 
-        <Drawer.Body>
+        <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />

@@ -131,10 +131,10 @@ export function ProductsTable({
       ),
       cell: ({ row }) => (
         <div className='flex flex-col'>
-          <div className='text-paragraph-sm font-medium text-text-strong-950'>
+          <div className='text-paragraph-md font-medium text-text-sub-600'>
             {row.original.name || 'Unnamed Product'}
           </div>
-          <div className='text-paragraph-xs text-text-soft-400'>
+          <div className='text-paragraph-sm text-text-soft-400'>
             {row.original.brandName && `${row.original.brandName} • `}
             {row.original.category || 'Uncategorized'}
             {row.original.partNumber && ` • ${row.original.partNumber}`}
@@ -145,8 +145,12 @@ export function ProductsTable({
     {
       id: 'quantity',
       accessorKey: 'quantity',
-      header: 'QTY',
-      cell: ({ row }) => <div>{row.original.quantity}</div>,
+      header: 'Quantity',
+      cell: ({ row }) => (
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {row.original.quantity}
+        </div>
+      ),
     },
     {
       id: 'condition',
@@ -158,9 +162,15 @@ export function ProductsTable({
             row.original.condition as keyof typeof conditionConfig
           ];
         return (
-          <Badge.Root variant={config?.variant} color={config?.color}>
-            {config?.label || row.original.condition}
-          </Badge.Root>
+          <div className='flex items-start'>
+            <Badge.Root
+              className=''
+              variant={config?.variant}
+              color={config?.color}
+            >
+              {config?.label || row.original.condition}
+            </Badge.Root>
+          </div>
         );
       },
     },

@@ -518,7 +518,7 @@ export const deliveryNotes = mysqlTable(
     status: mysqlEnum('status', DELIVERY_NOTE_STATUS).default(
       DELIVERY_NOTE_STATUS.PENDING,
     ),
-    deliveredBy: varchar('delivered_by', { length: 36 }),
+    deliveredBy: varchar('delivered_by', { length: 36 }), // @deprecated will be removed
     receivedBy: varchar('received_by', { length: 36 }),
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(), // == preparedBy

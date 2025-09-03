@@ -59,12 +59,12 @@ export function ImportPreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content>
+      <Drawer.Content className='flex h-full flex-col'>
         <Drawer.Header>
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        <Drawer.Body>
+        <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
@@ -118,13 +118,22 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
     }).format(amount);
   };
 
+  const renderDetailField = (label: string, value: string | number) => (
+    <div>
+      <div className='text-subheading-xs uppercase text-text-soft-400'>
+        {label}
+      </div>
+      <div className='mt-1 text-label-sm text-text-strong-950'>{value}</div>
+    </div>
+  );
+
   return (
     <>
       <Divider.Root variant='solid-text'>Import Info</Divider.Root>
 
       <div className='p-5'>
         <div className='mb-3'>
-          <div className='text-title-h4 text-text-strong-950'>
+          <div className='text-title-h5 text-text-strong-950'>
             {importData.invoiceNumber}
           </div>
           <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -133,7 +142,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
           </div>
         </div>
 
-        <div className='text-title-h4 text-text-strong-950'>
+        <div className='text-title-h5 text-text-strong-950'>
           {formatCurrency(importData.total, 'IDR')}
         </div>
         <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -144,160 +153,91 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Import Date
+        {importData.warehouseName &&
+          renderDetailField('Warehouse', importData.warehouseName)}
+        <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
+          {/* Left Column */}
+          <div className='space-y-4'>
+            {importData.billOfLadingDate &&
+              renderDetailField(
+                'Bill of Lading Date',
+                new Date(importData.billOfLadingDate).toLocaleDateString(),
+              )}
+            {importData.exchangeRateRMBtoIDR &&
+              renderDetailField(
+                'Exchange Rate',
+                importData.exchangeRateRMBtoIDR,
+              )}
+            {importData.createdAt &&
+              renderDetailField(
+                'Created Date',
+                new Date(importData.createdAt).toLocaleDateString(),
+              )}
           </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {new Date(importData.importDate).toLocaleDateString()}
-          </div>
-        </div>
 
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Warehouse
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {importData.warehouseName}
-          </div>
-        </div>
-
-        {importData.billOfLadingNumber && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Bill of Lading Number
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {importData.billOfLadingNumber}
-              </div>
-            </div>
-          </>
-        )}
-
-        {importData.billOfLadingDate && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Bill of Lading Date
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {new Date(importData.billOfLadingDate).toLocaleDateString()}
-              </div>
-            </div>
-          </>
-        )}
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Subtotal (RMB)
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {formatCurrency(
-              importData.items?.reduce(
-                (sum, item) => sum + parseFloat(item.priceRMB) * item.quantity,
-                0,
-              ) || 0,
+          {/* Right Column */}
+          <div className='space-y-4'>
+            {importData.billOfLadingNumber &&
+              renderDetailField(
+                'Bill of Lading Number',
+                importData.billOfLadingNumber,
+              )}
+            {renderDetailField(
+              'Subtotal (RMB)',
+              formatCurrency(
+                importData.items?.reduce(
+                  (sum, item) =>
+                    sum + parseFloat(item.priceRMB) * item.quantity,
+                  0,
+                ) || 0,
+              ),
             )}
+            {importData.createdByUser &&
+              renderDetailField('Created By', importData.createdByUser)}
           </div>
         </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Exchange Rate
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {importData.exchangeRateRMBtoIDR}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created By
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {importData.createdByUser}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {new Date(importData.createdAt).toLocaleDateString()}
-          </div>
-        </div>
-
-        {importData.notes && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Notes
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {importData.notes}
-              </div>
-            </div>
-          </>
-        )}
       </div>
 
       {importData.items && importData.items.length > 0 && (
         <>
-          <Divider.Root variant='solid-text'>
-            Import Items ({importData.items.length})
-          </Divider.Root>
-
-          <div className='flex flex-col gap-4 p-5'>
-            {importData.items.map((item, index) => (
-              <div
-                key={item.id || index}
-                className='rounded-lg border border-stroke-soft-200 p-4'
-              >
-                <div className='mb-2 flex items-start justify-between'>
-                  <div className='flex-1'>
-                    <div className='text-label-sm font-medium text-text-strong-950'>
+          <Divider.Root variant='solid-text'>Items Preview</Divider.Root>
+          <div className='p-5'>
+            <div className='space-y-3'>
+              {importData.items.map((item, index) => (
+                <div
+                  key={item.id || index}
+                  className='rounded-lg border border-stroke-soft-200 p-3'
+                >
+                  {/* Top row: Item name and category */}
+                  <div className='mb-2 flex items-start justify-between'>
+                    <div className='text-label-lg font-medium text-text-strong-950'>
                       {item.name}
                     </div>
-                    {item.description && (
-                      <div className='mt-1 text-paragraph-xs text-text-sub-600'>
-                        {item.description}
+                    {item.category && (
+                      <div className='text-paragraph-sm text-text-sub-600'>
+                        Category: {item.category}
                       </div>
                     )}
                   </div>
-                  <div className='text-right'>
-                    <div className='text-label-sm font-medium text-text-strong-950'>
-                      {item.quantity}x
-                    </div>
-                    <div className='text-paragraph-xs text-text-sub-600'>
-                      {formatCurrency(parseFloat(item.priceRMB))}
-                    </div>
-                  </div>
-                </div>
 
-                <div className='grid grid-cols-2 gap-2 text-paragraph-xs text-text-sub-600'>
-                  <div>Category: {item.category}</div>
-                  <div>
-                    Total:{' '}
-                    {formatCurrency(parseFloat(item.priceRMB) * item.quantity)}
+                  {/* Bottom row: Quantity, Price, Total Price */}
+                  <div className='flex items-center justify-between'>
+                    <div className='text-paragraph-sm text-text-sub-600'>
+                      Quantity: {item.quantity} Unit
+                    </div>
+                    <div className='text-paragraph-sm text-text-sub-600'>
+                      Price: {formatCurrency(parseFloat(item.priceRMB))}
+                    </div>
+                    <div className='text-paragraph-sm font-medium text-text-strong-950'>
+                      Total Price:{' '}
+                      {formatCurrency(
+                        parseFloat(item.priceRMB) * item.quantity,
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </>
       )}

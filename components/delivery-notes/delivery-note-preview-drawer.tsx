@@ -28,6 +28,15 @@ interface DeliveryNotePreviewDrawerProps {
   onClose: () => void;
 }
 
+const renderDetailField = (label: string, value: string | number) => (
+  <div>
+    <div className='text-subheading-xs uppercase text-text-soft-400'>
+      {label}
+    </div>
+    <div className='mt-1 text-label-sm text-text-strong-950'>{value}</div>
+  </div>
+);
+
 function DeliveryNotePreviewContent({
   deliveryNote,
 }: {
@@ -40,7 +49,7 @@ function DeliveryNotePreviewContent({
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {deliveryNote.deliveryNumber}
             </div>
             <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -55,164 +64,63 @@ function DeliveryNotePreviewContent({
       <Divider.Root variant='solid-text'>Delivery Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Delivery Date
+        <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
+          {/* Left Column */}
+          <div className='space-y-4'>
+            {deliveryNote.deliveryMethod && (
+              <div>
+                <div className='text-subheading-xs uppercase text-text-soft-400'>
+                  Delivery Method
+                </div>
+                <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
+                  <RiTruckLine className='size-4 text-text-sub-600' />
+                  {deliveryNote.deliveryMethod}
+                </div>
+              </div>
+            )}
+            {deliveryNote.driverName &&
+              renderDetailField('Driver', deliveryNote.driverName)}
+            {deliveryNote.branchName &&
+              renderDetailField('Branch', deliveryNote.branchName)}
+            {deliveryNote.createdByUser &&
+              renderDetailField(
+                'Created By',
+                `${deliveryNote.createdByUser.firstName} ${deliveryNote.createdByUser.lastName}`,
+              )}
           </div>
-          <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
-            <RiCalendarLine className='size-4 text-text-sub-600' />
-            {new Date(deliveryNote.deliveryDate).toLocaleDateString()}
-          </div>
-        </div>
 
-        {deliveryNote.deliveryMethod && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Delivery Method
-              </div>
-              <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
-                <RiTruckLine className='size-4 text-text-sub-600' />
-                {deliveryNote.deliveryMethod}
-              </div>
-            </div>
-          </>
-        )}
-
-        {deliveryNote.driverName && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Driver
-              </div>
-              <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
-                <RiUserLine className='size-4 text-text-sub-600' />
-                {deliveryNote.driverName}
-              </div>
-            </div>
-          </>
-        )}
-
-        {deliveryNote.vehicleNumber && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Vehicle Number
-              </div>
-              <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
-                <RiTruckLine className='size-4 text-text-sub-600' />
-                {deliveryNote.vehicleNumber}
-              </div>
-            </div>
-          </>
-        )}
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Items
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {deliveryNote.items.length} items
+          {/* Right Column */}
+          <div className='space-y-4'>
+            {renderDetailField('Items', `${deliveryNote.items.length} items`)}
+            {deliveryNote.vehicleNumber &&
+              renderDetailField('Vehicle Number', deliveryNote.vehicleNumber)}
+            {deliveryNote.invoice &&
+              renderDetailField(
+                'Related Invoice',
+                deliveryNote.invoice.invoiceNumber,
+              )}
+            {deliveryNote.createdAt &&
+              renderDetailField(
+                'Created Date',
+                new Date(deliveryNote.createdAt).toLocaleDateString(),
+              )}
+            {deliveryNote.receivedByUser &&
+              renderDetailField(
+                'Received By',
+                `${deliveryNote.receivedByUser.firstName} ${deliveryNote.receivedByUser.lastName}`,
+              )}
           </div>
         </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Branch
-          </div>
-          <div className='mt-1 flex items-center gap-2 text-label-sm text-text-strong-950'>
-            <RiMapPinLine className='size-4 text-text-sub-600' />
-            {deliveryNote.branchName || '—'}
-          </div>
-        </div>
-
-        {deliveryNote.invoice && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Related Invoice
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {deliveryNote.invoice.invoiceNumber}
-              </div>
-            </div>
-          </>
-        )}
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created By
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {deliveryNote.createdByUser
-              ? `${deliveryNote.createdByUser.firstName} ${deliveryNote.createdByUser.lastName}`
-              : '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {deliveryNote.createdAt
-              ? new Date(deliveryNote.createdAt).toLocaleDateString()
-              : '—'}
-          </div>
-        </div>
-
-        {deliveryNote.deliveredByUser && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Delivered By
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {`${deliveryNote.deliveredByUser.firstName} ${deliveryNote.deliveredByUser.lastName}`}
-              </div>
-            </div>
-          </>
-        )}
-
-        {deliveryNote.receivedByUser && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Received By
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {`${deliveryNote.receivedByUser.firstName} ${deliveryNote.receivedByUser.lastName}`}
-              </div>
-            </div>
-          </>
-        )}
 
         {deliveryNote.notes && (
-          <>
-            <Divider.Root variant='line-spacing' />
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Notes
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {deliveryNote.notes}
-              </div>
+          <div>
+            <div className='text-subheading-xs uppercase text-text-soft-400'>
+              Notes
             </div>
-          </>
+            <div className='mt-1 text-label-sm text-text-strong-950'>
+              {deliveryNote.notes}
+            </div>
+          </div>
         )}
       </div>
 
@@ -329,13 +237,13 @@ export function DeliveryNotePreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content>
+      <Drawer.Content className='flex h-full flex-col'>
         {/* Header */}
         <Drawer.Header>
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        <Drawer.Body>
+        <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />

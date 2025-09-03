@@ -504,6 +504,10 @@ export const InvoicePDFContent = ({
                   : {data.customerPoNumber}
                 </Text>
               </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Contract No.</Text>
+                <Text style={styles.detailValue}>: {data.contractNumber}</Text>
+              </View>
             </View>
           </View>
 
@@ -518,11 +522,6 @@ export const InvoicePDFContent = ({
                     (mode === 'preview' ? 'Auto-generated' : '-')}
                 </Text>
               </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Contract No.</Text>
-                <Text style={styles.detailValue}>: {data.contractNumber}</Text>
-              </View>
-
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Invoice Date</Text>
                 <Text style={styles.detailValue}>

@@ -3,10 +3,14 @@
 import { useCallback, useState } from 'react';
 import { RiImportLine } from '@remixicon/react';
 
+import { useImports } from '@/hooks/use-imports';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
 import { ImportPreviewDrawer } from '@/components/imports/import-preview-drawer';
-import { ImportsTable } from '@/components/imports/imports-table';
+import {
+  ImportsTable,
+  ImportsTablePagination,
+} from '@/components/imports/imports-table';
 
 import { Filters, type ImportsFilters } from './filters';
 
@@ -19,6 +23,9 @@ export default function PageImports() {
     limit: 10,
   });
   const [previewImportId, setPreviewImportId] = useState<string | null>(null);
+  const { data } = useImports(filters);
+
+  const defaultPagination = { page: 1, limit: 10, total: 0, totalPages: 1 };
 
   const handleFiltersChange = useCallback((newFilters: ImportsFilters) => {
     setFilters(newFilters);
@@ -58,11 +65,11 @@ export default function PageImports() {
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
         <Filters onFiltersChange={handleFiltersChange} />
-        <ImportsTable
-          filters={filters}
+        <ImportsTable filters={filters} onImportClick={handleImportClick} />
+        <ImportsTablePagination
+          pagination={data?.pagination ?? defaultPagination}
           onPageChange={handlePageChange}
           onLimitChange={handleLimitChange}
-          onImportClick={handleImportClick}
         />
       </div>
 

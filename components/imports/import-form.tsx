@@ -382,36 +382,10 @@ year 2023`}
           </div>
         </div>
       )}
-      {item.category === 'non_serialized' && (
+      {(item.category === 'non_serialized' || item.category === 'bulk') && (
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`batchLotNumber-${index}`}>
-              Batch/Lot Number <Label.Asterisk />
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id={`batchLotNumber-${index}`}
-                  value={item.batchOrLotNumber || ''}
-                  onChange={(e) =>
-                    handleFieldChange('batchOrLotNumber', e.target.value)
-                  }
-                  placeholder='Batch or Lot Number'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-            {getFieldError('batchOrLotNumber') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('batchOrLotNumber')}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      {item.category === 'bulk' && (
-        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`modelPartNumber-${index}`}>
+            <Label.Root htmlFor={`partNumber-${index}`}>
               Part Number <Label.Asterisk />
             </Label.Root>
             <Select.Root
@@ -419,7 +393,7 @@ year 2023`}
               onValueChange={(value) => handleFieldChange('partNumber', value)}
               disabled={!partNumbers}
             >
-              <Select.Trigger id={`modelPartNumber-${index}`}>
+              <Select.Trigger id={`partNumber-${index}`}>
                 <Select.Value
                   placeholder={
                     !partNumbers ? 'Loading...' : 'Select part number'
@@ -441,18 +415,18 @@ year 2023`}
             )}
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`batchLotNumberBulk-${index}`}>
-              Batch/Lot Number <Label.Asterisk />
+            <Label.Root htmlFor={`batchLotNumber-${index}`}>
+              Batch/Lot Number
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
-                  id={`batchLotNumberBulk-${index}`}
+                  id={`batchLotNumber-${index}`}
                   value={item.batchOrLotNumber || ''}
                   onChange={(e) =>
                     handleFieldChange('batchOrLotNumber', e.target.value)
                   }
-                  placeholder='Batch or Lot Number'
+                  placeholder='Batch or Lot Number (Optional)'
                 />
               </Input.Wrapper>
             </Input.Root>
@@ -464,6 +438,7 @@ year 2023`}
           </div>
         </div>
       )}
+
       {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
       <div className='mt-4 grid grid-cols-12 gap-6'>
         <div className='col-span-2 flex flex-col gap-2'>
@@ -881,18 +856,11 @@ export function ImportForm({
           'Unit of measure is required';
       }
 
-      // Batch/Lot Number validation for non-serialized and bulk
+      // Part Number validation for non-serialized and bulk
       if (item.category === 'non_serialized' || item.category === 'bulk') {
-        if (!item.batchOrLotNumber?.trim()) {
-          errors[`items.${index}.batchOrLotNumber`] =
-            'Batch/Lot number is required';
-        }
-      }
-
-      if (item.category === 'bulk') {
         if (!item.partNumber?.trim()) {
           errors[`items.${index}.partNumber`] =
-            'Part number is required for bulk products';
+            'Part number is required for non-serialized and bulk products';
         }
       }
     });

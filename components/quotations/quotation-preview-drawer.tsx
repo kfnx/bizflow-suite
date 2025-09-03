@@ -42,6 +42,15 @@ const formatCurrency = (amount: string, currency: string) => {
   }).format(numAmount);
 };
 
+const renderDetailField = (label: string, value: string | number) => (
+  <div>
+    <div className='text-subheading-xs uppercase text-text-soft-400'>
+      {label}
+    </div>
+    <div className='mt-1 text-label-sm text-text-strong-950'>{value}</div>
+  </div>
+);
+
 function QuotationPreviewContent({
   quotation,
 }: {
@@ -54,7 +63,7 @@ function QuotationPreviewContent({
       <div className='p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <div>
-            <div className='text-title-h4 text-text-strong-950'>
+            <div className='text-title-h5 text-text-strong-950'>
               {quotation.quotationNumber}
               {quotation.revisionVersion > 0 && (
                 <small className='ml-2 text-paragraph-sm text-text-sub-600'>
@@ -80,7 +89,7 @@ function QuotationPreviewContent({
           </div>
         )}
 
-        <div className='text-title-h4 text-text-strong-950'>
+        <div className='text-title-h5 text-text-strong-950'>
           {formatCurrency(quotation.total, 'IDR')}
         </div>
         <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -105,58 +114,26 @@ function QuotationPreviewContent({
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Valid Until
+        <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
+          {/* Left Column */}
+          <div className='space-y-4'>
+            {renderDetailField(
+              'Valid Until',
+              new Date(quotation.validUntil).toLocaleDateString(),
+            )}
+            {renderDetailField('Branch', quotation.branchName || '—')}
+            {renderDetailField('Items', `${quotation.items.length} items`)}
           </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {new Date(quotation.validUntil).toLocaleDateString()}
-          </div>
-        </div>
 
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Branch
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {quotation.branchName || '—'}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Items
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {quotation.items.length} items
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created By
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {quotation.createdByUser}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Created Date
-          </div>
-          <div className='mt-1 text-label-sm text-text-strong-950'>
-            {quotation.createdAt
-              ? new Date(quotation.createdAt).toLocaleDateString()
-              : '—'}
+          {/* Right Column */}
+          <div className='space-y-4'>
+            {renderDetailField('Created By', quotation.createdByUser)}
+            {renderDetailField(
+              'Created Date',
+              quotation.createdAt
+                ? new Date(quotation.createdAt).toLocaleDateString()
+                : '—',
+            )}
           </div>
         </div>
 
@@ -430,13 +407,13 @@ export function QuotationPreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content>
+      <Drawer.Content className='flex h-full flex-col'>
         {/* Header */}
         <Drawer.Header>
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        <Drawer.Body>
+        <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />

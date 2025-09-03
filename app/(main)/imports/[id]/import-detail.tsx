@@ -96,6 +96,21 @@ export function ImportDetail({ id }: ImportDetailProps) {
     }
   };
 
+  function DetailItem({ label, value }: { label: any; value: any }) {
+    if (!value) {
+      return null;
+    }
+
+    return (
+      <div className='flex flex-col'>
+        <span className='text-paragraph-sm text-text-sub-600'>{label}</span>
+        <span className='text-label-md font-medium text-text-strong-950'>
+          {value}
+        </span>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return <SimplePageLoading>Loading import details...</SimplePageLoading>;
   }
@@ -325,103 +340,84 @@ export function ImportDetail({ id }: ImportDetailProps) {
             </h3>
 
             <div className='space-y-4'>
-              {importData.items.map((item, index) => (
-                <div
-                  key={item.id || index}
-                  className='rounded-lg border border-stroke-soft-200 p-4'
-                >
-                  <div className='mb-3 flex items-start justify-between'>
-                    <div className='flex-1'>
-                      <div className='text-label-md font-medium text-text-strong-950'>
-                        {item.name}
-                      </div>
-                      {item.description && (
-                        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-                          {item.description}
+              {importData.items.map((item, index) => {
+                return (
+                  <div
+                    key={item.id || index}
+                    className='rounded-lg border border-stroke-soft-200 p-4'
+                  >
+                    <div className='mb-3 flex items-start justify-between'>
+                      <div className='flex-1'>
+                        <div className='text-label-md font-medium text-text-strong-950'>
+                          {item.name}
                         </div>
-                      )}
+                        {item.description && (
+                          <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
+                      <div className='text-right'>
+                        <div className='text-label-md font-semibold text-text-strong-950'>
+                          {item.quantity}x
+                        </div>
+                        <div className='text-paragraph-sm text-text-sub-600'>
+                          {formatCurrency(parseFloat(item.priceRMB))} each
+                        </div>
+                      </div>
                     </div>
-                    <div className='text-right'>
-                      <div className='text-label-md font-semibold text-text-strong-950'>
-                        {item.quantity}x
-                      </div>
-                      <div className='text-paragraph-sm text-text-sub-600'>
-                        {formatCurrency(parseFloat(item.priceRMB))} each
-                      </div>
+
+                    <Divider.Root variant='line-spacing' />
+
+                    <div className='mt-4 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 lg:grid-cols-4'>
+                      <DetailItem label='Category' value={item.category} />
+                      <DetailItem label='Condition' value={item.condition} />
+                      <DetailItem label='Brand' value={item.brand} />
+
+                      {item.category === 'serialized' && (
+                        <>
+                          <DetailItem label='Model' value={item.modelNumber} />
+                          <DetailItem
+                            label='Engine Number'
+                            value={item.engineNumber}
+                          />
+                        </>
+                      )}
+
+                      {(item.category === 'non_serialized' ||
+                        item.category === 'bulk') && (
+                        <>
+                          <DetailItem
+                            label='Part Number'
+                            value={item.partNumber}
+                          />
+                          <DetailItem
+                            label='Batch/Lot'
+                            value={item.batchOrLotNumber}
+                          />
+                        </>
+                      )}
+
+                      <DetailItem
+                        label='Subtotal (RMB)'
+                        value={formatCurrency(
+                          parseFloat(item.priceRMB) * item.quantity,
+                          'RMB',
+                        )}
+                      />
+                      <DetailItem
+                        label='Subtotal (IDR)'
+                        value={formatCurrency(
+                          parseFloat(item.priceRMB) *
+                            item.quantity *
+                            importData.exchangeRateRMBtoIDR,
+                          'IDR',
+                        )}
+                      />
                     </div>
                   </div>
-
-                  <Divider.Root variant='line-spacing' />
-
-                  <div className='grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-4'>
-                    <div>
-                      <span className='font-medium'>Category:</span>{' '}
-                      {item.category}
-                    </div>
-                    <div>
-                      <span className='font-medium'>Condition:</span>{' '}
-                      {item.condition}
-                    </div>
-                    <div>
-                      <span className='font-medium'>Subtotal (RMB):</span>{' '}
-                      {formatCurrency(
-                        parseFloat(item.priceRMB) * item.quantity,
-                      )}
-                    </div>
-                    <div>
-                      <span className='font-medium'>Subtotal (IDR):</span>{' '}
-                      {formatCurrency(
-                        parseFloat(item.priceRMB) *
-                          item.quantity *
-                          importData.exchangeRateRMBtoIDR,
-                        'IDR',
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Category-specific details */}
-                  {item.category === 'serialized' && (
-                    <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
-                      {item.engineNumber && (
-                        <div>
-                          <span className='font-medium'>Engine Number:</span>{' '}
-                          {item.engineNumber}
-                        </div>
-                      )}
-                      {item.modelNumber && (
-                        <div>
-                          <span className='font-medium'>Model:</span>{' '}
-                          {item.modelNumber}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {(item.category === 'non_serialized' ||
-                    item.category === 'bulk') && (
-                    <div className='mt-3 grid grid-cols-2 gap-4 text-paragraph-sm text-text-sub-600 lg:grid-cols-3'>
-                      {item.batchOrLotNumber && (
-                        <div>
-                          <span className='font-medium'>Batch/Lot:</span>{' '}
-                          {item.batchOrLotNumber}
-                        </div>
-                      )}
-                      {item.partNumber && (
-                        <div>
-                          <span className='font-medium'>Part Number:</span>{' '}
-                          {item.partNumber}
-                        </div>
-                      )}
-                      {item.brand && (
-                        <div>
-                          <span className='font-medium'>Brand:</span>{' '}
-                          {item.brand}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Total Summary */}

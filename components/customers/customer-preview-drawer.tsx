@@ -47,7 +47,7 @@ function CustomerPreviewContent({ customer }: { customer: any }) {
           <div className='flex items-center gap-2'>
             <Icon className='size-5 min-w-5 text-text-sub-600' />
             <div>
-              <div className='text-title-h4 text-text-strong-950'>
+              <div className='text-title-h5 text-text-strong-950'>
                 {customer.name}
               </div>
               <div className='mt-1 text-paragraph-sm text-text-sub-600'>
@@ -246,13 +246,13 @@ export function CustomerPreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content>
+      <Drawer.Content className='flex h-full flex-col'>
         {/* Header */}
         <Drawer.Header>
           <Drawer.Title>Quick Preview</Drawer.Title>
         </Drawer.Header>
 
-        <Drawer.Body>
+        <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <RiLoader4Line className='text-gray-400 size-6 animate-spin' />

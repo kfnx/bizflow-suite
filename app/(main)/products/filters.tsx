@@ -222,8 +222,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             </Select.Trigger>
             <Select.Content>
               <Select.Item value='newest-first'>Newest First</Select.Item>
-              <Select.Item value='name-asc'>Name (A-Z)</Select.Item>
-              <Select.Item value='name-desc'>Name (Z-A)</Select.Item>
               <Select.Item value='code-asc'>Code (A-Z)</Select.Item>
               <Select.Item value='code-desc'>Code (Z-A)</Select.Item>
               <Select.Item value='price-asc'>Price (Low to High)</Select.Item>

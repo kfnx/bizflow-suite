@@ -442,13 +442,13 @@ export function ImportsTable({
       </div>
 
       {/* Pagination */}
-      {data.pagination && (
+      {/* {data.pagination && (
         <ImportsTablePagination
           data={data.pagination}
           onPageChange={onPageChange}
           onLimitChange={onLimitChange}
         />
-      )}
+      )} */}
     </div>
   );
 }
@@ -461,145 +461,176 @@ interface PaginationData {
 }
 
 interface ImportsTablePaginationProps {
-  data: PaginationData;
+  pagination: PaginationData;
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
 }
 
 export function ImportsTablePagination({
-  data,
+  pagination,
   onPageChange,
   onLimitChange,
 }: ImportsTablePaginationProps) {
-  const handlePageChange = (page: number) => {
-    onPageChange?.(page);
-  };
-
-  const handleLimitChange = (newLimit: string) => {
-    const limit = parseInt(newLimit, 10);
-    onLimitChange?.(limit);
-  };
-
-  const generatePageNumbers = () => {
-    const pages = [];
-    const currentPage = data.page;
-    const totalPages = data.totalPages;
-
-    // Always show first page
-    pages.push(1);
-
-    // Show pages around current page
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-
-    if (start > 2) {
-      pages.push('...');
+  const handlePreviousPage = React.useCallback(() => {
+    if (pagination && pagination.page > 1) {
+      onPageChange?.(pagination.page - 1);
     }
+  }, [pagination, onPageChange]);
 
-    for (let i = start; i <= end; i++) {
-      if (i > 1 && i < totalPages) {
+  const handleNextPage = React.useCallback(() => {
+    if (pagination && pagination.page < pagination.totalPages) {
+      onPageChange?.(pagination.page + 1);
+    }
+  }, [pagination, onPageChange]);
+
+  const handlePageSelect = React.useCallback(
+    (selectedPage: number) => {
+      onPageChange?.(selectedPage);
+    },
+    [onPageChange],
+  );
+
+  const handleLimitSelect = React.useCallback(
+    (value: string) => {
+      onLimitChange?.(parseInt(value));
+    },
+    [onLimitChange],
+  );
+
+  // Generate page numbers to display
+  const pageNumbers = React.useMemo(() => {
+    if (!pagination) return [];
+
+    const { page, totalPages } = pagination;
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
+      }
+    } else {
+      if (page <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (page >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = page - 1; i <= page + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
       }
     }
 
-    if (end < totalPages - 1) {
-      pages.push('...');
-    }
-
-    // Always show last page if there's more than one page
-    if (totalPages > 1) {
-      pages.push(totalPages);
-    }
-
     return pages;
-  };
+  }, [pagination]);
 
-  if (data.totalPages <= 1) {
-    return null;
-  }
+  if (!pagination) return null;
+
+  const { page, limit, total, totalPages } = pagination;
 
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-2'>
-        <span className='text-paragraph-sm text-text-sub-600'>Show:</span>
-        <Select.Root
-          value={data.limit.toString()}
-          onValueChange={handleLimitChange}
+    <div className='mt-auto'>
+      <div className='mt-4 flex items-center justify-between py-4 lg:hidden'>
+        <Button.Root
+          variant='neutral'
+          mode='stroke'
+          size='xsmall'
+          className='w-28'
+          onClick={handlePreviousPage}
+          disabled={page <= 1}
         >
-          <Select.Trigger className='h-8 w-20'>
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value='10'>10</Select.Item>
-            <Select.Item value='25'>25</Select.Item>
-            <Select.Item value='50'>50</Select.Item>
-            <Select.Item value='100'>100</Select.Item>
-          </Select.Content>
-        </Select.Root>
-        <span className='text-paragraph-sm text-text-sub-600'>
-          of {data.total} imports
+          Previous
+        </Button.Root>
+        <span className='whitespace-nowrap text-center text-paragraph-sm text-text-sub-600'>
+          Page {page} of {totalPages}
         </span>
+        <Button.Root
+          variant='neutral'
+          mode='stroke'
+          size='xsmall'
+          className='w-28'
+          onClick={handleNextPage}
+          disabled={page >= totalPages}
+        >
+          Next
+        </Button.Root>
       </div>
+      <div className='mt-10 hidden items-center gap-3 lg:flex'>
+        <span className='flex-1 whitespace-nowrap text-paragraph-sm text-text-sub-600'>
+          Page {page} of {totalPages} ({total} total)
+        </span>
 
-      <div className='flex items-center gap-1'>
-        <Button.Root
-          mode='ghost'
-          size='xsmall'
-          onClick={() => handlePageChange(1)}
-          disabled={data.page === 1}
-          className='h-8 w-8 p-0'
-        >
-          <RiArrowLeftDoubleLine className='size-4' />
-        </Button.Root>
-        <Button.Root
-          mode='ghost'
-          size='xsmall'
-          onClick={() => handlePageChange(data.page - 1)}
-          disabled={data.page === 1}
-          className='h-8 w-8 p-0'
-        >
-          <RiArrowLeftSLine className='size-4' />
-        </Button.Root>
+        <Pagination.Root>
+          <Pagination.NavButton
+            onClick={() => handlePageSelect(1)}
+            disabled={page <= 1}
+          >
+            <Pagination.NavIcon as={RiArrowLeftDoubleLine} />
+          </Pagination.NavButton>
+          <Pagination.NavButton
+            onClick={handlePreviousPage}
+            disabled={page <= 1}
+          >
+            <Pagination.NavIcon as={RiArrowLeftSLine} />
+          </Pagination.NavButton>
 
-        <div className='flex items-center gap-1'>
-          {generatePageNumbers().map((page, index) => (
-            <React.Fragment key={index}>
-              {page === '...' ? (
-                <span className='px-2 text-paragraph-sm text-text-sub-600'>
-                  ...
-                </span>
-              ) : (
-                <Button.Root
-                  mode={data.page === page ? 'filled' : 'ghost'}
-                  size='xsmall'
-                  onClick={() => handlePageChange(page as number)}
-                  className='h-8 w-8 p-0'
-                >
-                  {page}
-                </Button.Root>
-              )}
-            </React.Fragment>
-          ))}
+          {pageNumbers.map((pageNum, index) =>
+            pageNum === '...' ? (
+              <Pagination.Item key={`ellipsis-${index}`}>...</Pagination.Item>
+            ) : (
+              <Pagination.Item
+                key={pageNum}
+                current={pageNum === page}
+                onClick={() => handlePageSelect(pageNum as number)}
+              >
+                {pageNum}
+              </Pagination.Item>
+            ),
+          )}
+
+          <Pagination.NavButton
+            onClick={handleNextPage}
+            disabled={page >= totalPages}
+          >
+            <Pagination.NavIcon as={RiArrowRightSLine} />
+          </Pagination.NavButton>
+          <Pagination.NavButton
+            onClick={() => handlePageSelect(totalPages)}
+            disabled={page >= totalPages}
+          >
+            <Pagination.NavIcon as={RiArrowRightDoubleLine} />
+          </Pagination.NavButton>
+        </Pagination.Root>
+
+        <div className='flex flex-1 justify-end'>
+          <Select.Root
+            size='xsmall'
+            value={limit.toString()}
+            onValueChange={handleLimitSelect}
+          >
+            <Select.Trigger className='w-auto'>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value='10'>10 / page</Select.Item>
+              <Select.Item value='25'>25 / page</Select.Item>
+              <Select.Item value='50'>50 / page</Select.Item>
+              <Select.Item value='100'>100 / page</Select.Item>
+            </Select.Content>
+          </Select.Root>
         </div>
-
-        <Button.Root
-          mode='ghost'
-          size='xsmall'
-          onClick={() => handlePageChange(data.page + 1)}
-          disabled={data.page === data.totalPages}
-          className='h-8 w-8 p-0'
-        >
-          <RiArrowRightSLine className='size-4' />
-        </Button.Root>
-        <Button.Root
-          mode='ghost'
-          size='xsmall'
-          onClick={() => handlePageChange(data.totalPages)}
-          disabled={data.page === data.totalPages}
-          className='h-8 w-8 p-0'
-        >
-          <RiArrowRightDoubleLine className='size-4' />
-        </Button.Root>
       </div>
     </div>
   );

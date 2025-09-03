@@ -65,12 +65,12 @@ export function TransferPreviewDrawer({
 
   return (
     <Drawer.Root open={open} onOpenChange={onClose}>
-      <Drawer.Content>
+      <Drawer.Content className='flex h-full flex-col'>
         <Drawer.Header>
           <Drawer.Title>Transfer Details</Drawer.Title>
         </Drawer.Header>
 
-        <Drawer.Body>
+        <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
             <div className='flex items-center justify-center py-8'>
               <div className='text-paragraph-sm text-text-sub-600'>
@@ -114,7 +114,7 @@ function TransferPreviewContent({ transfer }: { transfer: Transfer }) {
       <Divider.Root variant='solid-text'>Transfer Info</Divider.Root>
 
       <div className='p-5'>
-        <div className='mb-3 flex items-start justify-between'>
+        <div className='flex items-start justify-between'>
           <div className='min-w-0 flex-1'>
             <div className='text-title-h4 text-text-strong-950'>
               {transfer.transferNumber}

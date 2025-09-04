@@ -142,11 +142,11 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
           </div>
         </div>
         <div className='text-right'>
-          <div className='text-title-h5 text-text-strong-950'>
-            {formatCurrency(importData.total, 'IDR')}
-          </div>
-          <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+          <div className='text-paragraph-sm text-text-sub-600'>
             Total Amount (IDR)
+          </div>
+          <div className='mt-1 text-title-h5 text-text-strong-950'>
+            {formatCurrency(importData.total, 'IDR')}
           </div>
         </div>
       </div>

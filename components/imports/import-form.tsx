@@ -43,7 +43,7 @@ interface ProductItem {
   machineTypeId?: string;
   unitOfMeasureId?: string;
   partNumber?: string;
-  modelNumber?: string;
+  machineModel?: string;
   engineNumber?: string;
   serialNumber?: string;
   additionalSpecs?: string;
@@ -311,32 +311,34 @@ function ProductItemForm({
             )}
           </div>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`modelNumber-${index}`}>
-              Model Number <Label.Asterisk />
+            <Label.Root htmlFor={`machineModel-${index}`}>
+              Machine Model <Label.Asterisk />
             </Label.Root>
             <Select.Root
-              value={item.modelNumber || ''}
-              onValueChange={(value) => handleFieldChange('modelNumber', value)}
+              value={item.machineModel || ''}
+              onValueChange={(value) =>
+                handleFieldChange('machineModel', value)
+              }
               disabled={!machineModel}
             >
-              <Select.Trigger id={`modelNumber-${index}`}>
+              <Select.Trigger id={`machineModel-${index}`}>
                 <Select.Value
                   placeholder={
-                    !machineModel ? 'Loading...' : 'Select model number'
+                    !machineModel ? 'Loading...' : 'Select machine model'
                   }
                 />
               </Select.Trigger>
               <Select.Content>
-                {machineModel.map((modelNumber) => (
-                  <Select.Item key={modelNumber.id} value={modelNumber.id}>
-                    {modelNumber.name}
+                {machineModel.map((machineModel) => (
+                  <Select.Item key={machineModel.id} value={machineModel.id}>
+                    {machineModel.name}
                   </Select.Item>
                 ))}
               </Select.Content>
             </Select.Root>
-            {getFieldError('modelNumber') && (
+            {getFieldError('machineModel') && (
               <div className='text-xs text-red-600'>
-                {getFieldError('modelNumber')}
+                {getFieldError('machineModel')}
               </div>
             )}
           </div>
@@ -600,7 +602,7 @@ export function ImportForm({
   const [partNumbers, setPartNumbers] = useState<
     { id: string; name: string }[]
   >([]);
-  const [machineModel, setModelNumbers] = useState<
+  const [machineModel, setMachineModels] = useState<
     { id: string; name: string }[]
   >([]);
 
@@ -616,7 +618,7 @@ export function ImportForm({
       priceRMB: '',
       quantity: '1',
       condition: 'new',
-      modelNumber: '',
+      machineModel: '',
       engineNumber: '',
       brandId: '',
       unitOfMeasureId: unitUoM ? unitUoM.id : '',
@@ -704,7 +706,7 @@ export function ImportForm({
           machineTypesRes,
           unitOfMeasuresRes,
           partNumbersRes,
-          modelNumbersRes,
+          machineModelsRes,
         ] = await Promise.all([
           fetch('/api/machine-types?limit=1000'),
           fetch('/api/unit-of-measures?limit=1000'),
@@ -727,9 +729,9 @@ export function ImportForm({
           setPartNumbers(partNumbersData.data || []);
         }
 
-        if (modelNumbersRes.ok) {
-          const modelNumbersData = await modelNumbersRes.json();
-          setModelNumbers(modelNumbersData.data || []);
+        if (machineModelsRes.ok) {
+          const machineModelsData = await machineModelsRes.json();
+          setMachineModels(machineModelsData.data || []);
         }
       } catch (error) {
         console.error('Error loading reference data:', error);
@@ -897,7 +899,7 @@ export function ImportForm({
       serialNumber: item.serialNumber?.trim() || undefined,
       additionalSpecs: item.additionalSpecs?.trim() || undefined,
       batchOrLotNumber: item.batchOrLotNumber?.trim() || undefined,
-      modelNumber: item.modelNumber?.trim() || undefined,
+      machineModel: item.machineModel?.trim() || undefined,
     }));
 
     const submitData = {

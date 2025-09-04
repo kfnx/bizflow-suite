@@ -70,7 +70,7 @@ export type DeliveryNoteDetail = DeliveryNote & {
       code: string;
       category?: string;
       partNumber?: string;
-      modelNumber?: string;
+      machineModel?: string;
       engineNumber?: string;
       serialNumber?: string;
       additionalSpecs?: string;

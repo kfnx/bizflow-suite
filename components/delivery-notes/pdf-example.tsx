@@ -45,7 +45,7 @@ const exampleDeliveryNote = {
         code: '60650-07-00008',
         category: 'non_serialized',
         partNumber: '60650-07-00008',
-        modelNumber: 'SE215W',
+        machineModel: 'SE215W',
       },
     },
     {
@@ -58,7 +58,7 @@ const exampleDeliveryNote = {
         code: '60210-84-00009',
         category: 'non_serialized',
         partNumber: '60210-84-00009',
-        modelNumber: 'SE215W',
+        machineModel: 'SE215W',
       },
     },
     {
@@ -71,7 +71,7 @@ const exampleDeliveryNote = {
         code: '60210-78-00028',
         category: 'non_serialized',
         partNumber: '60210-78-00028',
-        modelNumber: 'SE215W',
+        machineModel: 'SE215W',
       },
     },
     {
@@ -84,7 +84,7 @@ const exampleDeliveryNote = {
         code: '60550-78-00041',
         category: 'non_serialized',
         partNumber: '60550-78-00041',
-        modelNumber: 'SE215W',
+        machineModel: 'SE215W',
       },
     },
     {
@@ -97,7 +97,7 @@ const exampleDeliveryNote = {
         code: '60210-38-00015',
         category: 'non_serialized',
         partNumber: '60210-38-00015',
-        modelNumber: 'SE215W',
+        machineModel: 'SE215W',
       },
     },
     {
@@ -110,7 +110,7 @@ const exampleDeliveryNote = {
         code: '60210-38-00017',
         category: 'non_serialized',
         partNumber: '60210-38-00017',
-        modelNumber: 'SE215W',
+        machineModel: 'SE215W',
       },
     },
   ],
@@ -159,7 +159,7 @@ const exampleSerializedDeliveryNote = {
         category: 'serialized',
         serialNumber: 'CHSRA10AASB000668',
         engineNumber: '4P25D001840',
-        modelNumber: 'SR10-B6',
+        machineModel: 'SR10-B6',
       },
     },
   ],

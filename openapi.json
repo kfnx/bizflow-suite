@@ -79,7 +79,7 @@
           {
             "name": "search",
             "in": "query",
-            "description": "Search term for product name, code, description, model number, part number, or serial number",
+            "description": "Search term for product name, code, description, machine model, part number, or serial number",
             "schema": {
               "type": "string"
             }
@@ -407,7 +407,7 @@
           "partNumber": {
             "type": "string"
           },
-          "modelNumber": {
+          "machineModel": {
             "type": "string"
           },
           "engineNumber": {

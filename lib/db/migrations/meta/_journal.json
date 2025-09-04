@@ -43,6 +43,13 @@
       "when": 1756345536220,
       "tag": "0005_dark_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1756998835096,
+      "tag": "0006_neat_shocker",
+      "breakpoints": true
     }
   ]
 }

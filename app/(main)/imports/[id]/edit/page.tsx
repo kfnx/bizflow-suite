@@ -67,7 +67,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
           engineNumber: item.engineNumber || '',
           serialNumber: item.serialNumber || '',
           batchOrLotNumber: item.batchOrLotNumber || '',
-          modelNumber: item.modelNumber || '',
+          machineModel: item.machineModel || '',
         })) || [],
     };
   };

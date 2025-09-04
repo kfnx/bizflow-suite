@@ -610,7 +610,7 @@ export const products = mysqlTable(
     quantity: int('quantity').notNull().default(1),
     // ================================
     machineTypeId: varchar('machine_type_id', { length: 36 }), // [serialized]
-    modelNumber: varchar('model_number', { length: 100 }), // [serialized]
+    machineModel: varchar('machine_model', { length: 100 }), // [serialized]
     engineNumber: varchar('engine_number', { length: 100 }), // [serialized]
     serialNumber: varchar('serial_number', { length: 100 }), // [serialized]
     additionalSpecs: text('additional_specs'), // [serialized]
@@ -779,7 +779,7 @@ export const importItems = mysqlTable(
 
     // Category-specific fields
     machineTypeId: varchar('machine_type_id', { length: 36 }), // [serialized]
-    modelNumber: varchar('model_number', { length: 100 }), // [serialized]
+    machineModel: varchar('machine_model', { length: 100 }), // [serialized]
     engineNumber: varchar('engine_number', { length: 100 }), // [serialized]
     serialNumber: varchar('serial_number', { length: 100 }).unique(), // [serialized]
     additionalSpecs: text('additional_specs'), // [serialized]
@@ -1099,6 +1099,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   invoiceItems: many(invoiceItems),
   deliveryNoteItems: many(deliveryNoteItems),
   imports: many(imports),
+  importItems: many(importItems),
   warehouseStocks: many(warehouseStocks),
 }));
 
@@ -1511,8 +1512,8 @@ export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
 export type InsertPurchaseOrder = typeof purchaseOrders.$inferInsert;
 export type PartNumber = typeof partNumbers.$inferSelect;
 export type InsertPartNumber = typeof partNumbers.$inferInsert;
-export type ModelNumber = typeof machineModel.$inferSelect;
-export type InsertModelNumber = typeof machineModel.$inferInsert;
+export type MachineModel = typeof machineModel.$inferSelect;
+export type InsertMachineModel = typeof machineModel.$inferInsert;
 
 // Roles and Permissions types
 export type Role = typeof roles.$inferSelect;

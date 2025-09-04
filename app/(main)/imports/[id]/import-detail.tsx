@@ -376,7 +376,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
 
                       {item.category === 'serialized' && (
                         <>
-                          <DetailItem label='Model' value={item.modelNumber} />
+                          <DetailItem label='Model' value={item.machineModel} />
                           <DetailItem
                             label='Engine Number'
                             value={item.engineNumber}

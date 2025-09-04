@@ -35,19 +35,19 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-interface ModelNumber {
+interface MachineModel {
   id: string;
   name: string;
 }
 
-interface EditingModelNumber extends ModelNumber {
+interface EditingMachineModel extends MachineModel {
   isNew?: boolean;
 }
 
-export function ModelNumbersTable() {
+export function MachineModelTable() {
   const queryClient = useQueryClient();
   const [editingItems, setEditingItems] = useState<
-    Record<string, EditingModelNumber>
+    Record<string, EditingMachineModel>
   >({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const newItemIdRef = useRef(0);
@@ -59,32 +59,32 @@ export function ModelNumbersTable() {
       const response = await fetch('/api/machine-model');
       if (!response.ok) throw new Error('Failed to fetch machine model');
       const result = await response.json();
-      return result.data as ModelNumber[];
+      return result.data as MachineModel[];
     },
   });
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (modelNumber: { name: string }) => {
+    mutationFn: async (machineModel: { name: string }) => {
       const response = await fetch('/api/machine-model', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(modelNumber),
+        body: JSON.stringify(machineModel),
       });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error?.details || error?.error || 'Failed to create model number',
+          error?.details || error?.error || 'Failed to create machine model',
         );
       }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['machine-model'] });
-      toast.success('Model number created successfully');
+      toast.success('Machine model created successfully');
     },
     onError: (error) => {
-      toast.error(`Failed to create model number: ${error.message}`);
+      toast.error(`Failed to create machine model: ${error.message}`);
     },
   });
 
@@ -92,7 +92,7 @@ export function ModelNumbersTable() {
   const updateMutation = useMutation({
     mutationFn: async ({
       id,
-      ...modelNumber
+      ...machineModel
     }: {
       id: string;
       name: string;
@@ -100,22 +100,22 @@ export function ModelNumbersTable() {
       const response = await fetch(`/api/machine-model/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(modelNumber),
+        body: JSON.stringify(machineModel),
       });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error?.details || error?.error || 'Failed to update model number',
+          error?.details || error?.error || 'Failed to update machine model',
         );
       }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['machine-model'] });
-      toast.success('Model number updated successfully');
+      toast.success('Machine model updated successfully');
     },
     onError: (error) => {
-      toast.error(`Failed to update model number: ${error.message}`);
+      toast.error(`Failed to update machine model: ${error.message}`);
     },
   });
 
@@ -128,14 +128,14 @@ export function ModelNumbersTable() {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error?.details || error?.error || 'Failed to delete model number',
+          error?.details || error?.error || 'Failed to delete machine model',
         );
       }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['machine-model'] });
-      toast.success('Model number deleted successfully');
+      toast.success('Machine model deleted successfully');
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -154,32 +154,32 @@ export function ModelNumbersTable() {
     }));
   }, []);
 
-  const handleEdit = useCallback((modelNumber: ModelNumber) => {
+  const handleEdit = useCallback((machineModel: MachineModel) => {
     setEditingItems((prev) => ({
       ...prev,
-      [modelNumber.id]: { ...modelNumber },
+      [machineModel.id]: { ...machineModel },
     }));
   }, []);
 
   const handleSave = useCallback(
     async (id: string) => {
-      const editingModelNumber = editingItems[id];
-      if (!editingModelNumber) return;
+      const editingMachineModel = editingItems[id];
+      if (!editingMachineModel) return;
 
-      if (!editingModelNumber.name.trim()) {
-        toast.error('Model number name is required');
+      if (!editingMachineModel.name.trim()) {
+        toast.error('Machine model name is required');
         return;
       }
 
       try {
-        if (editingModelNumber.isNew) {
+        if (editingMachineModel.isNew) {
           await createMutation.mutateAsync({
-            name: editingModelNumber.name,
+            name: editingMachineModel.name,
           });
         } else {
           await updateMutation.mutateAsync({
-            id: editingModelNumber.id,
-            name: editingModelNumber.name,
+            id: editingMachineModel.id,
+            name: editingMachineModel.name,
           });
         }
         setEditingItems((prev) => {
@@ -202,7 +202,7 @@ export function ModelNumbersTable() {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (confirm('Are you sure you want to delete this model number?')) {
+      if (confirm('Are you sure you want to delete this machine model?')) {
         await deleteMutation.mutateAsync(id);
       }
     },
@@ -210,7 +210,7 @@ export function ModelNumbersTable() {
   );
 
   const handleFieldChange = useCallback(
-    (id: string, field: keyof EditingModelNumber, value: string) => {
+    (id: string, field: keyof EditingMachineModel, value: string) => {
       setEditingItems((prev) => ({
         ...prev,
         [id]: {
@@ -229,7 +229,7 @@ export function ModelNumbersTable() {
   );
 
   // Define columns
-  const columns = useMemo<ColumnDef<ModelNumber>[]>(
+  const columns = useMemo<ColumnDef<MachineModel>[]>(
     () => [
       {
         accessorKey: 'name',
@@ -247,17 +247,17 @@ export function ModelNumbersTable() {
           </div>
         ),
         cell: ({ row }) => {
-          const modelNumber = row.original;
+          const machineModel = row.original;
           return (
             <Table.Cell>
-              {isEditing(modelNumber.id) ? (
+              {isEditing(machineModel.id) ? (
                 <Input.Root className='w-full'>
                   <Input.Wrapper>
                     <Input.Input
-                      value={editingItems[modelNumber.id]?.name || ''}
+                      value={editingItems[machineModel.id]?.name || ''}
                       onChange={(e) =>
                         handleFieldChange(
-                          modelNumber.id,
+                          machineModel.id,
                           'name',
                           e.target.value,
                         )
@@ -267,7 +267,7 @@ export function ModelNumbersTable() {
                   </Input.Wrapper>
                 </Input.Root>
               ) : (
-                <span className='font-medium'>{modelNumber.name}</span>
+                <span className='font-medium'>{machineModel.name}</span>
               )}
             </Table.Cell>
           );
@@ -277,15 +277,15 @@ export function ModelNumbersTable() {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => {
-          const modelNumber = row.original;
+          const machineModel = row.original;
           return (
             <Table.Cell>
               <div className='flex items-center gap-2'>
-                {isEditing(modelNumber.id) ? (
+                {isEditing(machineModel.id) ? (
                   <>
                     <Button
                       size='small'
-                      onClick={() => handleSave(modelNumber.id)}
+                      onClick={() => handleSave(machineModel.id)}
                       disabled={updateMutation.isPending}
                     >
                       <RiSaveLine className='size-4' />
@@ -293,7 +293,7 @@ export function ModelNumbersTable() {
                     <Button
                       size='small'
                       mode='stroke'
-                      onClick={() => handleCancel(modelNumber.id)}
+                      onClick={() => handleCancel(machineModel.id)}
                     >
                       <RiCloseLine className='size-4' />
                     </Button>
@@ -304,7 +304,7 @@ export function ModelNumbersTable() {
                       <Button
                         size='small'
                         mode='stroke'
-                        onClick={() => handleEdit(modelNumber)}
+                        onClick={() => handleEdit(machineModel)}
                       >
                         <RiEditLine className='size-4' />
                       </Button>
@@ -313,7 +313,7 @@ export function ModelNumbersTable() {
                       <Button
                         size='small'
                         mode='stroke'
-                        onClick={() => handleDelete(modelNumber.id)}
+                        onClick={() => handleDelete(machineModel.id)}
                         disabled={deleteMutation.isPending}
                       >
                         <RiDeleteBinLine className='size-4' />
@@ -361,11 +361,11 @@ export function ModelNumbersTable() {
   return (
     <div className='space-y-4 py-4'>
       <div className='flex items-center justify-between'>
-        <p className='text-sm text-gray-600'>Manage machine model</p>
+        <p className='text-sm text-gray-600'>Manage Machine Model</p>
         <PermissionGate permission='products:create'>
           <Button onClick={handleAdd} className='flex items-center gap-2'>
             <RiAddLine className='size-4' />
-            Add Model Number
+            Add Machine Model
           </Button>
         </PermissionGate>
       </div>
@@ -404,7 +404,7 @@ export function ModelNumbersTable() {
                         onChange={(e) =>
                           handleFieldChange(item.id, 'name', e.target.value)
                         }
-                        placeholder='Enter model number name'
+                        placeholder='Enter machine model name'
                         maxLength={36}
                       />
                     </Input.Wrapper>
@@ -449,7 +449,7 @@ export function ModelNumbersTable() {
                   colSpan={2}
                   className='text-gray-500 py-8 text-center'
                 >
-                  No machine model found. Click &apos;Add Model Number&apos; to
+                  No machine model found. Click &apos;Add Machine Model&apos; to
                   create one.
                 </Table.Cell>
               </Table.Row>

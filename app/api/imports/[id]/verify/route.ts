@@ -93,7 +93,7 @@ export async function POST(
           category: item.category,
           brandId: item.brandId,
           machineTypeId: item.machineTypeId,
-          modelNumber: item.modelNumber,
+          machineModel: item.machineModel,
           serialNumber: item.serialNumber,
           engineNumber: item.engineNumber,
           additionalSpecs: item.additionalSpecs,

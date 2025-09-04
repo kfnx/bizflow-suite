@@ -11,7 +11,7 @@ import {
 import { PermissionGate } from '@/components/auth/permission-gate';
 
 import { BrandsTable } from './brands-table';
-import { ModelNumbersTable } from './machine-model-table';
+import { MachineModelTable } from './machine-model-table';
 import { MachineTypesTable } from './machine-types-table';
 import { PartNumbersTable } from './part-numbers-table';
 import { UnitOfMeasuresTable } from './unit-of-measures-table';
@@ -45,7 +45,7 @@ export default function MasterDataPage() {
           </TabMenuTrigger>
           <TabMenuTrigger value='machine-types'>Machine Types</TabMenuTrigger>
           <TabMenuTrigger value='part-numbers'>Part Numbers</TabMenuTrigger>
-          <TabMenuTrigger value='machine-model'>Model Numbers</TabMenuTrigger>
+          <TabMenuTrigger value='machine-model'>Machine Model</TabMenuTrigger>
         </TabMenuList>
 
         <TabMenuContent value='brands'>
@@ -74,7 +74,7 @@ export default function MasterDataPage() {
 
         <TabMenuContent value='machine-model'>
           <PermissionGate permission='products:read'>
-            <ModelNumbersTable />
+            <MachineModelTable />
           </PermissionGate>
         </TabMenuContent>
       </TabMenuHorizontal>

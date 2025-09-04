@@ -131,8 +131,8 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
     <>
       <Divider.Root variant='solid-text'>Import Info</Divider.Root>
 
-      <div className='p-5'>
-        <div className='mb-3'>
+      <div className='flex items-start justify-between p-5'>
+        <div>
           <div className='text-title-h5 text-text-strong-950'>
             {importData.invoiceNumber}
           </div>
@@ -141,12 +141,13 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
             {new Date(importData.invoiceDate).toLocaleDateString()}
           </div>
         </div>
-
-        <div className='text-title-h5 text-text-strong-950'>
-          {formatCurrency(importData.total, 'IDR')}
-        </div>
-        <div className='mt-1 text-paragraph-sm text-text-sub-600'>
-          Total Amount (IDR)
+        <div className='text-right'>
+          <div className='text-title-h5 text-text-strong-950'>
+            {formatCurrency(importData.total, 'IDR')}
+          </div>
+          <div className='mt-1 text-paragraph-sm text-text-sub-600'>
+            Total Amount (IDR)
+          </div>
         </div>
       </div>
 

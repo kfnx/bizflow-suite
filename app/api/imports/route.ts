@@ -342,7 +342,7 @@ export async function POST(request: NextRequest) {
           condition: item.condition,
           machineTypeId: item.machineTypeId,
           unitOfMeasureId: item.unitOfMeasureId,
-          modelNumber: item.modelNumber,
+          machineModel: item.machineModel,
           partNumber: item.partNumber,
           engineNumber: item.engineNumber,
           batchOrLotNumber: item.batchOrLotNumber,

@@ -81,7 +81,7 @@ export function MachineModelTable() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['machine-model'] });
-      toast.success('Model number created successfully');
+      toast.success('Machine model created successfully');
     },
     onError: (error) => {
       toast.error(`Failed to create machine model: ${error.message}`);
@@ -112,7 +112,7 @@ export function MachineModelTable() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['machine-model'] });
-      toast.success('Model number updated successfully');
+      toast.success('Machine model updated successfully');
     },
     onError: (error) => {
       toast.error(`Failed to update machine model: ${error.message}`);
@@ -135,7 +135,7 @@ export function MachineModelTable() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['machine-model'] });
-      toast.success('Model number deleted successfully');
+      toast.success('Machine model deleted successfully');
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -167,7 +167,7 @@ export function MachineModelTable() {
       if (!editingMachineModel) return;
 
       if (!editingMachineModel.name.trim()) {
-        toast.error('Model number name is required');
+        toast.error('Machine model name is required');
         return;
       }
 

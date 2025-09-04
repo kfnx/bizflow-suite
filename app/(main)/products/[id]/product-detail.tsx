@@ -340,13 +340,13 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 </div>
               )}
 
-              {productData.modelNumber && (
+              {productData.machineModel && (
                 <div>
                   <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Model Number
+                    Machine Model
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.modelNumber}
+                    {productData.machineModel}
                   </div>
                 </div>
               )}

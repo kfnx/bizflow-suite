@@ -22,7 +22,7 @@ const serializedProductSchema = baseProductSchema.extend({
     .min(1, 'Machine type is required for serialized products'),
   unitOfMeasureId: z.string().nullish(), // NULL for serialized
   partNumber: z.string().max(100).nullish(),
-  modelNumber: z.string().max(100).optional(),
+  machineModel: z.string().max(100).optional(),
   engineNumber: z.string().max(100).optional(),
   serialNumber: z.string().max(100),
   additionalSpecs: z.string().max(100).optional(),
@@ -40,7 +40,7 @@ const nonSerializedProductSchema = baseProductSchema.extend({
   // These should be null for non-serialized
   machineTypeId: z.string().nullish(),
   partNumber: z.string().max(100).optional(),
-  modelNumber: z.string().nullish(),
+  machineModel: z.string().nullish(),
   engineNumber: z.string().nullish(),
   serialNumber: z.string().nullish(),
   additionalSpecs: z.string().max(100).nullish(),
@@ -53,7 +53,7 @@ const bulkProductSchema = baseProductSchema.extend({
     .string()
     .min(1, 'Unit of measure is required for bulk products'),
   partNumber: z.string().max(100),
-  modelNumber: z.string().nullish(),
+  machineModel: z.string().nullish(),
   batchOrLotNumber: z.string().max(100).optional(),
   // These should be null for bulk
   machineTypeId: z.string().nullish(),

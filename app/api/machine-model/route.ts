@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch machine model
-    const modelNumbersData = await db
+    const machineModelsData = await db
       .select({
         id: machineModel.id,
         name: machineModel.name,
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
     const totalCount = totalCountResult.length;
 
     return NextResponse.json({
-      data: modelNumbersData,
+      data: machineModelsData,
       pagination: {
         page,
         limit,
@@ -113,55 +113,55 @@ export async function POST(request: NextRequest) {
     // Basic validation
     if (!name?.trim()) {
       return NextResponse.json(
-        { error: 'Model number name is required' },
+        { error: 'Machine model name is required' },
         { status: 400 },
       );
     }
 
     if (name.trim().length > 36) {
       return NextResponse.json(
-        { error: 'Model number name must be 36 characters or less' },
+        { error: 'Machine model name must be 36 characters or less' },
         { status: 400 },
       );
     }
 
-    // Check if model number with same name already exists
-    const existingModelNumber = await db
+    // Check if machine model with same name already exists
+    const existingMachineModel = await db
       .select({ id: machineModel.id, name: machineModel.name })
       .from(machineModel)
       .where(like(machineModel.name, name.trim()))
       .limit(1);
 
-    if (existingModelNumber.length > 0) {
+    if (existingMachineModel.length > 0) {
       return NextResponse.json(
         {
-          error: 'Model number with this name already exists',
-          details: `A model number named "${existingModelNumber[0].name}" already exists`,
+          error: 'Machine model with this name already exists',
+          details: `A machine model named "${existingMachineModel[0].name}" already exists`,
         },
         { status: 409 },
       );
     }
 
-    // Create model number with slugified ID
-    const modelNumberId = createSlug(name.trim());
-    const newModelNumber = {
-      id: modelNumberId,
+    // Create machine model with slugified ID
+    const machineModelId = createSlug(name.trim());
+    const newMachineModel = {
+      id: machineModelId,
       name: name.trim(),
     };
 
-    await db.insert(machineModel).values(newModelNumber);
+    await db.insert(machineModel).values(newMachineModel);
 
     return NextResponse.json(
       {
-        message: 'Model number created successfully',
-        data: newModelNumber,
+        message: 'Machine model created successfully',
+        data: newMachineModel,
       },
       { status: 201 },
     );
   } catch (error) {
-    console.error('Error creating model number:', error);
+    console.error('Error creating machine model:', error);
     return NextResponse.json(
-      { error: 'Failed to create model number' },
+      { error: 'Failed to create machine model' },
       { status: 500 },
     );
   }

@@ -24,50 +24,50 @@ export async function PUT(
     // Basic validation
     if (!name?.trim()) {
       return NextResponse.json(
-        { error: 'Model number name is required' },
+        { error: 'Machine model name is required' },
         { status: 400 },
       );
     }
 
     if (name.trim().length > 36) {
       return NextResponse.json(
-        { error: 'Model number name must be 36 characters or less' },
+        { error: 'Machine model name must be 36 characters or less' },
         { status: 400 },
       );
     }
 
-    // Check if model number exists
-    const existingModelNumber = await db
+    // Check if machine model exists
+    const existingMachineModel = await db
       .select()
       .from(machineModel)
       .where(eq(machineModel.id, params.id))
       .limit(1);
 
-    if (existingModelNumber.length === 0) {
+    if (existingMachineModel.length === 0) {
       return NextResponse.json(
-        { error: 'Model number not found' },
+        { error: 'Machine model not found' },
         { status: 404 },
       );
     }
 
-    // Update model number
-    const updatedModelNumber = {
+    // Update machine model
+    const updatedMachineModel = {
       name: name.trim(),
     };
 
     await db
       .update(machineModel)
-      .set(updatedModelNumber)
+      .set(updatedMachineModel)
       .where(eq(machineModel.id, params.id));
 
     return NextResponse.json({
-      message: 'Model number updated successfully',
-      data: { id: params.id, ...updatedModelNumber },
+      message: 'Machine model updated successfully',
+      data: { id: params.id, ...updatedMachineModel },
     });
   } catch (error) {
-    console.error('Error updating model number:', error);
+    console.error('Error updating machine model:', error);
     return NextResponse.json(
-      { error: 'Failed to update model number' },
+      { error: 'Failed to update machine model' },
       { status: 500 },
     );
   }
@@ -84,65 +84,65 @@ export async function DELETE(
   }
 
   try {
-    // Check if model number exists
-    const existingModelNumber = await db
+    // Check if machine model exists
+    const existingMachineModel = await db
       .select()
       .from(machineModel)
       .where(eq(machineModel.id, params.id))
       .limit(1);
 
-    if (existingModelNumber.length === 0) {
+    if (existingMachineModel.length === 0) {
       return NextResponse.json(
-        { error: 'Model number not found' },
+        { error: 'Machine model not found' },
         { status: 404 },
       );
     }
 
-    // Check if model number is referenced in products table
-    const productsUsingModelNumber = await db
+    // Check if machine model is referenced in products table
+    const productsUsingMachineModel = await db
       .select({ id: products.id, name: products.name })
       .from(products)
-      .where(eq(products.modelNumber, params.id))
+      .where(eq(products.machineModel, params.id))
       .limit(1);
 
-    if (productsUsingModelNumber.length > 0) {
+    if (productsUsingMachineModel.length > 0) {
       return NextResponse.json(
         {
-          error: 'Cannot delete model number. It is being used by products.',
-          details: `Model number is referenced by product: ${productsUsingModelNumber[0].name}`,
+          error: 'Cannot delete machine model. It is being used by products.',
+          details: `Machine model is referenced by product: ${productsUsingMachineModel[0].name}`,
         },
         { status: 409 },
       );
     }
 
-    // Check if model number is referenced in import items table
-    const importItemsUsingModelNumber = await db
+    // Check if machine model is referenced in import items table
+    const importItemsUsingMachineModel = await db
       .select({ id: importItems.id, name: importItems.name })
       .from(importItems)
-      .where(eq(importItems.modelNumber, params.id))
+      .where(eq(importItems.machineModel, params.id))
       .limit(1);
 
-    if (importItemsUsingModelNumber.length > 0) {
+    if (importItemsUsingMachineModel.length > 0) {
       return NextResponse.json(
         {
           error:
-            'Cannot delete model number. It is being used by import items.',
-          details: `Model number is referenced by import item: ${importItemsUsingModelNumber[0].name}`,
+            'Cannot delete machine model. It is being used by import items.',
+          details: `Machine model is referenced by import item: ${importItemsUsingMachineModel[0].name}`,
         },
         { status: 409 },
       );
     }
 
-    // Delete model number
+    // Delete machine model
     await db.delete(machineModel).where(eq(machineModel.id, params.id));
 
     return NextResponse.json({
-      message: 'Model number deleted successfully',
+      message: 'Machine model deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting model number:', error);
+    console.error('Error deleting machine model:', error);
     return NextResponse.json(
-      { error: 'Failed to delete model number' },
+      { error: 'Failed to delete machine model' },
       { status: 500 },
     );
   }

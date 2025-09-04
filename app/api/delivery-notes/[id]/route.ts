@@ -144,7 +144,7 @@ export async function GET(
           code: products.code,
           category: products.category,
           partNumber: products.partNumber,
-          modelNumber: products.modelNumber,
+          machineModel: products.machineModel,
           engineNumber: products.engineNumber,
           serialNumber: products.serialNumber,
           additionalSpecs: products.additionalSpecs,

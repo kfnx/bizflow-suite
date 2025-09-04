@@ -47,7 +47,7 @@ export type ImportItem = {
   partNumber?: string;
   engineNumber?: string;
   serialNumber?: string;
-  modelNumber?: string;
+  machineModel?: string;
   batchOrLotNumber?: string;
 };
 

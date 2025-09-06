@@ -79,9 +79,6 @@ const fetchKanbanData = async (): Promise<{ data: KanbanData }> => {
 };
 
 export function useKanban() {
-  const { data: pendingQuotations } = usePendingQuotations();
-  const { data: pendingImports } = usePendingImports();
-
   return useQuery({
     queryKey: ['kanban'],
     queryFn: () => fetchKanbanData(),

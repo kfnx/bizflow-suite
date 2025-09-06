@@ -5,9 +5,9 @@ import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { IMPORT_STATUS, QUOTATION_STATUS } from '@/lib/db/enum';
 import {
+  branches,
   customers,
   deliveryNotes,
-  importItems,
   imports,
   invoices,
   quotations,
@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
         id: invoices.id,
         invoiceNumber: invoices.invoiceNumber,
         customerId: invoices.customerId,
+        customerName: customers.name,
         total: invoices.total,
         status: invoices.status,
         createdAt: invoices.createdAt,
@@ -60,6 +61,9 @@ export async function GET(request: NextRequest) {
         id: deliveryNotes.id,
         deliveryNumber: deliveryNotes.deliveryNumber,
         customerId: deliveryNotes.customerId,
+        customerName: customers.name,
+        branchId: deliveryNotes.branchId,
+        branchName: branches.name,
         deliveryMethod: deliveryNotes.deliveryMethod,
         vehicleNumber: deliveryNotes.vehicleNumber,
         status: deliveryNotes.status,
@@ -68,6 +72,7 @@ export async function GET(request: NextRequest) {
       })
       .from(deliveryNotes)
       .leftJoin(customers, eq(deliveryNotes.customerId, customers.id))
+      .leftJoin(branches, eq(deliveryNotes.branchId, branches.id))
       .orderBy(deliveryNotes.createdAt);
 
     const pendingQuotations = await db

@@ -2,12 +2,17 @@
 
 import { RiBarChart2Line } from '@remixicon/react';
 
+import { useKanban } from '@/hooks/use-kanban';
 import { ActionButton } from '@/components/action-button';
 import Header from '@/components/header';
+import { KanbanBoard } from '@/components/kanban-board';
 import SplitText from '@/components/split-text';
 import { SummaryCountCards } from '@/components/summary-count-cards';
 
 export default function PageHome() {
+  const { data } = useKanban();
+
+  console.log(data);
   return (
     <>
       <Header
@@ -36,8 +41,9 @@ export default function PageHome() {
         </div>
 
         {/* Summary Count Cards */}
-        <div className='mt-8 w-full max-w-6xl'>
-          <SummaryCountCards />
+        <div className='mt-8 flex w-full max-w-7xl justify-center'>
+          {/* <SummaryCountCards /> */}
+          <KanbanBoard />
         </div>
 
         <SplitText

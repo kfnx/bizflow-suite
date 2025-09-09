@@ -44,6 +44,16 @@ interface InvoiceFormProps {
   onFormDataChange?: (formData: InvoiceFormData) => void;
 }
 
+interface ValidationErrors {
+  customerId?: string;
+  items?: string[];
+  invoiceDate?: string;
+  dueDate?: string;
+  notes?: string;
+  paymentTerm?: string;
+  general?: string;
+}
+
 const emptyFormData: InvoiceFormData = {
   invoiceDate: '',
   dueDate: '',
@@ -71,9 +81,9 @@ export function InvoiceForm({
   const [isLoading, setIsLoading] = useState(false);
   const isInitialLoadRef = useRef(true);
   const [isInitialized, setIsInitialized] = useState(mode === 'create');
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -147,40 +157,59 @@ export function InvoiceForm({
 
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev) =>
+        prev ? { ...prev, [field]: value } : emptyFormData,
+      );
       // Clear validation error for this field when user starts typing
-      if (validationErrors[field]) {
-        setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+      if (validationErrors[field as keyof ValidationErrors]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     },
     [validationErrors],
   );
 
   const addItem = useCallback(() => {
-    setFormData((prev) => ({
-      ...prev,
-      items: [
-        ...prev.items,
-        {
-          productId: '',
-          name: '',
-          quantity: 1,
-          unitPrice: '0',
-        },
-      ],
-    }));
-  }, []);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                additionalSpecs: '',
+              },
+            ],
+          }
+        : emptyFormData,
+    );
+    // Clear items validation error when adding new item
+    if (validationErrors.items) {
+      setValidationErrors((prev) => ({ ...prev, items: undefined }));
+    }
+  }, [validationErrors.items]);
 
   const updateItem = useCallback(
     (index: number, field: keyof InvoiceItem, value: string | number) => {
-      setFormData((prev) => ({
-        ...prev,
-        items: prev.items.map((item, i) =>
-          i === index ? { ...item, [field]: value } : item,
-        ),
-      }));
+      setFormData((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
+          : emptyFormData,
+      );
+      // Clear items validation error when updating items
+      if (validationErrors.items) {
+        setValidationErrors((prev) => ({ ...prev, items: undefined }));
+      }
     },
-    [],
+    [validationErrors.items],
   );
 
   const removeItem = useCallback((index: number) => {

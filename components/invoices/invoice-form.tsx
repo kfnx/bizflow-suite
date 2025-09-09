@@ -593,29 +593,29 @@ export function InvoiceForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
-                    onValueChange={(value) => {
-                      const product = products?.data?.find(
-                        (p) => p.id === value,
-                      );
-                      updateItem(index, 'productId', value);
-                      updateItem(index, 'category', product?.category || '');
-                      updateItem(index, 'name', product?.name || '');
+                    onValueChange={(value) =>
+                      updateItem(index, 'productId', value)
+                    }
+                    onProductSelect={(product) => {
+                      updateItem(index, 'category', product.category || '');
+                      updateItem(index, 'name', product.name || '');
                       updateItem(
                         index,
                         'unitPrice',
-                        formatNumberWithDots(product?.price || 0),
+                        formatNumberWithDots(product.price || 0),
                       );
                       if (
-                        product?.category === 'serialized' &&
-                        product?.additionalSpecs
+                        product.category === 'serialized' &&
+                        product.additionalSpecs
                       ) {
                         updateItem(
                           index,
                           'additionalSpecs',
-                          product?.additionalSpecs,
+                          product.additionalSpecs,
                         );
                       }
                     }}
+                    error={!!validationErrors.items?.[index]}
                   />
                 </div>
 

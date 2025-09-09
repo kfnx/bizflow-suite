@@ -1,11 +1,26 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { RiSearchLine, RiShoppingCartLine } from '@remixicon/react';
+import { useState } from 'react';
+import { RiShoppingCartLine } from '@remixicon/react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { useProducts } from '@/hooks/use-products';
 import type { ProductWithRelations } from '@/hooks/use-products';
-import * as Select from '@/components/ui/select';
+import * as Button from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover-radix';
 
 interface ProductSelectProps {
   value?: string;
@@ -20,28 +35,20 @@ export function ProductSelect({
   onProductSelect,
   error = false,
 }: ProductSelectProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [open, setOpen] = useState(false);
 
   // Use limit=-1 to get all products
   const { data: products, isLoading } = useProducts({
     limit: -1,
   });
 
-  // Filter products based on search query
-  const filteredProducts = useMemo(() => {
-    if (!products?.data) return [];
+  const selectedProduct = products?.data?.find(
+    (product) => product.id === value,
+  );
 
-    if (!searchQuery.trim()) return products.data;
-
-    return products.data.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [products?.data, searchQuery]);
-
-  const handleValueChange = (selectedValue: string) => {
+  const handleSelect = (selectedValue: string) => {
     onValueChange(selectedValue);
+    setOpen(false);
 
     // Call the callback with the selected product data
     if (onProductSelect && products?.data) {
@@ -54,60 +61,67 @@ export function ProductSelect({
     }
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
   return (
-    <Select.Root
-      value={value}
-      onValueChange={handleValueChange}
-      disabled={isLoading}
-    >
-      <Select.Trigger className={error ? 'border-error-500' : ''}>
-        <Select.TriggerIcon as={RiShoppingCartLine} />
-        <Select.Value
-          placeholder={isLoading ? 'Loading products...' : 'Select product'}
-        />
-      </Select.Trigger>
-      <Select.Content className='max-h-[350px]'>
-        {/* Search Input */}
-        <div className='sticky -top-2 z-10 border-b border-stroke-soft-200 bg-white p-2'>
-          <div className='relative'>
-            <RiSearchLine className='pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-text-soft-400' />
-            <input
-              type='text'
-              placeholder='Search products...'
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onKeyDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-              autoFocus
-              className='text-sm focus:ring-primary-500 w-full rounded-md border border-stroke-soft-200 py-2 pl-10 pr-3 focus:outline-none focus:ring-2'
-            />
-          </div>
-        </div>
-
-        {/* Product List */}
-        <div>
-          {filteredProducts.length === 0 ? (
-            <div className='text-sm p-3 text-center text-text-soft-400'>
-              {searchQuery ? 'No products found' : 'No products available'}
-            </div>
-          ) : (
-            filteredProducts.map((product) => (
-              <Select.Item key={product.id} value={product.id}>
-                <div>
-                  <span>{product.name}</span>
-                  <small className='ml-1 text-text-soft-400'>
-                    {product.category}
-                  </small>
-                </div>
-              </Select.Item>
-            ))
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button.Root
+          variant='neutral'
+          mode='stroke'
+          role='combobox'
+          aria-expanded={open}
+          className={cn(
+            'w-full justify-between',
+            error && 'border-red-500 focus-visible:ring-red-500',
+            !selectedProduct && 'text-muted-foreground',
           )}
-        </div>
-      </Select.Content>
-    </Select.Root>
+          disabled={isLoading}
+        >
+          <div className='flex items-center gap-2'>
+            <RiShoppingCartLine className='h-4 w-4' />
+            <span>
+              {selectedProduct
+                ? selectedProduct.name
+                : isLoading
+                  ? 'Loading products...'
+                  : 'Select product'}
+            </span>
+          </div>
+          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+        </Button.Root>
+      </PopoverTrigger>
+      <PopoverContent className='w-[var(--radix-popover-trigger-width)] p-0'>
+        <Command>
+          <CommandInput placeholder='Search products...' className='h-9 p-3' />
+          <CommandList className='max-h-[280px]'>
+            <CommandEmpty>
+              {isLoading ? 'Loading products...' : 'No products found.'}
+            </CommandEmpty>
+            <CommandGroup>
+              {products?.data?.map((product) => (
+                <CommandItem
+                  key={product.id}
+                  value={product.name} // value bisa nama atau ID, untuk search
+                  onSelect={() => handleSelect(product.id)} // onSelect memanggil handler dengan ID
+                  className='flex items-center justify-between'
+                >
+                  <div className='flex flex-col'>
+                    <span>{product.name}</span>
+                    <small className='text-muted-foreground'>
+                      {product.category}
+                    </small>
+                  </div>
+                  <Check
+                    className={cn(
+                      'ml-2 h-4 w-4',
+                      value === product.id ? 'opacity-100' : 'opacity-0',
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

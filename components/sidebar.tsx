@@ -22,6 +22,8 @@ import {
   RiTruckLine,
   RiUserLine,
   RiUserSettingsLine,
+  RiShieldUserLine,
+  RiKeyLine,
 } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -123,6 +125,16 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiUserSettingsLine,
         label: 'Users',
         href: '/users',
+      },
+      {
+        icon: RiShieldUserLine,
+        label: 'Roles',
+        href: '/roles',
+      },
+      {
+        icon: RiKeyLine,
+        label: 'Permissions',
+        href: '/permissions',
       },
       {
         icon: RiGitBranchLine,
@@ -290,6 +302,8 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           '/suppliers': ['suppliers:read'],
           '/customers': ['customers:read'],
           '/users': ['users:read'],
+          '/roles': ['roles:read'],
+          '/permissions': ['permissions:read'],
           '/branches': ['branches:read'],
           // '/master-data': ['master-data:read'],
         };

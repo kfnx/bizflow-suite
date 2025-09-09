@@ -83,25 +83,6 @@ export function Filters({ onFiltersChange }: FiltersProps) {
         </Input.Wrapper>
       </Input.Root>
 
-      <SegmentedControl.Root
-        value={filteredUserStatus}
-        onValueChange={handleRoleChange}
-        className='lg:w-96'
-      >
-        <SegmentedControl.List className='w-full'>
-          <SegmentedControl.Trigger value='all'>All</SegmentedControl.Trigger>
-          <SegmentedControl.Trigger value='staff'>
-            Staff
-          </SegmentedControl.Trigger>
-          <SegmentedControl.Trigger value='manager'>
-            Manager
-          </SegmentedControl.Trigger>
-          <SegmentedControl.Trigger value='director'>
-            Director
-          </SegmentedControl.Trigger>
-        </SegmentedControl.List>
-      </SegmentedControl.Root>
-
       <div className='hidden flex-wrap gap-3 min-[560px]:flex-nowrap lg:flex'>
         <Input.Root size='small' className='w-[300px]'>
           <Input.Wrapper>

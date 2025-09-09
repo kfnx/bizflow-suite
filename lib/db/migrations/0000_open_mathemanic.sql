@@ -71,8 +71,6 @@ CREATE TABLE `delivery_note_items` (
 	`delivery_note_id` varchar(36) NOT NULL,
 	`product_id` varchar(36) NOT NULL,
 	`quantity` int NOT NULL,
-	`delivered_quantity` int DEFAULT 0,
-	`notes` text,
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `delivery_note_items_id` PRIMARY KEY(`id`)
 );
@@ -113,8 +111,7 @@ CREATE TABLE `import_items` (
 	`condition` varchar(50) DEFAULT 'new',
 	`unit_of_measure_id` varchar(36),
 	`machine_type_id` varchar(36),
-	`model_number` varchar(100),
-	`machine_number` varchar(100),
+	`machine_model` varchar(100),
 	`engine_number` varchar(100),
 	`serial_number` varchar(100),
 	`additional_specs` text,
@@ -183,6 +180,13 @@ CREATE TABLE `invoices` (
 	CONSTRAINT `invoices_invoice_number_unique` UNIQUE(`invoice_number`)
 );
 --> statement-breakpoint
+CREATE TABLE `machine_model` (
+	`id` varchar(36) NOT NULL,
+	`name` varchar(100) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	CONSTRAINT `machine_model_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `machine_types` (
 	`id` varchar(36) NOT NULL,
 	`name` varchar(100) NOT NULL,
@@ -190,10 +194,19 @@ CREATE TABLE `machine_types` (
 	CONSTRAINT `machine_types_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `permissions` (
+CREATE TABLE `part_numbers` (
 	`id` varchar(36) NOT NULL,
+	`name` varchar(100) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	CONSTRAINT `part_numbers_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `permissions` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`name` varchar(255) NOT NULL,
 	`description` text,
+	`resources` text,
+	`actions` text,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `permissions_id` PRIMARY KEY(`id`),
@@ -210,7 +223,7 @@ CREATE TABLE `products` (
 	`brand_id` varchar(36),
 	`quantity` int NOT NULL DEFAULT 1,
 	`machine_type_id` varchar(36),
-	`model_number` varchar(100),
+	`machine_model` varchar(100),
 	`engine_number` varchar(100),
 	`serial_number` varchar(100),
 	`additional_specs` text,
@@ -285,14 +298,15 @@ CREATE TABLE `quotations` (
 );
 --> statement-breakpoint
 CREATE TABLE `role_permissions` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`role_id` varchar(36) NOT NULL,
 	`permission_id` varchar(36) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
-	CONSTRAINT `role_permissions_role_id_permission_id_pk` PRIMARY KEY(`role_id`,`permission_id`)
+	CONSTRAINT `role_permissions_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `roles` (
-	`id` varchar(36) NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`name` varchar(255) NOT NULL,
 	`description` text,
 	`created_at` timestamp DEFAULT (now()),
@@ -377,6 +391,7 @@ CREATE TABLE `unit_of_measures` (
 );
 --> statement-breakpoint
 CREATE TABLE `user_roles` (
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`user_id` varchar(36) NOT NULL,
 	`role_id` varchar(36) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
@@ -507,7 +522,6 @@ CREATE INDEX `created_by_idx` ON `delivery_notes` (`created_by`);--> statement-b
 CREATE INDEX `import_id_idx` ON `import_items` (`import_id`);--> statement-breakpoint
 CREATE INDEX `product_id_idx` ON `import_items` (`product_id`);--> statement-breakpoint
 CREATE INDEX `category_idx` ON `import_items` (`category`);--> statement-breakpoint
-CREATE INDEX `machine_number_idx` ON `import_items` (`machine_number`);--> statement-breakpoint
 CREATE INDEX `invoice_number_idx` ON `imports` (`invoice_number`);--> statement-breakpoint
 CREATE INDEX `supplier_id_idx` ON `imports` (`supplier_id`);--> statement-breakpoint
 CREATE INDEX `warehouse_id_idx` ON `imports` (`warehouse_id`);--> statement-breakpoint

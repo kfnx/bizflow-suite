@@ -345,33 +345,173 @@ export const permissions = [
     description: 'Transfers Update',
   },
   {
-    id: 'transfers:delete',
+    id: permissionIds.transfers.delete,
     name: 'Transfers Delete',
     description: 'Transfers Delete',
   },
+  // Roles permissions
+  {
+    id: permissionIds.roles.read,
+    name: 'Roles Read',
+    description: 'Read roles',
+  },
+  {
+    id: permissionIds.roles.create,
+    name: 'Roles Create',
+    description: 'Create roles',
+  },
+  {
+    id: permissionIds.roles.update,
+    name: 'Roles Update',
+    description: 'Update roles',
+  },
+  {
+    id: permissionIds.roles.delete,
+    name: 'Roles Delete',
+    description: 'Delete roles',
+  },
+  // Permissions permissions
+  {
+    id: permissionIds.permissions.read,
+    name: 'Permissions Read',
+    description: 'Read permissions',
+  },
+  {
+    id: permissionIds.permissions.create,
+    name: 'Permissions Create',
+    description: 'Create permissions',
+  },
+  {
+    id: permissionIds.permissions.update,
+    name: 'Permissions Update',
+    description: 'Update permissions',
+  },
+  {
+    id: permissionIds.permissions.delete,
+    name: 'Permissions Delete',
+    description: 'Delete permissions',
+  },
 ];
 
-// TODO: complete this
+// Complete role permissions mapping
 export const rolePermissions = [
-  {
-    roleId: roleIds.admin,
-    permissionId: permissionIds.users.read,
-  },
-  {
-    roleId: roleIds.admin,
-    permissionId: permissionIds.users.create,
-  },
-  {
-    roleId: roleIds.admin,
-    permissionId: permissionIds.users.update,
-  },
-  {
-    roleId: roleIds.admin,
-    permissionId: permissionIds.users.delete,
-  },
+  // Admin - Full permissions for everything
+  { roleId: roleIds.admin, permissionId: permissionIds.users.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.users.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.users.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.users.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.branches.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.branches.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.branches.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.branches.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.roles.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.roles.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.roles.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.roles.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.permissions.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.permissions.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.permissions.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.permissions.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.quotations.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.quotations.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.quotations.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.quotations.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.quotations.approve },
+  { roleId: roleIds.admin, permissionId: permissionIds.invoices.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.invoices.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.invoices.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.invoices.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.deliveries.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.deliveries.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.deliveries.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.deliveries.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.imports.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.imports.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.imports.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.imports.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.imports.verify },
+  { roleId: roleIds.admin, permissionId: permissionIds.products.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.products.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.products.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.products.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.suppliers.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.suppliers.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.suppliers.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.suppliers.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.customers.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.customers.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.customers.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.customers.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.warehouses.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.warehouses.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.warehouses.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.warehouses.delete },
+  { roleId: roleIds.admin, permissionId: permissionIds.transfers.read },
+  { roleId: roleIds.admin, permissionId: permissionIds.transfers.create },
+  { roleId: roleIds.admin, permissionId: permissionIds.transfers.update },
+  { roleId: roleIds.admin, permissionId: permissionIds.transfers.delete },
+
+  // Manager - Business operations permissions
+  { roleId: roleIds.manager, permissionId: permissionIds.quotations.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.quotations.create },
+  { roleId: roleIds.manager, permissionId: permissionIds.quotations.update },
+  { roleId: roleIds.manager, permissionId: permissionIds.quotations.approve },
+  { roleId: roleIds.manager, permissionId: permissionIds.invoices.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.invoices.create },
+  { roleId: roleIds.manager, permissionId: permissionIds.invoices.update },
+  { roleId: roleIds.manager, permissionId: permissionIds.deliveries.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.deliveries.create },
+  { roleId: roleIds.manager, permissionId: permissionIds.deliveries.update },
+  { roleId: roleIds.manager, permissionId: permissionIds.products.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.products.create },
+  { roleId: roleIds.manager, permissionId: permissionIds.products.update },
+  { roleId: roleIds.manager, permissionId: permissionIds.suppliers.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.customers.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.customers.create },
+  { roleId: roleIds.manager, permissionId: permissionIds.customers.update },
+  { roleId: roleIds.manager, permissionId: permissionIds.warehouses.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.transfers.read },
+  { roleId: roleIds.manager, permissionId: permissionIds.transfers.create },
+  { roleId: roleIds.manager, permissionId: permissionIds.transfers.update },
+
+  // Import Manager - Import and warehouse management
+  { roleId: roleIds.importManager, permissionId: permissionIds.imports.read },
+  { roleId: roleIds.importManager, permissionId: permissionIds.imports.create },
+  { roleId: roleIds.importManager, permissionId: permissionIds.imports.update },
+  { roleId: roleIds.importManager, permissionId: permissionIds.imports.verify },
+  { roleId: roleIds.importManager, permissionId: permissionIds.products.read },
+  { roleId: roleIds.importManager, permissionId: permissionIds.products.create },
+  { roleId: roleIds.importManager, permissionId: permissionIds.products.update },
+  { roleId: roleIds.importManager, permissionId: permissionIds.suppliers.read },
+  { roleId: roleIds.importManager, permissionId: permissionIds.warehouses.read },
+  { roleId: roleIds.importManager, permissionId: permissionIds.transfers.read },
+  { roleId: roleIds.importManager, permissionId: permissionIds.transfers.create },
+  { roleId: roleIds.importManager, permissionId: permissionIds.transfers.update },
+
+  // Director - High-level approvals and reports
+  { roleId: roleIds.director, permissionId: permissionIds.quotations.read },
+  { roleId: roleIds.director, permissionId: permissionIds.quotations.approve },
+  { roleId: roleIds.director, permissionId: permissionIds.invoices.read },
+  { roleId: roleIds.director, permissionId: permissionIds.deliveries.read },
+  { roleId: roleIds.director, permissionId: permissionIds.imports.read },
+  { roleId: roleIds.director, permissionId: permissionIds.products.read },
+  { roleId: roleIds.director, permissionId: permissionIds.suppliers.read },
+  { roleId: roleIds.director, permissionId: permissionIds.customers.read },
+  { roleId: roleIds.director, permissionId: permissionIds.warehouses.read },
+  { roleId: roleIds.director, permissionId: permissionIds.transfers.read },
+
+  // Staff - Limited read permissions
+  { roleId: roleIds.staff, permissionId: permissionIds.quotations.read },
+  { roleId: roleIds.staff, permissionId: permissionIds.quotations.create },
+  { roleId: roleIds.staff, permissionId: permissionIds.invoices.read },
+  { roleId: roleIds.staff, permissionId: permissionIds.deliveries.read },
+  { roleId: roleIds.staff, permissionId: permissionIds.products.read },
+  { roleId: roleIds.staff, permissionId: permissionIds.suppliers.read },
+  { roleId: roleIds.staff, permissionId: permissionIds.customers.read },
+  { roleId: roleIds.staff, permissionId: permissionIds.warehouses.read },
 ];
 
-// TODO: complete this
+// Complete user role assignments
 export const userRoles = [
   {
     userId: userIds.admin_ho_jakarta,
@@ -383,6 +523,22 @@ export const userRoles = [
   },
   {
     userId: userIds.staff_pekanbaru,
+    roleId: roleIds.staff,
+  },
+  {
+    userId: userIds.user4, // Director
+    roleId: roleIds.director,
+  },
+  {
+    userId: userIds.user5, // Staff
+    roleId: roleIds.staff,
+  },
+  {
+    userId: userIds.user6, // Import Manager
     roleId: roleIds.importManager,
+  },
+  {
+    userId: userIds.user7, // Inactive Staff
+    roleId: roleIds.staff,
   },
 ];

@@ -1,3 +1,4 @@
+import { act } from 'react';
 import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
@@ -71,7 +72,10 @@ export const verificationTokens = mysqlTable(
 export const roles = mysqlTable(
   'roles',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(), // example: admin, staff, manager, import-manager, director
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`), // example: admin, staff, manager, import-manager, director
     name: varchar('name', { length: 255 }).notNull().unique(),
     description: text('description'),
     createdAt: timestamp('created_at').defaultNow(),
@@ -84,9 +88,14 @@ export const roles = mysqlTable(
 export const permissions = mysqlTable(
   'permissions',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(), // example: quotation:read, invoice:update
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     name: varchar('name', { length: 255 }).notNull().unique(),
     description: text('description'),
+    resources: text('resources'),
+    actions: text('actions'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
@@ -97,6 +106,9 @@ export const permissions = mysqlTable(
 export const userRoles = mysqlTable(
   'user_roles',
   {
+    id: varchar('id', { length: 36 })
+      .notNull()
+      .default(sql`(UUID())`),
     userId: varchar('user_id', { length: 36 }).notNull(),
     roleId: varchar('role_id', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
@@ -122,6 +134,10 @@ export const userRoles = mysqlTable(
 export const rolePermissions = mysqlTable(
   'role_permissions',
   {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     roleId: varchar('role_id', { length: 36 }).notNull(),
     permissionId: varchar('permission_id', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),

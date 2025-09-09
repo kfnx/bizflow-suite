@@ -8,6 +8,13 @@
       "when": 1757380624488,
       "tag": "0000_open_mathemanic",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1757396615523,
+      "tag": "0001_silent_killer_shrike",
+      "breakpoints": true
     }
   ]
 }

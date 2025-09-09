@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { auth, signOut } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { branches, users } from '@/lib/db/schema';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasPermission, hasRole, hasAnyRole, Permission } from '@/lib/permissions';
 
 // Simple in-memory cache for session validation (5 minute TTL)
 const sessionValidationCache = new Map<
@@ -14,7 +14,7 @@ const sessionValidationCache = new Map<
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 async function validateSession(session: any) {
-  const cacheKey = `${session.user.id}-${session.user.role}-${session.user.branchId}`;
+  const cacheKey = `${session.user.id}-${session.user.branchId}`;
   const cached = sessionValidationCache.get(cacheKey);
 
   // Return cached result if still valid
@@ -26,7 +26,6 @@ async function validateSession(session: any) {
     const currentUser = await db
       .select({
         id: users.id,
-        role: users.role,
         branchId: users.branchId,
         isActive: users.isActive,
       })
@@ -40,14 +39,6 @@ async function validateSession(session: any) {
     }
 
     const dbUser = currentUser[0];
-
-    // Check if role has changed
-    if (dbUser.role !== session.user.role) {
-      console.log(
-        `User role changed from ${session.user.role} to ${dbUser.role}, invalidating session`,
-      );
-      return false;
-    }
 
     // Check if branchId has changed
     if (dbUser.branchId !== session.user.branchId) {
@@ -142,7 +133,7 @@ export async function requirePermission(
     return session;
   }
 
-  if (!hasPermission(session.user, permission)) {
+  if (!(await hasPermission(session.user, permission))) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient permissions' },
       { status: 403 },
@@ -162,9 +153,14 @@ export async function requireAnyPermission(
     return session;
   }
 
-  const hasAny = permissions.some((permission) =>
-    hasPermission(session.user, permission),
-  );
+  // Check permissions sequentially since hasPermission is async
+  let hasAny = false;
+  for (const permission of permissions) {
+    if (await hasPermission(session.user, permission)) {
+      hasAny = true;
+      break;
+    }
+  }
 
   if (!hasAny) {
     return NextResponse.json(
@@ -187,7 +183,7 @@ export async function requireRole(request: NextRequest, requiredRole: string) {
     return session;
   }
 
-  if (session.user.role !== requiredRole) {
+  if (!(await hasRole(session.user, requiredRole))) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient role' },
       { status: 403 },
@@ -211,7 +207,7 @@ export async function requireAnyRole(
     return session;
   }
 
-  if (!requiredRoles.includes(session.user.role)) {
+  if (!(await hasAnyRole(session.user, requiredRoles))) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient role' },
       { status: 403 },

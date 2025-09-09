@@ -17,7 +17,7 @@ export type User = {
   type: string;
   phone?: string;
   avatar?: string;
-  role: string;
+
   branchId?: string;
   branchName?: string;
   signature?: string;

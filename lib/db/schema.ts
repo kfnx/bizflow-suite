@@ -1,4 +1,3 @@
-import { act } from 'react';
 import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
@@ -181,8 +180,6 @@ export const users = mysqlTable(
     type: varchar('type', { length: 50 }).default('full-time'), // full-time, resigned, contract
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
-    // TODO: remove this role and use user_roles
-    role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, import-manager director
     branchId: varchar('branch_id', { length: 36 }), // HO Jakarta, Pekanbaru , Kendari, Balikpapan
     signature: varchar('signature', { length: 500 }),
     isActive: boolean('is_active').default(true), // for soft delete
@@ -192,7 +189,7 @@ export const users = mysqlTable(
   },
   (table) => [
     index('email_idx').on(table.email),
-    index('role_idx').on(table.role),
+
     foreignKey({
       columns: [table.branchId],
       foreignColumns: [branches.id],
@@ -1036,6 +1033,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   verifiedImports: many(imports, { relationName: 'verifier' }),
   managedWarehouses: many(warehouses),
   userRoles: many(userRoles),
+  roles: many(roles, { relationName: 'userRoles' }),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -1328,6 +1326,7 @@ export const purchaseOrdersRelations = relations(purchaseOrders, ({ one }) => ({
 // Roles and Permissions Relations
 export const rolesRelations = relations(roles, ({ many }) => ({
   userRoles: many(userRoles),
+  users: many(users, { relationName: 'userRoles' }),
   rolePermissions: many(rolePermissions),
 }));
 

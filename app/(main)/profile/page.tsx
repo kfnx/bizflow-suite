@@ -14,6 +14,8 @@ import { useSession } from 'next-auth/react';
 
 import { cn } from '@/utils/cn';
 import { useCurrentUser } from '@/hooks/use-users';
+import { getUserRoles } from '@/lib/permissions';
+import { useQuery } from '@tanstack/react-query';
 import * as Avatar from '@/components/ui/avatar';
 import * as Divider from '@/components/ui/divider';
 
@@ -25,6 +27,13 @@ export default function ProfilePage() {
     isLoading: userLoading,
     error: userError,
   } = useCurrentUser();
+
+  // Fetch user roles
+  const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
+    queryKey: ['user-roles', session?.user?.id],
+    queryFn: () => getUserRoles(session!.user.id),
+    enabled: !!session?.user?.id,
+  });
 
   useEffect(() => {
     if (status !== 'loading' && !session) {
@@ -106,7 +115,7 @@ export default function ProfilePage() {
                   )}
                 >
                   <RiShieldCheckLine className='size-3' />
-                  {user.isAdmin ? 'Administrator' : user.role}
+                  {user.isAdmin ? 'Administrator' : rolesLoading ? 'Loading...' : userRoles.length > 0 ? userRoles.join(', ') : 'No Role'}
                 </div>
               </div>
             </div>
@@ -206,7 +215,7 @@ export default function ProfilePage() {
                     Role & Permissions
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {user.role} {user.isAdmin && '(Admin)'}
+                    {rolesLoading ? 'Loading...' : userRoles.length > 0 ? userRoles.join(', ') : 'No Role'} {user.isAdmin && '(Admin)'}
                   </div>
                 </div>
               </div>

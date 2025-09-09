@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RiBriefcaseLine,
@@ -10,18 +10,24 @@ import {
   RiMailLine,
   RiMapPin2Line,
   RiPhoneLine,
+  RiSettingsLine,
+  RiShieldUserLine,
   RiUserLine,
 } from '@remixicon/react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
 import { hasPermission } from '@/lib/permissions';
 import { useBranches } from '@/hooks/use-branches';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useAssignRolesToUser, useRoles } from '@/hooks/use-roles';
 import { useUpdateUser, useUser } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
+import * as Checkbox from '@/components/ui/checkbox';
 import * as Divider from '@/components/ui/divider';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
+import * as Modal from '@/components/ui/modal';
 import * as Select from '@/components/ui/select';
 import * as Switch from '@/components/ui/switch';
 import { PermissionGate } from '@/components/auth/permission-gate';
@@ -37,7 +43,7 @@ interface EditUserData {
   jobTitle: string;
   joinDate: string;
   type: string;
-  role: string;
+
   branchId: string;
   isActive: boolean;
   isAdmin: boolean;
@@ -52,8 +58,9 @@ interface EditUserPageProps {
 export default function EditUserPage({ params }: EditUserPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { getAvailableRolesForCreation } = usePermissions();
+  const { } = usePermissions();
   const { data: branchesData, isLoading: branchesLoading } = useBranches();
+  const { data: rolesData, isLoading: rolesLoading } = useRoles({ limit: 50 });
   const {
     data: userData,
     isLoading: userLoading,
@@ -70,7 +77,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     jobTitle: '',
     joinDate: '',
     type: 'full-time',
-    role: 'staff',
+
     branchId: '',
     isActive: true,
     isAdmin: false,
@@ -79,8 +86,9 @@ export default function EditUserPage({ params }: EditUserPageProps) {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+  const [isRolesDialogOpen, setIsRolesDialogOpen] = useState(false);
 
-  const availableRoles = getAvailableRolesForCreation();
+
 
   // Helper function to get branch name by ID
   const getBranchNameById = (branchId: string) => {
@@ -120,7 +128,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           ? new Date(user.joinDate).toISOString().split('T')[0]
           : '',
         type: user.type || 'full-time',
-        role: user.role || 'staff',
+
         branchId: user.branchId || '',
         isActive: user.isActive ?? true,
         isAdmin: user.isAdmin ?? false,
@@ -193,7 +201,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           jobTitle: formData.jobTitle || undefined,
           joinDate: formData.joinDate,
           type: formData.type as 'full-time' | 'contract' | 'resigned',
-          role: formData.role as 'staff' | 'manager' | 'director',
+  
           branchId: formData.branchId,
           isActive: formData.isActive,
           isAdmin: formData.isAdmin,
@@ -445,27 +453,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
               </div>
 
               <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='role'>
-                    Role <Label.Asterisk />
-                  </Label.Root>
-                  <Select.Root
-                    value={formData.role}
-                    onValueChange={(value) => handleInputChange('role', value)}
-                  >
-                    <Select.Trigger>
-                      <Select.TriggerIcon as={RiUserLine} />
-                      <Select.Value placeholder='Select role' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {availableRoles.map((role) => (
-                        <Select.Item key={role} value={role}>
-                          {role.charAt(0).toUpperCase() + role.slice(1)}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
-                </div>
+
 
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='branchId'>
@@ -547,6 +535,36 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                 </div>
               </div>
             </div>
+
+            {/* User Roles Management */}
+            <div className='pt-6'>
+              <div className='mb-4 flex items-center justify-between'>
+                <div>
+                  <h3 className='text-lg text-gray-900 font-medium'>
+                    User Roles
+                  </h3>
+                  <p className='text-sm text-text-sub-600'>
+                    Manage roles assigned to this user
+                  </p>
+                </div>
+                <Button.Root
+                  type='button'
+                  variant='neutral'
+                  size='small'
+                  onClick={() => setIsRolesDialogOpen(true)}
+                >
+                  <RiSettingsLine className='size-4' />
+                  Manage Roles
+                </Button.Root>
+              </div>
+
+              <div className='rounded-lg border bg-bg-weak-50 p-4'>
+                <div className='text-sm text-text-sub-600'>
+                  Current roles will be displayed here after implementing user
+                  roles API
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className='flex flex-col gap-4 pb-4 sm:flex-row sm:justify-end'>
@@ -569,6 +587,118 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           </div>
         </form>
       </div>
+
+      {/* User Roles Dialog */}
+      <UserRolesDialog
+        isOpen={isRolesDialogOpen}
+        onClose={() => setIsRolesDialogOpen(false)}
+        userId={params.id}
+        userName={`${formData.firstName} ${formData.lastName}`}
+      />
     </PermissionGate>
+  );
+}
+
+// User Roles Dialog Component
+function UserRolesDialog({
+  isOpen,
+  onClose,
+  userId,
+  userName,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+  userName: string;
+}) {
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const { data: rolesData } = useRoles({ limit: 50 });
+  const { data: userRolesData } = useQuery({
+    queryKey: ['user-roles', userId],
+    queryFn: () =>
+      fetch(`/api/users/${userId}/roles`).then((res) => res.json()),
+    enabled: isOpen && !!userId,
+  });
+  const assignRolesMutation = useAssignRolesToUser();
+
+  // Initialize selected roles when user roles data is loaded
+  React.useEffect(() => {
+    if (userRolesData?.roles) {
+      setSelectedRoles(userRolesData.roles.map((r: any) => r.roleId));
+    }
+  }, [userRolesData]);
+
+  const handleRoleToggle = (roleId: string) => {
+    setSelectedRoles((prev) =>
+      prev.includes(roleId)
+        ? prev.filter((id) => id !== roleId)
+        : [...prev, roleId],
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await assignRolesMutation.mutateAsync({ userId, roleIds: selectedRoles });
+      onClose();
+    } catch (error) {
+      // Error handling is done in the mutation
+    }
+  };
+
+  const allRoles = rolesData?.data || [];
+
+  return (
+    <Modal.Root open={isOpen} onOpenChange={onClose}>
+      <Modal.Content className='max-w-2xl'>
+        <Modal.Header>
+          <Modal.Title>Manage Roles - {userName}</Modal.Title>
+        </Modal.Header>
+
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div className='max-h-96 space-y-2 overflow-y-auto'>
+            {allRoles.map((role: any) => (
+              <div
+                key={role.id}
+                className='flex items-start space-x-3 rounded-lg border p-3'
+              >
+                <Checkbox.Root
+                  checked={selectedRoles.includes(role.id)}
+                  onCheckedChange={() => handleRoleToggle(role.id)}
+                  className='mt-1'
+                />
+                <div className='flex-1'>
+                  <div className='font-medium text-text-strong-950'>
+                    {role.name}
+                  </div>
+                  {role.description && (
+                    <div className='text-sm text-text-sub-600'>
+                      {role.description}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Modal.Footer>
+            <Button.Root
+              type='button'
+              variant='neutral'
+              onClick={onClose}
+              disabled={assignRolesMutation.isPending}
+            >
+              Cancel
+            </Button.Root>
+            <Button.Root type='submit' disabled={assignRolesMutation.isPending}>
+              {assignRolesMutation.isPending ? 'Saving...' : 'Update Roles'}
+            </Button.Root>
+          </Modal.Footer>
+        </form>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

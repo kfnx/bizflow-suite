@@ -1,50 +1,72 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
 import {
-  canCreateRole,
-  getAvailableRolesForCreation,
   hasAllPermissions,
   hasAnyPermission,
   hasPermission,
+  hasRole,
+  getUserRoles,
   Permission,
 } from '@/lib/permissions';
 
 export function usePermissions() {
   const { data: session } = useSession();
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
 
   const user = session?.user;
-  const userRole = user?.role || 'guest';
+
+  useEffect(() => {
+    async function loadUserData() {
+      if (!user) {
+        setUserRoles([]);
+        setAvailableRoles([]);
+        return;
+      }
+
+      try {
+        // Load user roles
+        const roles = await getUserRoles(user.id);
+        setUserRoles(roles);
+
+        // Load available roles for creation
+        const available = await getAvailableRolesForCreation(user);
+        setAvailableRoles(available);
+      } catch (error) {
+        console.error('Error loading user permissions data:', error);
+        setUserRoles([]);
+        setAvailableRoles([]);
+      }
+    }
+
+    loadUserData();
+  }, [user]);
 
   return {
-    // Check single permission
-    can: (permission: Permission) =>
-      user ? hasPermission(user, permission) : false,
+    // Async permission checking functions
+    can: async (permission: Permission) =>
+      user ? await hasPermission(user, permission) : false,
 
-    // Check if user has any of the permissions
-    canAny: (permissions: Permission[]) =>
-      user ? hasAnyPermission(user, permissions) : false,
+    canAny: async (permissions: Permission[]) =>
+      user ? await hasAnyPermission(user, permissions) : false,
 
-    // Check if user has all permissions
-    canAll: (permissions: Permission[]) =>
-      user ? hasAllPermissions(user, permissions) : false,
+    canAll: async (permissions: Permission[]) =>
+      user ? await hasAllPermissions(user, permissions) : false,
 
-    // Check role
-    hasRole: (role: string) => userRole === role,
+    // Async role checking
+    hasRole: async (role: string) =>
+      user ? await hasRole(user, role) : false,
 
-    // Get user role
-    role: userRole,
+    // Sync data from state
+    roles: userRoles,
+    availableRoles,
 
     // Check if user is authenticated
     isAuthenticated: !!user,
 
-    // Check if user can create a specific role
-    canCreateRole: (targetRole: string) =>
-      user ? canCreateRole(user, targetRole) : false,
 
-    // Get available roles for creation
-    getAvailableRolesForCreation: () =>
-      getAvailableRolesForCreation(userRole, !!user?.isAdmin),
   };
 }

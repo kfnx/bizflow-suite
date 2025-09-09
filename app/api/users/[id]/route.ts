@@ -4,8 +4,8 @@ import { eq } from 'drizzle-orm';
 import { requirePermission } from '@/lib/auth/authorization';
 import { invalidateUserSession } from '@/lib/auth/session-utils';
 import { db } from '@/lib/db';
-import { branches, users } from '@/lib/db/schema';
-import { canCreateRole } from '@/lib/permissions';
+import { branches, roles, users } from '@/lib/db/schema';
+
 import { updateUserSchema } from '@/lib/validations/user';
 
 // GET /api/users/[id] - Get a specific user
@@ -33,7 +33,6 @@ export async function GET(
         type: users.type,
         phone: users.phone,
         avatar: users.avatar,
-        role: users.role,
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,
@@ -92,13 +91,8 @@ export async function PUT(
 
     const validatedData = parsed.data;
 
-    // Check if user can assign the specified role
-    if (!canCreateRole(session.user, validatedData.role)) {
-      return NextResponse.json(
-        { error: 'You can only assign roles equal to or lower than your own' },
-        { status: 403 },
-      );
-    }
+    // Role assignment is now handled through the separate user roles API endpoint
+    // This endpoint no longer handles role assignments directly
 
     // Only admins can grant or revoke admin privileges
     if (validatedData.hasOwnProperty('isAdmin') && !session.user.isAdmin) {
@@ -153,13 +147,7 @@ export async function PUT(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Prevent users from updating their own role to a higher one
-    if (validatedData.role && params.id === session.user.id) {
-      return NextResponse.json(
-        { error: 'You cannot change your own role' },
-        { status: 403 },
-      );
-    }
+    // Role management is now handled through the separate user roles API endpoint
 
     // Prevent users from changing their own admin status
     if (
@@ -183,9 +171,8 @@ export async function PUT(
       })
       .where(eq(users.id, params.id));
 
-    // Invalidate user's session if role, branchId, or isActive status changed
-    const roleChanged =
-      validatedData.role && validatedData.role !== oldUser.role;
+    // Invalidate user's session if branchId or isActive status changed
+    const roleChanged = false; // Roles are now managed separately
     const branchChanged =
       validatedData.hasOwnProperty('branchId') &&
       validatedData.branchId !== oldUser.branchId;

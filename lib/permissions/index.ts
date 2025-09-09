@@ -1,4 +1,8 @@
+import { eq, sql } from 'drizzle-orm';
 import { User } from 'next-auth';
+
+import { db } from '@/lib/db';
+import { permissions, rolePermissions, roles, userRoles } from '@/lib/db/schema';
 
 // Define permission types
 export type Permission =
@@ -49,212 +53,99 @@ export type Permission =
   | 'transfers:update'
   | 'transfers:delete';
 
-// Role hierarchy and permissions
-export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
-  staff: [
-    'quotations:read',
-    'quotations:create',
-    'quotations:update',
-    'invoices:read',
-    'invoices:create',
-    'invoices:update',
-    'invoices:read',
-    'deliveries:read',
-    'deliveries:create',
-    'deliveries:update',
-    'transfers:read',
-    'products:read',
-    'customers:read',
-    'customers:create',
-    'customers:update',
-    'customers:delete',
-    'warehouses:read',
-  ],
-  'import-manager': [
-    'products:read',
-    'warehouses:read',
-    'imports:read',
-    'imports:create',
-    'imports:update',
-    'imports:delete',
-    'imports:verify',
-    'transfers:read',
-    'transfers:create',
-    'transfers:update',
-    'suppliers:read',
-  ],
-  manager: [
-    'users:read',
-    'users:create',
-    'users:update',
-    'branches:read',
-    'branches:create',
-    'branches:update',
-    'quotations:read',
-    'quotations:create',
-    'quotations:update',
-    'quotations:approve',
-    'invoices:read',
-    'invoices:create',
-    'invoices:update',
-    'deliveries:read',
-    'deliveries:create',
-    'deliveries:update',
-    'imports:read',
-    'imports:create',
-    'imports:update',
-    'imports:delete',
-    'transfers:read',
-    'products:read',
-    'products:create',
-    'products:update',
-    'suppliers:read',
-    'suppliers:create',
-    'suppliers:update',
-    'suppliers:delete',
-    'customers:read',
-    'customers:create',
-    'customers:update',
-    'customers:delete',
-    'warehouses:read',
-    'warehouses:create',
-    'warehouses:update',
-  ],
-  director: [
-    'users:read',
-    'users:create',
-    'users:update',
-    'branches:read',
-    'branches:create',
-    'branches:update',
-    'branches:delete',
-    'quotations:read',
-    'quotations:create',
-    'quotations:update',
-    'quotations:delete',
-    'quotations:approve',
-    'invoices:read',
-    'invoices:create',
-    'invoices:update',
-    'invoices:delete',
-    'deliveries:read',
-    'deliveries:create',
-    'deliveries:update',
-    'deliveries:delete',
-    'imports:read',
-    'imports:create',
-    'imports:update',
-    'imports:delete',
-    'imports:verify',
-    'transfers:read',
-    'products:read',
-    'products:create',
-    'products:update',
-    'products:delete',
-    'suppliers:read',
-    'suppliers:create',
-    'suppliers:update',
-    'suppliers:delete',
-    'customers:read',
-    'customers:create',
-    'customers:update',
-    'customers:delete',
-    'warehouses:read',
-    'warehouses:create',
-    'warehouses:update',
-    'warehouses:delete',
-  ],
-};
+// Function to get permissions for a role from the database
+export async function getRolePermissions(
+  roleId: string,
+): Promise<Permission[]> {
+  const perms = await db
+    .select({
+      permissions: permissions.name,
+    })
+    .from(rolePermissions)
+    .innerJoin(permissions, eq(permissions.id, rolePermissions.permissionId))
+    .where(eq(rolePermissions.roleId, roleId));
+
+  return perms.map((p) => p.permissions as Permission);
+}
+// Get role details from database
+export async function getRoleDetails(roleId: string) {
+  return await db.query.roles.findFirst({
+    where: eq(roles.id, roleId),
+  });
+}
 
 // Permission checking utilities
-export function hasPermission(user: User, permission: Permission): boolean {
+export async function hasPermission(user: User, permission: Permission): Promise<boolean> {
   const isAdmin = user.isAdmin;
   if (isAdmin) return true;
 
-  const userRole = user.role;
-  const rolePermissions = ROLE_PERMISSIONS[userRole] || [];
-  return rolePermissions.includes(permission);
+  // Get user's permissions from database through roles
+  const userPermissions = await getUserPermissions(user.id);
+  return userPermissions.includes(permission);
 }
 
-export function hasAnyPermission(
+export async function hasAnyPermission(
   user: User,
   permissions: Permission[],
-): boolean {
+): Promise<boolean> {
   const isAdmin = user.isAdmin;
   if (isAdmin) return true;
 
-  return permissions.some((permission) => hasPermission(user, permission));
+  const userPermissions = await getUserPermissions(user.id);
+  return permissions.some((permission) => userPermissions.includes(permission));
 }
 
-export function hasAllPermissions(
+export async function hasAllPermissions(
   user: User,
   permissions: Permission[],
-): boolean {
+): Promise<boolean> {
   const isAdmin = user.isAdmin;
   if (isAdmin) return true;
 
-  const userRole = user.role;
-  const rolePermissions = ROLE_PERMISSIONS[userRole] || [];
-  return permissions.every((permission) =>
-    rolePermissions.includes(permission),
-  );
+  const userPermissions = await getUserPermissions(user.id);
+  return permissions.every((permission) => userPermissions.includes(permission));
 }
 
-// Role hierarchy for inheritance
-export const ROLE_HIERARCHY: Record<string, string[]> = {
-  staff: [],
-  'import-manager': ['staff'],
-  manager: ['staff'],
-  director: ['manager', 'import-manager', 'staff'],
-};
+// Get all permissions for a user through their roles
+export async function getUserPermissions(userId: string): Promise<Permission[]> {
+  const userPerms = await db
+    .select({
+      permission: permissions.name,
+    })
+    .from(permissions)
+    .innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permissionId))
+    .innerJoin(roles, eq(rolePermissions.roleId, roles.id))
+    .innerJoin(userRoles, eq(roles.id, userRoles.roleId))
+    .where(eq(userRoles.userId, userId));
 
-export function hasRoleOrHigher(
-  userRole: string,
-  requiredRole: string,
-): boolean {
-  if (userRole === requiredRole) return true;
-
-  const hierarchy = ROLE_HIERARCHY[userRole] || [];
-  return hierarchy.includes(requiredRole);
+  return Array.from(new Set(userPerms.map((p) => p.permission as Permission)));
 }
 
-// Check if user can create a specific role
-export function canCreateRole(user: User, targetRole: string): boolean {
-  const isAdmin = user.isAdmin;
-  if (isAdmin) return true;
+// Get user's roles from database
+export async function getUserRoles(userId: string): Promise<string[]> {
+  const userRoleData = await db
+    .select({
+      roleName: roles.name,
+    })
+    .from(roles)
+    .innerJoin(userRoles, eq(roles.id, userRoles.roleId))
+    .where(eq(userRoles.userId, userId));
 
-  const userRole = user.role;
-  const roleOrder = ['staff', 'import-manager', 'manager', 'director'];
-  const userRoleIndex = roleOrder.indexOf(userRole);
-  const targetRoleIndex = roleOrder.indexOf(targetRole);
-
-  // Directors can create all roles, managers can create staff and import-manager
-  if (userRole === 'director') return true;
-  if (
-    userRole === 'manager' &&
-    ['staff', 'import-manager'].includes(targetRole)
-  )
-    return true;
-  if (userRole === 'import-manager' && targetRole === 'staff') return true;
-
-  return userRoleIndex >= targetRoleIndex;
+  return userRoleData.map((r) => r.roleName);
 }
 
-// Get available roles for creation based on user's role
-export function getAvailableRolesForCreation(
-  userRole: string,
-  isAdmin: boolean,
-): string[] {
-  if (isAdmin) return ['staff', 'import-manager', 'manager', 'director'];
+// Check if user has a specific role
+export async function hasRole(user: User, roleName: string): Promise<boolean> {
+  if (user.isAdmin) return true;
+  
+  const userRoleNames = await getUserRoles(user.id);
+  return userRoleNames.includes(roleName);
+}
 
-  switch (userRole) {
-    case 'director':
-      return ['staff', 'import-manager', 'manager', 'director'];
-    case 'manager':
-      return ['staff', 'import-manager', 'manager'];
-    case 'import-manager':
-      return ['staff', 'import-manager'];
-    default:
-      return ['staff'];
-  }
+// Check if user has any of the specified roles
+export async function hasAnyRole(user: User, roleNames: string[]): Promise<boolean> {
+  if (user.isAdmin) return true;
+  
+  const userRoleNames = await getUserRoles(user.id);
+  return roleNames.some(roleName => userRoleNames.includes(roleName));
 }

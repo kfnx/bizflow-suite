@@ -128,13 +128,8 @@ export const navigationLinks: NavigationCategory[] = [
       },
       {
         icon: RiShieldUserLine,
-        label: 'Roles',
+        label: 'Roles & Permissions',
         href: '/roles',
-      },
-      {
-        icon: RiKeyLine,
-        label: 'Permissions',
-        href: '/permissions',
       },
       {
         icon: RiGitBranchLine,
@@ -302,8 +297,7 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           '/suppliers': ['suppliers:read'],
           '/customers': ['customers:read'],
           '/users': ['users:read'],
-          '/roles': ['roles:read'],
-          '/permissions': ['permissions:read'],
+          '/roles': ['roles:read', 'permissions:read'],
           '/branches': ['branches:read'],
           // '/master-data': ['master-data:read'],
         };

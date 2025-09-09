@@ -44,8 +44,8 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-const getRoleColor = (role: string) => {
-  switch (role) {
+const getRoleColor = (roleName: string) => {
+  switch (roleName?.toLowerCase()) {
     case 'director':
       return 'purple';
     case 'manager':

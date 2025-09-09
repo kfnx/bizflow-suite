@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasPermission, hasRole, hasAnyPermission, Permission } from '@/lib/permissions';
 
 interface PermissionGateProps {
   children: React.ReactNode;
@@ -16,22 +17,31 @@ export function PermissionGate({
   fallback = null,
 }: PermissionGateProps) {
   const { data: session } = useSession();
+  const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
 
-  // no session no permission
-  const isAuthenticated = session?.user;
-  if (!isAuthenticated) {
-    return fallback;
-  }
+  useEffect(() => {
+    async function checkPermission() {
+      if (!session?.user) {
+        setIsAllowed(false);
+        return;
+      }
 
-  // Admins bypass permission checks
-  const isAdmin = session.user.isAdmin;
-  if (isAdmin) {
-    return children;
-  }
+      // Admins bypass permission checks
+      if (session.user.isAdmin) {
+        setIsAllowed(true);
+        return;
+      }
 
-  // check authorization
-  const isAllowed = hasPermission(session.user, permission);
-  if (!isAllowed) {
+      // Check permission asynchronously
+      const allowed = await hasPermission(session.user, permission);
+      setIsAllowed(allowed);
+    }
+
+    checkPermission();
+  }, [session, permission]);
+
+  // Show fallback while loading or if not authenticated
+  if (!session?.user || isAllowed === null || !isAllowed) {
     return fallback;
   }
 
@@ -46,12 +56,31 @@ interface RoleGateProps {
 
 export function RoleGate({ children, role, fallback = null }: RoleGateProps) {
   const { data: session } = useSession();
+  const [hasRoleAccess, setHasRoleAccess] = useState<boolean | null>(null);
 
-  if (!session?.user) {
-    return fallback;
-  }
+  useEffect(() => {
+    async function checkRole() {
+      if (!session?.user) {
+        setHasRoleAccess(false);
+        return;
+      }
 
-  if (session.user.role !== role) {
+      // Admins bypass role checks
+      if (session.user.isAdmin) {
+        setHasRoleAccess(true);
+        return;
+      }
+
+      // Check role asynchronously
+      const hasAccess = await hasRole(session.user, role);
+      setHasRoleAccess(hasAccess);
+    }
+
+    checkRole();
+  }, [session, role]);
+
+  // Show fallback while loading or if not authorized
+  if (!session?.user || hasRoleAccess === null || !hasRoleAccess) {
     return fallback;
   }
 
@@ -70,16 +99,31 @@ export function AnyPermissionGate({
   fallback = null,
 }: AnyPermissionGateProps) {
   const { data: session } = useSession();
+  const [hasAny, setHasAny] = useState<boolean | null>(null);
 
-  if (!session?.user) {
-    return fallback;
-  }
+  useEffect(() => {
+    async function checkPermissions() {
+      if (!session?.user) {
+        setHasAny(false);
+        return;
+      }
 
-  const hasAny = permissions.some((permission) =>
-    hasPermission(session.user, permission),
-  );
+      // Admins bypass permission checks
+      if (session.user.isAdmin) {
+        setHasAny(true);
+        return;
+      }
 
-  if (!hasAny) {
+      // Check permissions asynchronously
+       const result = await hasAnyPermission(session.user, permissions);
+       setHasAny(result);
+    }
+
+    checkPermissions();
+  }, [session, permissions]);
+
+  // Show fallback while loading or if not authorized
+  if (!session?.user || hasAny === null || !hasAny) {
     return fallback;
   }
 

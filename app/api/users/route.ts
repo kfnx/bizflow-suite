@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
 import { branches, users } from '@/lib/db/schema';
-import { canCreateRole } from '@/lib/permissions';
+
 import { createUserSchema } from '@/lib/validations/user';
 
 export const dynamic = 'force-dynamic';
@@ -47,14 +47,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Role filter - handle multiple roles
-    if (roles.length > 0 && !roles.includes('all')) {
-      if (roles.length === 1) {
-        conditions.push(eq(users.role, roles[0]));
-      } else {
-        conditions.push(or(...roles.map((role) => eq(users.role, role))));
-      }
-    }
+    // Role filter is now handled through user roles table
+    // TODO: Implement role filtering through userRoles join
 
     const whereCondition =
       conditions.length > 0 ? and(...conditions) : undefined;
@@ -97,7 +91,7 @@ export async function GET(request: NextRequest) {
         type: users.type,
         phone: users.phone,
         avatar: users.avatar,
-        role: users.role,
+        roleId: users.roleId,
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,
@@ -164,16 +158,7 @@ export async function POST(request: NextRequest) {
     }
     const validatedData = parsed.data;
 
-    // Check if user can create the specified role
-    if (!canCreateRole(session.user, validatedData.role)) {
-      return NextResponse.json(
-        {
-          error:
-            'You can only create users with roles equal to or lower than your own',
-        },
-        { status: 403 },
-      );
-    }
+    // Role validation is now handled separately through user roles assignment
 
     // Only admins can grant admin privileges to other users
     if (validatedData.isAdmin && !session.user.isAdmin) {
@@ -231,7 +216,7 @@ export async function POST(request: NextRequest) {
       NIK: validatedData.NIK,
       joinDate: new Date(validatedData.joinDate),
       phone: validatedData.phone,
-      role: validatedData.role,
+
       jobTitle: validatedData.jobTitle,
       type: validatedData.type || 'full-time',
       branchId: validatedData.branchId,

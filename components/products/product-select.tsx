@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { RiShoppingCartLine } from '@remixicon/react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cnExt } from '@/utils/cn';
 import { useProducts } from '@/hooks/use-products';
 import type { ProductWithRelations } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
@@ -69,7 +69,7 @@ export function ProductSelect({
           mode='stroke'
           role='combobox'
           aria-expanded={open}
-          className={cn(
+          className={cnExt(
             'w-full justify-between',
             error && 'border-red-500 focus-visible:ring-red-500',
             !selectedProduct && 'text-muted-foreground',
@@ -79,11 +79,18 @@ export function ProductSelect({
           <div className='flex items-center gap-2'>
             <RiShoppingCartLine className='h-4 w-4' />
             <span>
-              {selectedProduct
-                ? selectedProduct.name
-                : isLoading
-                  ? 'Loading products...'
-                  : 'Select product'}
+              {selectedProduct ? (
+                <div>
+                  {selectedProduct.name}{' '}
+                  <small className='text-text-soft-400'>
+                    {selectedProduct.category}
+                  </small>
+                </div>
+              ) : isLoading ? (
+                'Loading products...'
+              ) : (
+                'Select product'
+              )}
             </span>
           </div>
           <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -111,7 +118,7 @@ export function ProductSelect({
                     </small>
                   </div>
                   <Check
-                    className={cn(
+                    className={cnExt(
                       'ml-2 h-4 w-4',
                       value === product.id ? 'opacity-100' : 'opacity-0',
                     )}

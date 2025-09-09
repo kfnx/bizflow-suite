@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { SearchIcon } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cnExt } from '@/utils/cn';
 import {
   Dialog,
   DialogContent,
@@ -20,8 +20,8 @@ function Command({
   return (
     <CommandPrimitive
       data-slot='command'
-      className={cn(
-        'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+      className={cnExt(
+        'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
         className,
       )}
       {...props}
@@ -49,10 +49,10 @@ function CommandDialog({
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
       <DialogContent
-        className={cn('overflow-hidden p-0', className)}
+        className={cnExt('overflow-hidden p-0', className)}
         showCloseButton={showCloseButton}
       >
-        <Command className='data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5'>
+        <Command className='[&_[cmdk-group-heading]]:text-muted-foreground data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5'>
           {children}
         </Command>
       </DialogContent>
@@ -72,7 +72,7 @@ function CommandInput({
       <SearchIcon className='size-4 shrink-0 opacity-50' />
       <CommandPrimitive.Input
         data-slot='command-input'
-        className={cn(
+        className={cnExt(
           'text-sm flex h-10 w-full rounded-sm border border-stroke-soft-200 bg-transparent py-3',
           'focus:border-stroke-soft-300 focus:ring-stroke-soft-300 outline-none focus:ring-1',
           'placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
@@ -91,7 +91,7 @@ function CommandList({
   return (
     <CommandPrimitive.List
       data-slot='command-list'
-      className={cn(
+      className={cnExt(
         'max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden',
         className,
       )}
@@ -119,8 +119,8 @@ function CommandGroup({
   return (
     <CommandPrimitive.Group
       data-slot='command-group'
-      className={cn(
-        '[&_[cmdk-group-heading]]:text-xs overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
+      className={cnExt(
+        '[&_[cmdk-group-heading]]:text-xs text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-medium',
         className,
       )}
       {...props}
@@ -135,7 +135,7 @@ function CommandSeparator({
   return (
     <CommandPrimitive.Separator
       data-slot='command-separator'
-      className={cn('-mx-1 h-px bg-border', className)}
+      className={cnExt('bg-border -mx-1 h-px', className)}
       {...props}
     />
   );
@@ -148,8 +148,8 @@ function CommandItem({
   return (
     <CommandPrimitive.Item
       data-slot='command-item'
-      className={cn(
-        "text-sm outline-hidden relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0",
+      className={cnExt(
+        "text-sm outline-hidden data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className,
       )}
       {...props}
@@ -164,8 +164,8 @@ function CommandShortcut({
   return (
     <span
       data-slot='command-shortcut'
-      className={cn(
-        'text-xs ml-auto tracking-widest text-muted-foreground',
+      className={cnExt(
+        'text-xs text-muted-foreground ml-auto tracking-widest',
         className,
       )}
       {...props}

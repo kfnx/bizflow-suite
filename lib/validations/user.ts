@@ -11,6 +11,7 @@ export const createUserSchema = z.object({
   type: z.enum(['full-time', 'contract', 'resigned']).optional(),
 
   branchId: z.string().min(1, { message: 'Branch is required' }),
+  roleId: z.string().optional(),
   isAdmin: z.boolean().optional(),
 });
 
@@ -51,6 +52,7 @@ export const updateUserSchema = z.object({
   type: z.enum(['full-time', 'contract', 'resigned']).optional(),
 
   branchId: z.string().min(1, { message: 'Branch is required' }),
+  roleId: z.string().optional(),
   isActive: z.boolean().optional(),
   isAdmin: z.boolean().optional(),
 });

@@ -133,7 +133,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
 
   const canEdit = importData.status === IMPORT_STATUS.PENDING;
   const canVerify =
-    importData.status === IMPORT_STATUS.PENDING && can('imports:verify');
+    importData.status === IMPORT_STATUS.PENDING && can('imports:approve');
   const canDelete =
     importData.status === IMPORT_STATUS.PENDING && can('imports:delete');
 

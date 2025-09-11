@@ -32,9 +32,8 @@ export function usePermissions() {
         const roles = await getUserRoles(user.id);
         setUserRoles(roles);
 
-        // Load available roles for creation
-        const available = await getAvailableRolesForCreation(user);
-        setAvailableRoles(available);
+        // TODO: Load available roles for creation once database is available
+        setAvailableRoles([]);
       } catch (error) {
         console.error('Error loading user permissions data:', error);
         setUserRoles([]);
@@ -46,19 +45,15 @@ export function usePermissions() {
   }, [user]);
 
   return {
-    // Async permission checking functions
-    can: async (permission: Permission) =>
-      user ? await hasPermission(user, permission) : false,
+    // TODO: Re-implement async permission checking functions once permissions are available in session
+    can: async (_permission: Permission) => user?.isAdmin || false,
 
-    canAny: async (permissions: Permission[]) =>
-      user ? await hasAnyPermission(user, permissions) : false,
+    canAny: async (_permissions: Permission[]) => user?.isAdmin || false,
 
-    canAll: async (permissions: Permission[]) =>
-      user ? await hasAllPermissions(user, permissions) : false,
+    canAll: async (_permissions: Permission[]) => user?.isAdmin || false,
 
-    // Async role checking
-    hasRole: async (role: string) =>
-      user ? await hasRole(user, role) : false,
+    // TODO: Re-implement async role checking
+    hasRole: async (_role: string) => user?.isAdmin || false,
 
     // Sync data from state
     roles: userRoles,

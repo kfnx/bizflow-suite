@@ -25,7 +25,6 @@ export async function getUserWithDocuments(userId: string) {
       type: users.type,
       phone: users.phone,
       avatar: users.avatar,
-      role: users.role,
       signature: users.signature,
       isActive: users.isActive,
       createdAt: users.createdAt,

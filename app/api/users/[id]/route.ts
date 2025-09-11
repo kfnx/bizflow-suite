@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { requirePermission } from '@/lib/auth/authorization';
 import { invalidateUserSession } from '@/lib/auth/session-utils';
 import { db } from '@/lib/db';
-import { branches, roles, users } from '@/lib/db/schema';
+import { branches, roles as rolesTable, users, userRoles } from '@/lib/db/schema';
 
 import { updateUserSchema } from '@/lib/validations/user';
 
@@ -38,11 +38,16 @@ export async function GET(
         isAdmin: users.isAdmin,
         branchId: users.branchId,
         branchName: branches.name,
+        roleId: rolesTable.id,
+        roleName: rolesTable.name,
+        roleDescription: rolesTable.description,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
       .leftJoin(branches, eq(users.branchId, branches.id))
+      .leftJoin(userRoles, eq(users.id, userRoles.userId))
+      .leftJoin(rolesTable, eq(userRoles.roleId, rolesTable.id))
       .where(eq(users.id, params.id))
       .limit(1);
 
@@ -90,9 +95,6 @@ export async function PUT(
     }
 
     const validatedData = parsed.data;
-
-    // Role assignment is now handled through the separate user roles API endpoint
-    // This endpoint no longer handles role assignments directly
 
     // Only admins can grant or revoke admin privileges
     if (validatedData.hasOwnProperty('isAdmin') && !session.user.isAdmin) {
@@ -162,17 +164,34 @@ export async function PUT(
 
     const oldUser = existingUser[0];
 
+    // Extract roleId from validatedData before updating user
+    const { roleId, ...userUpdateData } = validatedData;
+
     await db
       .update(users)
       .set({
-        ...validatedData,
-        joinDate: new Date(validatedData.joinDate),
+        ...userUpdateData,
+        joinDate: new Date(userUpdateData.joinDate),
         updatedAt: new Date(),
       })
       .where(eq(users.id, params.id));
 
-    // Invalidate user's session if branchId or isActive status changed
-    const roleChanged = false; // Roles are now managed separately
+    // Handle role assignment/update
+    if (roleId !== undefined) {
+      // First remove existing role assignments
+      await db.delete(userRoles).where(eq(userRoles.userId, params.id));
+      
+      // Add new role if provided (and not 'none')
+      if (roleId && roleId !== 'none') {
+        await db.insert(userRoles).values({
+          userId: params.id,
+          roleId: roleId,
+        });
+      }
+    }
+
+    // Invalidate user's session if branchId, role, or isActive status changed
+    const roleChanged = roleId !== undefined;
     const branchChanged =
       validatedData.hasOwnProperty('branchId') &&
       validatedData.branchId !== oldUser.branchId;

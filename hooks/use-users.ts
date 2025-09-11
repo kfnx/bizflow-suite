@@ -20,6 +20,9 @@ export type User = {
 
   branchId?: string;
   branchName?: string;
+  roleId?: string;
+  roleName?: string;
+  roleDescription?: string;
   signature?: string;
   isActive: boolean;
   isAdmin: boolean;

@@ -5,7 +5,7 @@ import { and, desc, eq, like, or } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
-import { branches, users } from '@/lib/db/schema';
+import { branches, users, userRoles, roles as rolesTable } from '@/lib/db/schema';
 
 import { createUserSchema } from '@/lib/validations/user';
 
@@ -91,17 +91,21 @@ export async function GET(request: NextRequest) {
         type: users.type,
         phone: users.phone,
         avatar: users.avatar,
-        roleId: users.roleId,
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,
         branchId: users.branchId,
         branchName: branches.name,
+        roleId: rolesTable.id,
+        roleName: rolesTable.name,
+        roleDescription: rolesTable.description,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
       .leftJoin(branches, eq(users.branchId, branches.id))
+      .leftJoin(userRoles, eq(users.id, userRoles.userId))
+      .leftJoin(rolesTable, eq(userRoles.roleId, rolesTable.id))
       .where(whereCondition)
       .orderBy(orderBy)
       .limit(limit)
@@ -207,7 +211,7 @@ export async function POST(request: NextRequest) {
     const userCode = `USR-${(userCount.length + 1).toString().padStart(4, '0')}`;
 
     // Create user
-    await db.insert(users).values({
+    const newUser = await db.insert(users).values({
       code: userCode,
       email: validatedData.email,
       password: hashedPassword,
@@ -222,6 +226,21 @@ export async function POST(request: NextRequest) {
       branchId: validatedData.branchId,
       isAdmin: validatedData.isAdmin || false,
     });
+
+    // Get the created user to get the ID for role assignment
+    const createdUser = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, validatedData.email))
+      .limit(1);
+
+    // Assign role if provided (and not 'none')
+    if (validatedData.roleId && validatedData.roleId !== 'none' && createdUser.length > 0) {
+      await db.insert(userRoles).values({
+        userId: createdUser[0].id,
+        roleId: validatedData.roleId,
+      });
+    }
 
     return NextResponse.json(
       { message: 'User created successfully' },

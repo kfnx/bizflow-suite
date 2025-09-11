@@ -1,17 +1,34 @@
 export const roleIds = {
-  finance: '2100006-0000-4000-a000-000000000001',
-  importManager: '2100004-0000-4000-a000-000000000002',
+  admin: 'admin',
+  staff: 'staff',
+  manager: 'manager',
+  importManager: 'import-manager',
+  director: 'director',
 };
 
 export const roles = [
   {
-    id: roleIds.finance,
-    name: 'Finance',
-    description: 'Approve Document',
+    id: roleIds.admin,
+    name: 'Admin',
+    description: 'Admin',
+  },
+  {
+    id: roleIds.staff,
+    name: 'Staff',
+    description: 'Staff',
+  },
+  {
+    id: roleIds.manager,
+    name: 'Manager',
+    description: 'Manager',
   },
   {
     id: roleIds.importManager,
     name: 'Import Manager',
-    description: 'Approve Product Import',
+    description: 'Import Manager',
+  },
+  {
+    id: roleIds.director,
+    name: 'Director',
   },
 ];

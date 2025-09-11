@@ -412,7 +412,6 @@ CREATE TABLE `users` (
 	`type` varchar(50) DEFAULT 'full-time',
 	`phone` varchar(20),
 	`avatar` varchar(500),
-	`role` varchar(50) NOT NULL DEFAULT 'staff',
 	`branch_id` varchar(36),
 	`signature` varchar(500),
 	`is_active` boolean DEFAULT true,
@@ -566,7 +565,6 @@ CREATE INDEX `created_by_idx` ON `transfers` (`created_by`);--> statement-breakp
 CREATE INDEX `user_id_idx` ON `user_roles` (`user_id`);--> statement-breakpoint
 CREATE INDEX `role_id_idx` ON `user_roles` (`role_id`);--> statement-breakpoint
 CREATE INDEX `email_idx` ON `users` (`email`);--> statement-breakpoint
-CREATE INDEX `role_idx` ON `users` (`role`);--> statement-breakpoint
 CREATE INDEX `warehouse_id_idx` ON `warehouse_stocks` (`warehouse_id`);--> statement-breakpoint
 CREATE INDEX `product_id_idx` ON `warehouse_stocks` (`product_id`);--> statement-breakpoint
 CREATE INDEX `condition_idx` ON `warehouse_stocks` (`condition`);--> statement-breakpoint

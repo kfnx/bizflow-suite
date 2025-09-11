@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { db } from '@/lib/db';
-import { roles, rolePermissions, permissions } from '@/lib/db/schema';
+import { roles, rolePermissions, permissions, userRoles } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 
 const roleSchema = z.object({
@@ -125,13 +125,31 @@ export async function DELETE(
     const { id } = await params;
 
     const existingRole = await db
-      .select({ id: roles.id })
+      .select({ id: roles.id, name: roles.name })
       .from(roles)
       .where(eq(roles.id, id))
       .then(result => result[0]);
 
     if (!existingRole) {
       return NextResponse.json({ error: 'Role not found' }, { status: 404 });
+    }
+
+    // Check if any users are assigned to this role
+    const assignedUsers = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(userRoles)
+      .where(eq(userRoles.roleId, id))
+      .then(result => result[0]?.count || 0);
+
+    if (assignedUsers > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete role',
+          message: `Cannot delete role "${existingRole.name}" because it is assigned to ${assignedUsers} user${assignedUsers === 1 ? '' : 's'}. Please reassign or remove these users from the role first.`,
+          assignedUsers,
+        },
+        { status: 400 }
+      );
     }
 
     // Delete role permissions first

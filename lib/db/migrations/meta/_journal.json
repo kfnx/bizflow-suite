@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1757380624488,
-      "tag": "0000_open_mathemanic",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1757396615523,
-      "tag": "0001_silent_killer_shrike",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1757406315786,
-      "tag": "0002_far_mastermind",
+      "when": 1757602235704,
+      "tag": "0000_low_slipstream",
       "breakpoints": true
     }
   ]

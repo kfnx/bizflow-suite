@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "68e9cfa5-0aa2-4127-9afa-05e2cbebcf6a",
+  "id": "33e9ced8-66f4-4bfe-ac98-72cb9b7cadf9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -3763,14 +3763,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "role": {
-          "name": "role",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'staff'"
-        },
         "branch_id": {
           "name": "branch_id",
           "type": "varchar(36)",
@@ -3824,13 +3816,6 @@
           "name": "email_idx",
           "columns": [
             "email"
-          ],
-          "isUnique": false
-        },
-        "role_idx": {
-          "name": "role_idx",
-          "columns": [
-            "role"
           ],
           "isUnique": false
         }

@@ -44,17 +44,8 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-const getRoleColor = (roleName: string) => {
-  switch (roleName?.toLowerCase()) {
-    case 'director':
-      return 'purple';
-    case 'manager':
-      return 'blue';
-    case 'staff':
-      return 'orange';
-    default:
-      return 'gray';
-  }
+const getRoleColor = () => {
+  return 'blue' as const; // Use consistent color for all roles since they're dynamic
 };
 
 const getTypeColor = (type: string) => {
@@ -219,6 +210,32 @@ const columns: ColumnDef<User>[] = [
       <p className='text-paragraph-sm text-text-sub-600'>
         {row.original.branchName || '—'}
       </p>
+    ),
+  },
+  {
+    id: 'role',
+    accessorKey: 'roleName',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Role
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div>
+        {row.original.roleName ? (
+          <Badge variant='lighter' color={getRoleColor()}>
+            {row.original.roleName}
+          </Badge>
+        ) : (
+          <span className='text-paragraph-sm text-text-sub-600'>No role</span>
+        )}
+      </div>
     ),
   },
   {

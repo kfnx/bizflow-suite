@@ -9,7 +9,7 @@ import {
 
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUser } from '@/hooks/use-users';
-import { getUserRoles } from '@/lib/permissions';
+// import { getUserRoles } from '@/lib/permissions';
 import { useQuery } from '@tanstack/react-query';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -23,17 +23,8 @@ interface UserPreviewDrawerProps {
   onClose: () => void;
 }
 
-const getRoleColor = (roleName: string) => {
-  switch (roleName?.toLowerCase()) {
-    case 'director':
-      return 'purple';
-    case 'manager':
-      return 'blue';
-    case 'staff':
-      return 'orange';
-    default:
-      return 'gray';
-  }
+const getRoleColor = () => {
+  return 'blue' as const; // Use consistent color for all roles since they're dynamic
 };
 
 const getTypeColor = (type: string) => {
@@ -50,12 +41,9 @@ const getTypeColor = (type: string) => {
 };
 
 function UserPreviewContent({ user }: { user: any }) {
-  // Fetch user roles
-  const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
-    queryKey: ['user-roles', user.id],
-    queryFn: () => getUserRoles(user.id),
-    enabled: !!user.id,
-  });
+  // User role information is now included in the user object from the API
+  const userRole = user.roleName;
+  const rolesLoading = false;
 
   const renderDetailField = (label: string, value: string | number) => (
     <div>
@@ -86,21 +74,14 @@ function UserPreviewContent({ user }: { user: any }) {
             )}
           </div>
           <div className='flex flex-col gap-2'>
-            {rolesLoading ? (
-              <Badge.Root variant='lighter' color='gray' size='medium'>
-                Loading...
+            {userRole ? (
+              <Badge.Root
+                variant='lighter'
+                color={getRoleColor()}
+                size='medium'
+              >
+                {userRole}
               </Badge.Root>
-            ) : userRoles.length > 0 ? (
-               userRoles.map((roleName: string) => (
-                 <Badge.Root
-                   key={roleName}
-                   variant='lighter'
-                   color={getRoleColor(roleName)}
-                   size='medium'
-                 >
-                   {roleName}
-                 </Badge.Root>
-               ))
             ) : (
               <Badge.Root variant='lighter' color='gray' size='medium'>
                 No Role
@@ -159,11 +140,7 @@ function UserPreviewContent({ user }: { user: any }) {
             {renderDetailField('Phone', user.phone || '—')}
             {renderDetailField(
               'Department Role',
-              rolesLoading
-                 ? 'Loading...'
-                 : userRoles.length > 0
-                 ? userRoles.join(', ')
-                 : 'No Role',
+              userRole || 'No Role',
             )}
             {renderDetailField(
               'Created Date',

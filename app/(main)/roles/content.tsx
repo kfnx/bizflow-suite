@@ -1,24 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  RiAddLine, 
-  RiDeleteBinLine, 
-  RiEditLine, 
+import { useEffect, useState } from 'react';
+import {
+  RiAddLine,
+  RiCheckLine,
+  RiCloseLine,
+  RiDeleteBinLine,
+  RiEditLine,
   RiSearchLine,
   RiSettingsLine,
-  RiCheckLine,
-  RiCloseLine
 } from '@remixicon/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import * as Button from '@/components/ui/button';
+import * as Checkbox from '@/components/ui/checkbox';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
-import * as Button from '@/components/ui/button';
 import * as Modal from '@/components/ui/modal';
 import * as Table from '@/components/ui/table';
-import * as Checkbox from '@/components/ui/checkbox';
 
 interface Role {
   id: string;
@@ -114,12 +114,15 @@ async function deleteRole(id: string) {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to delete role');
+    throw new Error(error.message || error.error || 'Failed to delete role');
   }
   return response.json();
 }
 
-async function assignPermissionsToRole(roleId: string, permissionIds: string[]) {
+async function assignPermissionsToRole(
+  roleId: string,
+  permissionIds: string[],
+) {
   const response = await fetch(`/api/roles/${roleId}/permissions`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -149,6 +152,21 @@ function RoleDialog({
   });
 
   const queryClient = useQueryClient();
+
+  // Update form data when role changes
+  useEffect(() => {
+    if (role) {
+      setFormData({
+        name: role.name || '',
+        description: role.description || '',
+      });
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+      });
+    }
+  }, [role]);
 
   const mutation = useMutation({
     mutationFn: (data: RoleFormData) =>
@@ -180,49 +198,62 @@ function RoleDialog({
           <Modal.Title>{role ? 'Edit Role' : 'Create Role'}</Modal.Title>
         </Modal.Header>
 
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          <div>
-            <Label.Root htmlFor='name'>Name</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id='name'
-                  value={formData.name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder='Role name'
-                  required
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
+        <div className='px-6 py-4'>
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            <div className='space-y-2'>
+              <Label.Root htmlFor='name'>Name</Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id='name'
+                    value={formData.name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    placeholder='Role name'
+                    required
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
 
-          <div>
-            <Label.Root htmlFor='description'>Description</Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id='description'
-                  value={formData.description}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  placeholder='Role description'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
+            <div className='space-y-2'>
+              <Label.Root htmlFor='description'>Description</Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id='description'
+                    value={formData.description}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder='Role description'
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
+          </form>
+        </div>
 
-          <Modal.Footer>
-            <Button.Root variant='neutral' onClick={onClose} disabled={mutation.isPending}>
-              Cancel
-            </Button.Root>
-            <Button.Root type='submit' disabled={mutation.isPending}>
-              {mutation.isPending ? 'Saving...' : role ? 'Update' : 'Create'}
-            </Button.Root>
-          </Modal.Footer>
-        </form>
+        <Modal.Footer>
+          <Button.Root
+            variant='neutral'
+            onClick={onClose}
+            disabled={mutation.isPending}
+          >
+            Cancel
+          </Button.Root>
+          <Button.Root
+            type='submit'
+            disabled={mutation.isPending}
+            onClick={handleSubmit}
+          >
+            {mutation.isPending ? 'Saving...' : role ? 'Update' : 'Create'}
+          </Button.Root>
+        </Modal.Footer>
       </Modal.Content>
     </Modal.Root>
   );
@@ -253,42 +284,48 @@ function RolePermissionsDialog({
   // Fetch role with current permissions
   const { data: roleData, isLoading: roleLoading } = useQuery({
     queryKey: ['role', role?.id],
-    queryFn: () => role ? fetchRoleWithPermissions(role.id) : null,
+    queryFn: () => (role ? fetchRoleWithPermissions(role.id) : null),
     enabled: !!role?.id && isOpen,
   });
 
   // Initialize selected permissions when role data is loaded
   useEffect(() => {
     if (roleData?.permissions) {
-      setSelectedPermissions(roleData.permissions.map((p: any) => p.permissionId));
+      setSelectedPermissions(
+        roleData.permissions.map((p: any) => p.permissionId),
+      );
     }
   }, [roleData]);
 
   const handlePermissionToggle = (permissionId: string) => {
-    setSelectedPermissions(prev => 
+    setSelectedPermissions((prev) =>
       prev.includes(permissionId)
-        ? prev.filter(id => id !== permissionId)
-        : [...prev, permissionId]
+        ? prev.filter((id) => id !== permissionId)
+        : [...prev, permissionId],
     );
   };
 
-  const handleSelectAll = (category: string) => {
-    const categoryPermissions = getFilteredPermissions()
-      .filter((p: Permission) => category === 'all' || p.name.startsWith(category))
+  const handleSelectAll = (category: string = 'all') => {
+    const targetPermissions = getFilteredPermissions()
+      .filter(
+        (p: Permission) => category === 'all' || p.name.startsWith(category),
+      )
       .map((p: Permission) => p.id);
-    
-    setSelectedPermissions(prev => 
-      Array.from(new Set([...prev, ...categoryPermissions]))
+
+    setSelectedPermissions((prev) =>
+      Array.from(new Set([...prev, ...targetPermissions])),
     );
   };
 
-  const handleDeselectAll = (category: string) => {
-    const categoryPermissions = getFilteredPermissions()
-      .filter((p: Permission) => category === 'all' || p.name.startsWith(category))
+  const handleDeselectAll = (category: string = 'all') => {
+    const targetPermissions = getFilteredPermissions()
+      .filter(
+        (p: Permission) => category === 'all' || p.name.startsWith(category),
+      )
       .map((p: Permission) => p.id);
-    
-    setSelectedPermissions(prev => 
-      prev.filter(id => !categoryPermissions.includes(id))
+
+    setSelectedPermissions((prev) =>
+      prev.filter((id) => !targetPermissions.includes(id)),
     );
   };
 
@@ -303,21 +340,28 @@ function RolePermissionsDialog({
       toast.success('Permissions updated successfully');
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update permissions');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update permissions',
+      );
     }
   };
 
   const getFilteredPermissions = () => {
     const allPermissions = permissionsData?.data || [];
-    
+
     return allPermissions.filter((permission: Permission) => {
-      const matchesSearch = searchFilter === '' || 
-        permission.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        (permission.description && permission.description.toLowerCase().includes(searchFilter.toLowerCase()));
-      
-      const matchesCategory = categoryFilter === 'all' || 
-        permission.name.startsWith(categoryFilter);
-      
+      // Enhanced multi-word search
+      const searchTerms = searchFilter.toLowerCase().trim().split(/\s+/);
+      const searchableText =
+        `${permission.name} ${permission.description || ''}`.toLowerCase();
+
+      const matchesSearch =
+        searchFilter === '' ||
+        searchTerms.every((term) => searchableText.includes(term));
+
+      const matchesCategory =
+        categoryFilter === 'all' || permission.name.startsWith(categoryFilter);
+
       return matchesSearch && matchesCategory;
     });
   };
@@ -325,28 +369,13 @@ function RolePermissionsDialog({
   const getPermissionCategories = () => {
     const allPermissions = permissionsData?.data || [];
     const categories = new Set<string>();
-    
+
     allPermissions.forEach((permission: Permission) => {
       const category = permission.name.split(':')[0];
       categories.add(category);
     });
-    
-    return Array.from(categories).sort();
-  };
 
-  const groupPermissionsByCategory = () => {
-    const filteredPermissions = getFilteredPermissions();
-    const grouped: Record<string, Permission[]> = {};
-    
-    filteredPermissions.forEach((permission: Permission) => {
-      const category = permission.name.split(':')[0];
-      if (!grouped[category]) {
-        grouped[category] = [];
-      }
-      grouped[category].push(permission);
-    });
-    
-    return grouped;
+    return Array.from(categories).sort();
   };
 
   if (permissionsLoading || roleLoading) {
@@ -363,54 +392,70 @@ function RolePermissionsDialog({
   }
 
   const categories = getPermissionCategories();
-  const groupedPermissions = groupPermissionsByCategory();
   const filteredPermissions = getFilteredPermissions();
 
   return (
     <Modal.Root open={isOpen} onOpenChange={onClose}>
-      <Modal.Content className='max-w-4xl max-h-[90vh] overflow-hidden'>
-        <Modal.Header>
-          <Modal.Title>
-            Manage Permissions - {role?.name}
-          </Modal.Title>
+      <Modal.Content className='flex h-[90vh] max-w-5xl flex-col overflow-hidden'>
+        <Modal.Header className='flex-shrink-0'>
+          <Modal.Title>Manage Permissions - {role?.name}</Modal.Title>
         </Modal.Header>
 
-        <form onSubmit={handleSubmit} className='flex flex-col space-y-4 overflow-hidden'>
+        <form onSubmit={handleSubmit} className='flex min-h-0 flex-1 flex-col'>
           {/* Search and Filters */}
-          <div className='flex items-center gap-4 p-4 border-b'>
-            <div className='flex-1'>
-              <Input.Root>
-                <Input.Wrapper>
-                  <Input.Icon as={RiSearchLine} />
-                  <Input.Input
-                    placeholder='Search permissions...'
-                    value={searchFilter}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                      setSearchFilter(e.target.value)
-                    }
-                  />
-                </Input.Wrapper>
-              </Input.Root>
+          <div className='flex flex-col gap-4 border-b p-4'>
+            <div className='flex items-center gap-4'>
+              <div className='flex-1'>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Icon as={RiSearchLine} />
+                    <Input.Input
+                      placeholder='Search permissions (e.g., "transfer create", "users read")...'
+                      value={searchFilter}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSearchFilter(e.target.value)
+                      }
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              </div>
+
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className='min-w-[140px] rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-3 py-2 text-text-strong-950'
+              >
+                <option value='all'>All Resources</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
             </div>
-            
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className='px-3 py-2 border border-stroke-soft-200 rounded-lg bg-bg-white-0 text-text-strong-950'
-            >
-              <option value='all'>All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
+
+            {searchFilter && (
+              <div className='text-sm text-text-sub-600'>
+                Searching for:{' '}
+                <span className='font-medium'>"{searchFilter}"</span>
+                {filteredPermissions.length > 0 && (
+                  <span>
+                    {' '}
+                    - {filteredPermissions.length} permission
+                    {filteredPermissions.length !== 1 ? 's' : ''} found
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Bulk Actions */}
-          <div className='flex items-center justify-between px-4'>
+          <div className='flex flex-shrink-0 items-center justify-between border-b bg-bg-weak-50 px-4 py-3'>
             <div className='text-sm text-text-sub-600'>
-              {selectedPermissions.length} of {filteredPermissions.length} permissions selected
+              <span className='font-medium'>{selectedPermissions.length}</span>{' '}
+              of{' '}
+              <span className='font-medium'>{filteredPermissions.length}</span>{' '}
+              permissions selected
             </div>
             <div className='flex items-center gap-2'>
               <Button.Root
@@ -420,7 +465,8 @@ function RolePermissionsDialog({
                 onClick={() => handleSelectAll(categoryFilter)}
               >
                 <RiCheckLine className='size-4' />
-                Select All
+                Select All{' '}
+                {categoryFilter !== 'all' ? `(${categoryFilter})` : ''}
               </Button.Root>
               <Button.Root
                 type='button'
@@ -429,75 +475,97 @@ function RolePermissionsDialog({
                 onClick={() => handleDeselectAll(categoryFilter)}
               >
                 <RiCloseLine className='size-4' />
-                Deselect All
+                Clear {categoryFilter !== 'all' ? `(${categoryFilter})` : 'All'}
               </Button.Root>
             </div>
           </div>
 
-          {/* Permissions List */}
-          <div className='flex-1 overflow-y-auto px-4'>
-            <div className='space-y-6'>
-              {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
-                <div key={category} className='space-y-2'>
-                  <div className='flex items-center justify-between sticky top-0 bg-bg-white-0 py-2 border-b border-stroke-soft-200'>
-                    <h3 className='font-medium text-text-strong-950 capitalize'>
-                      {category} ({categoryPermissions.length})
-                    </h3>
-                    <div className='flex items-center gap-2'>
-                      <Button.Root
-                        type='button'
-                        variant='neutral'
-                        size='xxsmall'
-                        onClick={() => handleSelectAll(category)}
+          {/* Permissions List - Compact Table View */}
+          <div className='min-h-0 flex-1 overflow-y-auto'>
+            <div className='p-4'>
+              {filteredPermissions.length === 0 ? (
+                <div className='py-8 text-center text-text-sub-600'>
+                  {searchFilter ? (
+                    <>
+                      <div className='text-lg mb-2 font-medium'>
+                        No permissions found
+                      </div>
+                      <div>
+                        Try adjusting your search terms or category filter
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className='text-lg mb-2 font-medium'>
+                        No permissions available
+                      </div>
+                      <div>
+                        No permissions match the current filter criteria
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+                  {filteredPermissions.map((permission: Permission) => {
+                    const parts = permission.name.split(':');
+                    const resource = parts[0];
+                    const action = parts[1] || 'general';
+                    const isSelected = selectedPermissions.includes(
+                      permission.id,
+                    );
+
+                    return (
+                      <div
+                        key={permission.id}
+                        className={`text-sm flex items-center space-x-2 rounded-md border p-2 transition-colors ${
+                          isSelected
+                            ? 'bg-primary-50 border-primary-base'
+                            : 'border-stroke-soft-200'
+                        }`}
+                        title={permission.description || permission.name}
                       >
-                        Select All
-                      </Button.Root>
-                      <Button.Root
-                        type='button'
-                        variant='neutral'
-                        size='xxsmall'
-                        onClick={() => handleDeselectAll(category)}
-                      >
-                        Clear
-                      </Button.Root>
-                    </div>
-                  </div>
-                  
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-                    {categoryPermissions.map((permission: Permission) => (
-                      <div key={permission.id} className='flex items-start space-x-3 rounded-lg border p-3 hover:bg-bg-weak-50'>
                         <Checkbox.Root
-                          checked={selectedPermissions.includes(permission.id)}
-                          onCheckedChange={() => handlePermissionToggle(permission.id)}
-                          className='mt-1'
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            if (checked !== isSelected) {
+                              handlePermissionToggle(permission.id);
+                            }
+                          }}
+                          className='flex-shrink-0'
                         />
-                        <div className='flex-1 min-w-0'>
-                          <div className='font-medium text-text-strong-950 truncate'>
-                            {permission.name}
+                        <div
+                          className='min-w-0 flex-1 cursor-pointer hover:opacity-80'
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePermissionToggle(permission.id);
+                          }}
+                        >
+                          <div className='flex items-center gap-1.5'>
+                            <span className='font-medium capitalize text-text-strong-950'>
+                              {action}
+                            </span>
+                            <span className='text-xs bg-bg-weak-100 rounded px-1 py-0.5 font-mono uppercase tracking-wide text-text-sub-600'>
+                              {resource}
+                            </span>
                           </div>
-                          {permission.description && (
-                            <div className='text-sm text-text-sub-600 line-clamp-2'>
-                              {permission.description}
-                            </div>
-                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
-          <Modal.Footer>
-            <Button.Root
-              type='button'
-              variant='neutral'
-              onClick={onClose}
-            >
+          <Modal.Footer className='flex-shrink-0 border-t'>
+            <Button.Root type='button' variant='neutral' onClick={onClose}>
               Cancel
             </Button.Root>
-            <Button.Root type='submit'>
+            <Button.Root
+              type='submit'
+              disabled={selectedPermissions.length === 0}
+            >
               Update Permissions ({selectedPermissions.length})
             </Button.Root>
           </Modal.Footer>
@@ -510,13 +578,18 @@ function RolePermissionsDialog({
 export default function RolesContent() {
   const [search, setSearch] = useState('');
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [isRolePermissionsDialogOpen, setIsRolePermissionsDialogOpen] = useState(false);
+  const [isRolePermissionsDialogOpen, setIsRolePermissionsDialogOpen] =
+    useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   const queryClient = useQueryClient();
 
   // Roles data
-  const { data: rolesData, isLoading: rolesLoading, error: rolesError } = useQuery({
+  const {
+    data: rolesData,
+    isLoading: rolesLoading,
+    error: rolesError,
+  } = useQuery({
     queryKey: ['roles', search],
     queryFn: () => fetchRoles({ search }),
   });
@@ -528,8 +601,13 @@ export default function RolesContent() {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       toast.success('Role deleted successfully');
     },
-    onError: (error: Error) => {
-      toast.error(error.message);
+    onError: (error: any) => {
+      // Handle specific API error responses
+      if (error.message && error.message.includes('Cannot delete role')) {
+        toast.error(error.message, { duration: 6000 });
+      } else {
+        toast.error(error.message || 'Failed to delete role');
+      }
     },
   });
 
@@ -591,7 +669,9 @@ export default function RolesContent() {
               <Input.Input
                 placeholder='Search roles...'
                 value={search}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearch(e.target.value)
+                }
               />
             </Input.Wrapper>
           </Input.Root>

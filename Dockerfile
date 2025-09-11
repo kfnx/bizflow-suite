@@ -1,5 +1,5 @@
 # 1. Base image for building
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # 2. Set working directory
 WORKDIR /app
@@ -14,7 +14,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile && pnpm build
 
 # 6. Production image
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 

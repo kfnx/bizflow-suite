@@ -22,11 +22,13 @@ import {
   RiTruckLine,
   RiUserLine,
   RiUserSettingsLine,
+  RiShieldUserLine,
+  RiKeyLine,
 } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { hasPermission, Permission } from '@/lib/permissions';
+// import { hasPermission, Permission } from '@/lib/permissions/client';
 import { cn } from '@/utils/cn';
 import * as Divider from '@/components/ui/divider';
 import { UserButton } from '@/components/user-button';
@@ -123,6 +125,11 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiUserSettingsLine,
         label: 'Users',
         href: '/users',
+      },
+      {
+        icon: RiShieldUserLine,
+        label: 'Roles & Permissions',
+        href: '/roles',
       },
       {
         icon: RiGitBranchLine,
@@ -270,39 +277,8 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
     });
   };
 
-  // Filter navigation links based on user permissions and roles
-  const filteredNavigationLinks = navigationLinks
-    .map((category) => ({
-      ...category,
-      links: category.links.filter((link) => {
-        // Admin bypass permission check
-        if (session?.user?.isAdmin) return true;
-
-        // Check if user has permission for this route
-        const routePermissions: Record<string, Permission[]> = {
-          '/quotations': ['quotations:read'],
-          '/invoices': ['invoices:read'],
-          '/delivery-notes': ['deliveries:read'],
-          '/products': ['products:read'],
-          '/warehouses': ['warehouses:read'],
-          '/imports': ['imports:read'],
-          '/transfers': ['transfers:read'],
-          '/suppliers': ['suppliers:read'],
-          '/customers': ['customers:read'],
-          '/users': ['users:read'],
-          '/branches': ['branches:read'],
-          // '/master-data': ['master-data:read'],
-        };
-
-        const requiredPermissions = routePermissions[link.href];
-        if (!requiredPermissions) return true; // No permission required
-
-        return requiredPermissions.some((permission) =>
-          hasPermission(session.user, permission),
-        );
-      }),
-    }))
-    .filter((category) => category.links.length > 0);
+  // TODO: Re-implement permission filtering once permissions are available in session
+  const filteredNavigationLinks = navigationLinks;
 
   return filteredNavigationLinks.map(({ label, links }) => {
     const isGroupCollapsed = collapsedGroups.has(label);

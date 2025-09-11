@@ -17,9 +17,12 @@ export type User = {
   type: string;
   phone?: string;
   avatar?: string;
-  role: string;
+
   branchId?: string;
   branchName?: string;
+  roleId?: string;
+  roleName?: string;
+  roleDescription?: string;
   signature?: string;
   isActive: boolean;
   isAdmin: boolean;

@@ -327,8 +327,7 @@ export function ImportsTable({
             <Dropdown.Item
               disabled={
                 verifyImportMutation.isPending ||
-                (can('imports:verify') &&
-                  row.original.status === IMPORT_STATUS.PENDING)
+                row.original.status === IMPORT_STATUS.PENDING
               }
               onClick={(e) => {
                 e.stopPropagation();

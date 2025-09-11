@@ -9,6 +9,8 @@ import {
 
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUser } from '@/hooks/use-users';
+// import { getUserRoles } from '@/lib/permissions';
+import { useQuery } from '@tanstack/react-query';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -21,17 +23,8 @@ interface UserPreviewDrawerProps {
   onClose: () => void;
 }
 
-const getRoleColor = (role: string) => {
-  switch (role) {
-    case 'director':
-      return 'purple';
-    case 'manager':
-      return 'blue';
-    case 'staff':
-      return 'orange';
-    default:
-      return 'gray';
-  }
+const getRoleColor = () => {
+  return 'blue' as const; // Use consistent color for all roles since they're dynamic
 };
 
 const getTypeColor = (type: string) => {
@@ -48,6 +41,10 @@ const getTypeColor = (type: string) => {
 };
 
 function UserPreviewContent({ user }: { user: any }) {
+  // User role information is now included in the user object from the API
+  const userRole = user.roleName;
+  const rolesLoading = false;
+
   const renderDetailField = (label: string, value: string | number) => (
     <div>
       <div className='text-subheading-xs uppercase text-text-soft-400'>
@@ -77,13 +74,19 @@ function UserPreviewContent({ user }: { user: any }) {
             )}
           </div>
           <div className='flex flex-col gap-2'>
-            <Badge.Root
-              variant='lighter'
-              color={getRoleColor(user.role)}
-              size='medium'
-            >
-              {user.role}
-            </Badge.Root>
+            {userRole ? (
+              <Badge.Root
+                variant='lighter'
+                color={getRoleColor()}
+                size='medium'
+              >
+                {userRole}
+              </Badge.Root>
+            ) : (
+              <Badge.Root variant='lighter' color='gray' size='medium'>
+                No Role
+              </Badge.Root>
+            )}
             <Badge.Root
               variant='lighter'
               color={getTypeColor(user.type || 'full-time')}
@@ -137,7 +140,7 @@ function UserPreviewContent({ user }: { user: any }) {
             {renderDetailField('Phone', user.phone || '—')}
             {renderDetailField(
               'Department Role',
-              user.role.charAt(0).toUpperCase() + user.role.slice(1),
+              userRole || 'No Role',
             )}
             {renderDetailField(
               'Created Date',

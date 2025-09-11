@@ -20,7 +20,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await requirePermission(request, 'imports:verify');
+  const session = await requirePermission(request, 'imports:approve');
 
   if (session instanceof NextResponse) {
     return session;

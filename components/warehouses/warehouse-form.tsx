@@ -261,8 +261,7 @@ export function WarehouseForm({
                     <Select.Content>
                       {managers.map((manager) => (
                         <Select.Item key={manager.id} value={manager.id}>
-                          {manager.firstName} {manager.lastName} -{' '}
-                          {manager.role}
+                          {manager.firstName} {manager.lastName}
                         </Select.Item>
                       ))}
                     </Select.Content>

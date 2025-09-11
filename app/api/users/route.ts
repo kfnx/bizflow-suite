@@ -5,8 +5,12 @@ import { and, desc, eq, like, or } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
-import { branches, users, userRoles, roles as rolesTable } from '@/lib/db/schema';
-
+import {
+  branches,
+  roles as rolesTable,
+  userRoles,
+  users,
+} from '@/lib/db/schema';
 import { createUserSchema } from '@/lib/validations/user';
 
 export const dynamic = 'force-dynamic';
@@ -235,7 +239,11 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     // Assign role if provided (and not 'none')
-    if (validatedData.roleId && validatedData.roleId !== 'none' && createdUser.length > 0) {
+    if (
+      validatedData.roleId &&
+      validatedData.roleId !== 'none' &&
+      createdUser.length > 0
+    ) {
       await db.insert(userRoles).values({
         userId: createdUser[0].id,
         roleId: validatedData.roleId,

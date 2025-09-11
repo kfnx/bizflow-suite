@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
 import {
+  getUserRoles,
   hasAllPermissions,
   hasAnyPermission,
   hasPermission,
   hasRole,
-  getUserRoles,
   Permission,
 } from '@/lib/permissions';
 
@@ -61,7 +61,5 @@ export function usePermissions() {
 
     // Check if user is authenticated
     isAuthenticated: !!user,
-
-
   };
 }

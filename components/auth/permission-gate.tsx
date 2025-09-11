@@ -113,7 +113,7 @@ export function AnyPermissionGate({
       }
 
       // TODO: Re-implement permissions check once permissions are available in session
-       setHasAny(true);
+      setHasAny(true);
     }
 
     checkPermissions();

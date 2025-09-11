@@ -10,12 +10,12 @@ import {
   RiShieldCheckLine,
   RiUserLine,
 } from '@remixicon/react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
+import { getUserRoles } from '@/lib/permissions';
 import { cn } from '@/utils/cn';
 import { useCurrentUser } from '@/hooks/use-users';
-import { getUserRoles } from '@/lib/permissions';
-import { useQuery } from '@tanstack/react-query';
 import * as Avatar from '@/components/ui/avatar';
 import * as Divider from '@/components/ui/divider';
 import { Loading } from '@/components/ui/loading';
@@ -116,7 +116,13 @@ export default function ProfilePage() {
                   )}
                 >
                   <RiShieldCheckLine className='size-3' />
-                  {user.isAdmin ? 'Administrator' : rolesLoading ? 'Loading...' : userRoles.length > 0 ? userRoles.join(', ') : 'No Role'}
+                  {user.isAdmin
+                    ? 'Administrator'
+                    : rolesLoading
+                      ? 'Loading...'
+                      : userRoles.length > 0
+                        ? userRoles.join(', ')
+                        : 'No Role'}
                 </div>
               </div>
             </div>
@@ -216,7 +222,12 @@ export default function ProfilePage() {
                     Role & Permissions
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {rolesLoading ? 'Loading...' : userRoles.length > 0 ? userRoles.join(', ') : 'No Role'} {user.isAdmin && '(Admin)'}
+                    {rolesLoading
+                      ? 'Loading...'
+                      : userRoles.length > 0
+                        ? userRoles.join(', ')
+                        : 'No Role'}{' '}
+                    {user.isAdmin && '(Admin)'}
                   </div>
                 </div>
               </div>

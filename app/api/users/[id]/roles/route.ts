@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { db } from '@/lib/db';
-import { userRoles, users, roles } from '@/lib/db/schema';
 import { requirePermission } from '@/lib/auth/authorization';
+import { db } from '@/lib/db';
+import { roles, userRoles, users } from '@/lib/db/schema';
 
 const assignRolesSchema = z.object({
   roleIds: z.array(z.string()),
@@ -12,16 +12,15 @@ const assignRolesSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await requirePermission(request, 'users:read');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { id: userId } = await params;
 
     // Get user roles
@@ -40,23 +39,22 @@ export async function GET(
     console.error('Error fetching user roles:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await requirePermission(request, 'users:update');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { id: userId } = await params;
     const body = await request.json();
     const { roleIds } = assignRolesSchema.parse(body);
@@ -66,20 +64,18 @@ export async function PUT(
       .select({ id: users.id })
       .from(users)
       .where(eq(users.id, userId))
-      .then(result => result[0]);
+      .then((result) => result[0]);
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Verify all roles exist
-    const existingRoles = await db
-      .select({ id: roles.id })
-      .from(roles);
-    
-    const existingRoleIds = existingRoles.map(r => r.id);
+    const existingRoles = await db.select({ id: roles.id }).from(roles);
+
+    const existingRoleIds = existingRoles.map((r) => r.id);
     const invalidRoleIds = roleIds.filter(
-      id => !existingRoleIds.includes(id)
+      (id) => !existingRoleIds.includes(id),
     );
 
     if (invalidRoleIds.length > 0) {
@@ -88,7 +84,7 @@ export async function PUT(
           error: 'Invalid role IDs',
           invalidIds: invalidRoleIds,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -97,7 +93,7 @@ export async function PUT(
 
     // Add new user roles
     if (roleIds.length > 0) {
-      const newUserRoles = roleIds.map(roleId => ({
+      const newUserRoles = roleIds.map((roleId) => ({
         userId,
         roleId,
       }));
@@ -112,14 +108,14 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error('Error updating user roles:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

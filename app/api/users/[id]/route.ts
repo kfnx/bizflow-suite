@@ -4,8 +4,12 @@ import { eq } from 'drizzle-orm';
 import { requirePermission } from '@/lib/auth/authorization';
 import { invalidateUserSession } from '@/lib/auth/session-utils';
 import { db } from '@/lib/db';
-import { branches, roles as rolesTable, users, userRoles } from '@/lib/db/schema';
-
+import {
+  branches,
+  roles as rolesTable,
+  userRoles,
+  users,
+} from '@/lib/db/schema';
 import { updateUserSchema } from '@/lib/validations/user';
 
 // GET /api/users/[id] - Get a specific user
@@ -180,7 +184,7 @@ export async function PUT(
     if (roleId !== undefined) {
       // First remove existing role assignments
       await db.delete(userRoles).where(eq(userRoles.userId, params.id));
-      
+
       // Add new role if provided (and not 'none')
       if (roleId && roleId !== 'none') {
         await db.insert(userRoles).values({

@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { desc } from 'drizzle-orm';
 
+import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { permissions } from '@/lib/db/schema';
-import { requirePermission } from '@/lib/auth/authorization';
 
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'roles:read');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '100');
 
@@ -44,7 +43,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching permissions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -17,9 +17,9 @@ import * as Button from '@/components/ui/button';
 import * as Checkbox from '@/components/ui/checkbox';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
+import { Loading } from '@/components/ui/loading';
 import * as Modal from '@/components/ui/modal';
 import * as Table from '@/components/ui/table';
-import { Loading } from '@/components/ui/loading';
 
 interface Role {
   id: string;
@@ -387,7 +387,7 @@ function RolePermissionsDialog({
             <Modal.Title>Loading Role</Modal.Title>
           </Modal.Header>
           <div className='p-8'>
-            <Loading className="min-h-32" />
+            <Loading className='min-h-32' />
           </div>
         </Modal.Content>
       </Modal.Root>
@@ -440,7 +440,7 @@ function RolePermissionsDialog({
             {searchFilter && (
               <div className='text-sm text-text-sub-600'>
                 Searching for:{' '}
-                <span className='font-medium'>"{searchFilter}"</span>
+                <span className='font-medium'>&quot;{searchFilter}&quot;</span>
                 {filteredPermissions.length > 0 && (
                   <span>
                     {' '}
@@ -684,7 +684,7 @@ export default function RolesContent() {
       {/* Roles Table */}
       <div className='rounded-lg border border-stroke-soft-200'>
         {rolesLoading ? (
-          <Loading className="min-h-64" />
+          <Loading className='min-h-64' />
         ) : rolesError ? (
           <div className='p-8 text-center text-error-base'>
             Error: {rolesError.message}

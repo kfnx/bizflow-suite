@@ -90,7 +90,6 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.phone = user.phone;

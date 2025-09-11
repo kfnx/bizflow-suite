@@ -32,10 +32,10 @@ import {
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
+import { Loading } from '@/components/ui/loading';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
-import { Loading } from '@/components/ui/loading';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -240,7 +240,7 @@ export function CustomersTable({
   });
 
   if (isLoading) {
-    return <Loading className="min-h-64" />;
+    return <Loading className='min-h-64' />;
   }
 
   if (error) {

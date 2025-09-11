@@ -1,7 +1,13 @@
 import { eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
-import { users, userRoles, rolePermissions, permissions, roles } from '@/lib/db/schema';
+import {
+  permissions,
+  rolePermissions,
+  roles,
+  userRoles,
+  users,
+} from '@/lib/db/schema';
 
 export type Permission = string;
 
@@ -17,7 +23,7 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
       .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
       .where(eq(userRoles.userId, userId));
 
-    return userPermissions.map(p => p.permission);
+    return userPermissions.map((p) => p.permission);
   } catch (error) {
     console.error('Error getting user permissions:', error);
     return [];
@@ -35,7 +41,7 @@ export async function getUserRoles(userId: string): Promise<string[]> {
       .innerJoin(roles, eq(userRoles.roleId, roles.id))
       .where(eq(userRoles.userId, userId));
 
-    return userRolesList.map(r => r.roleName);
+    return userRolesList.map((r) => r.roleName);
   } catch (error) {
     console.error('Error getting user roles:', error);
     return [];
@@ -75,7 +81,9 @@ export async function hasAnyPermission(
 
   try {
     const userPermissions = await getUserPermissions(userId);
-    return permissions.some(permission => userPermissions.includes(permission));
+    return permissions.some((permission) =>
+      userPermissions.includes(permission),
+    );
   } catch (error) {
     console.error('Error checking any permission:', error);
     return false;
@@ -95,7 +103,9 @@ export async function hasAllPermissions(
 
   try {
     const userPermissions = await getUserPermissions(userId);
-    return permissions.every(permission => userPermissions.includes(permission));
+    return permissions.every((permission) =>
+      userPermissions.includes(permission),
+    );
   } catch (error) {
     console.error('Error checking all permissions:', error);
     return false;
@@ -135,7 +145,7 @@ export async function hasAnyRole(
 
   try {
     const userRolesList = await getUserRoles(userId);
-    return roleNames.some(roleName => userRolesList.includes(roleName));
+    return roleNames.some((roleName) => userRolesList.includes(roleName));
   } catch (error) {
     console.error('Error checking any role:', error);
     return false;

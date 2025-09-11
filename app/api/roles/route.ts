@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, desc, eq, ilike, or } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { db } from '@/lib/db';
-import { roles, rolePermissions, permissions } from '@/lib/db/schema';
 import { requirePermission } from '@/lib/auth/authorization';
+import { db } from '@/lib/db';
+import { permissions, rolePermissions, roles } from '@/lib/db/schema';
 
 const roleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -13,13 +13,12 @@ const roleSchema = z.object({
 
 export async function GET(request: NextRequest) {
   const session = await requirePermission(request, 'roles:read');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
     const page = parseInt(searchParams.get('page') || '1');
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       whereCondition = or(
         ilike(roles.name, `%${search}%`),
-        ilike(roles.description, `%${search}%`)
+        ilike(roles.description, `%${search}%`),
       );
     }
 
@@ -52,7 +51,7 @@ export async function GET(request: NextRequest) {
         .select({ count: roles.id })
         .from(roles)
         .where(whereCondition)
-        .then(result => result.length),
+        .then((result) => result.length),
     ]);
 
     return NextResponse.json({
@@ -68,20 +67,19 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching roles:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(request: NextRequest) {
   const session = await requirePermission(request, 'roles:create');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const body = await request.json();
     const validatedData = roleSchema.parse(body);
 
@@ -89,20 +87,20 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { message: 'Role created successfully', id: newRole.insertId },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error('Error creating role:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

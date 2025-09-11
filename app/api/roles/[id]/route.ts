@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { db } from '@/lib/db';
-import { roles, rolePermissions, permissions, userRoles } from '@/lib/db/schema';
 import { requirePermission } from '@/lib/auth/authorization';
+import { db } from '@/lib/db';
+import {
+  permissions,
+  rolePermissions,
+  roles,
+  userRoles,
+} from '@/lib/db/schema';
 
 const roleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -13,16 +18,15 @@ const roleSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await requirePermission(request, 'roles:read');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { id } = await params;
 
     const role = await db
@@ -35,7 +39,7 @@ export async function GET(
       })
       .from(roles)
       .where(eq(roles.id, id))
-      .then(result => result[0]);
+      .then((result) => result[0]);
 
     if (!role) {
       return NextResponse.json({ error: 'Role not found' }, { status: 404 });
@@ -60,23 +64,22 @@ export async function GET(
     console.error('Error fetching role:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await requirePermission(request, 'roles:update');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { id } = await params;
     const body = await request.json();
     const validatedData = roleSchema.parse(body);
@@ -85,7 +88,7 @@ export async function PUT(
       .select({ id: roles.id })
       .from(roles)
       .where(eq(roles.id, id))
-      .then(result => result[0]);
+      .then((result) => result[0]);
 
     if (!existingRole) {
       return NextResponse.json({ error: 'Role not found' }, { status: 404 });
@@ -104,37 +107,36 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error('Error updating role:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await requirePermission(request, 'roles:delete');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { id } = await params;
 
     const existingRole = await db
       .select({ id: roles.id, name: roles.name })
       .from(roles)
       .where(eq(roles.id, id))
-      .then(result => result[0]);
+      .then((result) => result[0]);
 
     if (!existingRole) {
       return NextResponse.json({ error: 'Role not found' }, { status: 404 });
@@ -145,7 +147,7 @@ export async function DELETE(
       .select({ count: sql<number>`COUNT(*)` })
       .from(userRoles)
       .where(eq(userRoles.roleId, id))
-      .then(result => result[0]?.count || 0);
+      .then((result) => result[0]?.count || 0);
 
     if (assignedUsers > 0) {
       return NextResponse.json(
@@ -154,7 +156,7 @@ export async function DELETE(
           message: `Cannot delete role "${existingRole.name}" because it is assigned to ${assignedUsers} user${assignedUsers === 1 ? '' : 's'}. Please reassign or remove these users from the role first.`,
           assignedUsers,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -169,7 +171,7 @@ export async function DELETE(
     console.error('Error deleting role:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

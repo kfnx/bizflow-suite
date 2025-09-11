@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { db } from '@/lib/db';
-import { rolePermissions, roles, permissions } from '@/lib/db/schema';
 import { requirePermission } from '@/lib/auth/authorization';
+import { db } from '@/lib/db';
+import { permissions, rolePermissions, roles } from '@/lib/db/schema';
 
 const assignPermissionsSchema = z.object({
   permissionIds: z.array(z.string()),
@@ -12,16 +12,15 @@ const assignPermissionsSchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await requirePermission(request, 'roles:update');
-  
+
   if (session instanceof NextResponse) {
     return session;
   }
 
   try {
-
     const { id: roleId } = await params;
     const body = await request.json();
     const { permissionIds } = assignPermissionsSchema.parse(body);
@@ -31,7 +30,7 @@ export async function PUT(
       .select({ id: roles.id })
       .from(roles)
       .where(eq(roles.id, roleId))
-      .then(result => result[0]);
+      .then((result) => result[0]);
 
     if (!role) {
       return NextResponse.json({ error: 'Role not found' }, { status: 404 });
@@ -41,10 +40,10 @@ export async function PUT(
     const existingPermissions = await db
       .select({ id: permissions.id })
       .from(permissions);
-    
-    const existingPermissionIds = existingPermissions.map(p => p.id);
+
+    const existingPermissionIds = existingPermissions.map((p) => p.id);
     const invalidPermissionIds = permissionIds.filter(
-      id => !existingPermissionIds.includes(id)
+      (id) => !existingPermissionIds.includes(id),
     );
 
     if (invalidPermissionIds.length > 0) {
@@ -53,7 +52,7 @@ export async function PUT(
           error: 'Invalid permission IDs',
           invalidIds: invalidPermissionIds,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,7 +61,7 @@ export async function PUT(
 
     // Add new role permissions
     if (permissionIds.length > 0) {
-      const newRolePermissions = permissionIds.map(permissionId => ({
+      const newRolePermissions = permissionIds.map((permissionId) => ({
         roleId,
         permissionId,
       }));
@@ -77,14 +76,14 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error('Error updating role permissions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

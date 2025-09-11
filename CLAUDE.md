@@ -60,7 +60,7 @@ Complete business document workflow with proper foreign key relationships:
 
 - `users` - User accounts with roles and permissions system
 - `customers` + `customer_contact_persons` - Customer management
-- `suppliers` + `supplier_contact_persons` - Supplier management  
+- `suppliers` + `supplier_contact_persons` - Supplier management
 - `warehouses` - Warehouse locations with stock tracking
 - `products` - Product catalog with supplier relationships and stock management
 - `branches` - Company branch locations
@@ -95,16 +95,20 @@ Complete business document workflow with proper foreign key relationships:
 Required environment variables:
 
 **Database:**
+
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` - Database configuration
 - `DB_SSL` - SSL configuration ("required", "preferred", or undefined)
 
 **Authentication:**
+
 - `NEXTAUTH_URL`, `NEXTAUTH_SECRET` - NextAuth configuration
 
 **File Storage:**
+
 - MinIO configuration for document storage
 
 **Monitoring:**
+
 - Sentry configuration for error tracking
 
 ## Key Development Patterns
@@ -189,4 +193,3 @@ The application is fully dockerized with:
 - `/types/` - TypeScript type definitions
 - `/docs/` - Project documentation
 - `/public/` - Static assets (images, icons, flags)
-- `/csv-imports/` - Sample CSV data for database seeding

@@ -4,7 +4,13 @@ import { eq } from 'drizzle-orm';
 import { auth, signOut } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { branches, users } from '@/lib/db/schema';
-import { hasPermission, hasRole, hasAnyRole, hasAnyPermission, Permission } from '@/lib/permissions/server';
+import {
+  hasAnyPermission,
+  hasAnyRole,
+  hasPermission,
+  hasRole,
+  Permission,
+} from '@/lib/permissions/server';
 
 // Simple in-memory cache for session validation (5 minute TTL)
 const sessionValidationCache = new Map<
@@ -129,7 +135,9 @@ export async function requirePermission(
   }
 
   // Check permission (admins automatically pass)
-  if (!(await hasPermission(session.user.id, permission, session.user.isAdmin))) {
+  if (
+    !(await hasPermission(session.user.id, permission, session.user.isAdmin))
+  ) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient permissions' },
       { status: 403 },
@@ -150,7 +158,13 @@ export async function requireAnyPermission(
   }
 
   // Check if user has any of the required permissions (admins automatically pass)
-  if (!(await hasAnyPermission(session.user.id, permissions, session.user.isAdmin))) {
+  if (
+    !(await hasAnyPermission(
+      session.user.id,
+      permissions,
+      session.user.isAdmin,
+    ))
+  ) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient permissions' },
       { status: 403 },
@@ -189,7 +203,9 @@ export async function requireAnyRole(
   }
 
   // Check if user has any of the required roles (admins automatically pass)
-  if (!(await hasAnyRole(session.user.id, requiredRoles, session.user.isAdmin))) {
+  if (
+    !(await hasAnyRole(session.user.id, requiredRoles, session.user.isAdmin))
+  ) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient role' },
       { status: 403 },

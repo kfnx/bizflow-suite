@@ -9,9 +9,9 @@ import {
   RiMailLine,
   RiMapPin2Line,
   RiPhoneLine,
+  RiShieldUserLine,
   RiUserAddLine,
   RiUserLine,
-  RiShieldUserLine,
 } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 
@@ -39,7 +39,7 @@ interface ValidationError {
 export default function CreateUserPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { } = usePermissions();
+  const {} = usePermissions();
   const { data: branchesData, isLoading: branchesLoading } = useBranches();
   const { data: rolesData, isLoading: rolesLoading } = useRoles({ limit: 50 });
   const createUserMutation = useCreateUser();
@@ -61,8 +61,6 @@ export default function CreateUserPage() {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
-
-
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -431,8 +429,6 @@ export default function CreateUserPage() {
               </div>
 
               <div className='mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2'>
-
-
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='branchId'>
                     Branch <Label.Asterisk />

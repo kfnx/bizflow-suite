@@ -6,17 +6,17 @@ import {
   RiLoader4Line,
   RiLockPasswordLine,
 } from '@remixicon/react';
+// import { getUserRoles } from '@/lib/permissions';
+import { useQuery } from '@tanstack/react-query';
 
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetUserPassword, useUser } from '@/hooks/use-users';
-// import { getUserRoles } from '@/lib/permissions';
-import { useQuery } from '@tanstack/react-query';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
-import { PermissionGate } from '@/components/auth/permission-gate';
 import { Loading } from '@/components/ui/loading';
+import { PermissionGate } from '@/components/auth/permission-gate';
 
 interface UserPreviewDrawerProps {
   userId: string | null;
@@ -139,10 +139,7 @@ function UserPreviewContent({ user }: { user: any }) {
           {/* Right Column */}
           <div className='space-y-4'>
             {renderDetailField('Phone', user.phone || '—')}
-            {renderDetailField(
-              'Department Role',
-              userRole || 'No Role',
-            )}
+            {renderDetailField('Department Role', userRole || 'No Role')}
             {renderDetailField(
               'Created Date',
               new Date(user.createdAt).toLocaleDateString(),
@@ -258,9 +255,7 @@ export function UserPreviewDrawer({
         </Drawer.Header>
 
         <Drawer.Body className='flex-1 overflow-y-auto'>
-          {isLoading && (
-            <Loading className="min-h-64" />
-          )}
+          {isLoading && <Loading className='min-h-64' />}
 
           {error && (
             <div className='py-8 text-center'>

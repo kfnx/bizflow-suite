@@ -14,16 +14,16 @@ import {
   RiFileTextLine,
   RiGitBranchLine,
   RiImportLine,
+  RiKeyLine,
   RiLayoutGridLine,
   RiMenuFoldLine,
   RiMenuUnfoldLine,
+  RiShieldUserLine,
   RiStoreLine,
   RiTeamLine,
   RiTruckLine,
   RiUserLine,
   RiUserSettingsLine,
-  RiShieldUserLine,
-  RiKeyLine,
 } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 import { useHotkeys } from 'react-hotkeys-hook';

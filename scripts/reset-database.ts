@@ -11,10 +11,10 @@ async function resetDatabase() {
   try {
     console.log('Dropping database if exists...');
     await connection.execute(`DROP DATABASE IF EXISTS ${process.env.DB_NAME}`);
-    
+
     console.log('Creating fresh database...');
     await connection.execute(`CREATE DATABASE ${process.env.DB_NAME}`);
-    
+
     console.log('Database reset completed successfully!');
   } catch (error) {
     console.error('Error resetting database:', error);

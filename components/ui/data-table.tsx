@@ -24,6 +24,7 @@ import * as Button from '@/components/ui/button';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
+import { Loading } from '@/components/ui/loading';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -171,9 +172,7 @@ export function DataTable<TData>({
   if (isLoading) {
     return (
       <div className={cn('rounded-lg bg-bg-white-0 p-8', className)}>
-        <div className='flex items-center justify-center'>
-          <div className='text-text-sub-600'>Loading...</div>
-        </div>
+        <Loading className="min-h-32" />
       </div>
     );
   }

@@ -39,6 +39,7 @@ import {
 } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
+import { Loading } from '@/components/ui/loading';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
@@ -459,9 +460,7 @@ export function QuotationsTable({ filters, onPreview }: QuotationsTableProps) {
   });
 
   if (isLoading) {
-    return (
-      <div className='text-gray-500 p-4 text-center'>Loading quotations...</div>
-    );
+    return <Loading className='min-h-64' />;
   }
 
   if (error) {

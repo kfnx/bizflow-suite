@@ -19,6 +19,7 @@ import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Modal from '@/components/ui/modal';
 import * as Table from '@/components/ui/table';
+import { Loading } from '@/components/ui/loading';
 
 interface Role {
   id: string;
@@ -383,9 +384,11 @@ function RolePermissionsDialog({
       <Modal.Root open={isOpen} onOpenChange={onClose}>
         <Modal.Content className='max-w-4xl'>
           <Modal.Header>
-            <Modal.Title>Loading...</Modal.Title>
+            <Modal.Title>Loading Role</Modal.Title>
           </Modal.Header>
-          <div className='p-8 text-center'>Loading permissions...</div>
+          <div className='p-8'>
+            <Loading className="min-h-32" />
+          </div>
         </Modal.Content>
       </Modal.Root>
     );
@@ -681,7 +684,7 @@ export default function RolesContent() {
       {/* Roles Table */}
       <div className='rounded-lg border border-stroke-soft-200'>
         {rolesLoading ? (
-          <div className='p-8 text-center'>Loading roles...</div>
+          <Loading className="min-h-64" />
         ) : rolesError ? (
           <div className='p-8 text-center text-error-base'>
             Error: {rolesError.message}

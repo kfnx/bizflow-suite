@@ -29,6 +29,7 @@ import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
+import { Loading } from '@/components/ui/loading';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -190,11 +191,7 @@ export function SuppliersTable({
   });
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center py-8'>
-        <div className='text-paragraph-sm text-text-sub-600'>Loading...</div>
-      </div>
-    );
+    return <Loading className="min-h-64" />;
   }
 
   if (error) {

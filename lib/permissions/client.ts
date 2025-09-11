@@ -45,7 +45,11 @@ export type Permission =
   | 'transfers:read'
   | 'transfers:create'
   | 'transfers:update'
-  | 'transfers:delete';
+  | 'transfers:delete'
+  | 'roles:read'
+  | 'roles:create'
+  | 'roles:update'
+  | 'roles:delete';
 
 // Client-side permission checking (using permissions from session/props)
 export function hasPermission(

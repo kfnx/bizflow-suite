@@ -5,6 +5,7 @@ import { RiBox1Line } from '@remixicon/react';
 
 import Header from '@/components/header';
 import { ProductsTable } from '@/components/products/products-table';
+import { Loading } from '@/components/ui/loading';
 
 import { Filters, type ProductsFilters } from './filters';
 
@@ -45,7 +46,7 @@ export default function PageProducts() {
       />
 
       <div className='flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8'>
-        <Suspense fallback={<div>Loading filters...</div>}>
+        <Suspense fallback={<Loading className="min-h-16" />}>
           <Filters onFiltersChange={handleFiltersChange} />
         </Suspense>
         <ProductsTable

@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/dropdown';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
+import { Loading } from '@/components/ui/loading';
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -370,9 +371,7 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
   });
 
   if (isLoading) {
-    return (
-      <div className='text-gray-500 p-4 text-center'>Loading users...</div>
-    );
+    return <Loading className="min-h-64" />;
   }
 
   if (error) {

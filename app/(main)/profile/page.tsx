@@ -18,6 +18,7 @@ import { getUserRoles } from '@/lib/permissions';
 import { useQuery } from '@tanstack/react-query';
 import * as Avatar from '@/components/ui/avatar';
 import * as Divider from '@/components/ui/divider';
+import { Loading } from '@/components/ui/loading';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -44,7 +45,7 @@ export default function ProfilePage() {
   if (status === 'loading' || userLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center'>
-        <div className='border-primary-600 h-8 w-8 animate-spin rounded-full border-b-2'></div>
+        <Loading size={20} />
       </div>
     );
   }

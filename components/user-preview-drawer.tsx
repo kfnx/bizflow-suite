@@ -16,6 +16,7 @@ import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 import { PermissionGate } from '@/components/auth/permission-gate';
+import { Loading } from '@/components/ui/loading';
 
 interface UserPreviewDrawerProps {
   userId: string | null;
@@ -258,10 +259,7 @@ export function UserPreviewDrawer({
 
         <Drawer.Body className='flex-1 overflow-y-auto'>
           {isLoading && (
-            <div className='flex items-center justify-center py-8'>
-              <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
-              <span className='text-sm text-gray-500 ml-2'>Loading...</span>
-            </div>
+            <Loading className="min-h-64" />
           )}
 
           {error && (

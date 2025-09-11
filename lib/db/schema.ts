@@ -523,6 +523,7 @@ export const deliveryNotes = mysqlTable(
       .notNull()
       .unique(),
     invoiceId: varchar('invoice_id', { length: 36 }),
+    quotationId: varchar('quotation_id', { length: 36 }),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
     deliveryDate: date('delivery_date').notNull(),
     deliveryMethod: varchar('delivery_method', { length: 100 }),
@@ -541,6 +542,7 @@ export const deliveryNotes = mysqlTable(
   (table) => [
     index('delivery_number_idx').on(table.deliveryNumber),
     index('invoice_id_idx').on(table.invoiceId),
+    index('quotation_id_idx').on(table.quotationId),
     index('customer_id_idx').on(table.customerId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
@@ -548,6 +550,11 @@ export const deliveryNotes = mysqlTable(
       columns: [table.invoiceId],
       foreignColumns: [invoices.id],
       name: 'fk_delivery_notes_invoice',
+    }),
+    foreignKey({
+      columns: [table.quotationId],
+      foreignColumns: [quotations.id],
+      name: 'fk_delivery_notes_quotation',
     }),
     foreignKey({
       columns: [table.branchId],
@@ -1188,6 +1195,10 @@ export const deliveryNotesRelations = relations(
       fields: [deliveryNotes.invoiceId],
       references: [invoices.id],
     }),
+    quotation: one(quotations, {
+      fields: [deliveryNotes.quotationId],
+      references: [quotations.id],
+    }),
     createdBy: one(users, {
       fields: [deliveryNotes.createdBy],
       references: [users.id],
@@ -1443,6 +1454,7 @@ export interface DeliveryNoteQueryParams {
   status?: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
   customerId?: string;
   invoiceId?: string;
+  quotationId?: string;
   dateFrom?: Date;
   dateTo?: Date;
   page?: number;

@@ -9,6 +9,7 @@ import {
   customers,
   deliveryNotes,
   invoices,
+  quotations,
   users,
 } from '@/lib/db/schema';
 
@@ -109,6 +110,7 @@ export async function GET(request: NextRequest) {
         id: deliveryNotes.id,
         deliveryNumber: deliveryNotes.deliveryNumber,
         invoiceId: deliveryNotes.invoiceId,
+        quotationId: deliveryNotes.quotationId,
         customerId: deliveryNotes.customerId,
         branchId: deliveryNotes.branchId,
         branchName: branches.name,
@@ -134,6 +136,11 @@ export async function GET(request: NextRequest) {
           id: invoices.id,
           invoiceNumber: invoices.invoiceNumber,
         },
+        // Quotation data
+        quotation: {
+          id: quotations.id,
+          quotationNumber: quotations.quotationNumber,
+        },
         // Created by user data
         createdByUser: {
           id: users.id,
@@ -144,6 +151,7 @@ export async function GET(request: NextRequest) {
       .from(deliveryNotes)
       .leftJoin(customers, eq(deliveryNotes.customerId, customers.id))
       .leftJoin(invoices, eq(deliveryNotes.invoiceId, invoices.id))
+      .leftJoin(quotations, eq(deliveryNotes.quotationId, quotations.id))
       .leftJoin(users, eq(deliveryNotes.createdBy, users.id))
       .leftJoin(branches, eq(deliveryNotes.branchId, branches.id))
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
@@ -269,6 +277,8 @@ export async function POST(request: NextRequest) {
     // Create delivery note
     const deliveryNoteData = {
       deliveryNumber,
+      invoiceId: body.invoiceId || null,
+      quotationId: body.quotationId || null,
       customerId: body.customerId,
       branchId: session.user.branchId || null,
       deliveryDate: new Date(body.deliveryDate),

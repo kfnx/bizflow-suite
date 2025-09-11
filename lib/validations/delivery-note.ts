@@ -8,6 +8,7 @@ export const deliveryNoteItemSchema = z.object({
 export const deliveryNoteFormSchema = z.object({
   deliveryNumber: z.string().optional(),
   invoiceId: z.string().optional(),
+  quotationId: z.string().optional(),
   customerId: z.string().min(1, 'Customer is required'),
   deliveryDate: z.string().min(1, 'Delivery date is required'),
   deliveryMethod: z.string().optional(),

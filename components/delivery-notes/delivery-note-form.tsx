@@ -20,6 +20,7 @@ import {
 import { useDeliveryNoteNumber } from '@/hooks/use-delivery-note-number';
 import { useInvoices } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
+import { useQuotations } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -51,6 +52,7 @@ interface ValidationErrors {
 const emptyFormData: DeliveryNoteFormData = {
   deliveryNumber: '',
   invoiceId: '',
+  quotationId: '',
   customerId: '',
   deliveryDate: '',
   deliveryMethod: '',
@@ -79,6 +81,7 @@ export function DeliveryNoteForm({
   const router = useRouter();
   const { data: products } = useProducts();
   const { data: invoices } = useInvoices();
+  const { data: quotations } = useQuotations();
   const { data: deliveryNumber, isLoading: isLoadingDeliveryNumber } =
     useDeliveryNoteNumber();
 
@@ -322,10 +325,27 @@ export function DeliveryNoteForm({
               <Select.Content>
                 {invoices?.data?.map((invoice) => (
                   <Select.Item key={invoice.id} value={invoice.id}>
-                    {invoice.invoiceNumber} - {invoice.customer?.name}
-                    <small className='ml-2 text-text-soft-400'>
-                      ${invoice.total}
-                    </small>
+                    {invoice.invoiceNumber}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='quotation'>Quotation (Optional)</Label.Root>
+            <Select.Root
+              value={formData.quotationId || ''}
+              onValueChange={(value) => handleInputChange('quotationId', value)}
+            >
+              <Select.Trigger>
+                <Select.TriggerIcon as={RiShoppingCartLine} />
+                <Select.Value placeholder='Select a quotation (optional)' />
+              </Select.Trigger>
+              <Select.Content>
+                {quotations?.data?.map((quotation) => (
+                  <Select.Item key={quotation.id} value={quotation.id}>
+                    {quotation.quotationNumber}
                   </Select.Item>
                 ))}
               </Select.Content>

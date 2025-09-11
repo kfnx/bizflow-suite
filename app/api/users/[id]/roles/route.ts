@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { db } from '@/lib/db';
 import { userRoles, users, roles } from '@/lib/db/schema';
-import { auth } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth/authorization';
 
 const assignRolesSchema = z.object({
   roleIds: z.array(z.string()),
@@ -14,11 +14,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await requirePermission(request, 'users:read');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { id: userId } = await params;
 
@@ -47,11 +49,13 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await requirePermission(request, 'users:update');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { id: userId } = await params;
     const body = await request.json();

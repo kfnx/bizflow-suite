@@ -3,14 +3,16 @@ import { desc } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
 import { permissions } from '@/lib/db/schema';
-import { auth } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth/authorization';
 
 export async function GET(request: NextRequest) {
+  const session = await requirePermission(request, 'roles:read');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '100');

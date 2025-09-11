@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { auth, signOut } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { branches, users } from '@/lib/db/schema';
-import { hasPermission, hasRole, hasAnyRole, Permission } from '@/lib/permissions';
+import { hasPermission, hasRole, hasAnyRole, hasAnyPermission, Permission } from '@/lib/permissions/server';
 
 // Simple in-memory cache for session validation (5 minute TTL)
 const sessionValidationCache = new Map<
@@ -128,18 +128,13 @@ export async function requirePermission(
     return session;
   }
 
-  // Bypass permission check if user is admin
-  if (session.user.isAdmin) {
-    return session;
+  // Check permission (admins automatically pass)
+  if (!(await hasPermission(session.user.id, permission, session.user.isAdmin))) {
+    return NextResponse.json(
+      { error: 'Forbidden - Insufficient permissions' },
+      { status: 403 },
+    );
   }
-
-  // TODO: Re-implement permission check once database is available
-  // if (!(await hasPermission([], permission, session.user.isAdmin))) {
-  //   return NextResponse.json(
-  //     { error: 'Forbidden - Insufficient permissions' },
-  //     { status: 403 },
-  //   );
-  // }
 
   return session;
 }
@@ -154,17 +149,8 @@ export async function requireAnyPermission(
     return session;
   }
 
-  // Check permissions sequentially since hasPermission is async
-  // TODO: Re-implement permission check once database is available
-  let hasAny = session.user.isAdmin;
-  // for (const permission of permissions) {
-  //   if (await hasPermission([], permission, session.user.isAdmin)) {
-  //     hasAny = true;
-  //     break;
-  //   }
-  // }
-
-  if (!hasAny) {
+  // Check if user has any of the required permissions (admins automatically pass)
+  if (!(await hasAnyPermission(session.user.id, permissions, session.user.isAdmin))) {
     return NextResponse.json(
       { error: 'Forbidden - Insufficient permissions' },
       { status: 403 },
@@ -181,17 +167,13 @@ export async function requireRole(request: NextRequest, requiredRole: string) {
     return session;
   }
 
-  if (session.user.isAdmin) {
-    return session;
+  // Check if user has the required role (admins automatically pass)
+  if (!(await hasRole(session.user.id, requiredRole, session.user.isAdmin))) {
+    return NextResponse.json(
+      { error: 'Forbidden - Insufficient role' },
+      { status: 403 },
+    );
   }
-
-  // TODO: Re-implement role check once database is available
-  // if (!(await hasRole([], requiredRole, session.user.isAdmin))) {
-  //   return NextResponse.json(
-  //     { error: 'Forbidden - Insufficient role' },
-  //     { status: 403 },
-  //   );
-  // }
 
   return session;
 }
@@ -206,17 +188,13 @@ export async function requireAnyRole(
     return session;
   }
 
-  if (session.user.isAdmin) {
-    return session;
+  // Check if user has any of the required roles (admins automatically pass)
+  if (!(await hasAnyRole(session.user.id, requiredRoles, session.user.isAdmin))) {
+    return NextResponse.json(
+      { error: 'Forbidden - Insufficient role' },
+      { status: 403 },
+    );
   }
-
-  // TODO: Re-implement role check once database is available
-  // if (!(await hasAnyRole([], requiredRoles, session.user.isAdmin))) {
-  //   return NextResponse.json(
-  //     { error: 'Forbidden - Insufficient role' },
-  //     { status: 403 },
-  //   );
-  // }
 
   return session;
 }

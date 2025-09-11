@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { db } from '@/lib/db';
 import { roles, rolePermissions, permissions } from '@/lib/db/schema';
-import { auth } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth/authorization';
 
 const roleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -12,11 +12,13 @@ const roleSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const session = await requirePermission(request, 'roles:read');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
@@ -72,11 +74,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await requirePermission(request, 'roles:create');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const body = await request.json();
     const validatedData = roleSchema.parse(body);

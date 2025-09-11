@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { db } from '@/lib/db';
 import { roles, rolePermissions, permissions, userRoles } from '@/lib/db/schema';
-import { auth } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth/authorization';
 
 const roleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -15,11 +15,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await requirePermission(request, 'roles:read');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { id } = await params;
 
@@ -67,11 +69,13 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await requirePermission(request, 'roles:update');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { id } = await params;
     const body = await request.json();
@@ -116,11 +120,13 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await requirePermission(request, 'roles:delete');
+  
+  if (session instanceof NextResponse) {
+    return session;
+  }
+
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { id } = await params;
 

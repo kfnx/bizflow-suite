@@ -30,6 +30,7 @@ export const updateInvoiceRequestSchema = z.object({
   invoiceDate: z.string().min(1, 'Invoice date is required'),
   dueDate: z.string().min(1, 'Due date is required'),
   customerId: z.string().min(1, 'Customer ID is required'),
+  quotationId: z.string().optional(),
   branchId: z.string().optional(),
   contractNumber: z.string().optional(),
   customerPoNumber: z.string().optional(),

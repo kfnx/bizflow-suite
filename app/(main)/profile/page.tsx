@@ -10,12 +10,15 @@ import {
   RiShieldCheckLine,
   RiUserLine,
 } from '@remixicon/react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
+import { getUserRoles } from '@/lib/permissions';
 import { cn } from '@/utils/cn';
 import { useCurrentUser } from '@/hooks/use-users';
 import * as Avatar from '@/components/ui/avatar';
 import * as Divider from '@/components/ui/divider';
+import { Loading } from '@/components/ui/loading';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -26,6 +29,13 @@ export default function ProfilePage() {
     error: userError,
   } = useCurrentUser();
 
+  // Fetch user roles
+  const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
+    queryKey: ['user-roles', session?.user?.id],
+    queryFn: () => getUserRoles(session!.user.id),
+    enabled: !!session?.user?.id,
+  });
+
   useEffect(() => {
     if (status !== 'loading' && !session) {
       router.push('/login');
@@ -35,7 +45,7 @@ export default function ProfilePage() {
   if (status === 'loading' || userLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center'>
-        <div className='border-primary-600 h-8 w-8 animate-spin rounded-full border-b-2'></div>
+        <Loading size={20} />
       </div>
     );
   }
@@ -106,7 +116,13 @@ export default function ProfilePage() {
                   )}
                 >
                   <RiShieldCheckLine className='size-3' />
-                  {user.isAdmin ? 'Administrator' : user.role}
+                  {user.isAdmin
+                    ? 'Administrator'
+                    : rolesLoading
+                      ? 'Loading...'
+                      : userRoles.length > 0
+                        ? userRoles.join(', ')
+                        : 'No Role'}
                 </div>
               </div>
             </div>
@@ -206,7 +222,12 @@ export default function ProfilePage() {
                     Role & Permissions
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {user.role} {user.isAdmin && '(Admin)'}
+                    {rolesLoading
+                      ? 'Loading...'
+                      : userRoles.length > 0
+                        ? userRoles.join(', ')
+                        : 'No Role'}{' '}
+                    {user.isAdmin && '(Admin)'}
                   </div>
                 </div>
               </div>

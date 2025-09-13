@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
         type: users.type,
         phone: users.phone,
         avatar: users.avatar,
-        role: users.role,
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,

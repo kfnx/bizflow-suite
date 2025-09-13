@@ -42,6 +42,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
+import { Loading } from '@/components/ui/loading';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
@@ -327,8 +328,7 @@ export function ImportsTable({
             <Dropdown.Item
               disabled={
                 verifyImportMutation.isPending ||
-                (can('imports:verify') &&
-                  row.original.status === IMPORT_STATUS.PENDING)
+                row.original.status === IMPORT_STATUS.PENDING
               }
               onClick={(e) => {
                 e.stopPropagation();
@@ -373,11 +373,7 @@ export function ImportsTable({
   });
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center py-8'>
-        <div className='text-paragraph-sm text-text-sub-600'>Loading...</div>
-      </div>
-    );
+    return <Loading className='min-h-64' />;
   }
 
   if (error) {

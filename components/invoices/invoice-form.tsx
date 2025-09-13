@@ -9,6 +9,7 @@ import {
   RiDeleteBinLine,
   RiGlobalLine,
   RiHashtag,
+  RiHistoryLine,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
   RiUserLine,
@@ -24,6 +25,11 @@ import {
 import { useInvoiceNumber } from '@/hooks/use-invoice-number';
 import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
+import {
+  useQuotationDetail,
+  useQuotations,
+  useQuotationsReadyForInvoicing,
+} from '@/hooks/use-quotations';
 import { useUsers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -96,6 +102,7 @@ export function InvoiceForm({
     useInvoiceNumber();
   const { data: products } = useProducts();
   const { data: users } = useUsers();
+  const { data: quotations } = useQuotationsReadyForInvoicing();
 
   // Initialize form data from invoice for edit mode
   useEffect(() => {
@@ -132,6 +139,7 @@ export function InvoiceForm({
           })) || [],
       });
       setIsInitialized(true);
+      setQuotationChanged(false);
     }
   }, [invoice, isInitialized, mode]);
 
@@ -140,6 +148,11 @@ export function InvoiceForm({
     if (mode === 'create' && initialFormData && !isInitialized) {
       setFormData(initialFormData);
       setIsInitialized(true);
+      setQuotationChanged(false);
+      // queryClient.prefetchQuery({
+      //   queryKey: ['products'],
+      //   queryFn: () => fetch('/api/products').then((res) => res.json()),
+      // });
     }
   }, [initialFormData, isInitialized, mode]);
 
@@ -155,6 +168,34 @@ export function InvoiceForm({
     }
   }, [onFormDataChange, formData, mode]);
 
+  const { data: quotationItem } = useQuotationDetail(
+    formData.quotationId || '',
+  );
+
+  // Initialize form item when quotation changes
+  useEffect(() => {
+    if (!quotationChanged) return;
+
+    if (!formData.quotationId) {
+      setFormData((prev) => ({ ...prev, items: [] }));
+      return;
+    }
+
+    if (quotationItem?.data) {
+      setFormData((prev) => ({
+        ...prev,
+        items: quotationItem.data.items.map((item: any) => ({
+          productId: item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: formatNumberWithDots(item.unitPrice),
+          additionalSpecs: item.additionalSpecs || '',
+          category: item.category || '',
+        })),
+      }));
+    }
+  }, [quotationChanged, formData.quotationId, quotationItem]);
+
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
       setFormData((prev) =>
@@ -167,6 +208,15 @@ export function InvoiceForm({
     },
     [validationErrors],
   );
+
+  const handleQuotationChange = useCallback((value: string) => {
+    setQuotationChanged(true);
+
+    setFormData((prev) => ({
+      ...prev,
+      quotationId: value === 'none' ? '' : value,
+    }));
+  }, []);
 
   const addItem = useCallback(() => {
     setFormData((prev) =>
@@ -574,6 +624,27 @@ export function InvoiceForm({
               onChange={(e) => handleInputChange('notes', e.target.value)}
               placeholder='Additional notes...'
             />
+          </div>
+
+          <div>
+            <Label.Root htmlFor='quotationId'>Quotation</Label.Root>
+            <Select.Root
+              value={formData.quotationId || ''}
+              onValueChange={handleQuotationChange}
+            >
+              <Select.Trigger id='quotationId'>
+                <Select.TriggerIcon as={RiHistoryLine} />
+                <Select.Value placeholder='Select quotation' />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value='none'>-- None --</Select.Item>
+                {quotations?.data?.map((quotation) => (
+                  <Select.Item key={quotation.id} value={quotation.id}>
+                    {quotation.quotationNumber} - {quotation.customerName}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
           </div>
 
           <div className='flex items-center space-x-2 md:col-span-2'>

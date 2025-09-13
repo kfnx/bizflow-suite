@@ -12,6 +12,7 @@ import {
   deliveryNotes,
   invoices,
   products,
+  quotations,
   users,
 } from '@/lib/db/schema';
 
@@ -41,6 +42,7 @@ export async function GET(
         id: deliveryNotes.id,
         deliveryNumber: deliveryNotes.deliveryNumber,
         invoiceId: deliveryNotes.invoiceId,
+        quotationId: deliveryNotes.quotationId,
         customerId: deliveryNotes.customerId,
         branchId: deliveryNotes.branchId,
         branchName: branches.name,
@@ -71,6 +73,11 @@ export async function GET(
           id: invoices.id,
           invoiceNumber: invoices.invoiceNumber,
         },
+        // Quotation data
+        quotation: {
+          id: quotations.id,
+          quotationNumber: quotations.quotationNumber,
+        },
         // Created by user data
         createdByUser: {
           id: users.id,
@@ -81,6 +88,7 @@ export async function GET(
       .from(deliveryNotes)
       .leftJoin(customers, eq(deliveryNotes.customerId, customers.id))
       .leftJoin(invoices, eq(deliveryNotes.invoiceId, invoices.id))
+      .leftJoin(quotations, eq(deliveryNotes.quotationId, quotations.id))
       .leftJoin(users, eq(deliveryNotes.createdBy, users.id))
       .leftJoin(branches, eq(deliveryNotes.branchId, branches.id))
       .where(eq(deliveryNotes.id, deliveryNoteId))
@@ -320,6 +328,7 @@ export async function PUT(
     // Update delivery note
     const updateData = {
       invoiceId: body.invoiceId || null,
+      quotationId: body.quotationId || null,
       customerId: body.customerId,
       deliveryDate: new Date(body.deliveryDate),
       deliveryMethod: body.deliveryMethod || null,

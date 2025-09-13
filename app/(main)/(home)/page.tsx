@@ -34,7 +34,7 @@ export default function PageHome() {
           <ActionButton size='small' label='New Import' href='/imports/new' />
         </div>
       </Header>
-      <main className='mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8 sm:px-6 lg:px-8'>
+      <main className='mx-auto flex w-full max-w-full flex-1 flex-col items-center px-4 py-8 sm:px-6 lg:px-8'>
         <div className='mb-2 flex justify-center'>
           <SplitText
             text='Hello, Welcome to MySTI!'
@@ -50,7 +50,9 @@ export default function PageHome() {
             textAlign='center'
           />
         </div>
-        <KanbanBoard />
+        <div>
+          <KanbanBoard />
+        </div>
       </main>
     </div>
   );

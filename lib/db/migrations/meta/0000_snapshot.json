@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "f4829e44-304f-4624-9445-6ce9a61554de",
+  "id": "33e9ced8-66f4-4bfe-ac98-72cb9b7cadf9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -515,21 +515,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "delivered_quantity": {
-          "name": "delivered_quantity",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": 0
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -955,15 +940,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "model_number": {
-          "name": "model_number",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "machine_number": {
-          "name": "machine_number",
+        "machine_model": {
+          "name": "machine_model",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
@@ -1032,13 +1010,6 @@
           "name": "category_idx",
           "columns": [
             "category"
-          ],
-          "isUnique": false
-        },
-        "machine_number_idx": {
-          "name": "machine_number_idx",
-          "columns": [
-            "machine_number"
           ],
           "isUnique": false
         }
@@ -1732,6 +1703,45 @@
       },
       "checkConstraint": {}
     },
+    "machine_model": {
+      "name": "machine_model",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "machine_model_id": {
+          "name": "machine_model_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "machine_types": {
       "name": "machine_types",
       "columns": {
@@ -1771,8 +1781,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "permissions": {
-      "name": "permissions",
+    "part_numbers": {
+      "name": "part_numbers",
       "columns": {
         "id": {
           "name": "id",
@@ -1783,6 +1793,46 @@
         },
         "name": {
           "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "part_numbers_id": {
+          "name": "part_numbers_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "permissions": {
+      "name": "permissions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(UUID())"
+        },
+        "name": {
+          "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true,
@@ -1790,6 +1840,20 @@
         },
         "description": {
           "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "resources": {
+          "name": "resources",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "actions": {
+          "name": "actions",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -1909,8 +1973,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "model_number": {
-          "name": "model_number",
+        "machine_model": {
+          "name": "machine_model",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
@@ -2695,6 +2759,14 @@
     "role_permissions": {
       "name": "role_permissions",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(UUID())"
+        },
         "role_id": {
           "name": "role_id",
           "type": "varchar(36)",
@@ -2763,6 +2835,12 @@
         }
       },
       "compositePrimaryKeys": {
+        "role_permissions_id": {
+          "name": "role_permissions_id",
+          "columns": [
+            "id"
+          ]
+        },
         "role_permissions_role_id_permission_id_pk": {
           "name": "role_permissions_role_id_permission_id_pk",
           "columns": [
@@ -2782,7 +2860,8 @@
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "name": {
           "name": "name",
@@ -3499,6 +3578,14 @@
     "user_roles": {
       "name": "user_roles",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(UUID())"
+        },
         "user_id": {
           "name": "user_id",
           "type": "varchar(36)",
@@ -3676,14 +3763,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "role": {
-          "name": "role",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'staff'"
-        },
         "branch_id": {
           "name": "branch_id",
           "type": "varchar(36)",
@@ -3737,13 +3816,6 @@
           "name": "email_idx",
           "columns": [
             "email"
-          ],
-          "isUnique": false
-        },
-        "role_idx": {
-          "name": "role_idx",
-          "columns": [
-            "role"
           ],
           "isUnique": false
         }

@@ -33,6 +33,7 @@ import {
   Item as DropdownItem,
   Trigger as DropdownTrigger,
 } from '@/components/ui/dropdown';
+import { Loading } from '@/components/ui/loading';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
@@ -44,17 +45,8 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-const getRoleColor = (role: string) => {
-  switch (role) {
-    case 'director':
-      return 'purple';
-    case 'manager':
-      return 'blue';
-    case 'staff':
-      return 'orange';
-    default:
-      return 'gray';
-  }
+const getRoleColor = () => {
+  return 'blue' as const; // Use consistent color for all roles since they're dynamic
 };
 
 const getTypeColor = (type: string) => {
@@ -222,6 +214,32 @@ const columns: ColumnDef<User>[] = [
     ),
   },
   {
+    id: 'role',
+    accessorKey: 'roleName',
+    header: ({ column }) => (
+      <div className='flex items-center gap-0.5'>
+        Role
+        <button
+          type='button'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {getSortingIcon(column.getIsSorted())}
+        </button>
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div>
+        {row.original.roleName ? (
+          <Badge variant='lighter' color={getRoleColor()}>
+            {row.original.roleName}
+          </Badge>
+        ) : (
+          <span className='text-paragraph-sm text-text-sub-600'>No role</span>
+        )}
+      </div>
+    ),
+  },
+  {
     id: 'isAdmin',
     accessorKey: 'isAdmin',
     header: ({ column }) => (
@@ -353,9 +371,7 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
   });
 
   if (isLoading) {
-    return (
-      <div className='text-gray-500 p-4 text-center'>Loading users...</div>
-    );
+    return <Loading className='min-h-64' />;
   }
 
   if (error) {

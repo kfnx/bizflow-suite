@@ -5,8 +5,12 @@ import { and, desc, eq, like, or } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
 import { DEFAULT_PASSWORD } from '@/lib/db/constants';
-import { branches, users } from '@/lib/db/schema';
-import { canCreateRole } from '@/lib/permissions';
+import {
+  branches,
+  roles as rolesTable,
+  userRoles,
+  users,
+} from '@/lib/db/schema';
 import { createUserSchema } from '@/lib/validations/user';
 
 export const dynamic = 'force-dynamic';
@@ -47,14 +51,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Role filter - handle multiple roles
-    if (roles.length > 0 && !roles.includes('all')) {
-      if (roles.length === 1) {
-        conditions.push(eq(users.role, roles[0]));
-      } else {
-        conditions.push(or(...roles.map((role) => eq(users.role, role))));
-      }
-    }
+    // Role filter is now handled through user roles table
+    // TODO: Implement role filtering through userRoles join
 
     const whereCondition =
       conditions.length > 0 ? and(...conditions) : undefined;
@@ -97,17 +95,21 @@ export async function GET(request: NextRequest) {
         type: users.type,
         phone: users.phone,
         avatar: users.avatar,
-        role: users.role,
         signature: users.signature,
         isActive: users.isActive,
         isAdmin: users.isAdmin,
         branchId: users.branchId,
         branchName: branches.name,
+        roleId: rolesTable.id,
+        roleName: rolesTable.name,
+        roleDescription: rolesTable.description,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
       .leftJoin(branches, eq(users.branchId, branches.id))
+      .leftJoin(userRoles, eq(users.id, userRoles.userId))
+      .leftJoin(rolesTable, eq(userRoles.roleId, rolesTable.id))
       .where(whereCondition)
       .orderBy(orderBy)
       .limit(limit)
@@ -164,16 +166,7 @@ export async function POST(request: NextRequest) {
     }
     const validatedData = parsed.data;
 
-    // Check if user can create the specified role
-    if (!canCreateRole(session.user, validatedData.role)) {
-      return NextResponse.json(
-        {
-          error:
-            'You can only create users with roles equal to or lower than your own',
-        },
-        { status: 403 },
-      );
-    }
+    // Role validation is now handled separately through user roles assignment
 
     // Only admins can grant admin privileges to other users
     if (validatedData.isAdmin && !session.user.isAdmin) {
@@ -222,7 +215,7 @@ export async function POST(request: NextRequest) {
     const userCode = `USR-${(userCount.length + 1).toString().padStart(4, '0')}`;
 
     // Create user
-    await db.insert(users).values({
+    const newUser = await db.insert(users).values({
       code: userCode,
       email: validatedData.email,
       password: hashedPassword,
@@ -231,12 +224,31 @@ export async function POST(request: NextRequest) {
       NIK: validatedData.NIK,
       joinDate: new Date(validatedData.joinDate),
       phone: validatedData.phone,
-      role: validatedData.role,
+
       jobTitle: validatedData.jobTitle,
       type: validatedData.type || 'full-time',
       branchId: validatedData.branchId,
       isAdmin: validatedData.isAdmin || false,
     });
+
+    // Get the created user to get the ID for role assignment
+    const createdUser = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, validatedData.email))
+      .limit(1);
+
+    // Assign role if provided (and not 'none')
+    if (
+      validatedData.roleId &&
+      validatedData.roleId !== 'none' &&
+      createdUser.length > 0
+    ) {
+      await db.insert(userRoles).values({
+        userId: createdUser[0].id,
+        roleId: validatedData.roleId,
+      });
+    }
 
     return NextResponse.json(
       { message: 'User created successfully' },

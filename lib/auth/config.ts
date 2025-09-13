@@ -74,7 +74,7 @@ export const authConfig: NextAuthConfig = {
             name: `${dbUser.firstName} ${dbUser.lastName}`,
             firstName: dbUser.firstName,
             lastName: dbUser.lastName,
-            role: dbUser.role || 'user',
+
             phone: dbUser.phone,
             avatar: dbUser.avatar,
             isAdmin: dbUser.isAdmin || false,
@@ -90,7 +90,6 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.phone = user.phone;
@@ -103,7 +102,7 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.sub!;
-        session.user.role = token.role as string;
+
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.phone = token.phone as string | null;

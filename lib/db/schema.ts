@@ -71,7 +71,10 @@ export const verificationTokens = mysqlTable(
 export const roles = mysqlTable(
   'roles',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(), // example: admin, staff, manager, import-manager, director
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`), // example: admin, staff, manager, import-manager, director
     name: varchar('name', { length: 255 }).notNull().unique(),
     description: text('description'),
     createdAt: timestamp('created_at').defaultNow(),
@@ -84,9 +87,14 @@ export const roles = mysqlTable(
 export const permissions = mysqlTable(
   'permissions',
   {
-    id: varchar('id', { length: 36 }).primaryKey().notNull(), // example: quotation:read, invoice:update
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     name: varchar('name', { length: 255 }).notNull().unique(),
     description: text('description'),
+    resources: text('resources'),
+    actions: text('actions'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
@@ -97,6 +105,9 @@ export const permissions = mysqlTable(
 export const userRoles = mysqlTable(
   'user_roles',
   {
+    id: varchar('id', { length: 36 })
+      .notNull()
+      .default(sql`(UUID())`),
     userId: varchar('user_id', { length: 36 }).notNull(),
     roleId: varchar('role_id', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
@@ -122,6 +133,10 @@ export const userRoles = mysqlTable(
 export const rolePermissions = mysqlTable(
   'role_permissions',
   {
+    id: varchar('id', { length: 36 })
+      .primaryKey()
+      .notNull()
+      .default(sql`(UUID())`),
     roleId: varchar('role_id', { length: 36 }).notNull(),
     permissionId: varchar('permission_id', { length: 36 }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
@@ -165,8 +180,6 @@ export const users = mysqlTable(
     type: varchar('type', { length: 50 }).default('full-time'), // full-time, resigned, contract
     phone: varchar('phone', { length: 20 }),
     avatar: varchar('avatar', { length: 500 }),
-    // TODO: remove this role and use user_roles
-    role: varchar('role', { length: 50 }).notNull().default('staff'), // staff, manager, import-manager director
     branchId: varchar('branch_id', { length: 36 }), // HO Jakarta, Pekanbaru , Kendari, Balikpapan
     signature: varchar('signature', { length: 500 }),
     isActive: boolean('is_active').default(true), // for soft delete
@@ -176,7 +189,7 @@ export const users = mysqlTable(
   },
   (table) => [
     index('email_idx').on(table.email),
-    index('role_idx').on(table.role),
+
     foreignKey({
       columns: [table.branchId],
       foreignColumns: [branches.id],
@@ -510,6 +523,7 @@ export const deliveryNotes = mysqlTable(
       .notNull()
       .unique(),
     invoiceId: varchar('invoice_id', { length: 36 }),
+    quotationId: varchar('quotation_id', { length: 36 }),
     customerId: varchar('customer_id', { length: 36 }).notNull(),
     deliveryDate: date('delivery_date').notNull(),
     deliveryMethod: varchar('delivery_method', { length: 100 }),
@@ -528,6 +542,7 @@ export const deliveryNotes = mysqlTable(
   (table) => [
     index('delivery_number_idx').on(table.deliveryNumber),
     index('invoice_id_idx').on(table.invoiceId),
+    index('quotation_id_idx').on(table.quotationId),
     index('customer_id_idx').on(table.customerId),
     index('status_idx').on(table.status),
     index('created_by_idx').on(table.createdBy),
@@ -535,6 +550,11 @@ export const deliveryNotes = mysqlTable(
       columns: [table.invoiceId],
       foreignColumns: [invoices.id],
       name: 'fk_delivery_notes_invoice',
+    }),
+    foreignKey({
+      columns: [table.quotationId],
+      foreignColumns: [quotations.id],
+      name: 'fk_delivery_notes_quotation',
     }),
     foreignKey({
       columns: [table.branchId],
@@ -1020,6 +1040,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   verifiedImports: many(imports, { relationName: 'verifier' }),
   managedWarehouses: many(warehouses),
   userRoles: many(userRoles),
+  roles: many(roles, { relationName: 'userRoles' }),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -1174,6 +1195,10 @@ export const deliveryNotesRelations = relations(
       fields: [deliveryNotes.invoiceId],
       references: [invoices.id],
     }),
+    quotation: one(quotations, {
+      fields: [deliveryNotes.quotationId],
+      references: [quotations.id],
+    }),
     createdBy: one(users, {
       fields: [deliveryNotes.createdBy],
       references: [users.id],
@@ -1312,6 +1337,7 @@ export const purchaseOrdersRelations = relations(purchaseOrders, ({ one }) => ({
 // Roles and Permissions Relations
 export const rolesRelations = relations(roles, ({ many }) => ({
   userRoles: many(userRoles),
+  users: many(users, { relationName: 'userRoles' }),
   rolePermissions: many(rolePermissions),
 }));
 
@@ -1428,6 +1454,7 @@ export interface DeliveryNoteQueryParams {
   status?: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
   customerId?: string;
   invoiceId?: string;
+  quotationId?: string;
   dateFrom?: Date;
   dateTo?: Date;
   page?: number;

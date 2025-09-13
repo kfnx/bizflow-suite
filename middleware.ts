@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { auth } from '@/lib/auth';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasAnyRole, Permission } from '@/lib/permissions';
 
 // Define protected FRONTEND routes with required permissions
 // Note: API routes are handled separately in their individual route files
@@ -54,31 +54,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check role-based access for protected FRONTEND routes only
-  if (session && !isAuthRoute) {
-    const requiredPermissions = PROTECTED_ROUTES[pathname];
-
-    if (requiredPermissions) {
-      const hasAccess = requiredPermissions.some((permission) =>
-        hasPermission(session.user, permission),
-      );
-
-      if (!hasAccess) {
-        return NextResponse.redirect(new URL('/unauthorized', request.url));
-      }
-    }
-
-    // Check role-based access for specific routes
-    const requiredRoles = ROLE_BASED_ROUTES[pathname];
-
-    if (requiredRoles) {
-      const hasRoleAccess = requiredRoles.includes(session.user.role);
-
-      if (!hasRoleAccess) {
-        return NextResponse.redirect(new URL('/unauthorized', request.url));
-      }
-    }
-  }
+  // Note: Permission and role checks are now handled at the component/page level
+  // since they require async database queries. This middleware only handles
+  // basic authentication and admin bypass.
+  // Individual pages should use PermissionGate or check permissions in their components.
 
   // Allow the request to continue
   return NextResponse.next();

@@ -8,7 +8,6 @@ declare module 'next-auth' {
       name: string;
       firstName: string;
       lastName: string | null;
-      role: string;
       phone: string | null;
       avatar: string | null;
       isAdmin: boolean;
@@ -22,7 +21,6 @@ declare module 'next-auth' {
     name: string;
     firstName: string;
     lastName: string | null;
-    role: string;
     phone: string | null;
     avatar: string | null;
     isAdmin: boolean;
@@ -32,7 +30,6 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    role: string;
     firstName: string;
     lastName: string | null;
     phone: string | null;

@@ -50,6 +50,16 @@ interface InvoiceFormProps {
   onFormDataChange?: (formData: InvoiceFormData) => void;
 }
 
+interface ValidationErrors {
+  customerId?: string;
+  items?: string[];
+  invoiceDate?: string;
+  dueDate?: string;
+  notes?: string;
+  paymentTerm?: string;
+  general?: string;
+}
+
 const emptyFormData: InvoiceFormData = {
   invoiceDate: '',
   dueDate: '',
@@ -77,10 +87,9 @@ export function InvoiceForm({
   const [isLoading, setIsLoading] = useState(false);
   const isInitialLoadRef = useRef(true);
   const [isInitialized, setIsInitialized] = useState(mode === 'create');
-  const [quotationChanged, setQuotationChanged] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -189,10 +198,12 @@ export function InvoiceForm({
 
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev) =>
+        prev ? { ...prev, [field]: value } : emptyFormData,
+      );
       // Clear validation error for this field when user starts typing
-      if (validationErrors[field]) {
-        setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+      if (validationErrors[field as keyof ValidationErrors]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     },
     [validationErrors],
@@ -208,30 +219,47 @@ export function InvoiceForm({
   }, []);
 
   const addItem = useCallback(() => {
-    setFormData((prev) => ({
-      ...prev,
-      items: [
-        ...prev.items,
-        {
-          productId: '',
-          name: '',
-          quantity: 1,
-          unitPrice: '0',
-        },
-      ],
-    }));
-  }, []);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                additionalSpecs: '',
+              },
+            ],
+          }
+        : emptyFormData,
+    );
+    // Clear items validation error when adding new item
+    if (validationErrors.items) {
+      setValidationErrors((prev) => ({ ...prev, items: undefined }));
+    }
+  }, [validationErrors.items]);
 
   const updateItem = useCallback(
     (index: number, field: keyof InvoiceItem, value: string | number) => {
-      setFormData((prev) => ({
-        ...prev,
-        items: prev.items.map((item, i) =>
-          i === index ? { ...item, [field]: value } : item,
-        ),
-      }));
+      setFormData((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
+          : emptyFormData,
+      );
+      // Clear items validation error when updating items
+      if (validationErrors.items) {
+        setValidationErrors((prev) => ({ ...prev, items: undefined }));
+      }
     },
-    [],
+    [validationErrors.items],
   );
 
   const removeItem = useCallback((index: number) => {
@@ -665,29 +693,29 @@ export function InvoiceForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
-                    onValueChange={(value) => {
-                      const product = products?.data?.find(
-                        (p) => p.id === value,
-                      );
-                      updateItem(index, 'productId', value);
-                      updateItem(index, 'category', product?.category || '');
-                      updateItem(index, 'name', product?.name || '');
+                    onValueChange={(value) =>
+                      updateItem(index, 'productId', value)
+                    }
+                    onProductSelect={(product) => {
+                      updateItem(index, 'category', product.category || '');
+                      updateItem(index, 'name', product.name || '');
                       updateItem(
                         index,
                         'unitPrice',
-                        formatNumberWithDots(product?.price || 0),
+                        formatNumberWithDots(product.price || 0),
                       );
                       if (
-                        product?.category === 'serialized' &&
-                        product?.additionalSpecs
+                        product.category === 'serialized' &&
+                        product.additionalSpecs
                       ) {
                         updateItem(
                           index,
                           'additionalSpecs',
-                          product?.additionalSpecs,
+                          product.additionalSpecs,
                         );
                       }
                     }}
+                    error={!!validationErrors.items?.[index]}
                   />
                 </div>
 

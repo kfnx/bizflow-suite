@@ -448,8 +448,25 @@ export function DeliveryNoteForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
+                    onProductSelect={(product) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        items: prev.items.map((currentItem, currentIndex) =>
+                          currentIndex === index
+                            ? {
+                                ...currentItem,
+                                productId: product.id,
+                                name: product.name,
+                                category: product.category || '',
+                              }
+                            : currentItem,
+                        ),
+                      }));
+                    }}
                     onValueChange={(value) => {
-                      updateItem(index, 'productId', value);
+                      if (!value) {
+                        updateItem(index, 'productId', '');
+                      }
                     }}
                   />
                   {validationErrors.items?.[index] && (

@@ -539,26 +539,36 @@ export function QuotationForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
-                    onValueChange={(value) =>
-                      updateItem(index, 'productId', value)
-                    }
                     onProductSelect={(product) => {
-                      updateItem(index, 'category', product.category || '');
-                      updateItem(index, 'name', product.name || '');
-                      updateItem(
-                        index,
-                        'unitPrice',
-                        formatNumberWithDots(product.price || 0),
-                      );
-                      if (
-                        product.category === 'serialized' &&
-                        product.additionalSpecs
-                      ) {
-                        updateItem(
-                          index,
-                          'additionalSpecs',
-                          product.additionalSpecs,
-                        );
+                      setFormData((prev) => ({
+                        ...prev,
+                        items: prev.items.map((currentItem, currentIndex) =>
+                          currentIndex === index
+                            ? {
+                                ...currentItem,
+                                productId: product.id,
+                                name: product.name,
+                                category: product.category || '',
+                                unitPrice: formatNumberWithDots(
+                                  product.price || 0,
+                                ),
+                                additionalSpecs:
+                                  product.category === 'serialized' &&
+                                  product.additionalSpecs
+                                    ? product.additionalSpecs
+                                    : currentItem.additionalSpecs || '',
+                              }
+                            : currentItem,
+                        ),
+                      }));
+                    }}
+                    onValueChange={(value) => {
+                      if (!value) {
+                        updateItem(index, 'productId', '');
+                        updateItem(index, 'name', '');
+                        updateItem(index, 'category', '');
+                        updateItem(index, 'unitPrice', '0');
+                        updateItem(index, 'additionalSpecs', '');
                       }
                     }}
                     error={!!validationErrors.items?.[index]}

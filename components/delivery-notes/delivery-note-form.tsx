@@ -12,13 +12,14 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { INVOICE_STATUS } from '@/lib/db/enum';
 import {
   DeliveryNoteFormData,
   deliveryNoteFormSchema,
   DeliveryNoteItem,
 } from '@/lib/validations/delivery-note';
 import { useDeliveryNoteNumber } from '@/hooks/use-delivery-note-number';
-import { useInvoices } from '@/hooks/use-invoices';
+import { useInvoiceDetail, useInvoices } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
 import { useQuotations } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
@@ -29,6 +30,7 @@ import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import DeliveryNoteNumberDisplay from '@/components/delivery-notes/delivery-note-number-display';
 
+import { InvoiceSelect } from '../invoices/invoice-select';
 import { ProductSelect } from '../products/product-select';
 import { SimplePageLoading } from '../simple-page-loading';
 
@@ -77,6 +79,7 @@ export function DeliveryNoteForm({
     {},
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [invoiceChanged, setInvoiceChanged] = useState(false);
 
   const router = useRouter();
   const { data: products } = useProducts();
@@ -85,12 +88,39 @@ export function DeliveryNoteForm({
   const { data: deliveryNumber, isLoading: isLoadingDeliveryNumber } =
     useDeliveryNoteNumber();
 
+  const { data: invoice, isFetching: isFetchingInvoice } = useInvoiceDetail(
+    formData.invoiceId || '',
+  );
+
   // Update form data when initialFormData changes (for edit mode)
   useEffect(() => {
     if (initialFormData && mode === 'edit') {
       setFormData(initialFormData);
     }
   }, [initialFormData, mode]);
+
+  useEffect(() => {
+    if (!invoiceChanged) return;
+
+    if (!formData.invoiceId) {
+      setFormData((prev) => ({ ...prev, items: [] }));
+      return;
+    }
+
+    if (invoice?.data) {
+      setFormData((prev) => ({
+        ...prev,
+        notes: invoice.data.notes || prev.notes,
+        customerId: invoice.data.customerId || prev.customerId,
+        items: invoice.data.items.map((item: any) => ({
+          productId: item.productId,
+          quantity: parseInt(item.quantity) || 1,
+          name: item.name,
+          category: item.category || '',
+        })),
+      }));
+    }
+  }, [invoiceChanged, formData.invoiceId, invoice]);
 
   const clearValidationErrors = useCallback(() => {
     setValidationErrors({});
@@ -106,6 +136,16 @@ export function DeliveryNoteForm({
     },
     [validationErrors],
   );
+
+  const handleInvoiceChange = useCallback((value: string) => {
+    setInvoiceChanged(true);
+    setFormData((prev) => ({
+      ...prev,
+      invoiceId: value === 'none' ? '' : value,
+      notes: '',
+      customerId: '',
+    }));
+  }, []);
 
   const addItem = useCallback(() => {
     setFormData((prev) => {
@@ -269,6 +309,21 @@ export function DeliveryNoteForm({
 
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
           <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='invoice'>Select From Invoice</Label.Root>
+            <InvoiceSelect
+              value={formData.invoiceId || ''}
+              onValueChange={handleInvoiceChange}
+              placeholder='Select invoice'
+              status={[INVOICE_STATUS.PAID, INVOICE_STATUS.SENT]}
+            />
+            {isFetchingInvoice && (
+              <p className='text-xs mt-1 text-text-sub-600'>
+                Loading invoice data...
+              </p>
+            )}
+          </div>
+
+          <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='deliveryDate'>
               Delivery Date <Label.Asterisk />
             </Label.Root>
@@ -310,46 +365,6 @@ export function DeliveryNoteForm({
                 {validationErrors.customerId}
               </p>
             )}
-          </div>
-
-          <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='invoice'>Invoice (Optional)</Label.Root>
-            <Select.Root
-              value={formData.invoiceId || ''}
-              onValueChange={(value) => handleInputChange('invoiceId', value)}
-            >
-              <Select.Trigger>
-                <Select.TriggerIcon as={RiShoppingCartLine} />
-                <Select.Value placeholder='Select an invoice (optional)' />
-              </Select.Trigger>
-              <Select.Content>
-                {invoices?.data?.map((invoice) => (
-                  <Select.Item key={invoice.id} value={invoice.id}>
-                    {invoice.invoiceNumber}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
-
-          <div className='flex flex-col gap-1'>
-            <Label.Root htmlFor='quotation'>Quotation (Optional)</Label.Root>
-            <Select.Root
-              value={formData.quotationId || ''}
-              onValueChange={(value) => handleInputChange('quotationId', value)}
-            >
-              <Select.Trigger>
-                <Select.TriggerIcon as={RiShoppingCartLine} />
-                <Select.Value placeholder='Select a quotation (optional)' />
-              </Select.Trigger>
-              <Select.Content>
-                {quotations?.data?.map((quotation) => (
-                  <Select.Item key={quotation.id} value={quotation.id}>
-                    {quotation.quotationNumber}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
           </div>
 
           <div className='flex flex-col gap-1'>
@@ -433,7 +448,8 @@ export function DeliveryNoteForm({
 
         {formData.items.length === 0 ? (
           <div className='py-8 text-center text-text-sub-600'>
-            No items added yet. Click &quot;Add Item&quot; to get started.
+            No items added yet. Click &quot;Add Item&quot; to get started or
+            select an invoice to import items.
           </div>
         ) : (
           <div className='space-y-4'>

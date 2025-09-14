@@ -641,7 +641,8 @@ export function InvoiceForm({
 
         {formData.items.length === 0 ? (
           <div className='py-8 text-center text-text-sub-600'>
-            No items added yet. Click &quot;Add Item&quot; to get started.
+            No items added yet. Click &quot;Add Item&quot; to get started or
+            select an quotation to import items.
             {validationErrors.items && (
               <p className='text-sm mt-2 text-error-base'>
                 {validationErrors.items}
@@ -663,7 +664,6 @@ export function InvoiceForm({
                   <ProductSelect
                     value={item.productId}
                     onProductSelect={(product) => {
-                      // Langsung update semua field sekaligus
                       setFormData((prev) => ({
                         ...prev,
                         items: prev.items.map((currentItem, currentIndex) =>

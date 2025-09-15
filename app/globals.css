@@ -5,6 +5,7 @@
 @layer base {
   /*#region Colors */
   :root {
+    --radius: 0.5rem;
     --neutral-950: 221.54 31.71% 8.04%;
     --neutral-900: 226.15 21.31% 11.96%;
     --neutral-800: 227.14 17.07% 16.08%;

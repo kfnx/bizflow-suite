@@ -14,6 +14,7 @@ import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import { useProduct, useUpdateProduct } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
+import { Loading } from '@/components/ui/loading';
 import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
 import { BackButton } from '@/components/back-button';
@@ -111,11 +112,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading product details...</p>
-      </div>
-    );
+    return <Loading className='w-full p-8' />;
   }
 
   if (error) {

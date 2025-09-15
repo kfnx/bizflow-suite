@@ -35,6 +35,7 @@ import { useUsers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
+import { Loading } from '@/components/ui/loading';
 import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
@@ -323,19 +324,11 @@ export function InvoiceForm({
 
   // Show loading state for create mode while fetching invoice number
   if (mode === 'create' && (isLoadingInvoiceNumber || !invoiceNumber)) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading invoice number...</p>
-      </div>
-    );
+    return <Loading className='w-full p-8' />;
   }
 
   if (mode === 'edit' && (isLoadingInvoice || !isInitialized)) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading invoice...</p>
-      </div>
-    );
+    return <Loading className='w-full p-8' />;
   }
 
   if (mode === 'edit' && !invoice?.data) {

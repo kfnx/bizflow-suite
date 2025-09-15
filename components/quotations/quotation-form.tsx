@@ -24,6 +24,7 @@ import {
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
+import { Loading } from '@/components/ui/loading';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import { ProductSelect } from '@/components/products/product-select';
@@ -348,10 +349,7 @@ export function QuotationForm({
   if (isLoadingData) {
     return (
       <div className='flex flex-1 items-center justify-center'>
-        <div className='text-center'>
-          <div className='border-primary-600 mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2'></div>
-          <p className='text-text-sub-600'>Loading quotation...</p>
-        </div>
+        <Loading />
       </div>
     );
   }

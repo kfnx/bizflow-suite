@@ -23,6 +23,7 @@ import {
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
+import { Loading } from '@/components/ui/loading';
 import * as Modal from '@/components/ui/modal';
 import * as Textarea from '@/components/ui/textarea';
 
@@ -326,11 +327,7 @@ export function PendingQuotationApproval() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center py-12'>
-        <div className='text-text-600'>Loading pending quotations...</div>
-      </div>
-    );
+    return <Loading className='py-12' />;
   }
 
   if (error) {

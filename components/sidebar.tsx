@@ -28,8 +28,9 @@ import {
 import { useSession } from 'next-auth/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-// import { hasPermission, Permission } from '@/lib/permissions/client';
+import { hasPermission, Permission } from '@/lib/permissions/client';
 import { cn } from '@/utils/cn';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
 import * as Divider from '@/components/ui/divider';
 import { UserButton } from '@/components/user-button';
 
@@ -38,6 +39,7 @@ type NavigationLink = {
   label: string;
   href: string;
   disabled?: boolean;
+  permission?: Permission;
 };
 
 type NavigationCategory = {
@@ -57,17 +59,25 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiCheckLine,
         label: 'Pending Quotations',
         href: '/quotations/pending',
+        permission: 'quotations:approve',
       },
-      { icon: RiFileTextLine, label: 'Quotations', href: '/quotations' },
+      {
+        icon: RiFileTextLine,
+        label: 'Quotations',
+        href: '/quotations',
+        permission: 'quotations:read',
+      },
       {
         icon: RiBillLine,
         label: 'Invoices',
         href: '/invoices',
+        permission: 'invoices:read',
       },
       {
         icon: RiTruckLine,
         label: 'Delivery Notes',
         href: '/delivery-notes',
+        permission: 'deliveries:read',
       },
     ],
   },
@@ -78,26 +88,31 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiCheckLine,
         label: 'Pending Imports',
         href: '/imports/pending',
+        permission: 'imports:approve',
       },
       {
         icon: RiBox1Line,
         label: 'Products',
         href: '/products',
+        permission: 'products:read',
       },
       {
         icon: RiImportLine,
         label: 'Imports',
         href: '/imports',
+        permission: 'imports:read',
       },
       {
         icon: RiStoreLine,
         label: 'Warehouses',
         href: '/warehouses',
+        permission: 'warehouses:read',
       },
       {
         icon: RiExchangeFundsLine,
         label: 'Transfers',
         href: '/transfers',
+        permission: 'transfers:read',
       },
     ],
   },
@@ -109,11 +124,13 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiUserLine,
         label: 'Suppliers',
         href: '/suppliers',
+        permission: 'suppliers:read',
       },
       {
         icon: RiTeamLine,
         label: 'Customers',
         href: '/customers',
+        permission: 'customers:read',
       },
     ],
   },
@@ -125,21 +142,25 @@ export const navigationLinks: NavigationCategory[] = [
         icon: RiUserSettingsLine,
         label: 'Users',
         href: '/users',
+        permission: 'users:read',
       },
       {
         icon: RiShieldUserLine,
         label: 'Roles & Permissions',
         href: '/roles',
+        permission: 'roles:read',
       },
       {
         icon: RiGitBranchLine,
         label: 'Branches',
         href: '/branches',
+        permission: 'branches:read',
       },
       {
         icon: RiDatabaseLine,
         label: 'Master Data',
         href: '/master-data',
+        permission: 'master-data:read',
       },
     ],
   },
@@ -259,6 +280,7 @@ export function SidebarHeader({
 function NavigationMenu({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { data: userPermissions = [] } = useUserPermissions();
   const [collapsedGroups, setCollapsedGroups] = React.useState<Set<string>>(
     new Set(),
   );
@@ -277,8 +299,26 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
     });
   };
 
-  // TODO: Re-implement permission filtering once permissions are available in session
-  const filteredNavigationLinks = navigationLinks;
+  // Filter navigation links based on user permissions
+  const filteredNavigationLinks = navigationLinks
+    .map(({ label, links }) => ({
+      label,
+      links: links.filter((link) => {
+        // Always show links without permission requirements (like Dashboard)
+        if (!link.permission) return true;
+
+        // Admins can see all links
+        if (session.user.isAdmin) return true;
+
+        // Check user permissions
+        return hasPermission(
+          userPermissions,
+          link.permission,
+          session.user.isAdmin,
+        );
+      }),
+    }))
+    .filter(({ links }) => links.length > 0); // Remove categories with no visible links
 
   return filteredNavigationLinks.map(({ label, links }) => {
     const isGroupCollapsed = collapsedGroups.has(label);

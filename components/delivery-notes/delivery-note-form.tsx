@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Value } from '@radix-ui/react-select';
 import {
   RiAddLine,
   RiCalendarLine,
@@ -20,9 +19,8 @@ import {
   DeliveryNoteItem,
 } from '@/lib/validations/delivery-note';
 import { useDeliveryNoteNumber } from '@/hooks/use-delivery-note-number';
-import { useInvoiceDetail, useInvoices } from '@/hooks/use-invoices';
-import { useProducts } from '@/hooks/use-products';
-import { useQuotationDetail, useQuotations } from '@/hooks/use-quotations';
+import { useInvoiceDetail } from '@/hooks/use-invoices';
+import { useQuotationDetail } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -81,12 +79,8 @@ export function DeliveryNoteForm({
     {},
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const [importChanged, setImportChanged] = useState(false);
 
   const router = useRouter();
-  const { data: products } = useProducts();
-  const { data: invoices } = useInvoices();
-  const { data: quotations } = useQuotations();
   const { data: deliveryNumber, isLoading: isLoadingDeliveryNumber } =
     useDeliveryNoteNumber();
 
@@ -176,10 +170,6 @@ export function DeliveryNoteForm({
     },
     [],
   );
-
-  useEffect(() => {
-    console.log('Form Data:', formData);
-  });
 
   const clearValidationErrors = useCallback(() => {
     setValidationErrors({});

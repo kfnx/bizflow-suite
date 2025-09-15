@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { RiShoppingCartLine } from '@remixicon/react';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import {
+  RiCheckLine,
+  RiExpandUpDownLine,
+  RiShoppingCartLine,
+} from '@remixicon/react';
 
 import { cnExt } from '@/utils/cn';
 import { useProducts } from '@/hooks/use-products';
@@ -93,7 +96,7 @@ export function ProductSelect({
               )}
             </span>
           </div>
-          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <RiExpandUpDownLine className='ml-2 h-4 w-6 shrink-0 opacity-50' />
         </Button.Root>
       </PopoverTrigger>
       <PopoverContent className='w-[var(--radix-popover-trigger-width)] p-0'>
@@ -109,7 +112,10 @@ export function ProductSelect({
                   key={product.id}
                   value={product.name} // value bisa nama atau ID, untuk search
                   onSelect={() => handleSelect(product.id)} // onSelect memanggil handler dengan ID
-                  className='flex items-center justify-between'
+                  className={cnExt(
+                    'flex items-center justify-between',
+                    value === product.id && 'bg-orange-500/25',
+                  )}
                 >
                   <div className='flex flex-col'>
                     <span>{product.name}</span>
@@ -117,9 +123,9 @@ export function ProductSelect({
                       {product.category}
                     </small>
                   </div>
-                  <Check
+                  <RiCheckLine
                     className={cnExt(
-                      'ml-2 h-4 w-4',
+                      'ml-2 h-6 w-6',
                       value === product.id ? 'opacity-100' : 'opacity-0',
                     )}
                   />

@@ -14,7 +14,7 @@ export default function PagePendingApprovals() {
             <RiCheckLine className='size-6 text-text-sub-600' />
           </div>
         }
-        title='Pending Approvals'
+        title='Pending Quotations'
         description='Review and approve quotations waiting for your decision.'
       />
 

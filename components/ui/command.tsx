@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { RiSearchLine } from '@remixicon/react';
 import { Command as CommandPrimitive } from 'cmdk';
-import { SearchIcon } from 'lucide-react';
 
 import { cnExt } from '@/utils/cn';
 import {
@@ -21,7 +21,7 @@ function Command({
     <CommandPrimitive
       data-slot='command'
       className={cnExt(
-        'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
+        'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
         className,
       )}
       {...props}
@@ -52,7 +52,7 @@ function CommandDialog({
         className={cnExt('overflow-hidden p-0', className)}
         showCloseButton={showCloseButton}
       >
-        <Command className='[&_[cmdk-group-heading]]:text-muted-foreground data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5'>
+        <Command className='data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5'>
           {children}
         </Command>
       </DialogContent>
@@ -69,7 +69,7 @@ function CommandInput({
       data-slot='command-input-wrapper'
       className='my-2 flex h-9 items-center gap-2 p-3'
     >
-      <SearchIcon className='size-4 shrink-0 opacity-50' />
+      <RiSearchLine className='size-6 shrink-0 opacity-50' />
       <CommandPrimitive.Input
         data-slot='command-input'
         className={cnExt(
@@ -120,7 +120,7 @@ function CommandGroup({
     <CommandPrimitive.Group
       data-slot='command-group'
       className={cnExt(
-        '[&_[cmdk-group-heading]]:text-xs text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-medium',
+        '[&_[cmdk-group-heading]]:text-xs overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
         className,
       )}
       {...props}
@@ -135,7 +135,7 @@ function CommandSeparator({
   return (
     <CommandPrimitive.Separator
       data-slot='command-separator'
-      className={cnExt('bg-border -mx-1 h-px', className)}
+      className={cnExt('-mx-1 h-px bg-border', className)}
       {...props}
     />
   );
@@ -149,7 +149,7 @@ function CommandItem({
     <CommandPrimitive.Item
       data-slot='command-item'
       className={cnExt(
-        "text-sm outline-hidden data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "text-sm outline-hidden relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className,
       )}
       {...props}
@@ -165,7 +165,7 @@ function CommandShortcut({
     <span
       data-slot='command-shortcut'
       className={cnExt(
-        'text-xs text-muted-foreground ml-auto tracking-widest',
+        'text-xs ml-auto tracking-widest text-muted-foreground',
         className,
       )}
       {...props}

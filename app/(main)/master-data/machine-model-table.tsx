@@ -37,6 +37,7 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
 
 interface MachineModel {
   id: string;
+  model: string;
   name: string;
 }
 
@@ -65,7 +66,7 @@ export function MachineModelTable() {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (machineModel: { name: string }) => {
+    mutationFn: async (machineModel: { model: string; name: string }) => {
       const response = await fetch('/api/machine-model', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,6 +96,7 @@ export function MachineModelTable() {
       ...machineModel
     }: {
       id: string;
+      model: string;
       name: string;
     }) => {
       const response = await fetch(`/api/machine-model/${id}`, {
@@ -148,6 +150,7 @@ export function MachineModelTable() {
       ...prev,
       [newId]: {
         id: newId,
+        model: '',
         name: '',
         isNew: true,
       },
@@ -166,19 +169,21 @@ export function MachineModelTable() {
       const editingMachineModel = editingItems[id];
       if (!editingMachineModel) return;
 
-      if (!editingMachineModel.name.trim()) {
-        toast.error('Machine model name is required');
+      if (!editingMachineModel.model.trim() || !editingMachineModel.name.trim()) {
+        toast.error('Both model and name are required');
         return;
       }
 
       try {
         if (editingMachineModel.isNew) {
           await createMutation.mutateAsync({
+            model: editingMachineModel.model,
             name: editingMachineModel.name,
           });
         } else {
           await updateMutation.mutateAsync({
             id: editingMachineModel.id,
+            model: editingMachineModel.model,
             name: editingMachineModel.name,
           });
         }
@@ -232,6 +237,48 @@ export function MachineModelTable() {
   const columns = useMemo<ColumnDef<MachineModel>[]>(
     () => [
       {
+        accessorKey: 'model',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Model
+            <button
+              type='button'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const machineModel = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(machineModel.id) ? (
+                <Input.Root className='w-full'>
+                  <Input.Wrapper>
+                    <Input.Input
+                      value={editingItems[machineModel.id]?.model || ''}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          machineModel.id,
+                          'model',
+                          e.target.value,
+                        )
+                      }
+                      maxLength={100}
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              ) : (
+                <span className='font-medium'>{machineModel.model}</span>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
         accessorKey: 'name',
         header: ({ column }) => (
           <div className='flex items-center gap-0.5'>
@@ -262,7 +309,7 @@ export function MachineModelTable() {
                           e.target.value,
                         )
                       }
-                      maxLength={36}
+                      maxLength={100}
                     />
                   </Input.Wrapper>
                 </Input.Root>
@@ -400,12 +447,26 @@ export function MachineModelTable() {
                   <Input.Root className='w-full'>
                     <Input.Wrapper>
                       <Input.Input
+                        value={item.model}
+                        onChange={(e) =>
+                          handleFieldChange(item.id, 'model', e.target.value)
+                        }
+                        placeholder='Enter machine model'
+                        maxLength={100}
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </Table.Cell>
+                <Table.Cell>
+                  <Input.Root className='w-full'>
+                    <Input.Wrapper>
+                      <Input.Input
                         value={item.name}
                         onChange={(e) =>
                           handleFieldChange(item.id, 'name', e.target.value)
                         }
-                        placeholder='Enter machine model name'
-                        maxLength={36}
+                        placeholder='Enter model name'
+                        maxLength={100}
                       />
                     </Input.Wrapper>
                   </Input.Root>
@@ -446,7 +507,7 @@ export function MachineModelTable() {
             Object.keys(editingItems).length === 0 && (
               <Table.Row>
                 <Table.Cell
-                  colSpan={2}
+                  colSpan={3}
                   className='text-gray-500 py-8 text-center'
                 >
                   No machine model found. Click &apos;Add Machine Model&apos; to

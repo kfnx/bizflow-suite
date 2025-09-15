@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RiEditLine } from '@remixicon/react';
-import { toast } from 'sonner';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
 import { useImport } from '@/hooks/use-imports';
+import { Loading } from '@/components/ui/loading';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
 import { ImportForm } from '@/components/imports/import-form';
@@ -75,7 +74,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
   if (isLoadingImport) {
     return (
       <div className='flex h-full min-h-80 w-full items-center justify-center text-text-sub-600'>
-        Loading import data...
+        <Loading className='min-h-32' />
       </div>
     );
   }

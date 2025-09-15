@@ -37,6 +37,7 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
 
 interface PartNumber {
   id: string;
+  number: string;
   name: string;
 }
 
@@ -65,7 +66,7 @@ export function PartNumbersTable() {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (partNumber: { name: string }) => {
+    mutationFn: async (partNumber: { number: string; name: string }) => {
       const response = await fetch('/api/part-numbers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,7 +91,7 @@ export function PartNumbersTable() {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...partNumber }: { id: string; name: string }) => {
+    mutationFn: async ({ id, ...partNumber }: { id: string; number: string; name: string }) => {
       const response = await fetch(`/api/part-numbers/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -142,6 +143,7 @@ export function PartNumbersTable() {
       ...prev,
       [newId]: {
         id: newId,
+        number: '',
         name: '',
         isNew: true,
       },
@@ -160,19 +162,21 @@ export function PartNumbersTable() {
       const editingPartNumber = editingItems[id];
       if (!editingPartNumber) return;
 
-      if (!editingPartNumber.name.trim()) {
-        toast.error('Part number name is required');
+      if (!editingPartNumber.number.trim() || !editingPartNumber.name.trim()) {
+        toast.error('Both part number and name are required');
         return;
       }
 
       try {
         if (editingPartNumber.isNew) {
           await createMutation.mutateAsync({
+            number: editingPartNumber.number,
             name: editingPartNumber.name,
           });
         } else {
           await updateMutation.mutateAsync({
             id: editingPartNumber.id,
+            number: editingPartNumber.number,
             name: editingPartNumber.name,
           });
         }
@@ -226,6 +230,44 @@ export function PartNumbersTable() {
   const columns = useMemo<ColumnDef<PartNumber>[]>(
     () => [
       {
+        accessorKey: 'number',
+        header: ({ column }) => (
+          <div className='flex items-center gap-0.5'>
+            Number
+            <button
+              type='button'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              {getSortingIcon(column.getIsSorted())}
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const partNumber = row.original;
+          return (
+            <Table.Cell>
+              {isEditing(partNumber.id) ? (
+                <Input.Root className='w-full'>
+                  <Input.Wrapper>
+                    <Input.Input
+                      value={editingItems[partNumber.id]?.number || ''}
+                      onChange={(e) =>
+                        handleFieldChange(partNumber.id, 'number', e.target.value)
+                      }
+                      maxLength={100}
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+              ) : (
+                <span className='font-medium'>{partNumber.number}</span>
+              )}
+            </Table.Cell>
+          );
+        },
+      },
+      {
         accessorKey: 'name',
         header: ({ column }) => (
           <div className='flex items-center gap-0.5'>
@@ -252,7 +294,7 @@ export function PartNumbersTable() {
                       onChange={(e) =>
                         handleFieldChange(partNumber.id, 'name', e.target.value)
                       }
-                      maxLength={36}
+                      maxLength={100}
                     />
                   </Input.Wrapper>
                 </Input.Root>
@@ -390,12 +432,26 @@ export function PartNumbersTable() {
                   <Input.Root className='w-full'>
                     <Input.Wrapper>
                       <Input.Input
+                        value={item.number}
+                        onChange={(e) =>
+                          handleFieldChange(item.id, 'number', e.target.value)
+                        }
+                        placeholder='Enter part number'
+                        maxLength={100}
+                      />
+                    </Input.Wrapper>
+                  </Input.Root>
+                </Table.Cell>
+                <Table.Cell>
+                  <Input.Root className='w-full'>
+                    <Input.Wrapper>
+                      <Input.Input
                         value={item.name}
                         onChange={(e) =>
                           handleFieldChange(item.id, 'name', e.target.value)
                         }
-                        placeholder='Enter part number name'
-                        maxLength={36}
+                        placeholder='Enter part name'
+                        maxLength={100}
                       />
                     </Input.Wrapper>
                   </Input.Root>
@@ -436,7 +492,7 @@ export function PartNumbersTable() {
             Object.keys(editingItems).length === 0 && (
               <Table.Row>
                 <Table.Cell
-                  colSpan={2}
+                  colSpan={3}
                   className='text-gray-500 py-8 text-center'
                 >
                   No part numbers found. Click &apos;Add Part Number&apos; to

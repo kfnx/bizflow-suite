@@ -706,12 +706,14 @@ export const unitOfMeasures = mysqlTable('unit_of_measures', {
 
 export const partNumbers = mysqlTable('part_numbers', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  number: varchar('number', { length: 100 }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
 export const machineModel = mysqlTable('machine_model', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });

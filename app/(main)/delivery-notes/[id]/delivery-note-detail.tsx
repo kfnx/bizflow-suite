@@ -7,11 +7,11 @@ import {
 } from '@remixicon/react';
 
 import { useDeliveryNoteDetail } from '@/hooks/use-delivery-notes';
+import { Loading } from '@/components/ui/loading';
 import { BackButton } from '@/components/back-button';
 import { DeliveryNoteHeader } from '@/components/delivery-notes/delivery-note-header';
 import { DeliveryNotePDF } from '@/components/delivery-notes/pdf';
 import Header from '@/components/header';
-import { SimplePageLoading } from '@/components/simple-page-loading';
 
 interface DeliveryNoteDetailProps {
   id: string;
@@ -23,7 +23,7 @@ export function DeliveryNoteDetail({ id }: DeliveryNoteDetailProps) {
   if (isLoading) {
     return (
       <div className='flex min-h-[400px] flex-1 items-center justify-center'>
-        <SimplePageLoading>Loading delivery note details...</SimplePageLoading>
+        <Loading className='min-h-32' />
       </div>
     );
   }

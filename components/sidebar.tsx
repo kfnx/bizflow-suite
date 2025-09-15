@@ -55,7 +55,7 @@ export const navigationLinks: NavigationCategory[] = [
     links: [
       {
         icon: RiCheckLine,
-        label: 'Pending Approvals',
+        label: 'Pending Quotations',
         href: '/quotations/pending',
       },
       { icon: RiFileTextLine, label: 'Quotations', href: '/quotations' },
@@ -76,7 +76,7 @@ export const navigationLinks: NavigationCategory[] = [
     links: [
       {
         icon: RiCheckLine,
-        label: 'Pending verification',
+        label: 'Pending Imports',
         href: '/imports/pending',
       },
       {

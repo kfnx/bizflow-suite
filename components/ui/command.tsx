@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { RiSearchLine } from '@remixicon/react';
 import { Command as CommandPrimitive } from 'cmdk';
 
 import { cnExt } from '@/utils/cn';

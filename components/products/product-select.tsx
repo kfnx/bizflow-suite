@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { RiShoppingCartLine } from '@remixicon/react';
-import { Check } from 'lucide-react';
+import {
+  RiCheckLine,
+  RiExpandUpDownLine,
+  RiShoppingCartLine,
+} from '@remixicon/react';
 
 import { cnExt } from '@/utils/cn';
 import { useProducts } from '@/hooks/use-products';
@@ -111,6 +114,7 @@ export function ProductSelect({
               )}
             </span>
           </div>
+          <RiExpandUpDownLine className='ml-2 h-4 w-6 shrink-0 opacity-50' />
         </Button.Root>
       </PopoverTrigger>
       <PopoverContent
@@ -148,9 +152,9 @@ export function ProductSelect({
                         )}
                       </div>
                     </div>
-                    <Check
+                    <RiCheckLine
                       className={cnExt(
-                        'ml-2 h-4 w-4 flex-shrink-0',
+                        'ml-2 h-6 w-6',
                         value === product.id ? 'opacity-100' : 'opacity-0',
                       )}
                     />

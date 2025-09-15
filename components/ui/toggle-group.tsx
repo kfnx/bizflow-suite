@@ -24,7 +24,7 @@ const ToggleGroupItem = React.forwardRef<
   <ToggleGroupPrimitive.Item
     ref={ref}
     className={cnExt(
-      'focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-paragraph-sm font-medium transition-all hover:bg-bg-weak-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-orange-500 data-[state=on]:text-white data-[state=on]:hover:bg-orange-600',
+      'inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-paragraph-sm font-medium transition-all hover:bg-bg-weak-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-orange-500 data-[state=on]:text-white data-[state=on]:hover:bg-orange-600',
       // First item: rounded-l-md
       'first:rounded-l-md',
       // Last item: rounded-r-md

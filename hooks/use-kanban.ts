@@ -46,7 +46,6 @@ export type PendingQuotationItem = {
   createdAt: string;
 };
 
-// Tipe data untuk `pendingImports`
 export type PendingImportItem = {
   id: string;
   supplierName: string | null;

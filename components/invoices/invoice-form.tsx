@@ -9,6 +9,7 @@ import {
   RiDeleteBinLine,
   RiGlobalLine,
   RiHashtag,
+  RiHistoryLine,
   RiMoneyDollarCircleLine,
   RiShoppingCartLine,
   RiUserLine,
@@ -24,6 +25,11 @@ import {
 import { useInvoiceNumber } from '@/hooks/use-invoice-number';
 import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
+import {
+  useQuotationDetail,
+  useQuotations,
+  useQuotationsReadyForInvoicing,
+} from '@/hooks/use-quotations';
 import { useUsers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
@@ -42,6 +48,16 @@ interface InvoiceFormProps {
   invoiceId?: string;
   initialFormData?: InvoiceFormData;
   onFormDataChange?: (formData: InvoiceFormData) => void;
+}
+
+interface ValidationErrors {
+  customerId?: string;
+  items?: string[];
+  invoiceDate?: string;
+  dueDate?: string;
+  notes?: string;
+  paymentTerm?: string;
+  general?: string;
 }
 
 const emptyFormData: InvoiceFormData = {
@@ -71,9 +87,9 @@ export function InvoiceForm({
   const [isLoading, setIsLoading] = useState(false);
   const isInitialLoadRef = useRef(true);
   const [isInitialized, setIsInitialized] = useState(mode === 'create');
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -86,6 +102,7 @@ export function InvoiceForm({
     useInvoiceNumber();
   const { data: products } = useProducts();
   const { data: users } = useUsers();
+  const { data: quotations } = useQuotationsReadyForInvoicing();
 
   // Initialize form data from invoice for edit mode
   useEffect(() => {
@@ -122,6 +139,7 @@ export function InvoiceForm({
           })) || [],
       });
       setIsInitialized(true);
+      setQuotationChanged(false);
     }
   }, [invoice, isInitialized, mode]);
 
@@ -130,6 +148,11 @@ export function InvoiceForm({
     if (mode === 'create' && initialFormData && !isInitialized) {
       setFormData(initialFormData);
       setIsInitialized(true);
+      setQuotationChanged(false);
+      // queryClient.prefetchQuery({
+      //   queryKey: ['products'],
+      //   queryFn: () => fetch('/api/products').then((res) => res.json()),
+      // });
     }
   }, [initialFormData, isInitialized, mode]);
 
@@ -145,42 +168,98 @@ export function InvoiceForm({
     }
   }, [onFormDataChange, formData, mode]);
 
+  const { data: quotationItem } = useQuotationDetail(
+    formData.quotationId || '',
+  );
+
+  // Initialize form item when quotation changes
+  useEffect(() => {
+    if (!quotationChanged) return;
+
+    if (!formData.quotationId) {
+      setFormData((prev) => ({ ...prev, items: [] }));
+      return;
+    }
+
+    if (quotationItem?.data) {
+      setFormData((prev) => ({
+        ...prev,
+        items: quotationItem.data.items.map((item: any) => ({
+          productId: item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: formatNumberWithDots(item.unitPrice),
+          additionalSpecs: item.additionalSpecs || '',
+          category: item.category || '',
+        })),
+      }));
+    }
+  }, [quotationChanged, formData.quotationId, quotationItem]);
+
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev) =>
+        prev ? { ...prev, [field]: value } : emptyFormData,
+      );
       // Clear validation error for this field when user starts typing
-      if (validationErrors[field]) {
-        setValidationErrors((prev) => ({ ...prev, [field]: '' }));
+      if (validationErrors[field as keyof ValidationErrors]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     },
     [validationErrors],
   );
 
-  const addItem = useCallback(() => {
+  const handleQuotationChange = useCallback((value: string) => {
+    setQuotationChanged(true);
+
     setFormData((prev) => ({
       ...prev,
-      items: [
-        ...prev.items,
-        {
-          productId: '',
-          name: '',
-          quantity: 1,
-          unitPrice: '0',
-        },
-      ],
+      quotationId: value === 'none' ? '' : value,
     }));
   }, []);
 
+  const addItem = useCallback(() => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                productId: '',
+                name: '',
+                quantity: 1,
+                unitPrice: '0',
+                additionalSpecs: '',
+              },
+            ],
+          }
+        : emptyFormData,
+    );
+    // Clear items validation error when adding new item
+    if (validationErrors.items) {
+      setValidationErrors((prev) => ({ ...prev, items: undefined }));
+    }
+  }, [validationErrors.items]);
+
   const updateItem = useCallback(
     (index: number, field: keyof InvoiceItem, value: string | number) => {
-      setFormData((prev) => ({
-        ...prev,
-        items: prev.items.map((item, i) =>
-          i === index ? { ...item, [field]: value } : item,
-        ),
-      }));
+      setFormData((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.map((item, i) =>
+                i === index ? { ...item, [field]: value } : item,
+              ),
+            }
+          : emptyFormData,
+      );
+      // Clear items validation error when updating items
+      if (validationErrors.items) {
+        setValidationErrors((prev) => ({ ...prev, items: undefined }));
+      }
     },
-    [],
+    [validationErrors.items],
   );
 
   const removeItem = useCallback((index: number) => {
@@ -547,6 +626,27 @@ export function InvoiceForm({
             />
           </div>
 
+          <div>
+            <Label.Root htmlFor='quotationId'>Quotation</Label.Root>
+            <Select.Root
+              value={formData.quotationId || ''}
+              onValueChange={handleQuotationChange}
+            >
+              <Select.Trigger id='quotationId'>
+                <Select.TriggerIcon as={RiHistoryLine} />
+                <Select.Value placeholder='Select quotation' />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value='none'>-- None --</Select.Item>
+                {quotations?.data?.map((quotation) => (
+                  <Select.Item key={quotation.id} value={quotation.id}>
+                    {quotation.quotationNumber} - {quotation.customerName}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+
           <div className='flex items-center space-x-2 md:col-span-2'>
             <input
               type='checkbox'
@@ -593,29 +693,29 @@ export function InvoiceForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
-                    onValueChange={(value) => {
-                      const product = products?.data?.find(
-                        (p) => p.id === value,
-                      );
-                      updateItem(index, 'productId', value);
-                      updateItem(index, 'category', product?.category || '');
-                      updateItem(index, 'name', product?.name || '');
+                    onValueChange={(value) =>
+                      updateItem(index, 'productId', value)
+                    }
+                    onProductSelect={(product) => {
+                      updateItem(index, 'category', product.category || '');
+                      updateItem(index, 'name', product.name || '');
                       updateItem(
                         index,
                         'unitPrice',
-                        formatNumberWithDots(product?.price || 0),
+                        formatNumberWithDots(product.price || 0),
                       );
                       if (
-                        product?.category === 'serialized' &&
-                        product?.additionalSpecs
+                        product.category === 'serialized' &&
+                        product.additionalSpecs
                       ) {
                         updateItem(
                           index,
                           'additionalSpecs',
-                          product?.additionalSpecs,
+                          product.additionalSpecs,
                         );
                       }
                     }}
+                    error={!!validationErrors.items?.[index]}
                   />
                 </div>
 

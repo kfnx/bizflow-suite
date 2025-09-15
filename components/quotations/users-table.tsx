@@ -33,6 +33,7 @@ import {
   Item as DropdownItem,
   Trigger as DropdownTrigger,
 } from '@/components/ui/dropdown';
+import { Loading } from '@/components/ui/loading';
 import * as Table from '@/components/ui/table';
 import { PermissionGate } from '@/components/auth/permission-gate';
 
@@ -353,9 +354,7 @@ export function UsersTable({ filters, onUserClick }: UsersTableProps) {
   });
 
   if (isLoading) {
-    return (
-      <div className='text-gray-500 p-4 text-center'>Loading users...</div>
-    );
+    return <Loading className='p-4' />;
   }
 
   if (error) {

@@ -524,7 +524,7 @@ const config = {
     },
     boxShadow: {
       ...shadows,
-      none: 'defaultTheme.boxShadow.none',
+      none: defaultTheme.boxShadow.none,
     },
     extend: {
       borderRadius: {

@@ -24,6 +24,7 @@ import {
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
+import { Loading } from '@/components/ui/loading';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import { ProductSelect } from '@/components/products/product-select';
@@ -348,10 +349,7 @@ export function QuotationForm({
   if (isLoadingData) {
     return (
       <div className='flex flex-1 items-center justify-center'>
-        <div className='text-center'>
-          <div className='border-primary-600 mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2'></div>
-          <p className='text-text-sub-600'>Loading quotation...</p>
-        </div>
+        <Loading />
       </div>
     );
   }
@@ -539,26 +537,36 @@ export function QuotationForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
-                    onValueChange={(value) =>
-                      updateItem(index, 'productId', value)
-                    }
                     onProductSelect={(product) => {
-                      updateItem(index, 'category', product.category || '');
-                      updateItem(index, 'name', product.name || '');
-                      updateItem(
-                        index,
-                        'unitPrice',
-                        formatNumberWithDots(product.price || 0),
-                      );
-                      if (
-                        product.category === 'serialized' &&
-                        product.additionalSpecs
-                      ) {
-                        updateItem(
-                          index,
-                          'additionalSpecs',
-                          product.additionalSpecs,
-                        );
+                      setFormData((prev) => ({
+                        ...prev,
+                        items: prev.items.map((currentItem, currentIndex) =>
+                          currentIndex === index
+                            ? {
+                                ...currentItem,
+                                productId: product.id,
+                                name: product.name,
+                                category: product.category || '',
+                                unitPrice: formatNumberWithDots(
+                                  product.price || 0,
+                                ),
+                                additionalSpecs:
+                                  product.category === 'serialized' &&
+                                  product.additionalSpecs
+                                    ? product.additionalSpecs
+                                    : currentItem.additionalSpecs || '',
+                              }
+                            : currentItem,
+                        ),
+                      }));
+                    }}
+                    onValueChange={(value) => {
+                      if (!value) {
+                        updateItem(index, 'productId', '');
+                        updateItem(index, 'name', '');
+                        updateItem(index, 'category', '');
+                        updateItem(index, 'unitPrice', '0');
+                        updateItem(index, 'additionalSpecs', '');
                       }
                     }}
                     error={!!validationErrors.items?.[index]}

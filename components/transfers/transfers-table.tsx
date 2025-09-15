@@ -33,6 +33,7 @@ import { type Transfer } from '@/hooks/use-transfers';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Dropdown from '@/components/ui/dropdown';
+import { Loading } from '@/components/ui/loading';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
@@ -407,9 +408,7 @@ export function TransfersTable({
   if (isLoading) {
     return (
       <div className='rounded-lg bg-bg-white-0 p-8'>
-        <div className='flex items-center justify-center'>
-          <div className='text-text-sub-600'>Loading transfers...</div>
-        </div>
+        <Loading />
       </div>
     );
   }

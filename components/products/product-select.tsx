@@ -30,6 +30,8 @@ interface ProductSelectProps {
   onValueChange: (value: string) => void;
   onProductSelect?: (product: ProductWithRelations) => void;
   error?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
 }
 
 export function ProductSelect({
@@ -37,11 +39,16 @@ export function ProductSelect({
   onValueChange,
   onProductSelect,
   error = false,
+  placeholder = 'Select product',
+  disabled = false,
 }: ProductSelectProps) {
   const [open, setOpen] = useState(false);
 
-  // Use limit=-1 to get all products
-  const { data: products, isLoading } = useProducts({
+  const {
+    data: products,
+    isLoading,
+    error: fetchError,
+  } = useProducts({
     limit: -1,
   });
 
@@ -49,19 +56,23 @@ export function ProductSelect({
     (product) => product.id === value,
   );
 
-  const handleSelect = (selectedValue: string) => {
-    onValueChange(selectedValue);
+  const handleSelect = (productId: string) => {
+    if (value === productId) {
+      setOpen(false);
+      return;
+    }
+
+    onValueChange(productId);
     setOpen(false);
 
-    // Call the callback with the selected product data
     if (onProductSelect && products?.data) {
-      const selectedProduct = products.data.find(
-        (product) => product.id === selectedValue,
-      );
-      if (selectedProduct) {
-        onProductSelect(selectedProduct);
-      }
+      const selected = products.data.find((p) => p.id === productId);
+      if (selected) onProductSelect(selected);
     }
+  };
+
+  const getSearchValue = (product: ProductWithRelations) => {
+    return `${product.name} ${product.category}`.toLowerCase();
   };
 
   return (
@@ -72,66 +83,85 @@ export function ProductSelect({
           mode='stroke'
           role='combobox'
           aria-expanded={open}
+          aria-label={
+            selectedProduct ? `Selected: ${selectedProduct.name}` : placeholder
+          }
           className={cnExt(
-            'w-full justify-between',
+            'h-auto min-h-10 w-full justify-between',
             error && 'border-red-500 focus-visible:ring-red-500',
             !selectedProduct && 'text-muted-foreground',
+            disabled && 'cursor-not-allowed opacity-50',
           )}
-          disabled={isLoading}
+          disabled={isLoading || disabled || !!fetchError}
+          type='button'
         >
-          <div className='flex items-center gap-2'>
-            <RiShoppingCartLine className='h-4 w-4' />
-            <span>
-              {selectedProduct ? (
-                <div>
+          <div className='flex flex-1 items-center gap-2 text-left'>
+            <RiShoppingCartLine className='h-4 w-4 flex-shrink-0' />
+            <span className='flex-1 truncate'>
+              {fetchError ? (
+                'Error loading products'
+              ) : isLoading ? (
+                'Loading products...'
+              ) : selectedProduct ? (
+                <>
                   {selectedProduct.name}{' '}
                   <small className='text-text-soft-400'>
                     {selectedProduct.category}
                   </small>
-                </div>
-              ) : isLoading ? (
-                'Loading products...'
+                </>
               ) : (
-                'Select product'
+                placeholder
               )}
             </span>
           </div>
           <RiExpandUpDownLine className='ml-2 h-4 w-6 shrink-0 opacity-50' />
         </Button.Root>
       </PopoverTrigger>
-      <PopoverContent className='w-[var(--radix-popover-trigger-width)] p-0'>
+      <PopoverContent
+        className='w-[var(--radix-popover-trigger-width)] p-0'
+        align='start'
+      >
         <Command>
           <CommandInput placeholder='Search products...' className='h-9 p-3' />
           <CommandList className='max-h-[280px]'>
             <CommandEmpty>
-              {isLoading ? 'Loading products...' : 'No products found.'}
+              {isLoading
+                ? 'Loading products...'
+                : fetchError
+                  ? 'Error loading products'
+                  : 'No products found.'}
             </CommandEmpty>
-            <CommandGroup>
-              {products?.data?.map((product) => (
-                <CommandItem
-                  key={product.id}
-                  value={product.name} // value bisa nama atau ID, untuk search
-                  onSelect={() => handleSelect(product.id)} // onSelect memanggil handler dengan ID
-                  className={cnExt(
-                    'flex items-center justify-between',
-                    value === product.id && 'bg-orange-500/25',
-                  )}
-                >
-                  <div className='flex flex-col'>
-                    <span>{product.name}</span>
-                    <small className='text-muted-foreground'>
-                      {product.category}
-                    </small>
-                  </div>
-                  <RiCheckLine
-                    className={cnExt(
-                      'ml-2 h-6 w-6',
-                      value === product.id ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {products?.data && products.data.length > 0 && (
+              <CommandGroup>
+                {products.data.map((product) => (
+                  <CommandItem
+                    key={product.id}
+                    value={getSearchValue(product)}
+                    onSelect={() => handleSelect(product.id)}
+                    className='flex cursor-pointer items-center justify-between'
+                  >
+                    <div className='flex flex-1 flex-col'>
+                      <span className='font-medium'>{product.name}</span>
+                      <div className='text-xs flex items-center gap-2 text-muted-foreground'>
+                        <span className='capitalize'>{product.category}</span>
+                        {product.price && (
+                          <>
+                            <span>•</span>
+                            <span>{product.price.toLocaleString()}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <RiCheckLine
+                      className={cnExt(
+                        'ml-2 h-6 w-6',
+                        value === product.id ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

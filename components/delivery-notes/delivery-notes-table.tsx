@@ -29,6 +29,7 @@ import {
 } from '@/hooks/use-delivery-notes';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
+import { Loading } from '@/components/ui/loading';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Table from '@/components/ui/table';
@@ -243,11 +244,7 @@ export function DeliveryNotesTable({
   });
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center py-8'>
-        <div className='text-paragraph-sm text-text-sub-600'>Loading...</div>
-      </div>
-    );
+    return <Loading className='py-8' />;
   }
 
   if (error) {

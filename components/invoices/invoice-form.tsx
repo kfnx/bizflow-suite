@@ -17,6 +17,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { InvoiceFormData, type InvoiceItem } from '@/lib/validations/invoice';
 import {
   formatNumberWithDots,
@@ -34,12 +35,14 @@ import { useUsers } from '@/hooks/use-users';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
+import { Loading } from '@/components/ui/loading';
 import * as Select from '@/components/ui/select';
 import * as Textarea from '@/components/ui/textarea';
 import { CustomerSelectWithAdd } from '@/components/customers/customer-select-with-add';
 import InvoiceNumberDisplay from '@/components/invoices/invoice-number-display';
 
 import { ProductSelect } from '../products/product-select';
+import { QuotationSelect } from '../quotations/quotation-select';
 
 export type InvoiceFormMode = 'create' | 'edit';
 
@@ -48,16 +51,6 @@ interface InvoiceFormProps {
   invoiceId?: string;
   initialFormData?: InvoiceFormData;
   onFormDataChange?: (formData: InvoiceFormData) => void;
-}
-
-interface ValidationErrors {
-  customerId?: string;
-  items?: string[];
-  invoiceDate?: string;
-  dueDate?: string;
-  notes?: string;
-  paymentTerm?: string;
-  general?: string;
 }
 
 const emptyFormData: InvoiceFormData = {
@@ -87,9 +80,10 @@ export function InvoiceForm({
   const [isLoading, setIsLoading] = useState(false);
   const isInitialLoadRef = useRef(true);
   const [isInitialized, setIsInitialized] = useState(mode === 'create');
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {},
-  );
+  const [quotationChanged, setQuotationChanged] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -100,9 +94,7 @@ export function InvoiceForm({
   );
   const { data: invoiceNumber, isLoading: isLoadingInvoiceNumber } =
     useInvoiceNumber();
-  const { data: products } = useProducts();
   const { data: users } = useUsers();
-  const { data: quotations } = useQuotationsReadyForInvoicing();
 
   // Initialize form data from invoice for edit mode
   useEffect(() => {
@@ -149,10 +141,6 @@ export function InvoiceForm({
       setFormData(initialFormData);
       setIsInitialized(true);
       setQuotationChanged(false);
-      // queryClient.prefetchQuery({
-      //   queryKey: ['products'],
-      //   queryFn: () => fetch('/api/products').then((res) => res.json()),
-      // });
     }
   }, [initialFormData, isInitialized, mode]);
 
@@ -168,7 +156,7 @@ export function InvoiceForm({
     }
   }, [onFormDataChange, formData, mode]);
 
-  const { data: quotationItem } = useQuotationDetail(
+  const { data: quotation, isFetching } = useQuotationDetail(
     formData.quotationId || '',
   );
 
@@ -181,10 +169,12 @@ export function InvoiceForm({
       return;
     }
 
-    if (quotationItem?.data) {
+    if (quotation?.data) {
       setFormData((prev) => ({
         ...prev,
-        items: quotationItem.data.items.map((item: any) => ({
+        customerId: quotation.data.customerId || '',
+        notes: quotation.data.notes || '',
+        items: quotation.data.items.map((item: any) => ({
           productId: item.productId,
           name: item.name,
           quantity: item.quantity,
@@ -194,16 +184,14 @@ export function InvoiceForm({
         })),
       }));
     }
-  }, [quotationChanged, formData.quotationId, quotationItem]);
+  }, [quotationChanged, formData.quotationId, quotation]);
 
   const handleInputChange = useCallback(
     (field: keyof Omit<InvoiceFormData, 'items'>, value: string | boolean) => {
-      setFormData((prev) =>
-        prev ? { ...prev, [field]: value } : emptyFormData,
-      );
+      setFormData((prev) => ({ ...prev, [field]: value }));
       // Clear validation error for this field when user starts typing
-      if (validationErrors[field as keyof ValidationErrors]) {
-        setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
+      if (validationErrors[field]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: '' }));
       }
     },
     [validationErrors],
@@ -215,51 +203,35 @@ export function InvoiceForm({
     setFormData((prev) => ({
       ...prev,
       quotationId: value === 'none' ? '' : value,
+      customerId: '',
     }));
   }, []);
 
   const addItem = useCallback(() => {
-    setFormData((prev) =>
-      prev
-        ? {
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                productId: '',
-                name: '',
-                quantity: 1,
-                unitPrice: '0',
-                additionalSpecs: '',
-              },
-            ],
-          }
-        : emptyFormData,
-    );
-    // Clear items validation error when adding new item
-    if (validationErrors.items) {
-      setValidationErrors((prev) => ({ ...prev, items: undefined }));
-    }
-  }, [validationErrors.items]);
+    setFormData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        {
+          productId: '',
+          name: '',
+          quantity: 1,
+          unitPrice: '0',
+        },
+      ],
+    }));
+  }, []);
 
   const updateItem = useCallback(
     (index: number, field: keyof InvoiceItem, value: string | number) => {
-      setFormData((prev) =>
-        prev
-          ? {
-              ...prev,
-              items: prev.items.map((item, i) =>
-                i === index ? { ...item, [field]: value } : item,
-              ),
-            }
-          : emptyFormData,
-      );
-      // Clear items validation error when updating items
-      if (validationErrors.items) {
-        setValidationErrors((prev) => ({ ...prev, items: undefined }));
-      }
+      setFormData((prev) => ({
+        ...prev,
+        items: prev.items.map((item, i) =>
+          i === index ? { ...item, [field]: value } : item,
+        ),
+      }));
     },
-    [validationErrors.items],
+    [],
   );
 
   const removeItem = useCallback((index: number) => {
@@ -346,21 +318,17 @@ export function InvoiceForm({
     }
   };
 
+  useEffect(() => {
+    console.log(formData.items);
+  }, [formData.items]);
+
   // Show loading state for create mode while fetching invoice number
   if (mode === 'create' && (isLoadingInvoiceNumber || !invoiceNumber)) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading invoice number...</p>
-      </div>
-    );
+    return <Loading className='w-full p-8' />;
   }
 
   if (mode === 'edit' && (isLoadingInvoice || !isInitialized)) {
-    return (
-      <div className='w-full p-8 text-center'>
-        <p className='text-text-sub-600'>Loading invoice...</p>
-      </div>
-    );
+    return <Loading className='w-full p-8' />;
   }
 
   if (mode === 'edit' && !invoice?.data) {
@@ -418,6 +386,21 @@ export function InvoiceForm({
         )}
 
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='quotationId'>Select From Quotation</Label.Root>
+            <QuotationSelect
+              value={formData.quotationId || ''}
+              onValueChange={handleQuotationChange}
+              placeholder='Select quotation'
+              status={QUOTATION_STATUS.ACCEPTED}
+            />
+            {isFetching && (
+              <p className='text-xs mt-1 text-text-sub-600'>
+                Loading quotation data...
+              </p>
+            )}
+          </div>
+
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='invoiceDate'>
               Invoice Date <Label.Asterisk />
@@ -626,27 +609,6 @@ export function InvoiceForm({
             />
           </div>
 
-          <div>
-            <Label.Root htmlFor='quotationId'>Quotation</Label.Root>
-            <Select.Root
-              value={formData.quotationId || ''}
-              onValueChange={handleQuotationChange}
-            >
-              <Select.Trigger id='quotationId'>
-                <Select.TriggerIcon as={RiHistoryLine} />
-                <Select.Value placeholder='Select quotation' />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value='none'>-- None --</Select.Item>
-                {quotations?.data?.map((quotation) => (
-                  <Select.Item key={quotation.id} value={quotation.id}>
-                    {quotation.quotationNumber} - {quotation.customerName}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </div>
-
           <div className='flex items-center space-x-2 md:col-span-2'>
             <input
               type='checkbox'
@@ -672,7 +634,8 @@ export function InvoiceForm({
 
         {formData.items.length === 0 ? (
           <div className='py-8 text-center text-text-sub-600'>
-            No items added yet. Click &quot;Add Item&quot; to get started.
+            No items added yet. Click &quot;Add Item&quot; to get started or
+            select an quotation to import items.
             {validationErrors.items && (
               <p className='text-sm mt-2 text-error-base'>
                 {validationErrors.items}
@@ -693,29 +656,39 @@ export function InvoiceForm({
                   </Label.Root>
                   <ProductSelect
                     value={item.productId}
-                    onValueChange={(value) =>
-                      updateItem(index, 'productId', value)
-                    }
                     onProductSelect={(product) => {
-                      updateItem(index, 'category', product.category || '');
-                      updateItem(index, 'name', product.name || '');
-                      updateItem(
-                        index,
-                        'unitPrice',
-                        formatNumberWithDots(product.price || 0),
-                      );
-                      if (
-                        product.category === 'serialized' &&
-                        product.additionalSpecs
-                      ) {
-                        updateItem(
-                          index,
-                          'additionalSpecs',
-                          product.additionalSpecs,
-                        );
+                      setFormData((prev) => ({
+                        ...prev,
+                        items: prev.items.map((currentItem, currentIndex) =>
+                          currentIndex === index
+                            ? {
+                                ...currentItem,
+                                productId: product.id,
+                                name: product.name,
+                                category: product.category || '',
+                                unitPrice: formatNumberWithDots(
+                                  product.price || 0,
+                                ),
+                                additionalSpecs:
+                                  product.category === 'serialized' &&
+                                  product.additionalSpecs
+                                    ? product.additionalSpecs
+                                    : currentItem.additionalSpecs || '',
+                              }
+                            : currentItem,
+                        ),
+                      }));
+                    }}
+                    onValueChange={(value) => {
+                      // Fallback jika onProductSelect tidak dipanggil
+                      if (!value) {
+                        updateItem(index, 'productId', '');
+                        updateItem(index, 'name', '');
+                        updateItem(index, 'category', '');
+                        updateItem(index, 'unitPrice', '0');
+                        updateItem(index, 'additionalSpecs', '');
                       }
                     }}
-                    error={!!validationErrors.items?.[index]}
                   />
                 </div>
 

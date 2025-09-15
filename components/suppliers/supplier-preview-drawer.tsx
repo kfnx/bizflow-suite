@@ -5,7 +5,6 @@ import {
   RiBuildingLine,
   RiEditLine,
   RiExternalLinkLine,
-  RiLoader4Line,
 } from '@remixicon/react';
 
 import { useSupplierDetail } from '@/hooks/use-suppliers';
@@ -13,6 +12,7 @@ import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
+import { Loading } from '@/components/ui/loading';
 
 interface SupplierPreviewDrawerProps {
   supplierId: string | null;
@@ -205,12 +205,7 @@ export function SupplierPreviewDrawer({
         </Drawer.Header>
 
         <Drawer.Body>
-          {isLoading && (
-            <div className='flex items-center justify-center py-8'>
-              <RiLoader4Line className='text-gray-400 size-6 animate-spin' />
-              <span className='text-sm text-gray-500 ml-2'>Loading...</span>
-            </div>
-          )}
+          {isLoading && <Loading className='py-8' />}
 
           {error && (
             <div className='py-8 text-center'>

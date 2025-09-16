@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Extract unique permission names
     const permissionNames = Array.from(
-      new Set(userPermissions.map((p) => p.permission))
+      new Set(userPermissions.map((p) => p.permission)),
     );
 
     return NextResponse.json({

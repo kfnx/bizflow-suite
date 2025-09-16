@@ -91,7 +91,14 @@ export function PartNumbersTable() {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...partNumber }: { id: string; number: string; name: string }) => {
+    mutationFn: async ({
+      id,
+      ...partNumber
+    }: {
+      id: string;
+      number: string;
+      name: string;
+    }) => {
       const response = await fetch(`/api/part-numbers/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -254,7 +261,11 @@ export function PartNumbersTable() {
                     <Input.Input
                       value={editingItems[partNumber.id]?.number || ''}
                       onChange={(e) =>
-                        handleFieldChange(partNumber.id, 'number', e.target.value)
+                        handleFieldChange(
+                          partNumber.id,
+                          'number',
+                          e.target.value,
+                        )
                       }
                       maxLength={100}
                     />

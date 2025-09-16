@@ -169,7 +169,10 @@ export function MachineModelTable() {
       const editingMachineModel = editingItems[id];
       if (!editingMachineModel) return;
 
-      if (!editingMachineModel.model.trim() || !editingMachineModel.name.trim()) {
+      if (
+        !editingMachineModel.model.trim() ||
+        !editingMachineModel.name.trim()
+      ) {
         toast.error('Both model and name are required');
         return;
       }

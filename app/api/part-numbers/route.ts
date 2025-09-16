@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
       conditions.push(
         or(
           like(partNumbers.number, `%${search}%`),
-          like(partNumbers.name, `%${search}%`)
-        )
+          like(partNumbers.name, `%${search}%`),
+        ),
       );
     }
 

@@ -83,13 +83,6 @@ export async function GET(request: NextRequest) {
       conditions.push(isNull(quotations.invoiceId));
     }
 
-    // By default, hide quotations that have been invoiced (have an invoiceId)
-    // This can be overridden with a query parameter if needed
-    const showInvoiced = searchParams.get('show_invoiced');
-    if (showInvoiced !== 'true') {
-      conditions.push(isNull(quotations.invoiceId));
-    }
-
     // Build order by clause
     let orderByClause = desc(quotations.createdAt);
     if (sortBy) {

@@ -37,7 +37,12 @@ export async function GET(request: NextRequest) {
     const conditions = [];
 
     if (search) {
-      conditions.push(like(machineModel.name, `%${search}%`));
+      conditions.push(
+        or(
+          like(machineModel.model, `%${search}%`),
+          like(machineModel.name, `%${search}%`),
+        ),
+      );
     }
 
     // Build order by clause
@@ -65,6 +70,7 @@ export async function GET(request: NextRequest) {
     const machineModelsData = await db
       .select({
         id: machineModel.id,
+        model: machineModel.model,
         name: machineModel.name,
       })
       .from(machineModel)
@@ -108,44 +114,45 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name } = body;
+    const { model, name } = body;
 
     // Basic validation
-    if (!name?.trim()) {
+    if (!model?.trim() || !name?.trim()) {
       return NextResponse.json(
-        { error: 'Machine model name is required' },
+        { error: 'Both model and name are required' },
         { status: 400 },
       );
     }
 
-    if (name.trim().length > 36) {
+    if (model.trim().length > 100 || name.trim().length > 100) {
       return NextResponse.json(
-        { error: 'Machine model name must be 36 characters or less' },
+        { error: 'Model and name must be 100 characters or less' },
         { status: 400 },
       );
     }
 
-    // Check if machine model with same name already exists
+    // Check if machine model with same model already exists
     const existingMachineModel = await db
-      .select({ id: machineModel.id, name: machineModel.name })
+      .select({ id: machineModel.id, model: machineModel.model })
       .from(machineModel)
-      .where(like(machineModel.name, name.trim()))
+      .where(like(machineModel.model, model.trim()))
       .limit(1);
 
     if (existingMachineModel.length > 0) {
       return NextResponse.json(
         {
-          error: 'Machine model with this name already exists',
-          details: `A machine model named "${existingMachineModel[0].name}" already exists`,
+          error: 'Machine model already exists',
+          details: `A machine model "${existingMachineModel[0].model}" already exists`,
         },
         { status: 409 },
       );
     }
 
     // Create machine model with slugified ID
-    const machineModelId = createSlug(name.trim());
+    const machineModelId = createSlug(model.trim());
     const newMachineModel = {
       id: machineModelId,
+      model: model.trim(),
       name: name.trim(),
     };
 

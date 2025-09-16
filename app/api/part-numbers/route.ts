@@ -37,7 +37,12 @@ export async function GET(request: NextRequest) {
     const conditions = [];
 
     if (search) {
-      conditions.push(like(partNumbers.name, `%${search}%`));
+      conditions.push(
+        or(
+          like(partNumbers.number, `%${search}%`),
+          like(partNumbers.name, `%${search}%`),
+        ),
+      );
     }
 
     // Build order by clause
@@ -65,6 +70,7 @@ export async function GET(request: NextRequest) {
     const partNumbersData = await db
       .select({
         id: partNumbers.id,
+        number: partNumbers.number,
         name: partNumbers.name,
       })
       .from(partNumbers)
@@ -108,44 +114,45 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name } = body;
+    const { number, name } = body;
 
     // Basic validation
-    if (!name?.trim()) {
+    if (!number?.trim() || !name?.trim()) {
       return NextResponse.json(
-        { error: 'Part number name is required' },
+        { error: 'Both part number and name are required' },
         { status: 400 },
       );
     }
 
-    if (name.trim().length > 36) {
+    if (number.trim().length > 100 || name.trim().length > 100) {
       return NextResponse.json(
-        { error: 'Part number name must be 36 characters or less' },
+        { error: 'Part number and name must be 100 characters or less' },
         { status: 400 },
       );
     }
 
-    // Check if part number with same name already exists
+    // Check if part number with same number already exists
     const existingPartNumber = await db
-      .select({ id: partNumbers.id, name: partNumbers.name })
+      .select({ id: partNumbers.id, number: partNumbers.number })
       .from(partNumbers)
-      .where(like(partNumbers.name, name.trim()))
+      .where(like(partNumbers.number, number.trim()))
       .limit(1);
 
     if (existingPartNumber.length > 0) {
       return NextResponse.json(
         {
-          error: 'Part number with this name already exists',
-          details: `A part number named "${existingPartNumber[0].name}" already exists`,
+          error: 'Part number already exists',
+          details: `A part number "${existingPartNumber[0].number}" already exists`,
         },
         { status: 409 },
       );
     }
 
     // Create part number with slugified ID
-    const partNumberId = createSlug(name.trim());
+    const partNumberId = createSlug(number.trim());
     const newPartNumber = {
       id: partNumberId,
+      number: number.trim(),
       name: name.trim(),
     };
 

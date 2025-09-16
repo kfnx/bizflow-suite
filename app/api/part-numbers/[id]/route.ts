@@ -19,19 +19,19 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name } = body;
+    const { number, name } = body;
 
     // Basic validation
-    if (!name?.trim()) {
+    if (!number?.trim() || !name?.trim()) {
       return NextResponse.json(
-        { error: 'Part number name is required' },
+        { error: 'Both part number and name are required' },
         { status: 400 },
       );
     }
 
-    if (name.trim().length > 36) {
+    if (number.trim().length > 100 || name.trim().length > 100) {
       return NextResponse.json(
-        { error: 'Part number name must be 36 characters or less' },
+        { error: 'Part number and name must be 100 characters or less' },
         { status: 400 },
       );
     }
@@ -52,6 +52,7 @@ export async function PUT(
 
     // Update part number
     const updatedPartNumber = {
+      number: number.trim(),
       name: name.trim(),
     };
 

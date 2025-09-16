@@ -19,19 +19,19 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name } = body;
+    const { model, name } = body;
 
     // Basic validation
-    if (!name?.trim()) {
+    if (!model?.trim() || !name?.trim()) {
       return NextResponse.json(
-        { error: 'Machine model name is required' },
+        { error: 'Both model and name are required' },
         { status: 400 },
       );
     }
 
-    if (name.trim().length > 36) {
+    if (model.trim().length > 100 || name.trim().length > 100) {
       return NextResponse.json(
-        { error: 'Machine model name must be 36 characters or less' },
+        { error: 'Model and name must be 100 characters or less' },
         { status: 400 },
       );
     }
@@ -52,6 +52,7 @@ export async function PUT(
 
     // Update machine model
     const updatedMachineModel = {
+      model: model.trim(),
       name: name.trim(),
     };
 

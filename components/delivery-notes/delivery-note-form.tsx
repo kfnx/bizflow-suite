@@ -79,6 +79,8 @@ export function DeliveryNoteForm({
     {},
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInvoiceSelected, setIsInvoiceSelected] = useState(false);
+  const [isQuotationSelected, setIsQuotationSelected] = useState(false);
 
   const router = useRouter();
   const { data: deliveryNumber, isLoading: isLoadingDeliveryNumber } =
@@ -99,56 +101,70 @@ export function DeliveryNoteForm({
   }, [initialFormData, mode]);
 
   useEffect(() => {
-    if (formData.invoiceId && invoice?.data && !isFetchingInvoice) {
-      setFormData((prev) => {
-        const newFormData = {
+    if (formData.invoiceId && !isFetchingInvoice) {
+      if (formData.quotationId) {
+        setFormData((prev) => ({
           ...prev,
-          notes: invoice.data.notes || '',
-          customerId: invoice.data.customerId || '',
-          items: invoice.data.items.map((item: any) => ({
-            productId: item.productId,
-            quantity: parseInt(item.quantity) || 1,
-            name: item.name,
-            category: item.category || '',
-          })),
+          quotationId: '',
+        }));
+      }
+      setFormData((prev) => {
+        return {
+          ...prev,
+          notes: invoice?.data?.notes || '',
+          customerId: invoice?.data?.customerId || '',
+          items:
+            invoice?.data?.items.map((item: any) => ({
+              productId: item.productId,
+              quantity: parseInt(item.quantity) || 1,
+              name: item.name,
+              category: item.category || '',
+            })) || [],
         };
-
-        if (invoice.data.quotationId) {
-          newFormData.quotationId = invoice.data.quotationId;
-        }
-
-        return newFormData;
       });
     }
-  }, [formData.invoiceId, invoice?.data, isFetchingInvoice]);
+  }, [
+    formData.invoiceId,
+    formData.quotationId,
+    invoice?.data,
+    isFetchingInvoice,
+  ]);
 
   useEffect(() => {
-    if (formData.quotationId && quotation?.data && !isFetchingQuotation) {
-      setFormData((prev) => {
-        const newFormData = {
+    if (formData.quotationId && !isFetchingQuotation) {
+      if (formData.invoiceId) {
+        setFormData((prev) => ({
           ...prev,
-          notes: quotation.data.notes || '',
-          customerId: quotation.data.customerId || '',
-          items: quotation.data.items.map((item: any) => ({
-            productId: item.productId,
-            quantity: parseInt(item.quantity) || 1,
-            name: item.name,
-            category: item.category || '',
-          })),
+          invoiceId: '',
+        }));
+      }
+      setFormData((prev) => {
+        return {
+          ...prev,
+          notes: quotation?.data?.notes || '',
+          customerId: quotation?.data?.customerId || '',
+          items:
+            quotation?.data?.items.map((item: any) => ({
+              productId: item.productId,
+              quantity: parseInt(item.quantity) || 1,
+              name: item.name,
+              category: item.category || '',
+            })) || [],
         };
-
-        if (quotation.data.invoiceId) {
-          newFormData.invoiceId = quotation.data.invoiceId;
-        }
-
-        return newFormData;
       });
     }
-  }, [formData.quotationId, quotation?.data, isFetchingQuotation]);
+  }, [
+    formData.quotationId,
+    formData.invoiceId,
+    quotation?.data,
+    isFetchingQuotation,
+  ]);
 
   const handleImportChanged = useCallback(
     (value: string, type: 'invoice' | 'quotation') => {
       if (type === 'invoice') {
+        setIsInvoiceSelected(value !== 'none');
+        setIsQuotationSelected(false);
         setFormData((prev) => ({
           ...prev,
           invoiceId: value === 'none' ? '' : value,
@@ -158,6 +174,8 @@ export function DeliveryNoteForm({
           items: [],
         }));
       } else if (type === 'quotation') {
+        setIsQuotationSelected(value !== 'none');
+        setIsInvoiceSelected(false);
         setFormData((prev) => ({
           ...prev,
           quotationId: value === 'none' ? '' : value,
@@ -350,6 +368,7 @@ export function DeliveryNoteForm({
               onValueChange={(value) => handleImportChanged(value, 'quotation')}
               placeholder='Select quotation'
               status={QUOTATION_STATUS.ACCEPTED}
+              disabled={isInvoiceSelected} // Disable if invoice is selected
             />
             {isFetchingQuotation && (
               <p className='text-xs mt-1 text-text-sub-600'>
@@ -364,6 +383,7 @@ export function DeliveryNoteForm({
               onValueChange={(value) => handleImportChanged(value, 'invoice')}
               placeholder='Select invoice'
               status={[INVOICE_STATUS.PAID, INVOICE_STATUS.SENT]}
+              disabled={isQuotationSelected} // Disable if quotation is selected
             />
             {isFetchingInvoice && (
               <p className='text-xs mt-1 text-text-sub-600'>

@@ -30,7 +30,6 @@ export function InvoiceSelect({
   status,
   showNoneOption = true,
 }: InvoiceSelectProps) {
-  // Don't pass status to useInvoices hook, we'll filter locally
   const { data: invoices, isLoading } = useInvoices();
 
   const handleValueChange = (newValue: string) => {
@@ -90,10 +89,6 @@ export function InvoiceSelect({
               <small>•</small>
               <small className='text-muted-foreground'>
                 Due: {new Date(invoice.dueDate).toLocaleDateString()}
-              </small>
-              <small>•</small>
-              <small className='text-muted-foreground'>
-                {invoice.currency} {parseFloat(invoice.total).toLocaleString()}
               </small>
               {invoice.status && (
                 <>

@@ -12,16 +12,15 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { INVOICE_STATUS } from '@/lib/db/enum';
+import { INVOICE_STATUS, QUOTATION_STATUS } from '@/lib/db/enum';
 import {
   DeliveryNoteFormData,
   deliveryNoteFormSchema,
   DeliveryNoteItem,
 } from '@/lib/validations/delivery-note';
 import { useDeliveryNoteNumber } from '@/hooks/use-delivery-note-number';
-import { useInvoiceDetail, useInvoices } from '@/hooks/use-invoices';
-import { useProducts } from '@/hooks/use-products';
-import { useQuotations } from '@/hooks/use-quotations';
+import { useInvoiceDetail } from '@/hooks/use-invoices';
+import { useQuotationDetail } from '@/hooks/use-quotations';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -32,6 +31,7 @@ import DeliveryNoteNumberDisplay from '@/components/delivery-notes/delivery-note
 
 import { InvoiceSelect } from '../invoices/invoice-select';
 import { ProductSelect } from '../products/product-select';
+import { QuotationSelect } from '../quotations/quotation-select';
 import { SimplePageLoading } from '../simple-page-loading';
 
 export type DeliveryNoteFormMode = 'create' | 'edit';
@@ -79,14 +79,15 @@ export function DeliveryNoteForm({
     {},
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [invoiceChanged, setInvoiceChanged] = useState(false);
+  const [isInvoiceSelected, setIsInvoiceSelected] = useState(false);
+  const [isQuotationSelected, setIsQuotationSelected] = useState(false);
 
   const router = useRouter();
-  const { data: products } = useProducts();
-  const { data: invoices } = useInvoices();
-  const { data: quotations } = useQuotations();
   const { data: deliveryNumber, isLoading: isLoadingDeliveryNumber } =
     useDeliveryNoteNumber();
+
+  const { data: quotation, isFetching: isFetchingQuotation } =
+    useQuotationDetail(formData.quotationId || '');
 
   const { data: invoice, isFetching: isFetchingInvoice } = useInvoiceDetail(
     formData.invoiceId || '',
@@ -100,27 +101,93 @@ export function DeliveryNoteForm({
   }, [initialFormData, mode]);
 
   useEffect(() => {
-    if (!invoiceChanged) return;
-
-    if (!formData.invoiceId) {
-      setFormData((prev) => ({ ...prev, items: [] }));
-      return;
+    if (formData.invoiceId && !isFetchingInvoice) {
+      if (formData.quotationId) {
+        setFormData((prev) => ({
+          ...prev,
+          quotationId: '',
+        }));
+      }
+      setFormData((prev) => {
+        return {
+          ...prev,
+          notes: invoice?.data?.notes || '',
+          customerId: invoice?.data?.customerId || '',
+          items:
+            invoice?.data?.items.map((item: any) => ({
+              productId: item.productId,
+              quantity: parseInt(item.quantity) || 1,
+              name: item.name,
+              category: item.category || '',
+            })) || [],
+        };
+      });
     }
+  }, [
+    formData.invoiceId,
+    formData.quotationId,
+    invoice?.data,
+    isFetchingInvoice,
+  ]);
 
-    if (invoice?.data) {
-      setFormData((prev) => ({
-        ...prev,
-        notes: invoice.data.notes || prev.notes,
-        customerId: invoice.data.customerId || prev.customerId,
-        items: invoice.data.items.map((item: any) => ({
-          productId: item.productId,
-          quantity: parseInt(item.quantity) || 1,
-          name: item.name,
-          category: item.category || '',
-        })),
-      }));
+  useEffect(() => {
+    if (formData.quotationId && !isFetchingQuotation) {
+      if (formData.invoiceId) {
+        setFormData((prev) => ({
+          ...prev,
+          invoiceId: '',
+        }));
+      }
+      setFormData((prev) => {
+        return {
+          ...prev,
+          notes: quotation?.data?.notes || '',
+          customerId: quotation?.data?.customerId || '',
+          items:
+            quotation?.data?.items.map((item: any) => ({
+              productId: item.productId,
+              quantity: parseInt(item.quantity) || 1,
+              name: item.name,
+              category: item.category || '',
+            })) || [],
+        };
+      });
     }
-  }, [invoiceChanged, formData.invoiceId, invoice]);
+  }, [
+    formData.quotationId,
+    formData.invoiceId,
+    quotation?.data,
+    isFetchingQuotation,
+  ]);
+
+  const handleImportChanged = useCallback(
+    (value: string, type: 'invoice' | 'quotation') => {
+      if (type === 'invoice') {
+        setIsInvoiceSelected(value !== 'none');
+        setIsQuotationSelected(false);
+        setFormData((prev) => ({
+          ...prev,
+          invoiceId: value === 'none' ? '' : value,
+          quotationId: '',
+          notes: '',
+          customerId: '',
+          items: [],
+        }));
+      } else if (type === 'quotation') {
+        setIsQuotationSelected(value !== 'none');
+        setIsInvoiceSelected(false);
+        setFormData((prev) => ({
+          ...prev,
+          quotationId: value === 'none' ? '' : value,
+          invoiceId: '',
+          notes: '',
+          customerId: '',
+          items: [],
+        }));
+      }
+    },
+    [],
+  );
 
   const clearValidationErrors = useCallback(() => {
     setValidationErrors({});
@@ -136,16 +203,6 @@ export function DeliveryNoteForm({
     },
     [validationErrors],
   );
-
-  const handleInvoiceChange = useCallback((value: string) => {
-    setInvoiceChanged(true);
-    setFormData((prev) => ({
-      ...prev,
-      invoiceId: value === 'none' ? '' : value,
-      notes: '',
-      customerId: '',
-    }));
-  }, []);
 
   const addItem = useCallback(() => {
     setFormData((prev) => {
@@ -289,13 +346,10 @@ export function DeliveryNoteForm({
       onSubmit={handleSubmit}
       className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'
     >
-      {/* Delivery Note Details */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
         <h3 className='text-lg mb-6 font-semibold text-text-strong-950'>
           Delivery Note Details
         </h3>
-
-        {/* Delivery Note Number Display */}
         {mode === 'create' ? (
           <DeliveryNoteNumberDisplay deliveryNumber={deliveryNumber!} />
         ) : (
@@ -306,15 +360,30 @@ export function DeliveryNoteForm({
             </div>
           </div>
         )}
-
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <div className='flex flex-col gap-1'>
+            <Label.Root htmlFor='quotation'>Select From Quotation</Label.Root>
+            <QuotationSelect
+              value={formData.quotationId || ''}
+              onValueChange={(value) => handleImportChanged(value, 'quotation')}
+              placeholder='Select quotation'
+              status={QUOTATION_STATUS.ACCEPTED}
+              disabled={isInvoiceSelected} // Disable if invoice is selected
+            />
+            {isFetchingQuotation && (
+              <p className='text-xs mt-1 text-text-sub-600'>
+                Loading quotation data...
+              </p>
+            )}
+          </div>
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='invoice'>Select From Invoice</Label.Root>
             <InvoiceSelect
               value={formData.invoiceId || ''}
-              onValueChange={handleInvoiceChange}
+              onValueChange={(value) => handleImportChanged(value, 'invoice')}
               placeholder='Select invoice'
               status={[INVOICE_STATUS.PAID, INVOICE_STATUS.SENT]}
+              disabled={isQuotationSelected} // Disable if quotation is selected
             />
             {isFetchingInvoice && (
               <p className='text-xs mt-1 text-text-sub-600'>
@@ -322,7 +391,6 @@ export function DeliveryNoteForm({
               </p>
             )}
           </div>
-
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='deliveryDate'>
               Delivery Date <Label.Asterisk />
@@ -349,7 +417,6 @@ export function DeliveryNoteForm({
               </p>
             )}
           </div>
-
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='customer'>
               Customer <Label.Asterisk />
@@ -366,7 +433,6 @@ export function DeliveryNoteForm({
               </p>
             )}
           </div>
-
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='deliveryMethod'>Delivery Method</Label.Root>
             <Select.Root
@@ -387,7 +453,6 @@ export function DeliveryNoteForm({
               </Select.Content>
             </Select.Root>
           </div>
-
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='driverName'>Driver Name</Label.Root>
             <Input.Root>
@@ -404,7 +469,6 @@ export function DeliveryNoteForm({
               </Input.Wrapper>
             </Input.Root>
           </div>
-
           <div className='flex flex-col gap-1'>
             <Label.Root htmlFor='vehicleNumber'>Vehicle Number</Label.Root>
             <Input.Root>
@@ -421,7 +485,6 @@ export function DeliveryNoteForm({
               </Input.Wrapper>
             </Input.Root>
           </div>
-
           <div className='flex flex-col gap-1 md:col-span-2'>
             <Label.Root htmlFor='notes'>Notes</Label.Root>
             <Textarea.Root
@@ -433,19 +496,15 @@ export function DeliveryNoteForm({
           </div>
         </div>
       </div>
-
-      {/* Delivery Items */}
       <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
         <h3 className='text-lg mb-4 font-semibold text-text-strong-950'>
           Items
         </h3>
-
         {validationErrors.general && (
           <p className='text-sm mb-4 text-error-base'>
             {validationErrors.general}
           </p>
         )}
-
         {formData.items.length === 0 ? (
           <div className='py-8 text-center text-text-sub-600'>
             No items added yet. Click &quot;Add Item&quot; to get started or
@@ -491,7 +550,6 @@ export function DeliveryNoteForm({
                     </p>
                   )}
                 </div>
-
                 <div className='col-span-10 flex flex-col gap-1 lg:col-span-6'>
                   <Label.Root htmlFor={`quantity-${index}`}>
                     Quantity
@@ -516,7 +574,6 @@ export function DeliveryNoteForm({
                     </Input.Wrapper>
                   </Input.Root>
                 </div>
-
                 <div className='col-span-2 lg:col-span-1'>
                   <Button.Root
                     variant='error'
@@ -532,7 +589,6 @@ export function DeliveryNoteForm({
             ))}
           </div>
         )}
-
         <div className='mt-4 flex justify-end'>
           <Button.Root
             variant='neutral'
@@ -546,8 +602,6 @@ export function DeliveryNoteForm({
           </Button.Root>
         </div>
       </div>
-
-      {/* Form Actions */}
       <div className='flex justify-end space-x-3'>
         <Button.Root
           variant='neutral'

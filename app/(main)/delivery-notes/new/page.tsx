@@ -54,7 +54,7 @@ export default function NewDeliveryNotePage() {
       await createDeliveryNoteMutation.mutateAsync(data);
 
       console.log('Delivery note created successfully');
-      toast.success('Delivery note created successfully!');
+      // Toast is shown by DeliveryNoteForm component, no need to show it here
       router.push('/delivery-notes');
     } catch (error) {
       console.error('Create delivery note error:', error);

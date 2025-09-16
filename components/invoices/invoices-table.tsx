@@ -28,6 +28,7 @@ import {
 } from '@tanstack/react-table';
 import { toast } from 'sonner';
 
+import { formatCurrency } from '@/utils/number-formatter';
 import {
   useDeleteInvoice,
   useInvoices,
@@ -193,8 +194,7 @@ export function InvoicesTable({ filters, onPreview }: InvoicesTableProps) {
       ),
       cell: ({ row }) => (
         <div className='text-paragraph-sm text-text-sub-600'>
-          {row.original.currency}{' '}
-          {parseFloat(row.original.total).toLocaleString()}
+          {formatCurrency(row.original.total, row.original.currency)}
         </div>
       ),
     },

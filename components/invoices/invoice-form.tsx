@@ -19,10 +19,7 @@ import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { InvoiceFormData, type InvoiceItem } from '@/lib/validations/invoice';
-import {
-  formatNumberWithDots,
-  parseNumberFromDots,
-} from '@/utils/number-formatter';
+import { formatCurrency } from '@/utils/number-formatter';
 import { useInvoiceNumber } from '@/hooks/use-invoice-number';
 import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { useProducts } from '@/hooks/use-products';
@@ -178,7 +175,7 @@ export function InvoiceForm({
           productId: item.productId,
           name: item.name,
           quantity: item.quantity,
-          unitPrice: formatNumberWithDots(item.unitPrice),
+          unitPrice: item.unitPrice.toString(),
           additionalSpecs: item.additionalSpecs || '',
           category: item.category || '',
         })),
@@ -244,7 +241,7 @@ export function InvoiceForm({
   const calculateSubtotal = useCallback(() => {
     if (!formData) return 0;
     return formData.items.reduce((sum, item) => {
-      const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
       return sum + item.quantity * unitPrice;
     }, 0);
   }, [formData]);
@@ -666,9 +663,7 @@ export function InvoiceForm({
                                 productId: product.id,
                                 name: product.name,
                                 category: product.category || '',
-                                unitPrice: formatNumberWithDots(
-                                  product.price || 0,
-                                ),
+                                unitPrice: (product.price || 0).toString(),
                                 additionalSpecs:
                                   product.category === 'serialized' &&
                                   product.additionalSpecs
@@ -724,16 +719,13 @@ export function InvoiceForm({
                     </Label.Root>
                     <Input.Root>
                       <Input.Wrapper>
-                        <Input.Icon as={RiMoneyDollarCircleLine} />
                         <Input.Input
                           id={`unitPrice-${index}`}
-                          type='text'
-                          value={formatNumberWithDots(item.unitPrice)}
+                          type='number'
+                          min='0'
+                          value={item.unitPrice}
                           onChange={(e) => {
-                            const rawValue = parseNumberFromDots(
-                              e.target.value,
-                            );
-                            updateItem(index, 'unitPrice', rawValue);
+                            updateItem(index, 'unitPrice', e.target.value);
                           }}
                           placeholder='0'
                         />
@@ -743,11 +735,11 @@ export function InvoiceForm({
 
                   <div className='flex flex-col gap-1'>
                     <Label.Root>Total</Label.Root>
-                    <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-white-0 px-3 py-2 font-medium'>
-                      {(
-                        item.quantity *
-                        (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)
-                      ).toLocaleString()}
+                    <div className='text-sm px-3 py-2 font-medium'>
+                      {formatCurrency(
+                        item.quantity * (parseFloat(item.unitPrice) || 0),
+                        formData.currency,
+                      )}
                     </div>
                   </div>
 
@@ -813,22 +805,18 @@ export function InvoiceForm({
             <div className='flex justify-between'>
               <span>Subtotal:</span>
               <span>
-                {calculateSubtotal().toLocaleString()} {formData.currency}
+                {formatCurrency(calculateSubtotal(), formData.currency)}
               </span>
             </div>
             {formData.isIncludePPN && (
               <div className='flex justify-between'>
                 <span>PPN (11%):</span>
-                <span>
-                  {calculateTax().toLocaleString()} {formData.currency}
-                </span>
+                <span>{formatCurrency(calculateTax(), formData.currency)}</span>
               </div>
             )}
             <div className='flex justify-between border-t border-stroke-soft-200 pt-2 font-semibold'>
               <span>Total:</span>
-              <span>
-                {calculateTotal().toLocaleString()} {formData.currency}
-              </span>
+              <span>{formatCurrency(calculateTotal(), formData.currency)}</span>
             </div>
           </div>
         </div>

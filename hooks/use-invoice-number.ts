@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 async function fetchInvoiceNumber(): Promise<string> {
-  const response = await fetch(`/api/invoices/preview-number`, {
+  const response = await fetch(`/api/invoices/latest-number`, {
     cache: 'no-store',
   });
 

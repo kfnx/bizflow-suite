@@ -10,10 +10,7 @@ import {
   QuotationFormData,
   type QuotationItem,
 } from '@/lib/validations/quotation';
-import {
-  formatNumberWithDots,
-  parseNumberFromDots,
-} from '@/utils/number-formatter';
+import { formatCurrency } from '@/utils/number-formatter';
 import { useQuotationNumber } from '@/hooks/use-quotation-number';
 import {
   useCreateQuotation,
@@ -212,7 +209,7 @@ export function QuotationForm({
   const calculateSubtotal = useCallback(() => {
     if (!formData) return 0;
     return formData.items.reduce((sum, item) => {
-      const unitPrice = parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
       return sum + item.quantity * unitPrice;
     }, 0);
   }, [formData]);
@@ -243,8 +240,7 @@ export function QuotationForm({
         } else {
           const itemErrors: string[] = [];
           formData.items.forEach((item, index) => {
-            const unitPrice =
-              parseFloat(parseNumberFromDots(item.unitPrice)) || 0;
+            const unitPrice = parseFloat(item.unitPrice) || 0;
             if (!item.productId) {
               itemErrors[index] = 'Please select a product';
             } else if (item.quantity <= 0) {
@@ -547,9 +543,7 @@ export function QuotationForm({
                                 productId: product.id,
                                 name: product.name,
                                 category: product.category || '',
-                                unitPrice: formatNumberWithDots(
-                                  product.price || 0,
-                                ),
+                                unitPrice: (product.price || 0).toString(),
                                 additionalSpecs:
                                   product.category === 'serialized' &&
                                   product.additionalSpecs
@@ -617,13 +611,11 @@ export function QuotationForm({
                       <Input.Wrapper>
                         <Input.Input
                           id={`unitPrice-${index}`}
-                          type='text'
-                          value={formatNumberWithDots(item.unitPrice)}
+                          type='number'
+                          min='0'
+                          value={item.unitPrice}
                           onChange={(e) => {
-                            const rawValue = parseNumberFromDots(
-                              e.target.value,
-                            );
-                            updateItem(index, 'unitPrice', rawValue);
+                            updateItem(index, 'unitPrice', e.target.value);
                           }}
                           placeholder='0'
                           className={
@@ -638,11 +630,11 @@ export function QuotationForm({
 
                   <div className='flex flex-col gap-1'>
                     <Label.Root>Total</Label.Root>
-                    <div className='text-sm rounded-md border border-stroke-soft-200 bg-bg-white-0 px-3 py-2 font-medium'>
-                      {(
-                        item.quantity *
-                        (parseFloat(parseNumberFromDots(item.unitPrice)) || 0)
-                      ).toLocaleString()}
+                    <div className='text-sm px-3 py-2 font-medium'>
+                      {formatCurrency(
+                        item.quantity * (parseFloat(item.unitPrice) || 0),
+                        'IDR',
+                      )}
                     </div>
                   </div>
 
@@ -707,17 +699,17 @@ export function QuotationForm({
           <div className='text-sm space-y-2'>
             <div className='flex justify-between'>
               <span>Subtotal:</span>
-              <span>{calculateSubtotal().toLocaleString()} IDR</span>
+              <span>{formatCurrency(calculateSubtotal(), 'IDR')}</span>
             </div>
             {formData.isIncludePPN && (
               <div className='flex justify-between'>
                 <span>PPN (11%):</span>
-                <span>{calculateTax().toLocaleString()} IDR</span>
+                <span>{formatCurrency(calculateTax(), 'IDR')}</span>
               </div>
             )}
             <div className='flex justify-between border-t border-stroke-soft-200 pt-2 font-semibold'>
               <span>Total:</span>
-              <span>{calculateTotal().toLocaleString()} IDR</span>
+              <span>{formatCurrency(calculateTotal(), 'IDR')}</span>
             </div>
           </div>
         </div>

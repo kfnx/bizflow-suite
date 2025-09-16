@@ -54,7 +54,7 @@ export function MarkAsInvoiceModal({
     if (isOpen && !previewNumber) {
       const fetchPreviewNumber = async () => {
         try {
-          const response = await fetch('/api/invoices/preview-number');
+          const response = await fetch('/api/invoices/latest-number');
           if (response.ok) {
             const data = await response.json();
             setPreviewNumber(data.data.invoiceNumber);

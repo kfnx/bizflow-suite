@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { hasPermission } from '@/lib/permissions';
 import { QuotationFormData } from '@/lib/validations/quotation';
+import { Loading } from '@/components/ui/loading';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import Header from '@/components/header';
@@ -48,7 +49,7 @@ export default function NewQuotationPage() {
   if (status === 'loading') {
     return (
       <div className='flex h-full w-full items-center justify-center text-text-sub-600'>
-        Loading...
+        <Loading className='min-h-64' />
       </div>
     );
   }

@@ -9,12 +9,41 @@ export const compactNumFormatter = new Intl.NumberFormat('en-US', {
   compactDisplay: 'short',
 });
 
-export const formatCurrency = (amount: number, currency: string = 'USD') => {
-  return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (
+  amount: number | string,
+  currency: string = 'IDR',
+) => {
+  // Handle string inputs - convert to number
+  const numericAmount =
+    typeof amount === 'string' ? parseFloat(amount) : amount;
+
+  // Handle invalid numbers
+  if (isNaN(numericAmount)) {
+    return amount;
+  }
+
+  let locale = 'id-ID';
+
+  switch (currency) {
+    case 'USD':
+      locale = 'en-US';
+      break;
+    case 'RMB':
+      locale = 'zh-CN';
+      break;
+    case 'IDR':
+      locale = 'id-ID';
+      break;
+    default:
+      // For unknown currencies, use default locale
+      locale = 'id-ID';
+  }
+
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: currency || 'USD',
+    currency: currency,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(numericAmount);
 };
 
 export const formatNumberWithDots = (value: string | number): string => {
@@ -26,7 +55,12 @@ export const formatNumberWithDots = (value: string | number): string => {
   // Format the integer part with dots as thousand separators
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-  return parts.join('.');
+  // For Indonesian format: dots for thousands, comma for decimal
+  if (parts.length > 1) {
+    return parts[0] + ',' + parts[1];
+  }
+
+  return parts[0];
 };
 
 export const parseNumberFromDots = (value: string): string => {

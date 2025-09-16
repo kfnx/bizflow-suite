@@ -8,6 +8,7 @@ import {
 } from '@remixicon/react';
 
 import { cnExt } from '@/utils/cn';
+import { formatCurrency } from '@/utils/number-formatter';
 import { useProducts } from '@/hooks/use-products';
 import type { ProductWithRelations } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
@@ -147,7 +148,7 @@ export function ProductSelect({
                         {product.price && (
                           <>
                             <span>•</span>
-                            <span>{product.price.toLocaleString()}</span>
+                            <span>{formatCurrency(product.price)}</span>
                           </>
                         )}
                       </div>

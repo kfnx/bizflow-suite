@@ -28,7 +28,7 @@ export const formatCurrency = (
     case 'USD':
       locale = 'en-US';
       break;
-    case 'RMB':
+    case 'CNY':
       locale = 'zh-CN';
       break;
     case 'IDR':

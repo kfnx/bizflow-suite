@@ -31,6 +31,7 @@ import {
 } from '@tanstack/react-table';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
+import { formatCurrency } from '@/utils/number-formatter';
 import {
   useDeleteImport,
   useImports,
@@ -132,13 +133,6 @@ export function ImportsTable({
         console.error('Error verifying import:', error);
       }
     }
-  };
-
-  const formatCurrency = (amount: number, currency: string = 'RMB') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === 'RMB' ? 'CNY' : currency,
-    }).format(amount);
   };
 
   const columns: ColumnDef<Import>[] = [

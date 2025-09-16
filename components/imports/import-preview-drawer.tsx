@@ -8,6 +8,7 @@ import {
 } from '@remixicon/react';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
+import { formatCurrency } from '@/utils/number-formatter';
 import { Import, useDeleteImport, useImport } from '@/hooks/use-imports';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -106,13 +107,6 @@ interface ImportPreviewContentProps {
 }
 
 function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
-  const formatCurrency = (amount: number, currency: string = 'RMB') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === 'RMB' ? 'CNY' : currency,
-    }).format(amount);
-  };
-
   const renderDetailField = (label: string, value: string | number) => (
     <div>
       <div className='text-subheading-xs uppercase text-text-soft-400'>

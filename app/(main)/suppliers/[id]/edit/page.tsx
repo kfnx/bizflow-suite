@@ -65,7 +65,7 @@ export default function EditSupplierPage({ params }: EditSupplierPageProps) {
     province: '',
     country: '',
     postalCode: '',
-    transactionCurrency: 'RMB',
+    transactionCurrency: 'CNY',
     isActive: true,
     contactPersons: [{ prefix: 'Bapak', name: '', email: '', phone: '' }],
   });

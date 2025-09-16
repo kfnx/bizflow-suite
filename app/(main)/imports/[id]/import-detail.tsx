@@ -11,6 +11,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 
 import { IMPORT_STATUS } from '@/lib/db/enum';
+import { formatCurrency } from '@/utils/number-formatter';
 import {
   useDeleteImport,
   useImport,
@@ -76,13 +77,6 @@ export function ImportDetail({ id }: ImportDetailProps) {
     } finally {
       setIsVerifying(false);
     }
-  };
-
-  const formatCurrency = (amount: number, currency: string = 'RMB') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === 'RMB' ? 'CNY' : currency,
-    }).format(amount);
   };
 
   const getStatusBadgeVariant = (status: IMPORT_STATUS) => {
@@ -402,7 +396,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
                         label='Subtotal (RMB)'
                         value={formatCurrency(
                           parseFloat(item.priceRMB) * item.quantity,
-                          'RMB',
+                          'CNY',
                         )}
                       />
                       <DetailItem

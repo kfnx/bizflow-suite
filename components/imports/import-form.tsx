@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 
 import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import {
+  formatCurrency,
   formatNumberWithDots,
   parseNumberFromDots,
 } from '@/utils/number-formatter';
@@ -120,6 +121,22 @@ function ProductItemForm({
         if (unitUoM) {
           updatedItem.unitOfMeasureId = unitUoM.id;
         }
+      }
+      onUpdate(updatedItem);
+    } else if (field === 'partNumber') {
+      // Auto-fill name when part number is selected
+      const selectedPartNumber = partNumbers.find((pn) => pn.id === value);
+      const updatedItem = { ...item, [field]: value };
+      if (selectedPartNumber && !item.name.trim()) {
+        updatedItem.name = selectedPartNumber.name;
+      }
+      onUpdate(updatedItem);
+    } else if (field === 'machineModel') {
+      // Auto-fill name when machine model is selected
+      const selectedMachineModel = machineModel.find((mm) => mm.id === value);
+      const updatedItem = { ...item, [field]: value };
+      if (selectedMachineModel && !item.name.trim()) {
+        updatedItem.name = selectedMachineModel.name;
       }
       onUpdate(updatedItem);
     } else {
@@ -491,22 +508,14 @@ year 2023`}
           )}
         </div>
         <div className='col-span-5 flex flex-col gap-2'>
-          <Label.Root htmlFor={`totalRMB-${index}`}>Total (RMB)</Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`totalRMB-${index}`}
-                type='text'
-                value={formatNumberWithDots(
-                  (
-                    (parseFloat(item.quantity) || 0) *
-                    (parseFloat(item.priceRMB) || 0)
-                  ).toFixed(2),
-                )}
-                readOnly
-              />
-            </Input.Wrapper>
-          </Input.Root>
+          <Label.Root htmlFor={`totalRMB-${index}`}>Total (CNY)</Label.Root>
+          <div className='text-sm px-3 py-2 font-medium'>
+            {formatCurrency(
+              (parseFloat(item.quantity) || 0) *
+                (parseFloat(item.priceRMB) || 0),
+              'CNY',
+            )}
+          </div>
         </div>
         <div className='col-span-2 flex flex-col gap-2'>
           <Label.Root htmlFor={`unit-${index}`}>
@@ -557,22 +566,14 @@ year 2023`}
         </div>
         <div className='col-span-5 flex flex-col gap-2'>
           <Label.Root htmlFor={`totalIDR-${index}`}>Total (IDR)</Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`totalIDR-${index}`}
-                type='text'
-                value={formatNumberWithDots(
-                  (
-                    (parseFloat(item.quantity) || 0) *
-                    (parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0)
-                  ).toFixed(0),
-                )}
-                readOnly
-              />
-            </Input.Wrapper>
-          </Input.Root>
+          <div className='text-sm px-3 py-2 font-medium'>
+            {formatCurrency(
+              (parseFloat(item.quantity) || 0) *
+                (parseFloat(item.priceRMB) || 0) *
+                (parseFloat(exchangeRateRMBtoIDR) || 0),
+              'IDR',
+            )}
+          </div>
         </div>
       </div>
     </div>

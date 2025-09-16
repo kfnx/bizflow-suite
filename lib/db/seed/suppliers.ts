@@ -57,7 +57,7 @@ export const suppliers = [
     city: 'Jakarta',
     province: 'DKI Jakarta',
     postalCode: '10110',
-    transactionCurrency: 'RMB',
+    transactionCurrency: 'CNY',
     isActive: true,
   },
   {

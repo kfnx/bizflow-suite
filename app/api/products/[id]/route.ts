@@ -7,9 +7,7 @@ import {
   brands,
   machineTypes,
   products,
-  suppliers,
   unitOfMeasures,
-  warehouses,
 } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
@@ -44,30 +42,19 @@ export async function GET(
         partNumber: products.partNumber,
         machineModel: products.machineModel,
         engineNumber: products.engineNumber,
-        quantity: products.quantity,
         name: products.name,
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,
         additionalSpecs: products.additionalSpecs,
-        condition: products.condition,
-        status: products.status,
         price: products.price,
-        warehouseId: products.warehouseId,
-        warehouseName: warehouses.name,
-        supplierId: products.supplierId,
-        supplierName: suppliers.name,
-        supplierCode: suppliers.code,
-        importNotes: products.importNotes,
         isActive: products.isActive,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
       })
       .from(products)
-      .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
       .leftJoin(brands, eq(products.brandId, brands.id))
       .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
       .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
-      .leftJoin(warehouses, eq(products.warehouseId, warehouses.id))
       .where(eq(products.id, id))
       .limit(1);
 
@@ -116,12 +103,7 @@ export async function PUT(
         additionalSpecs: body.additionalSpecs,
         partNumber: body.partNumber,
         batchOrLotNumber: body.batchOrLotNumber,
-        condition: body.condition,
-        status: body.status,
         price: body.price,
-        warehouseId: body.warehouseId,
-        supplierId: body.supplierId,
-        importNotes: body.importNotes,
         isActive: body.isActive,
       })
       .where(eq(products.id, id));
@@ -147,25 +129,15 @@ export async function PUT(
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,
         additionalSpecs: products.additionalSpecs,
-        condition: products.condition,
-        status: products.status,
         price: products.price,
-        warehouseId: products.warehouseId,
-        warehouseName: warehouses.name,
-        supplierId: products.supplierId,
-        supplierName: suppliers.name,
-        supplierCode: suppliers.code,
-        importNotes: products.importNotes,
         isActive: products.isActive,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
       })
       .from(products)
-      .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
       .leftJoin(brands, eq(products.brandId, brands.id))
       .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
       .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
-      .leftJoin(warehouses, eq(products.warehouseId, warehouses.id))
       .where(eq(products.id, id))
       .limit(1);
 

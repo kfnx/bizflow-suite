@@ -12,7 +12,7 @@ import {
   RiStoreLine,
 } from '@remixicon/react';
 
-import { PRODUCT_CATEGORY, PRODUCT_CONDITION } from '@/lib/db/enum';
+import { PRODUCT_CATEGORY } from '@/lib/db/enum';
 import { useProduct, useUpdateProduct } from '@/hooks/use-products';
 import type { UpdateProductData } from '@/hooks/use-products';
 import * as Button from '@/components/ui/button';
@@ -43,7 +43,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const [formData, setFormData] = useState<UpdateProductData>({
     name: '',
     description: '',
-    condition: 'new',
     machineNumber: '',
     engineNumber: '',
   });
@@ -59,7 +58,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         name: product.name || '',
         description: product.description || '',
         category: product.category || 'serialized',
-        condition: product.condition || 'new',
         brandId: product.brandId || '',
         machineTypeId: product.machineTypeId || '',
         unitOfMeasureId: product.unitOfMeasureId || '',
@@ -67,8 +65,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         machineNumber: product.machineNumber || '',
         engineNumber: product.engineNumber || '',
         batchOrLotNumber: product.batchOrLotNumber || '',
-        supplierId: product.supplierId || '',
-        warehouseId: product.warehouseId || '',
       });
     }
   }, [product, isLoadingProduct]);
@@ -88,10 +84,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
     // Client-side validation
     const errors: Record<string, string> = {};
-
-    if (!formData.condition) {
-      errors.condition = 'Condition is required';
-    }
 
     // Category-specific validation
     if (formData.category === 'serialized') {
@@ -254,7 +246,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                 Basic Information
               </h3>
 
-              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='grid grid-cols-1 gap-6'>
                 <div className='flex flex-col gap-2'>
                   <Label.Root htmlFor='name'>
                     Name <Label.Asterisk />
@@ -279,37 +271,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   )}
                 </div>
 
-                <div className='flex flex-col gap-2'>
-                  <Label.Root htmlFor='condition'>
-                    Condition <Label.Asterisk />
-                  </Label.Root>
-                  <Select.Root
-                    value={formData.condition || ''}
-                    onValueChange={(value) =>
-                      handleInputChange('condition', value)
-                    }
-                  >
-                    <Select.Trigger id='condition'>
-                      <Select.Value placeholder='Select condition' />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value={PRODUCT_CONDITION.NEW}>
-                        New
-                      </Select.Item>
-                      <Select.Item value={PRODUCT_CONDITION.USED}>
-                        Used
-                      </Select.Item>
-                      <Select.Item value={PRODUCT_CONDITION.REFURBISHED}>
-                        Refurbished
-                      </Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                  {validationErrors.condition && (
-                    <div className='text-xs text-red-600'>
-                      {validationErrors.condition}
-                    </div>
-                  )}
-                </div>
               </div>
 
               <div className='mt-6'>

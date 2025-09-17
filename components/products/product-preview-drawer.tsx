@@ -3,10 +3,9 @@
 import {
   RiBuildingLine,
   RiExternalLinkLine,
-  RiMapPinLine,
 } from '@remixicon/react';
 
-import { type Product } from '@/lib/db/schema';
+import { formatCurrency } from '@/utils/number-formatter';
 import { type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -14,49 +13,10 @@ import * as Divider from '@/components/ui/divider';
 import * as Drawer from '@/components/ui/drawer';
 
 interface ProductPreviewDrawerProps {
-  product: Product | null;
+  product: ProductWithRelations | null;
   open: boolean;
   onClose: () => void;
 }
-
-const statusConfig = {
-  in_stock: {
-    label: 'In Stock',
-    variant: 'lighter' as const,
-    color: 'green' as const,
-  },
-  out_of_stock: {
-    label: 'Out of Stock',
-    variant: 'lighter' as const,
-    color: 'red' as const,
-  },
-};
-
-const conditionConfig = {
-  new: {
-    label: 'New',
-    variant: 'lighter' as const,
-    color: 'green' as const,
-  },
-  used: {
-    label: 'Used',
-    variant: 'lighter' as const,
-    color: 'orange' as const,
-  },
-  refurbished: {
-    label: 'Refurbished',
-    variant: 'lighter' as const,
-    color: 'blue' as const,
-  },
-};
-
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
 
 function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
   return (
@@ -83,36 +43,6 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               {product.machineNumber && ` • Machine: ${product.machineNumber}`}
             </div>
           </div>
-          <div className='ml-4 flex flex-col gap-2'>
-            <Badge.Root
-              variant={
-                statusConfig[product.status as keyof typeof statusConfig]
-                  ?.variant
-              }
-              color={
-                statusConfig[product.status as keyof typeof statusConfig]?.color
-              }
-            >
-              {statusConfig[product.status as keyof typeof statusConfig]
-                ?.label || product.status}
-            </Badge.Root>
-            <Badge.Root
-              variant={
-                conditionConfig[
-                  product.condition as keyof typeof conditionConfig
-                ]?.variant
-              }
-              color={
-                conditionConfig[
-                  product.condition as keyof typeof conditionConfig
-                ]?.color
-              }
-            >
-              {conditionConfig[
-                product.condition as keyof typeof conditionConfig
-              ]?.label || product.condition}
-            </Badge.Root>
-          </div>
         </div>
 
         <div className='text-title-h5 text-text-strong-950'>
@@ -123,27 +53,6 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
       <Divider.Root variant='solid-text'>Details</Divider.Root>
 
       <div className='flex flex-col gap-3 p-5'>
-        <div>
-          <div className='text-subheading-xs uppercase text-text-soft-400'>
-            Location & Supplier
-          </div>
-          <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
-            <RiMapPinLine className='size-4 text-text-soft-400' />
-            {product.warehouseName || 'No warehouse assigned'}
-          </div>
-          <div className='mt-1 flex items-center gap-1 text-label-sm text-text-strong-950'>
-            <RiBuildingLine className='size-4 text-text-soft-400' />
-            {product.supplierName || 'No supplier assigned'}
-            {product.supplierCode && (
-              <div className='mr-1 text-paragraph-sm text-text-soft-400'>
-                {product.supplierCode}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <Divider.Root variant='line-spacing' />
-
         {/* Category-specific details */}
         {product.category === 'serialized' && (
           <div>
@@ -317,6 +226,50 @@ function ProductPreviewContent({ product }: { product: ProductWithRelations }) {
               ? new Date(product.createdAt).toLocaleDateString()
               : '-'}
           </div>
+        </div>
+
+        <Divider.Root variant='line-spacing' />
+
+        {/* Warehouse Stock Information */}
+        <div>
+          <div className='text-subheading-xs uppercase text-text-soft-400'>
+            Warehouse Stock
+          </div>
+          {product.warehouseStockId ? (
+            <div className='mt-1 space-y-2'>
+              <div className='flex items-center justify-between text-paragraph-sm'>
+                <div className='flex items-center gap-1'>
+                  <RiBuildingLine className='size-4 text-text-soft-400' />
+                  <span className='text-text-sub-600'>
+                    {product.warehouseName || 'Unknown Warehouse'}
+                  </span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <Badge.Root
+                    variant='lighter'
+                    color={
+                      product.condition === 'new'
+                        ? 'green'
+                        : product.condition === 'used'
+                        ? 'orange'
+                        : product.condition === 'refurbished'
+                        ? 'blue'
+                        : 'gray'
+                    }
+                  >
+                    {product.condition}
+                  </Badge.Root>
+                  <span className='font-medium text-text-strong-950'>
+                    {product.quantity?.toLocaleString() || 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className='mt-1 text-label-sm text-text-soft-400'>
+              No warehouse stock available
+            </div>
+          )}
         </div>
 
         <Divider.Root variant='line-spacing' />

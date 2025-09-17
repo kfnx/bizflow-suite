@@ -31,6 +31,7 @@ import { toast } from 'sonner';
 import { QUOTATION_STATUS } from '@/lib/db/enum';
 import { type Quotation } from '@/lib/db/schema';
 import { cn } from '@/utils/cn';
+import { formatCurrency } from '@/utils/number-formatter';
 import {
   QuotationListItem,
   useQuotations,
@@ -51,14 +52,6 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'desc')
     return <RiArrowDownSFill className='size-5 text-text-sub-600' />;
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
-};
-
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount);
 };
 
 function ActionCell({

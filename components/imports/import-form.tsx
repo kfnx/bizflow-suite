@@ -458,7 +458,7 @@ year 2023`}
         </div>
       )}
 
-      {/* Common fields for all categories: QTY, Unit Price (RMB), Total (RMB), Unit (IDR), Total (IDR) */}
+      {/* Common fields for all categories: QTY, Unit Price (CNY), Total (CNY), Unit (IDR), Total (IDR) */}
       <div className='mt-4 grid grid-cols-12 gap-6'>
         <div className='col-span-2 flex flex-col gap-2'>
           <Label.Root htmlFor={`quantity-${index}`}>
@@ -485,7 +485,7 @@ year 2023`}
         </div>
         <div className='col-span-5 flex flex-col gap-2'>
           <Label.Root htmlFor={`priceRMB-${index}`}>
-            Price (RMB) <Label.Asterisk />
+            Price (CNY) <Label.Asterisk />
           </Label.Root>
           <Input.Root>
             <Input.Wrapper>
@@ -1158,7 +1158,7 @@ export function ImportForm({
 
               <div className='flex flex-col gap-2'>
                 <Label.Root htmlFor='exchangeRateRMBtoIDR'>
-                  Exchange Rate (RMB to IDR) <Label.Asterisk />
+                  Exchange Rate (CNY to IDR) <Label.Asterisk />
                 </Label.Root>
                 <Input.Root>
                   <Input.Wrapper>
@@ -1259,7 +1259,7 @@ export function ImportForm({
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
                   <span className='text-paragraph-sm text-text-sub-600'>
-                    Subtotal (RMB):
+                    Subtotal (CNY):
                   </span>
                   <span className='text-paragraph-sm text-text-strong-950'>
                     ¥{calculateSubtotal().toFixed(2)}
@@ -1270,7 +1270,7 @@ export function ImportForm({
                     Exchange Rate:
                   </span>
                   <span className='text-paragraph-sm text-text-strong-950'>
-                    {formData.exchangeRateRMBtoIDR || '0'} IDR per RMB
+                    {formData.exchangeRateRMBtoIDR || '0'} IDR per CNY
                   </span>
                 </div>
                 <Divider.Root />

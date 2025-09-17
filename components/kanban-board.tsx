@@ -11,6 +11,7 @@ import {
   RiUser3Line,
 } from '@remixicon/react';
 
+import { formatCurrency } from '@/utils/number-formatter';
 import { useKanban } from '@/hooks/use-kanban';
 
 interface KanbanCardProps {
@@ -52,15 +53,6 @@ const formatStatusLabel = (status: string): string => {
     .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-};
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
 };
 
 function KanbanCard({

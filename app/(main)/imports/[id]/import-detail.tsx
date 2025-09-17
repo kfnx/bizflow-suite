@@ -254,7 +254,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
 
             <div>
               <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Exchange Rate (RMB to IDR)
+                Exchange Rate (CNY to IDR)
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
                 {importData.exchangeRateRMBtoIDR}
@@ -393,7 +393,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
                       )}
 
                       <DetailItem
-                        label='Subtotal (RMB)'
+                        label='Subtotal (CNY)'
                         value={formatCurrency(
                           parseFloat(item.priceRMB) * item.quantity,
                           'CNY',
@@ -426,7 +426,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
               </div>
               <div className='mt-2 flex items-center justify-between text-paragraph-sm text-text-sub-600'>
                 <span>
-                  Subtotal (RMB):{' '}
+                  Subtotal (CNY):{' '}
                   {formatCurrency(
                     importData.items.reduce(
                       (sum, item) =>
@@ -436,7 +436,7 @@ export function ImportDetail({ id }: ImportDetailProps) {
                   )}
                 </span>
                 <span>
-                  Exchange Rate: {importData.exchangeRateRMBtoIDR} IDR per RMB
+                  Exchange Rate: {importData.exchangeRateRMBtoIDR} IDR per CNY
                 </span>
               </div>
             </div>

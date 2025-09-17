@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
+import { formatCurrency } from '@/utils/number-formatter';
 import {
   useMarkQuotationAsInvoiced,
   useQuotationDetail,
@@ -32,15 +33,6 @@ interface QuotationPreviewDrawerProps {
   open: boolean;
   onClose: () => void;
 }
-
-const formatCurrency = (amount: string, currency: string) => {
-  const numAmount = parseFloat(amount);
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(numAmount);
-};
 
 const renderDetailField = (label: string, value: string | number) => (
   <div>

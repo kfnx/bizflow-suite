@@ -13,6 +13,7 @@ import {
 import { toast } from 'sonner';
 
 import { QUOTATION_STATUS } from '@/lib/db/enum';
+import { formatCurrency } from '@/utils/number-formatter';
 import {
   isQuotationInvoiced,
   QuotationDetail,
@@ -65,15 +66,6 @@ const statusConfig = {
     variant: 'lighter' as const,
     color: 'orange' as const,
   },
-};
-
-const formatCurrency = (amount: string, currency: string) => {
-  const numAmount = parseFloat(amount);
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(numAmount);
 };
 
 export function QuotationHeader({ quotation }: QuotationHeaderProps) {

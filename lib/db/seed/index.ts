@@ -19,6 +19,7 @@ import { supplierContactPersons, suppliers } from './suppliers';
 import { transferItems, transfers } from './transfers';
 import { unitOfMeasures } from './unit-of-measures';
 import { users } from './users';
+import { warehouseStocks } from './warehouse-stocks';
 import { warehouses } from './warehouses';
 
 async function main() {
@@ -94,61 +95,67 @@ async function main() {
 
   await insertWithErrorHandling(schema.products, products, 'products');
 
-  await insertWithErrorHandling(schema.quotations, quotations, 'quotations');
-
   await insertWithErrorHandling(
-    schema.quotationItems,
-    quotationItems,
-    'quotation items',
+    schema.warehouseStocks,
+    warehouseStocks,
+    'warehouse stocks',
   );
 
-  await insertWithErrorHandling(schema.invoices, invoices, 'invoices');
+  // await insertWithErrorHandling(schema.quotations, quotations, 'quotations');
 
-  await insertWithErrorHandling(
-    schema.invoiceItems,
-    invoiceItems,
-    'invoice items',
-  );
+  // await insertWithErrorHandling(
+  //   schema.quotationItems,
+  //   quotationItems,
+  //   'quotation items',
+  // );
 
-  await insertWithErrorHandling(
-    schema.deliveryNotes,
-    deliveryNotes,
-    'delivery notes',
-  );
+  // await insertWithErrorHandling(schema.invoices, invoices, 'invoices');
 
-  await insertWithErrorHandling(
-    schema.deliveryNoteItems,
-    deliveryNoteItems,
-    'delivery note items',
-  );
+  // await insertWithErrorHandling(
+  //   schema.invoiceItems,
+  //   invoiceItems,
+  //   'invoice items',
+  // );
 
-  await insertWithErrorHandling(schema.imports, imports, 'imports');
+  // await insertWithErrorHandling(
+  //   schema.deliveryNotes,
+  //   deliveryNotes,
+  //   'delivery notes',
+  // );
 
-  await insertWithErrorHandling(
-    schema.importItems,
-    importItems,
-    'import items',
-  );
+  // await insertWithErrorHandling(
+  //   schema.deliveryNoteItems,
+  //   deliveryNoteItems,
+  //   'delivery note items',
+  // );
 
-  await insertWithErrorHandling(schema.transfers, transfers, 'transfers');
+  // await insertWithErrorHandling(schema.imports, imports, 'imports');
 
-  await insertWithErrorHandling(
-    schema.transferItems,
-    transferItems,
-    'transfer items',
-  );
+  // await insertWithErrorHandling(
+  //   schema.importItems,
+  //   importItems,
+  //   'import items',
+  // );
 
-  await insertWithErrorHandling(schema.roles, roles, 'roles');
+  // await insertWithErrorHandling(schema.transfers, transfers, 'transfers');
 
-  await insertWithErrorHandling(schema.permissions, permissions, 'permissions');
+  // await insertWithErrorHandling(
+  //   schema.transferItems,
+  //   transferItems,
+  //   'transfer items',
+  // );
 
-  await insertWithErrorHandling(
-    schema.rolePermissions,
-    rolePermissions,
-    'role permissions',
-  );
+  // await insertWithErrorHandling(schema.roles, roles, 'roles');
 
-  await insertWithErrorHandling(schema.userRoles, userRoles, 'user roles');
+  // await insertWithErrorHandling(schema.permissions, permissions, 'permissions');
+
+  // await insertWithErrorHandling(
+  //   schema.rolePermissions,
+  //   rolePermissions,
+  //   'role permissions',
+  // );
+
+  // await insertWithErrorHandling(schema.userRoles, userRoles, 'user roles');
 
   console.log('🎉 Finished seeding!');
 

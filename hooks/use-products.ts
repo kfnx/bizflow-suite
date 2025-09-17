@@ -5,7 +5,18 @@ import { toast } from 'sonner';
 
 import type { Product } from '@/lib/db/schema';
 
-// Extended Product type that includes joined data from API responses
+// Warehouse stock data for a product
+export type WarehouseStock = {
+  id: string;
+  warehouseId: string;
+  warehouseName?: string | null;
+  quantity: number;
+  condition: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// Flattened Product type that includes warehouse data for each row
 export type ProductWithRelations = Product & {
   brandId?: string | null;
   brandName?: string | null;
@@ -19,11 +30,14 @@ export type ProductWithRelations = Product & {
   engineNumber?: string | null;
   batchOrLotNumber?: string | null;
   serialNumber?: string | null;
+  // Warehouse stock data for this specific row
+  warehouseStockId?: string | null;
   warehouseId?: string | null;
   warehouseName?: string | null;
-  supplierId?: string | null;
-  supplierName?: string | null;
-  supplierCode?: string | null;
+  quantity: number;
+  condition: string;
+  stockCreatedAt?: Date | null;
+  stockUpdatedAt?: Date | null;
 };
 
 export type ProductsResponse = {
@@ -38,10 +52,8 @@ export type ProductsResponse = {
 
 export type ProductsFilters = {
   search?: string;
-  status?: string;
   category?: string;
   brandId?: string;
-  supplierId?: string;
   warehouseId?: string;
   condition?: string;
   sortBy?: string;
@@ -55,14 +67,10 @@ const fetchProducts = async (
   const params = new URLSearchParams();
 
   if (filters.search) params.append('search', filters.search);
-  if (filters.status && filters.status !== 'all')
-    params.append('status', filters.status);
   if (filters.category && filters.category !== 'all')
     params.append('category', filters.category);
   if (filters.brandId && filters.brandId !== 'all')
     params.append('brandId', filters.brandId);
-  if (filters.supplierId && filters.supplierId !== 'all')
-    params.append('supplierId', filters.supplierId);
   if (filters.warehouseId && filters.warehouseId !== 'all')
     params.append('warehouseId', filters.warehouseId);
   if (filters.condition && filters.condition !== 'all')

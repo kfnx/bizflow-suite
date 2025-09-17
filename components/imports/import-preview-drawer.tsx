@@ -173,7 +173,7 @@ function ImportPreviewContent({ importData }: ImportPreviewContentProps) {
                 importData.billOfLadingNumber,
               )}
             {renderDetailField(
-              'Subtotal (RMB)',
+              'Subtotal (CNY)',
               formatCurrency(
                 importData.items?.reduce(
                   (sum, item) =>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, asc, desc, eq, like, or } from 'drizzle-orm';
+import { and, asc, desc, eq, like, or, sum } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
 import { PRODUCT_CATEGORY } from '@/lib/db/enum';
@@ -8,8 +8,8 @@ import {
   machineTypes,
   ProductQueryParams,
   products,
-  suppliers,
   unitOfMeasures,
+  warehouseStocks,
   warehouses,
 } from '@/lib/db/schema';
 
@@ -21,12 +21,10 @@ export async function GET(request: NextRequest) {
 
     // Parse query parameters
     const search = searchParams.get('search') || undefined;
-    const status = searchParams.get('status') || undefined;
     const category = searchParams.get('category') || undefined;
     const brand = searchParams.get('brand') || undefined;
-    const condition = searchParams.get('condition') || undefined;
-    const supplierId = searchParams.get('supplierId') || undefined;
     const warehouseId = searchParams.get('warehouseId') || undefined;
+    const condition = searchParams.get('condition') || undefined;
     const sortBy =
       (searchParams.get('sortBy') as ProductQueryParams['sortBy']) || undefined;
     const page = parseInt(searchParams.get('page') || '1');
@@ -38,23 +36,17 @@ export async function GET(request: NextRequest) {
 
     // Build query conditions
     const conditions = [];
-    if (status && status !== 'all') {
-      conditions.push(eq(products.status, status));
-    }
     if (category && category !== 'all') {
       conditions.push(eq(products.category, category as PRODUCT_CATEGORY));
     }
     if (brand && brand !== 'all') {
       conditions.push(eq(products.brandId, brand));
     }
-    if (condition && condition !== 'all') {
-      conditions.push(eq(products.condition, condition));
-    }
-    if (supplierId && supplierId !== 'all') {
-      conditions.push(eq(products.supplierId, supplierId));
-    }
     if (warehouseId && warehouseId !== 'all') {
-      conditions.push(eq(products.warehouseId, warehouseId));
+      conditions.push(eq(warehouseStocks.warehouseId, warehouseId));
+    }
+    if (condition && condition !== 'all') {
+      conditions.push(eq(warehouseStocks.condition, condition));
     }
     if (search) {
       conditions.push(
@@ -108,13 +100,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch products with related data
+    // Fetch products with warehouse inventory data
     const query = db
       .select({
         id: products.id,
         name: products.name,
         code: products.code,
-        quantity: products.quantity,
         description: products.description,
         category: products.category,
         brandId: products.brandId,
@@ -130,24 +121,25 @@ export async function GET(request: NextRequest) {
         batchOrLotNumber: products.batchOrLotNumber,
         serialNumber: products.serialNumber,
         additionalSpecs: products.additionalSpecs,
-        condition: products.condition,
-        status: products.status,
-        warehouseId: products.warehouseId,
-        warehouseName: warehouses.name,
         price: products.price,
-        supplierId: products.supplierId,
-        supplierName: suppliers.name,
-        supplierCode: suppliers.code,
         isActive: products.isActive,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
+        // Warehouse inventory data
+        warehouseStockId: warehouseStocks.id,
+        warehouseId: warehouseStocks.warehouseId,
+        warehouseName: warehouses.name,
+        quantity: warehouseStocks.quantity,
+        condition: warehouseStocks.condition,
+        stockCreatedAt: warehouseStocks.createdAt,
+        stockUpdatedAt: warehouseStocks.updatedAt,
       })
       .from(products)
-      .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
       .leftJoin(brands, eq(products.brandId, brands.id))
       .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
       .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
-      .leftJoin(warehouses, eq(products.warehouseId, warehouses.id))
+      .leftJoin(warehouseStocks, eq(products.id, warehouseStocks.productId))
+      .leftJoin(warehouses, eq(warehouseStocks.warehouseId, warehouses.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(orderByClause);
 
@@ -156,18 +148,55 @@ export async function GET(request: NextRequest) {
       query.limit(limit).offset(offset);
     }
 
-    const productsData = await query;
+    const rawData = await query;
 
-    // Get total count for pagination
-    const totalCount = await db
+    // Transform data to flatten product-warehouse combinations
+    const productsData = rawData.map((row) => ({
+      id: row.id,
+      name: row.name,
+      code: row.code,
+      description: row.description,
+      category: row.category,
+      brandId: row.brandId,
+      brandName: row.brandName,
+      machineTypeId: row.machineTypeId,
+      machineTypeName: row.machineTypeName,
+      unitOfMeasureId: row.unitOfMeasureId,
+      unitOfMeasureName: row.unitOfMeasureName,
+      unitOfMeasureAbbreviation: row.unitOfMeasureAbbreviation,
+      partNumber: row.partNumber,
+      machineModel: row.machineModel,
+      engineNumber: row.engineNumber,
+      batchOrLotNumber: row.batchOrLotNumber,
+      serialNumber: row.serialNumber,
+      additionalSpecs: row.additionalSpecs,
+      price: row.price,
+      isActive: row.isActive,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      // Warehouse stock data for this specific product-warehouse combination
+      warehouseStockId: row.warehouseStockId,
+      warehouseId: row.warehouseId,
+      warehouseName: row.warehouseName || 'No Warehouse',
+      quantity: row.quantity || 0,
+      condition: row.condition || 'unknown',
+      stockCreatedAt: row.stockCreatedAt,
+      stockUpdatedAt: row.stockUpdatedAt,
+    }));
+
+    // Get total count for pagination (count all product-warehouse combinations)
+    const totalCountQuery = db
       .select({ count: products.id })
       .from(products)
-      .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
       .leftJoin(brands, eq(products.brandId, brands.id))
       .leftJoin(machineTypes, eq(products.machineTypeId, machineTypes.id))
       .leftJoin(unitOfMeasures, eq(products.unitOfMeasureId, unitOfMeasures.id))
-      .leftJoin(warehouses, eq(products.warehouseId, warehouses.id))
+      .leftJoin(warehouseStocks, eq(products.id, warehouseStocks.productId))
+      .leftJoin(warehouses, eq(warehouseStocks.warehouseId, warehouses.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const totalCountResult = await totalCountQuery;
+    const totalCount = totalCountResult.length;
 
     return NextResponse.json({
       data: productsData,
@@ -181,8 +210,8 @@ export async function GET(request: NextRequest) {
         : {
             page,
             limit,
-            total: totalCount.length,
-            totalPages: Math.ceil(totalCount.length / limit),
+            total: totalCount,
+            totalPages: Math.ceil(totalCount / limit),
           },
     });
   } catch (error) {

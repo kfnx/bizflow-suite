@@ -213,29 +213,6 @@ export async function getImportWithItems(importId: string) {
   };
 }
 
-// Utility function to get product with supplier
-export async function getProductWithSupplier(productId: string) {
-  const product = await db
-    .select({
-      id: products.id,
-      name: products.name,
-      description: products.description,
-      category: products.category,
-      unitOfMeasureId: products.unitOfMeasureId,
-      price: products.price,
-      isActive: products.isActive,
-      createdAt: products.createdAt,
-      supplierId: products.supplierId,
-      supplierName: sql`suppliers.name`,
-      supplierCode: sql`suppliers.code`,
-    })
-    .from(products)
-    .leftJoin(sql`suppliers`, eq(products.supplierId, sql`suppliers.id`))
-    .where(eq(products.id, productId))
-    .limit(1);
-
-  return product[0] || null;
-}
 
 // Utility function to get document statistics
 export async function getDocumentStats(userId?: string) {

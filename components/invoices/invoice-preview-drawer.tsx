@@ -8,6 +8,7 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { formatCurrency } from '@/utils/number-formatter';
 import { useInvoiceDetail, type InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -20,15 +21,6 @@ interface InvoicePreviewDrawerProps {
   open: boolean;
   onClose: () => void;
 }
-
-const formatCurrency = (amount: string, currency: string) => {
-  const numAmount = parseFloat(amount);
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(numAmount);
-};
 
 function InvoicePreviewContent({ invoice }: { invoice: InvoiceDetail }) {
   const renderDetailField = (label: string, value: string | number) => (

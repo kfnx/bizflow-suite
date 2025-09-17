@@ -67,7 +67,6 @@ export default function NewTransferPage() {
 
   const { data: productsData, isLoading: isLoadingProducts } = useProducts({
     limit: 1000,
-    status: 'in_stock',
   });
 
   const { data: warehousesData, isLoading: isLoadingWarehouses } =

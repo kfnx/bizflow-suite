@@ -11,6 +11,7 @@ import {
 } from '@remixicon/react';
 
 import { PRODUCT_CATEGORY } from '@/lib/db/enum';
+import { formatCurrency } from '@/utils/number-formatter';
 import { useProduct, useUpdateProduct } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -27,33 +28,12 @@ interface ProductDetailProps {
 export function ProductDetail({ id }: ProductDetailProps) {
   const { data: productData, isLoading, error } = useProduct(id);
   const updateProductMutation = useUpdateProduct();
-  const [isEditingCondition, setIsEditingCondition] = useState(false);
   const [isEditingTechnical, setIsEditingTechnical] = useState(false);
-  const [editedCondition, setEditedCondition] = useState('');
   const [editedAdditionalSpecs, setEditedAdditionalSpecs] = useState('');
-
-  const handleEditCondition = () => {
-    setEditedCondition(productData?.condition || '');
-    setIsEditingCondition(true);
-  };
 
   const handleEditTechnical = () => {
     setEditedAdditionalSpecs(productData?.additionalSpecs || '');
     setIsEditingTechnical(true);
-  };
-
-  const handleSaveCondition = async () => {
-    if (!productData) return;
-
-    try {
-      await updateProductMutation.mutateAsync({
-        id: productData.id,
-        data: { condition: editedCondition },
-      });
-      setIsEditingCondition(false);
-    } catch (error) {
-      console.error('Failed to update condition:', error);
-    }
   };
 
   const handleSaveTechnical = async () => {
@@ -70,45 +50,9 @@ export function ProductDetail({ id }: ProductDetailProps) {
     }
   };
 
-  const handleCancelCondition = () => {
-    setIsEditingCondition(false);
-    setEditedCondition('');
-  };
-
   const handleCancelTechnical = () => {
     setIsEditingTechnical(false);
     setEditedAdditionalSpecs('');
-  };
-
-  const formatCurrency = (amount: number, currency: string = 'IDR') => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: currency,
-    }).format(amount);
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'in_stock':
-        return 'green';
-      case 'out_of_stock':
-        return 'red';
-      default:
-        return 'blue';
-    }
-  };
-
-  const getConditionBadgeColor = (condition: string) => {
-    switch (condition) {
-      case 'new':
-        return 'green';
-      case 'used':
-        return 'orange';
-      case 'refurbished':
-        return 'blue';
-      default:
-        return 'gray';
-    }
   };
 
   if (isLoading) {
@@ -142,21 +86,7 @@ export function ProductDetail({ id }: ProductDetailProps) {
         title={productData.name}
         description={`Product details • ${productData.category || 'Uncategorized'}`}
       >
-        <div className='flex items-center gap-3'>
-          <Badge.Root
-            variant='lighter'
-            color={getStatusBadgeColor(productData.status as string)}
-          >
-            {productData.status?.replace('_', ' ').toUpperCase()}
-          </Badge.Root>
-          <Badge.Root
-            variant='lighter'
-            color={getConditionBadgeColor(productData.condition as string)}
-          >
-            {productData.condition?.toUpperCase()}
-          </Badge.Root>
-          <BackButton href='/products' label='Back to Products' />
-        </div>
+        <BackButton href='/products' label='Back to Products' />
       </Header>
 
       <div className='flex flex-1 flex-col gap-6 px-4 py-6 lg:px-8'>
@@ -199,95 +129,10 @@ export function ProductDetail({ id }: ProductDetailProps) {
 
             <div>
               <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Quantity
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {productData.quantity?.toLocaleString() || '0'}
-              </div>
-            </div>
-
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Supplier
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {productData.supplierName || 'Not specified'}
-              </div>
-            </div>
-
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
                 Brand
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
                 {productData.brandName || 'Not specified'}
-              </div>
-            </div>
-            <div>
-              <div className='flex items-center'>
-                <div className='text-subheading-xs uppercase text-text-soft-400'>
-                  Condition
-                </div>
-                {!isEditingCondition && (
-                  <Button.Root
-                    variant='neutral'
-                    mode='ghost'
-                    size='xsmall'
-                    onClick={handleEditCondition}
-                    disabled={updateProductMutation.isPending}
-                  >
-                    <RiEditLine className='size-3' />
-                    Edit
-                  </Button.Root>
-                )}
-              </div>
-              {isEditingCondition ? (
-                <div className='mt-1 flex items-center gap-2'>
-                  <Select.Root
-                    value={editedCondition}
-                    onValueChange={setEditedCondition}
-                  >
-                    <Select.Trigger className='flex-1'>
-                      <Select.Value />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value='new'>New</Select.Item>
-                      <Select.Item value='used'>Used</Select.Item>
-                      <Select.Item value='refurbished'>Refurbished</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                  <Button.Root
-                    variant='primary'
-                    size='xsmall'
-                    onClick={handleSaveCondition}
-                    disabled={updateProductMutation.isPending}
-                  >
-                    <RiSaveLine className='size-3' />
-                  </Button.Root>
-                  <Button.Root
-                    variant='neutral'
-                    mode='ghost'
-                    size='xsmall'
-                    onClick={handleCancelCondition}
-                    disabled={updateProductMutation.isPending}
-                  >
-                    <RiCloseLine className='size-3' />
-                  </Button.Root>
-                </div>
-              ) : (
-                <div className='mt-1 text-label-sm text-text-strong-950'>
-                  {productData.condition?.replace('_', ' ').toUpperCase() ||
-                    'Not specified'}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Warehouse
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {productData.warehouseName || 'Not specified'}
               </div>
             </div>
           </div>
@@ -299,17 +144,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
               </div>
               <div className='mt-1 text-label-sm text-text-strong-950'>
                 {productData.description}
-              </div>
-            </div>
-          )}
-
-          {productData.importNotes && (
-            <div className='mt-6'>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Import Notes
-              </div>
-              <div className='mt-1 text-label-sm text-text-strong-950'>
-                {productData.importNotes}
               </div>
             </div>
           )}
@@ -344,17 +178,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
                   </div>
                   <div className='mt-1 text-label-sm text-text-strong-950'>
                     {productData.machineModel}
-                  </div>
-                </div>
-              )}
-
-              {productData.partNumber && (
-                <div>
-                  <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Part Number
-                  </div>
-                  <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.partNumber}
                   </div>
                 </div>
               )}
@@ -450,17 +273,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
                   </div>
                 </div>
               )}
-
-              {productData.partNumber && (
-                <div>
-                  <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Part Number
-                  </div>
-                  <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.partNumber}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -484,17 +296,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
                     {productData.unitOfMeasureName
                       ? `${productData.unitOfMeasureName} (${productData.unitOfMeasureAbbreviation || productData.unitOfMeasureId})`
                       : productData.unitOfMeasureId}
-                  </div>
-                </div>
-              )}
-
-              {productData.partNumber && (
-                <div>
-                  <div className='text-subheading-xs uppercase text-text-soft-400'>
-                    Part Number
-                  </div>
-                  <div className='mt-1 text-label-sm text-text-strong-950'>
-                    {productData.partNumber}
                   </div>
                 </div>
               )}
@@ -616,20 +417,6 @@ export function ProductDetail({ id }: ProductDetailProps) {
                 {productData.updatedAt
                   ? new Date(productData.updatedAt).toLocaleDateString()
                   : 'Unknown'}
-              </div>
-            </div>
-
-            <div>
-              <div className='text-subheading-xs uppercase text-text-soft-400'>
-                Status
-              </div>
-              <div className='mt-1'>
-                <Badge.Root
-                  variant='lighter'
-                  color={getStatusBadgeColor(productData.status as string)}
-                >
-                  {productData.status?.replace('_', ' ').toUpperCase()}
-                </Badge.Root>
               </div>
             </div>
           </div>

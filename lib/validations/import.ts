@@ -9,7 +9,7 @@ const baseProductSchema = z.object({
   category: z.enum(['serialized', 'non_serialized', 'bulk']),
   brandId: z.string().optional(),
   condition: z.enum(['new', 'used', 'refurbished']).default('new'),
-  priceRMB: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid RMB price'),
+  priceRMB: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid CNY price'),
   quantity: z.number().int().positive('Quantity must be a positive integer'),
   notes: z.string().optional(),
 });

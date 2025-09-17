@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build order by clause
-    let orderByClause = desc(partNumbers.createdAt);
+    let orderByClause = asc(partNumbers.name);
     if (sortBy) {
       switch (sortBy) {
         case 'name-asc':

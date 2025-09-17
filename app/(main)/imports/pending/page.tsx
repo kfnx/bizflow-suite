@@ -193,7 +193,7 @@ export default function PendingImportsPage() {
                         </p>
                         <p className='text-sm font-medium text-text-strong-950'>
                           {importItem.exchangeRateRMBtoIDR.toLocaleString()}{' '}
-                          IDR/RMB
+                          IDR/CNY
                         </p>
                       </div>
                     </div>
@@ -208,7 +208,7 @@ export default function PendingImportsPage() {
                         </p>
                       </div>
                       <div>
-                        <p className='text-xs text-text-sub-600'>Total (RMB)</p>
+                        <p className='text-xs text-text-sub-600'>Total (CNY)</p>
                         <p className='text-lg font-semibold text-text-strong-950'>
                           {new Intl.NumberFormat('id-ID', {
                             style: 'currency',

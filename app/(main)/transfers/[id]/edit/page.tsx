@@ -70,7 +70,6 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
 
   const { data: productsData } = useProducts({
     limit: 1000,
-    status: 'in_stock',
   });
 
   const { data: warehousesData, isLoading: isLoadingWarehouses } =

@@ -7,6 +7,7 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { formatCurrency } from '@/utils/number-formatter';
 import { InvoiceDetail } from '@/hooks/use-invoices';
 import * as Button from '@/components/ui/button';
 import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
@@ -14,15 +15,6 @@ import { InvoiceStatusBadge } from '@/components/invoices/invoice-status-badge';
 interface InvoiceHeaderProps {
   invoice: InvoiceDetail;
 }
-
-const formatCurrency = (amount: string, currency: string) => {
-  const numAmount = parseFloat(amount);
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(numAmount);
-};
 
 export function InvoiceHeader({ invoice }: InvoiceHeaderProps) {
   const handleEdit = () => {

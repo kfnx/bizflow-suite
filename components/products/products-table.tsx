@@ -12,7 +12,6 @@ import {
   RiExpandUpDownFill,
   RiEyeLine,
   RiFileTextLine,
-  RiMapPinLine,
   RiMoreLine,
 } from '@remixicon/react';
 import {
@@ -24,6 +23,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 
+import { formatCurrency } from '@/utils/number-formatter';
 import { useProducts, type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
@@ -42,52 +42,11 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-const statusConfig = {
-  in_stock: {
-    label: 'In Stock',
-    variant: 'lighter' as const,
-    color: 'green' as const,
-  },
-  out_of_stock: {
-    label: 'Out of Stock',
-    variant: 'lighter' as const,
-    color: 'red' as const,
-  },
-};
-
-const conditionConfig = {
-  new: {
-    label: 'New',
-    variant: 'lighter' as const,
-    color: 'green' as const,
-  },
-  used: {
-    label: 'Used',
-    variant: 'lighter' as const,
-    color: 'orange' as const,
-  },
-  refurbished: {
-    label: 'Refurbished',
-    variant: 'lighter' as const,
-    color: 'blue' as const,
-  },
-};
-
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
-
 interface ProductsTableProps {
   filters: {
     search: string;
-    status: string;
     category: string;
     brand: string;
-    location: string;
     sortBy: string;
     page?: number;
     limit?: number;
@@ -101,12 +60,7 @@ export function ProductsTable({
   onPageChange,
   onLimitChange,
 }: ProductsTableProps) {
-  // Map location filter to warehouseId for the API call
-  const apiFilters = {
-    ...filters,
-    warehouseId: filters.location,
-  };
-  const { data, isLoading, error } = useProducts(apiFilters);
+  const { data, isLoading, error } = useProducts(filters);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [quickViewProduct, setQuickViewProduct] =
     React.useState<ProductWithRelations | null>(null);
@@ -144,85 +98,6 @@ export function ProductsTable({
       ),
     },
     {
-      id: 'quantity',
-      accessorKey: 'quantity',
-      header: 'Quantity',
-      cell: ({ row }) => (
-        <div className='text-paragraph-sm text-text-sub-600'>
-          {row.original.quantity}
-        </div>
-      ),
-    },
-    {
-      id: 'condition',
-      accessorKey: 'condition',
-      header: 'Condition',
-      cell: ({ row }) => {
-        const config =
-          conditionConfig[
-            row.original.condition as keyof typeof conditionConfig
-          ];
-        return (
-          <div className='flex items-start'>
-            <Badge.Root
-              className=''
-              variant={config?.variant}
-              color={config?.color}
-            >
-              {config?.label || row.original.condition}
-            </Badge.Root>
-          </div>
-        );
-      },
-    },
-    {
-      id: 'status',
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const config =
-          statusConfig[row.original.status as keyof typeof statusConfig];
-        return (
-          <Badge.Root variant={config?.variant} color={config?.color}>
-            {config?.label || row.original.status}
-          </Badge.Root>
-        );
-      },
-    },
-    {
-      id: 'code',
-      accessorKey: 'code',
-      header: 'Serial/Part Number',
-      cell: ({ row }) => (
-        <div className='font-mono text-paragraph-sm text-text-sub-600'>
-          {row.original.code || '-'}
-        </div>
-      ),
-    },
-    {
-      id: 'location',
-      accessorKey: 'warehouseName',
-      header: 'Location',
-      cell: ({ row }) => (
-        <div className='flex flex-col'>
-          <div className='flex items-center gap-1'>
-            <RiMapPinLine className='size-4 text-text-soft-400' />
-            <div className='text-paragraph-sm text-text-sub-600'>
-              {row.original.warehouseName || '-'}
-            </div>
-          </div>
-          {row.original.supplierName && (
-            <div className='mt-1 flex items-center gap-1'>
-              <RiBuildingLine className='size-4 text-text-soft-400' />
-              <div className='text-paragraph-xs text-text-soft-400'>
-                {row.original.supplierName}
-              </div>
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
       id: 'price',
       accessorKey: 'price',
       header: ({ column }) => (
@@ -237,10 +112,46 @@ export function ProductsTable({
         </div>
       ),
       cell: ({ row }) => (
-        <div className='text-right'>
-          <div className='text-paragraph-sm text-text-sub-600'>
-            {formatCurrency(parseInt(row.original.price), 'IDR')}
-          </div>
+        <div className='text-paragraph-sm text-text-sub-600'>
+          {formatCurrency(parseInt(row.original.price), 'IDR')}
+        </div>
+      ),
+    },
+    {
+      id: 'warehouse',
+      header: 'Warehouse',
+      cell: ({ row }) => (
+        <div className='flex items-center gap-1 text-paragraph-sm text-text-sub-600'>
+          <RiBuildingLine className='size-4 text-text-soft-400' />
+          <span className='max-w-32 truncate'>
+            {row.original.warehouseName || 'No Warehouse'}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: 'stock',
+      header: 'Stock',
+      cell: ({ row }) => (
+        <div className='flex items-center gap-2'>
+          <Badge.Root
+            variant='lighter'
+            color={
+              row.original.condition === 'new'
+                ? 'green'
+                : row.original.condition === 'used'
+                  ? 'orange'
+                  : row.original.condition === 'refurbished'
+                    ? 'blue'
+                    : 'gray'
+            }
+            className='text-xs px-1 py-0'
+          >
+            {row.original.condition}
+          </Badge.Root>
+          <span className='font-medium text-text-sub-600'>
+            {row.original.quantity?.toLocaleString() || 0}
+          </span>
         </div>
       ),
     },
@@ -319,11 +230,7 @@ export function ProductsTable({
           No products found
         </h3>
         <p className='text-gray-500 mt-1 text-paragraph-sm'>
-          {filters?.search ||
-          filters?.status ||
-          filters?.category ||
-          filters?.brand ||
-          filters?.location
+          {filters?.search || filters?.category || filters?.brand
             ? 'No products match your current filters. Try adjusting your search criteria.'
             : 'Get started by adding a new product.'}
         </p>

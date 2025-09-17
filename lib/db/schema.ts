@@ -19,12 +19,8 @@ import {
   DELIVERY_NOTE_STATUS,
   IMPORT_STATUS,
   INVOICE_STATUS,
-  MOVEMENT_TYPE,
   PRODUCT_CATEGORY,
-  PRODUCT_CONDITION,
-  PRODUCT_STATUS,
   QUOTATION_STATUS,
-  STOCK_CONDITION,
 } from './enum';
 
 // NextAuth.js required tables
@@ -627,7 +623,6 @@ export const products = mysqlTable(
     category: mysqlEnum('category', PRODUCT_CATEGORY).notNull(),
     unitOfMeasureId: varchar('unit_of_measure_id', { length: 36 }), // unit, kg, pcs, etc
     brandId: varchar('brand_id', { length: 36 }), // shantui, etc
-    quantity: int('quantity').notNull().default(1),
     // ================================
     machineTypeId: varchar('machine_type_id', { length: 36 }), // [serialized]
     machineModel: varchar('machine_model', { length: 100 }), // [serialized]
@@ -637,14 +632,9 @@ export const products = mysqlTable(
     partNumber: varchar('part_number', { length: 100 }), // [non-serialized, bulk]
     batchOrLotNumber: varchar('batch_or_lot_number', { length: 100 }), // [non-serialized, bulk]
     // ================================
-    status: varchar('status', { length: 50 }).default('in_stock'), // in_stock, out_of_stock
     price: decimal('price', { precision: 17, scale: 2 })
       .notNull()
       .default('0.00'),
-    condition: varchar('condition', { length: 50 }).default('new'), // new, used, refurbished
-    warehouseId: varchar('warehouse_id', { length: 36 }),
-    supplierId: varchar('supplier_id', { length: 36 }),
-    importNotes: text('import_notes'),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -653,19 +643,6 @@ export const products = mysqlTable(
     index('name_id_idx').on(table.name),
     index('brand_id_idx').on(table.brandId),
     index('category_idx').on(table.category),
-    index('status_idx').on(table.status),
-    index('supplier_id_idx').on(table.supplierId),
-    index('warehouse_id_idx').on(table.warehouseId),
-    foreignKey({
-      columns: [table.supplierId],
-      foreignColumns: [suppliers.id],
-      name: 'fk_products_supplier',
-    }),
-    foreignKey({
-      columns: [table.warehouseId],
-      foreignColumns: [warehouses.id],
-      name: 'fk_products_warehouse',
-    }),
     foreignKey({
       columns: [table.brandId],
       foreignColumns: [brands.id],
@@ -885,7 +862,7 @@ export const warehouseStocks = mysqlTable(
       .default(sql`(UUID())`),
     warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
-    condition: varchar('condition', { length: 20 }).notNull(), // good, damaged, repair
+    condition: varchar('condition', { length: 20 }).notNull(), // new, used, refurbished
     quantity: int('quantity').default(0),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
@@ -1060,8 +1037,7 @@ export const customersRelations = relations(customers, ({ many }) => ({
   contactPersons: many(customerContactPersons),
 }));
 
-export const suppliersRelations = relations(suppliers, ({ one, many }) => ({
-  products: many(products),
+export const suppliersRelations = relations(suppliers, ({ many }) => ({
   imports: many(imports),
   contactPersons: many(supplierContactPersons),
 }));
@@ -1106,22 +1082,13 @@ export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
 }));
 
 export const productsRelations = relations(products, ({ one, many }) => ({
-  supplier: one(suppliers, {
-    fields: [products.supplierId],
-    references: [suppliers.id],
-  }),
   brand: one(brands, {
     fields: [products.brandId],
     references: [brands.id],
   }),
-  warehouse: one(warehouses, {
-    fields: [products.warehouseId],
-    references: [warehouses.id],
-  }),
   quotationItems: many(quotationItems),
   invoiceItems: many(invoiceItems),
   deliveryNoteItems: many(deliveryNoteItems),
-  imports: many(imports),
   importItems: many(importItems),
   warehouseStocks: many(warehouseStocks),
 }));
@@ -1279,7 +1246,7 @@ export const importItemsRelations = relations(importItems, ({ one }) => ({
 
 export const warehouseStocksRelations = relations(
   warehouseStocks,
-  ({ one, many }) => ({
+  ({ one }) => ({
     warehouse: one(warehouses, {
       fields: [warehouseStocks.warehouseId],
       references: [warehouses.id],
@@ -1410,7 +1377,6 @@ export interface ProductQueryParams {
   category?: string;
   brand?: string;
   condition?: string;
-  supplierId?: string;
   warehouseId?: string;
   sortBy?:
     | 'name-asc'

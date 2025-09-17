@@ -4,6 +4,7 @@ import { customerIds } from './customers';
 import { invoiceIds } from './invoices';
 import { productIds } from './products';
 import { userIds } from './users';
+import { warehouseIds } from './warehouses';
 
 export const deliveryNoteIds = {
   deliveryNote1: '70000001-0000-4000-a000-000000000001',
@@ -147,6 +148,7 @@ export const deliveryNoteItems = [
     productId: productIds.product4,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse2, // WH Surabaya (Pekanbaru branch)
     notes: 'Shantui DH08-B3-XL bulldozer delivered with full accessories',
   },
   {
@@ -155,6 +157,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 2,
     deliveredQuantity: 2,
+    warehouseId: warehouseIds.warehouse1,
     notes: 'Spare parts for bulldozer maintenance kit',
   },
   {
@@ -163,6 +166,7 @@ export const deliveryNoteItems = [
     productId: productIds.product8,
     quantity: 50,
     deliveredQuantity: 50,
+    warehouseId: warehouseIds.warehouse1,
     notes: 'Hydraulic oil for bulldozer operation',
   },
 
@@ -173,6 +177,7 @@ export const deliveryNoteItems = [
     productId: productIds.product3,
     quantity: 1,
     deliveredQuantity: 0,
+    warehouseId: warehouseIds.warehouse2, // WH Surabaya (Pekanbaru branch)
     notes: 'Wheel loader - pending delivery',
   },
   {
@@ -181,6 +186,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 1,
     deliveredQuantity: 0,
+    warehouseId: warehouseIds.warehouse2, // WH Surabaya (Pekanbaru branch)
     notes: 'Spare parts kit for wheel loader',
   },
   {
@@ -189,6 +195,7 @@ export const deliveryNoteItems = [
     productId: productIds.product8,
     quantity: 30,
     deliveredQuantity: 0,
+    warehouseId: warehouseIds.warehouse2, // WH Surabaya (Pekanbaru branch)
     notes: 'Engine oil for wheel loader',
   },
 
@@ -199,6 +206,7 @@ export const deliveryNoteItems = [
     productId: productIds.product5,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Excavator delivered with operator training',
   },
   {
@@ -207,6 +215,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 3,
     deliveredQuantity: 3,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Spare parts for excavator maintenance',
   },
   {
@@ -215,6 +224,7 @@ export const deliveryNoteItems = [
     productId: productIds.product8,
     quantity: 40,
     deliveredQuantity: 40,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Hydraulic oil for excavator operation',
   },
 
@@ -225,6 +235,7 @@ export const deliveryNoteItems = [
     productId: productIds.product4,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'Bulldozer picked up by customer',
   },
   {
@@ -233,6 +244,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'Spare parts kit included with bulldozer',
   },
   {
@@ -241,16 +253,18 @@ export const deliveryNoteItems = [
     productId: productIds.product8,
     quantity: 25,
     deliveredQuantity: 25,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'Initial oil supply for bulldozer',
   },
 
-  // Delivery Note 5 - Multiple items (Caterpillar + Komatsu + Parts)
+  // Delivery Note 5 Items (Delivered) - Large mining operation
   {
     id: deliveryNoteItemIds.deliveryNoteItem13,
     deliveryNoteId: deliveryNoteIds.deliveryNote5,
     productId: productIds.product6,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Caterpillar D6T bulldozer delivered to mining site',
   },
   {
@@ -259,6 +273,7 @@ export const deliveryNoteItems = [
     productId: productIds.product9,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'Komatsu PC200-8 excavator delivered to mining site',
   },
   {
@@ -267,6 +282,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 4,
     deliveredQuantity: 4,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'Comprehensive spare parts kit for both machines',
   },
   {
@@ -275,6 +291,7 @@ export const deliveryNoteItems = [
     productId: productIds.product8,
     quantity: 100,
     deliveredQuantity: 100,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'Bulk oil supply for mining operations',
   },
   {
@@ -283,6 +300,7 @@ export const deliveryNoteItems = [
     productId: productIds.product1,
     quantity: 2,
     deliveredQuantity: 2,
+    warehouseId: warehouseIds.warehouse4, // WH Medan (Balikpapan branch)
     notes: 'JCB 3DX backhoe loaders for mining support operations',
   },
   {
@@ -291,6 +309,7 @@ export const deliveryNoteItems = [
     productId: productIds.product2,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Volvo L90 wheel loader for material handling at mining site',
   },
   {
@@ -299,6 +318,7 @@ export const deliveryNoteItems = [
     productId: productIds.product3,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse5,
     notes: 'Additional wheel loader for backup operations',
   },
   {
@@ -307,6 +327,7 @@ export const deliveryNoteItems = [
     productId: productIds.product4,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Shantui bulldozer for site preparation and maintenance',
   },
   {
@@ -315,6 +336,7 @@ export const deliveryNoteItems = [
     productId: productIds.product5,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Additional excavator for increased mining capacity',
   },
   {
@@ -323,6 +345,7 @@ export const deliveryNoteItems = [
     productId: productIds.product6,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Caterpillar D7G bulldozer for heavy earthmoving tasks',
   },
   {
@@ -331,6 +354,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 8,
     deliveredQuantity: 8,
+    warehouseId: warehouseIds.warehouse3, // WH Bandung (Kendari branch)
     notes: 'Extended spare parts inventory for all mining equipment',
   },
   {
@@ -339,6 +363,7 @@ export const deliveryNoteItems = [
     productId: productIds.product8,
     quantity: 200,
     deliveredQuantity: 200,
+    warehouseId: warehouseIds.warehouse5,
     notes: 'Additional hydraulic and engine oil for extended operations',
   },
   {
@@ -347,6 +372,7 @@ export const deliveryNoteItems = [
     productId: productIds.product9,
     quantity: 1,
     deliveredQuantity: 1,
+    warehouseId: warehouseIds.warehouse5,
     notes: 'Komatsu PC300-8 excavator for large-scale mining operations',
   },
   {
@@ -355,6 +381,7 @@ export const deliveryNoteItems = [
     productId: productIds.product7,
     quantity: 6,
     deliveredQuantity: 6,
+    warehouseId: warehouseIds.warehouse5,
     notes: 'Specialized spare parts for Komatsu equipment',
   },
 ];

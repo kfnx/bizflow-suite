@@ -14,8 +14,6 @@ export type DeliveryNote = {
   driverName?: string;
   vehicleNumber?: string;
   status: string;
-  deliveredBy?: string;
-  receivedBy?: string;
   notes?: string;
   createdBy: string;
   createdAt: string;
@@ -47,22 +45,13 @@ export type DeliveryNote = {
     firstName: string;
     lastName: string;
   };
-  deliveredByUser?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
-  receivedByUser?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
 };
 
 export type DeliveryNoteDetail = DeliveryNote & {
   items: {
     id: string;
     productId: string;
+    warehouseId: string;
     quantity: number;
     product?: {
       id: string;
@@ -119,7 +108,7 @@ const fetchDeliveryNotes = async (
   return response.json();
 };
 
-const createDeliveryNote = async (data: any): Promise<void> => {
+const createDeliveryNote = async (data: any): Promise<{ id: string; deliveryNumber: string; message: string }> => {
   const response = await fetch('/api/delivery-notes', {
     method: 'POST',
     headers: {
@@ -131,6 +120,7 @@ const createDeliveryNote = async (data: any): Promise<void> => {
     const error = await response.json();
     throw new Error(error.error || 'Failed to create delivery note');
   }
+  return response.json();
 };
 
 const updateDeliveryNote = async (
@@ -241,6 +231,92 @@ export function useDeleteDeliveryNote() {
     mutationFn: deleteDeliveryNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['delivery-notes'] });
+    },
+  });
+}
+
+// Execute delivery note (change status from pending to delivered)
+const executeDeliveryNote = async (deliveryNoteId: string): Promise<void> => {
+  const response = await fetch(`/api/delivery-notes/${deliveryNoteId}/execute`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to execute delivery note');
+  }
+
+  return response.json();
+};
+
+export function useExecuteDeliveryNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: executeDeliveryNote,
+    onSuccess: (_, deliveryNoteId) => {
+      // Invalidate delivery notes list
+      queryClient.invalidateQueries({ queryKey: ['delivery-notes'] });
+      // Invalidate specific delivery note detail
+      queryClient.invalidateQueries({
+        queryKey: ['delivery-note', deliveryNoteId],
+      });
+      // Also invalidate all delivery note queries as fallback
+      queryClient.invalidateQueries({ queryKey: ['delivery-note'] });
+      // Invalidate products queries since warehouse stocks have been updated
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      console.log(
+        'Cache invalidated for delivery note after execution:',
+        deliveryNoteId,
+      );
+    },
+    onError: (error) => {
+      console.error('Failed to execute delivery note:', error);
+    },
+  });
+}
+
+// Cancel delivery note (change status from pending to cancelled)
+const cancelDeliveryNote = async (deliveryNoteId: string): Promise<void> => {
+  const response = await fetch(`/api/delivery-notes/${deliveryNoteId}/cancel`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to cancel delivery note');
+  }
+
+  return response.json();
+};
+
+export function useCancelDeliveryNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cancelDeliveryNote,
+    onSuccess: (_, deliveryNoteId) => {
+      // Invalidate delivery notes list
+      queryClient.invalidateQueries({ queryKey: ['delivery-notes'] });
+      // Invalidate specific delivery note detail
+      queryClient.invalidateQueries({
+        queryKey: ['delivery-note', deliveryNoteId],
+      });
+      // Also invalidate all delivery note queries as fallback
+      queryClient.invalidateQueries({ queryKey: ['delivery-note'] });
+      console.log(
+        'Cache invalidated for delivery note after cancellation:',
+        deliveryNoteId,
+      );
+    },
+    onError: (error) => {
+      console.error('Failed to cancel delivery note:', error);
     },
   });
 }

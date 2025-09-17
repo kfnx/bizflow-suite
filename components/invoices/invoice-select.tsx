@@ -86,10 +86,6 @@ export function InvoiceSelect({
               <small className='text-muted-foreground'>
                 {invoice.customer?.name}
               </small>
-              <small>•</small>
-              <small className='text-muted-foreground'>
-                Due: {new Date(invoice.dueDate).toLocaleDateString()}
-              </small>
               {invoice.status && (
                 <>
                   <small>•</small>

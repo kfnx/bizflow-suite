@@ -38,10 +38,11 @@ export const productIds = {
 };
 
 export const products: InsertProduct[] = [
+  // SERIALIZED PRODUCTS - Heavy Machinery
   {
     id: productIds.product1,
-    name: 'Shantui L36-B3 Wheel Loader',
-    description: 'Wheel Loader for construction and material handling',
+    name: 'Shantui L36-B3 Wheel Loader (2025)',
+    description: 'Latest model wheel loader for construction and material handling',
     category: PRODUCT_CATEGORY.SERIALIZED,
     machineTypeId: machineTypeIds.wheel_loader,
     unitOfMeasureId: unitOfMeasureIds.unit,
@@ -59,8 +60,8 @@ year 2025`,
   },
   {
     id: productIds.product2,
-    name: 'Shantui L36-B3 Wheel Loader',
-    description: 'Wheel Loader for construction and material handling',
+    name: 'Shantui L36-B3 Wheel Loader (2023)',
+    description: 'Reliable wheel loader for construction and material handling',
     category: PRODUCT_CATEGORY.SERIALIZED,
     machineTypeId: machineTypeIds.wheel_loader,
     unitOfMeasureId: unitOfMeasureIds.unit,
@@ -78,20 +79,20 @@ year 2023`,
   },
   {
     id: productIds.product3,
-    name: 'Shantui SL36-B3 Wheel Loader',
-    description: 'Wheel Loader for construction and material handling',
+    name: 'Shantui SL30W Wheel Loader',
+    description: 'Compact wheel loader for versatile construction work',
     category: PRODUCT_CATEGORY.SERIALIZED,
     machineTypeId: machineTypeIds.wheel_loader,
     unitOfMeasureId: unitOfMeasureIds.unit,
     brandId: brandIds.shantui,
-    machineModel: 'SL36-B3',
-    serialNumber: 'SHA-SL36B3-2019-003',
-    code: 'SHA-SL36B3-2019-003',
-    engineNumber: 'SHA-ENG-2019-003',
-    additionalSpecs: `engineModel WD10G220E23
-enginePower 220 hp
-operatingWeight 18,500 kg
-year 2019`,
+    machineModel: 'SL30W',
+    serialNumber: 'SHA-SL30W-2020-003',
+    code: 'SHA-SL30W-2020-003',
+    engineNumber: 'SHA-ENG-2020-003',
+    additionalSpecs: `engineModel WD615G230
+enginePower 162 hp
+operatingWeight 11,000 kg
+year 2020`,
     price: '95000000.00',
     isActive: true,
   },
@@ -116,19 +117,19 @@ year 2024`,
   },
   {
     id: productIds.product5,
-    name: 'Shantui SFD35-3000 Excavator',
-    description: 'Excavator for construction and digging operations',
+    name: 'Shantui SE135 Excavator',
+    description: 'Mid-size excavator for construction and digging operations',
     category: PRODUCT_CATEGORY.SERIALIZED,
     machineTypeId: machineTypeIds.excavator,
     unitOfMeasureId: unitOfMeasureIds.unit,
     brandId: brandIds.shantui,
-    machineModel: 'SFD35-3000',
-    serialNumber: 'SHA-SFD35-2022-005',
-    code: 'SHA-SFD35-2022-005',
+    machineModel: 'SE135',
+    serialNumber: 'SHA-SE135-2022-005',
+    code: 'SHA-SE135-2022-005',
     engineNumber: 'SHA-ENG-2022-005',
-    additionalSpecs: `engineModel Cummins NT855-C360
-enginePower 360 hp
-operatingWeight 35,000 kg
+    additionalSpecs: `engineModel Isuzu 4JJ1X
+enginePower 74 kW
+operatingWeight 13,500 kg
 year 2022`,
     price: '165000000.00',
     isActive: true,
@@ -156,36 +157,6 @@ year 2024`,
     id: productIds.product7,
     name: 'Komatsu PC200-8 Excavator',
     description: 'Medium-sized excavator for versatile construction work',
-    category: PRODUCT_CATEGORY.NON_SERIALIZED,
-    unitOfMeasureId: unitOfMeasureIds.unit,
-    machineTypeId: null,
-    brandId: brandIds.sparepartABC,
-    machineModel: 'PC200-8',
-    serialNumber: 'SP-PC200-2021-007',
-    code: 'SP-PC200-2021-007',
-    engineNumber: 'SP-ENG-2021-007',
-    price: '10000000.00',
-    isActive: true,
-  },
-  {
-    id: productIds.product8,
-    name: 'Komatsu PC200-8 Excavator',
-    description: 'Medium-sized excavator for versatile construction work',
-    category: PRODUCT_CATEGORY.BULK,
-    machineTypeId: null,
-    unitOfMeasureId: unitOfMeasureIds.kg,
-    brandId: brandIds.oliolio,
-    machineModel: 'PC200-8',
-    serialNumber: 'OLI-PC200-2021-007',
-    code: 'OLI-PC200-2021-007',
-    engineNumber: 'OLI-ENG-2021-007',
-    price: '8000000.00',
-    isActive: true,
-  },
-  {
-    id: productIds.product9,
-    name: 'Komatsu PC200-8 Excavator',
-    description: 'Medium-sized excavator for versatile construction work',
     category: PRODUCT_CATEGORY.SERIALIZED,
     machineTypeId: machineTypeIds.excavator,
     unitOfMeasureId: unitOfMeasureIds.unit,
@@ -199,6 +170,44 @@ enginePower 103 kW
 operatingWeight 20,000 kg
 year 2021`,
     price: '280000000.00',
+    isActive: true,
+  },
+  {
+    id: productIds.product8,
+    name: 'Komatsu D65EX-18 Bulldozer',
+    description: 'Advanced bulldozer with intelligent machine control',
+    category: PRODUCT_CATEGORY.SERIALIZED,
+    machineTypeId: machineTypeIds.bulldozer,
+    unitOfMeasureId: unitOfMeasureIds.unit,
+    brandId: brandIds.komatsu,
+    machineModel: 'D65EX-18',
+    serialNumber: 'KOM-D65EX-2023-008',
+    code: 'KOM-D65EX-2023-008',
+    engineNumber: 'KOM-ENG-2023-008',
+    additionalSpecs: `engineModel Komatsu SAA6D140E-7
+enginePower 354 hp
+operatingWeight 20,800 kg
+year 2023`,
+    price: '520000000.00',
+    isActive: true,
+  },
+  {
+    id: productIds.product9,
+    name: 'Caterpillar 320 Excavator',
+    description: 'Versatile hydraulic excavator for medium construction projects',
+    category: PRODUCT_CATEGORY.SERIALIZED,
+    machineTypeId: machineTypeIds.excavator,
+    unitOfMeasureId: unitOfMeasureIds.unit,
+    brandId: brandIds.caterpillar,
+    machineModel: '320',
+    serialNumber: 'CAT-320-2024-009',
+    code: 'CAT-320-2024-009',
+    engineNumber: 'CAT-ENG-2024-009',
+    additionalSpecs: `engineModel Cat C7.1 ACERT
+enginePower 173 hp
+operatingWeight 20,000 kg
+year 2024`,
+    price: '480000000.00',
     isActive: true,
   },
   // BULK PRODUCTS - Construction Materials

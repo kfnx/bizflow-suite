@@ -10,9 +10,7 @@ import {
   RiArrowUpSFill,
   RiBuildingLine,
   RiExpandUpDownFill,
-  RiEyeLine,
   RiFileTextLine,
-  RiMoreLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -27,7 +25,6 @@ import { formatCurrency } from '@/utils/number-formatter';
 import { useProducts, type ProductWithRelations } from '@/hooks/use-products';
 import * as Badge from '@/components/ui/badge';
 import * as Button from '@/components/ui/button';
-import * as Dropdown from '@/components/ui/dropdown';
 import { Loading } from '@/components/ui/loading';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
@@ -153,42 +150,6 @@ export function ProductsTable({
             {row.original.quantity?.toLocaleString() || 0}
           </span>
         </div>
-      ),
-    },
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => (
-        <Dropdown.Root>
-          <Dropdown.Trigger asChild>
-            <Button.Root
-              mode='ghost'
-              className='h-8 w-8 p-0'
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className='sr-only'>Open menu</span>
-              <RiMoreLine className='h-4 w-4' />
-            </Button.Root>
-          </Dropdown.Trigger>
-          <Dropdown.Content align='end'>
-            <Dropdown.Item
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(`/products/${row.original.id}`, '_blank');
-              }}
-            >
-              View Details
-            </Dropdown.Item>
-            <Dropdown.Item
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(`/products/${row.original.id}/edit`, '_blank');
-              }}
-            >
-              Edit
-            </Dropdown.Item>
-          </Dropdown.Content>
-        </Dropdown.Root>
       ),
     },
   ];

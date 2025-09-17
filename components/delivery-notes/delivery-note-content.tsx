@@ -190,38 +190,6 @@ export function DeliveryNoteContent({
         )}
       </div>
 
-      {/* Delivery Status Information */}
-      {(deliveryNote.deliveredByUser || deliveryNote.receivedByUser) && (
-        <div className='rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-6'>
-          <h3 className='text-lg mb-4 font-semibold text-text-strong-950'>
-            Delivery Status
-          </h3>
-
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            {deliveryNote.deliveredByUser && (
-              <div>
-                <label className='text-sm text-gray-500 font-medium'>
-                  Delivered By
-                </label>
-                <p className='mt-1 text-text-strong-950'>
-                  {`${deliveryNote.deliveredByUser.firstName} ${deliveryNote.deliveredByUser.lastName || ''}`.trim()}
-                </p>
-              </div>
-            )}
-
-            {deliveryNote.receivedByUser && (
-              <div>
-                <label className='text-sm text-gray-500 font-medium'>
-                  Received By
-                </label>
-                <p className='mt-1 text-text-strong-950'>
-                  {`${deliveryNote.receivedByUser.firstName} ${deliveryNote.receivedByUser.lastName || ''}`.trim()}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

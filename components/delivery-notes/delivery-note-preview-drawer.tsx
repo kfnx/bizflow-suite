@@ -3,6 +3,8 @@
 import React from 'react';
 import {
   RiCalendarLine,
+  RiCheckLine,
+  RiCloseLine,
   RiEditLine,
   RiExternalLinkLine,
   RiMapPinLine,
@@ -11,10 +13,13 @@ import {
 } from '@remixicon/react';
 import { toast } from 'sonner';
 
+import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
 import {
   DeliveryNote,
   DeliveryNoteDetail,
+  useCancelDeliveryNote,
   useDeliveryNoteDetail,
+  useExecuteDeliveryNote,
 } from '@/hooks/use-delivery-notes';
 import * as Button from '@/components/ui/button';
 import * as Divider from '@/components/ui/divider';
@@ -104,11 +109,6 @@ function DeliveryNotePreviewContent({
                 'Created Date',
                 new Date(deliveryNote.createdAt).toLocaleDateString(),
               )}
-            {deliveryNote.receivedByUser &&
-              renderDetailField(
-                'Received By',
-                `${deliveryNote.receivedByUser.firstName} ${deliveryNote.receivedByUser.lastName}`,
-              )}
           </div>
         </div>
 
@@ -170,6 +170,9 @@ function DeliveryNotePreviewFooter({
   deliveryNote: DeliveryNoteDetail;
   onClose: () => void;
 }) {
+  const executeDeliveryNoteMutation = useExecuteDeliveryNote();
+  const cancelDeliveryNoteMutation = useCancelDeliveryNote();
+
   const handleViewFull = () => {
     window.location.href = `/delivery-notes/${deliveryNote.id}`;
   };
@@ -181,6 +184,54 @@ function DeliveryNotePreviewFooter({
     }
     window.location.href = `/delivery-notes/${deliveryNote.id}/edit`;
   };
+
+  const handleExecute = async () => {
+    if (deliveryNote.status === 'delivered') {
+      toast.warning('Delivery note is already delivered');
+      return;
+    }
+
+    try {
+      await executeDeliveryNoteMutation.mutateAsync(deliveryNote.id);
+      toast.success('Delivery note executed successfully!', {
+        description: 'The delivery note has been marked as delivered.',
+      });
+      onClose();
+    } catch (error) {
+      toast.error('Failed to execute delivery note', {
+        description:
+          error instanceof Error ? error.message : 'An error occurred',
+      });
+    }
+  };
+
+  const handleCancel = async () => {
+    if (deliveryNote.status === 'delivered') {
+      toast.warning('Cannot cancel a delivered delivery note');
+      return;
+    }
+
+    if (deliveryNote.status === 'cancelled') {
+      toast.warning('Delivery note is already cancelled');
+      return;
+    }
+
+    try {
+      await cancelDeliveryNoteMutation.mutateAsync(deliveryNote.id);
+      toast.success('Delivery note cancelled successfully!', {
+        description: 'The delivery note has been cancelled.',
+      });
+      onClose();
+    } catch (error) {
+      toast.error('Failed to cancel delivery note', {
+        description:
+          error instanceof Error ? error.message : 'An error occurred',
+      });
+    }
+  };
+
+  const canExecute = deliveryNote.status === DELIVERY_NOTE_STATUS.PENDING;
+  const canCancel = deliveryNote.status === DELIVERY_NOTE_STATUS.PENDING;
 
   return (
     <Drawer.Footer className='border-t'>
@@ -207,6 +258,35 @@ function DeliveryNotePreviewFooter({
           Edit
         </Button.Root>
       )}
+
+      {canExecute && (
+        <Button.Root
+          variant='primary'
+          size='medium'
+          className='w-full'
+          onClick={handleExecute}
+          disabled={executeDeliveryNoteMutation.isPending}
+        >
+          <Button.Icon as={RiCheckLine} />
+          {executeDeliveryNoteMutation.isPending
+            ? 'Executing...'
+            : 'Execute Delivery'}
+        </Button.Root>
+      )}
+
+      {canCancel && (
+        <Button.Root
+          variant='error'
+          mode='stroke'
+          size='medium'
+          className='w-full'
+          onClick={handleCancel}
+          disabled={cancelDeliveryNoteMutation.isPending}
+        >
+          <Button.Icon as={RiCloseLine} />
+          {cancelDeliveryNoteMutation.isPending ? 'Cancelling...' : 'Cancel'}
+        </Button.Root>
+      )}
     </Drawer.Footer>
   );
 }
@@ -219,19 +299,6 @@ export function DeliveryNotePreviewDrawer({
   const { data, isLoading, error } = useDeliveryNoteDetail(
     deliveryNoteId || '',
   );
-
-  // Debug logging for development
-  React.useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && deliveryNoteId) {
-      console.log('DeliveryNotePreviewDrawer - Data updated:', data);
-      console.log('DeliveryNotePreviewDrawer - Loading:', isLoading);
-      console.log('DeliveryNotePreviewDrawer - Error:', error);
-      console.log(
-        'DeliveryNotePreviewDrawer - DeliveryNoteId:',
-        deliveryNoteId,
-      );
-    }
-  }, [data, isLoading, error, deliveryNoteId]);
 
   if (!open || !deliveryNoteId) return null;
 

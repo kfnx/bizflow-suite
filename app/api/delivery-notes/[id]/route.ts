@@ -51,8 +51,6 @@ export async function GET(
         driverName: deliveryNotes.driverName,
         vehicleNumber: deliveryNotes.vehicleNumber,
         status: deliveryNotes.status,
-        deliveredBy: deliveryNotes.deliveredBy,
-        receivedBy: deliveryNotes.receivedBy,
         notes: deliveryNotes.notes,
         createdBy: deliveryNotes.createdBy,
         createdAt: deliveryNotes.createdAt,
@@ -140,6 +138,7 @@ export async function GET(
       .select({
         id: deliveryNoteItems.id,
         productId: deliveryNoteItems.productId,
+        warehouseId: deliveryNoteItems.warehouseId,
         quantity: deliveryNoteItems.quantity,
         // Product data - include category and additionalSpecs at top level for consistency
         name: products.name,
@@ -164,54 +163,18 @@ export async function GET(
       .leftJoin(products, eq(deliveryNoteItems.productId, products.id))
       .where(eq(deliveryNoteItems.deliveryNoteId, deliveryNoteId));
 
-    // Get user data for deliveredBy and receivedBy
-    const userIds = [];
-    if (deliveryNote.deliveredBy) userIds.push(deliveryNote.deliveredBy);
-    if (deliveryNote.receivedBy) userIds.push(deliveryNote.receivedBy);
 
-    let userData: Record<
-      string,
-      { id: string; firstName: string; lastName: string | null }
-    > = {};
-
-    if (userIds.length > 0) {
-      const usersData = await db
-        .select({
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-        })
-        .from(users)
-        .where(eq(users.id, userIds[0])); // This would need to be adjusted for multiple IDs
-
-      userData = usersData.reduce(
-        (acc, user) => {
-          acc[user.id] = user;
-          return acc;
-        },
-        {} as Record<
-          string,
-          { id: string; firstName: string; lastName: string | null }
-        >,
-      );
-    }
-
-    // Enhance delivery note data with user information and items
+    // Enhance delivery note data with items
     const enhancedDeliveryNote = {
       ...deliveryNote,
       customer: {
         ...deliveryNote.customer,
         contactPersons: contactPersons,
       },
-      deliveredByUser: deliveryNote.deliveredBy
-        ? userData[deliveryNote.deliveredBy] || null
-        : null,
-      receivedByUser: deliveryNote.receivedBy
-        ? userData[deliveryNote.receivedBy] || null
-        : null,
       items: items.map((item) => ({
         id: item.id,
         productId: item.productId,
+        warehouseId: item.warehouseId,
         name: item.name,
         category: item.category,
         additionalSpecs: item.additionalSpecs,
@@ -280,6 +243,12 @@ export async function PUT(
       if (!item.productId) {
         return NextResponse.json(
           { error: `Product is required for item ${i + 1}` },
+          { status: 400 },
+        );
+      }
+      if (!item.warehouseId) {
+        return NextResponse.json(
+          { error: `Warehouse is required for item ${i + 1}` },
           { status: 400 },
         );
       }
@@ -353,6 +322,7 @@ export async function PUT(
       const itemsData = body.items.map((item: any) => ({
         deliveryNoteId,
         productId: item.productId,
+        warehouseId: item.warehouseId,
         quantity: item.quantity,
       }));
 

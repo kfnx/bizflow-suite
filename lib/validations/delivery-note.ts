@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const deliveryNoteItemSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
   quantity: z.number().min(1, 'Quantity must be at least 1'),
+  warehouseId: z.string().min(1, 'Warehouse is required'),
 });
 
 export const deliveryNoteFormSchema = z.object({

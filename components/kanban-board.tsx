@@ -39,7 +39,6 @@ const getStatusColor = (status: string): string => {
     void: 'bg-faded-lighter text-faded-base',
     overdue: 'bg-error-lighter text-error-base',
     pending: 'bg-warning-lighter text-warning-base',
-    in_transit: 'bg-information-lighter text-information-base',
     delivered: 'bg-success-lighter text-success-base',
     cancelled: 'bg-error-lighter text-error-base',
   };

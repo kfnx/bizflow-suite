@@ -59,15 +59,6 @@ export function QuotationSelect({
               <small className='text-muted-foreground'>
                 {quotation.customerName}
               </small>
-              {quotation.validUntil && (
-                <>
-                  <small>•</small>
-                  <small className='text-muted-foreground'>
-                    Valid until{' '}
-                    {new Date(quotation.validUntil).toLocaleDateString()}
-                  </small>
-                </>
-              )}
               {quotation.status && (
                 <>
                   <small>•</small>

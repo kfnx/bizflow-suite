@@ -468,7 +468,6 @@ export default function EditTransferPage({ params }: EditTransferPageProps) {
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value='pending'>Pending</Select.Item>
-                      <Select.Item value='in_transit'>In Transit</Select.Item>
                       <Select.Item value='completed'>Completed</Select.Item>
                       <Select.Item value='cancelled'>Cancelled</Select.Item>
                     </Select.Content>

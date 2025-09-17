@@ -19,12 +19,6 @@ export function DeliveryNoteStatusBadge({
           color: 'orange' as const,
           label: 'Pending',
         };
-      case 'in_transit':
-        return {
-          variant: 'lighter' as const,
-          color: 'blue' as const,
-          label: 'In Transit',
-        };
       case 'delivered':
         return {
           variant: 'lighter' as const,

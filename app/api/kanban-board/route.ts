@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
         deliveryMethod: deliveryNotes.deliveryMethod,
         vehicleNumber: deliveryNotes.vehicleNumber,
         status: deliveryNotes.status,
-        receivedBy: deliveryNotes.receivedBy,
         createdAt: deliveryNotes.createdAt,
       })
       .from(deliveryNotes)

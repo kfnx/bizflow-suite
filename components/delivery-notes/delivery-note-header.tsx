@@ -53,10 +53,8 @@ export function DeliveryNoteHeader({ deliveryNote }: DeliveryNoteHeaderProps) {
   };
 
   const handleMarkAsDelivered = async () => {
-    if (deliveryNote.status !== DELIVERY_NOTE_STATUS.IN_TRANSIT) {
-      toast.warning(
-        'Only in transit delivery notes can be marked as delivered',
-      );
+    if (deliveryNote.status !== DELIVERY_NOTE_STATUS.PENDING) {
+      toast.warning('Only pending delivery notes can be marked as delivered');
       return;
     }
 
@@ -160,7 +158,7 @@ export function DeliveryNoteHeader({ deliveryNote }: DeliveryNoteHeaderProps) {
           </>
         )}
 
-        {deliveryNote.status === DELIVERY_NOTE_STATUS.IN_TRANSIT && (
+        {deliveryNote.status === DELIVERY_NOTE_STATUS.PENDING && (
           <Button.Root
             variant='primary'
             size='small'

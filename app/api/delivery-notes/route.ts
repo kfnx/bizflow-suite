@@ -7,6 +7,7 @@ import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
 import {
   branches,
   customers,
+  deliveryNoteItems,
   deliveryNotes,
   invoices,
   quotations,
@@ -120,8 +121,6 @@ export async function GET(request: NextRequest) {
         driverName: deliveryNotes.driverName,
         vehicleNumber: deliveryNotes.vehicleNumber,
         status: deliveryNotes.status,
-        deliveredBy: deliveryNotes.deliveredBy,
-        receivedBy: deliveryNotes.receivedBy,
         notes: deliveryNotes.notes,
         createdBy: deliveryNotes.createdBy,
         createdAt: deliveryNotes.createdAt,
@@ -162,11 +161,10 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    // Fetch user data for deliveredBy and receivedBy separately
+    // Fetch user data for createdBy
     const userIds = new Set<string>();
     deliveryNotesData.forEach((note) => {
-      if (note.deliveredBy) userIds.add(note.deliveredBy);
-      if (note.receivedBy) userIds.add(note.receivedBy);
+      if (note.createdBy) userIds.add(note.createdBy);
     });
 
     let userData: Record<
@@ -198,11 +196,8 @@ export async function GET(request: NextRequest) {
     // Enhance delivery notes data with user information
     const enhancedDeliveryNotesData = deliveryNotesData.map((note) => ({
       ...note,
-      deliveredByUser: note.deliveredBy
-        ? userData[note.deliveredBy] || null
-        : null,
-      receivedByUser: note.receivedBy
-        ? userData[note.receivedBy] || null
+      createdByUser: note.createdBy
+        ? userData[note.createdBy] || null
         : null,
     }));
 
@@ -278,12 +273,35 @@ export async function POST(request: NextRequest) {
       createdBy: session.user.id,
     };
 
-    await db.insert(deliveryNotes).values(deliveryNoteData);
+    // Insert delivery note and get the ID
+    const result = await db.insert(deliveryNotes).values(deliveryNoteData);
+    
+    // Get the inserted delivery note to get its ID
+    const insertedDeliveryNote = await db
+      .select()
+      .from(deliveryNotes)
+      .where(eq(deliveryNotes.deliveryNumber, deliveryNumber))
+      .limit(1);
+    
+    const deliveryNoteId = insertedDeliveryNote[0]?.id;
+
+    // Insert delivery note items
+    if (body.items && body.items.length > 0 && deliveryNoteId) {
+      const deliveryNoteItemsData = body.items.map((item: { productId: string; quantity: number; warehouseId: string }) => ({
+        deliveryNoteId,
+        productId: item.productId,
+        quantity: item.quantity,
+        warehouseId: item.warehouseId,
+      }));
+
+      await db.insert(deliveryNoteItems).values(deliveryNoteItemsData);
+    }
 
     return NextResponse.json(
       {
         message: 'Delivery note created successfully',
         deliveryNumber,
+        id: deliveryNoteId,
       },
       { status: 201 },
     );

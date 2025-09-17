@@ -38,6 +38,7 @@ const exampleDeliveryNote = {
     {
       id: '1',
       productId: '1',
+      warehouseId: '1',
       quantity: 2,
       product: {
         id: '1',
@@ -51,6 +52,7 @@ const exampleDeliveryNote = {
     {
       id: '2',
       productId: '2',
+      warehouseId: '1',
       quantity: 2,
       product: {
         id: '2',
@@ -64,6 +66,7 @@ const exampleDeliveryNote = {
     {
       id: '3',
       productId: '3',
+      warehouseId: '1',
       quantity: 2,
       product: {
         id: '3',
@@ -77,6 +80,7 @@ const exampleDeliveryNote = {
     {
       id: '4',
       productId: '4',
+      warehouseId: '1',
       quantity: 2,
       product: {
         id: '4',
@@ -90,6 +94,7 @@ const exampleDeliveryNote = {
     {
       id: '5',
       productId: '5',
+      warehouseId: '1',
       quantity: 2,
       product: {
         id: '5',
@@ -103,6 +108,7 @@ const exampleDeliveryNote = {
     {
       id: '6',
       productId: '6',
+      warehouseId: '1',
       quantity: 2,
       product: {
         id: '6',
@@ -151,6 +157,7 @@ const exampleSerializedDeliveryNote = {
     {
       id: '1',
       productId: '1',
+      warehouseId: '1',
       quantity: 1,
       product: {
         id: '1',

@@ -1,0 +1,3 @@
+ALTER TABLE `delivery_notes` MODIFY COLUMN `status` enum('pending','delivered','cancelled') DEFAULT 'pending';--> statement-breakpoint
+ALTER TABLE `delivery_note_items` ADD CONSTRAINT `fk_delivery_note_items_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX `warehouse_id_idx` ON `delivery_note_items` (`warehouse_id`);

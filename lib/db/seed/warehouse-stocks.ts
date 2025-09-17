@@ -26,7 +26,7 @@ export const warehouseStocks: InsertWarehouseStock[] = [
   },
   {
     warehouseId: warehouseIds.warehouse1,
-    productId: productIds.product9, // Komatsu PC200-8 Excavator
+    productId: productIds.product7, // Komatsu PC200-8 Excavator
     condition: 'used',
     quantity: 1,
   },
@@ -100,13 +100,13 @@ export const warehouseStocks: InsertWarehouseStock[] = [
   },
   {
     warehouseId: warehouseIds.warehouse2,
-    productId: productIds.product3, // Shantui SL36-B3 Wheel Loader (2019)
+    productId: productIds.product3, // Shantui SL30W Wheel Loader
     condition: 'used',
     quantity: 1,
   },
   {
     warehouseId: warehouseIds.warehouse2,
-    productId: productIds.product5, // Shantui SFD35-3000 Excavator
+    productId: productIds.product5, // Shantui SE135 Excavator
     condition: 'refurbished',
     quantity: 1,
   },

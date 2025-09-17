@@ -7,6 +7,7 @@ import {
   RiCalendarLine,
   RiDeleteBinLine,
   RiShoppingCartLine,
+  RiStoreLine,
   RiTruckLine,
   RiUserLine,
 } from '@remixicon/react';
@@ -21,6 +22,7 @@ import {
 import { useDeliveryNoteNumber } from '@/hooks/use-delivery-note-number';
 import { useInvoiceDetail } from '@/hooks/use-invoices';
 import { useQuotationDetail } from '@/hooks/use-quotations';
+import { useWarehouses } from '@/hooks/use-warehouses';
 import * as Button from '@/components/ui/button';
 import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
@@ -42,6 +44,7 @@ interface DeliveryNoteFormProps {
   isLoadingData?: boolean;
   onCancel?: () => void;
   onSubmit?: (data: DeliveryNoteFormData) => Promise<void>;
+  onCreateAndExecute?: (data: DeliveryNoteFormData) => Promise<void>;
 }
 
 interface ValidationErrors {
@@ -70,6 +73,7 @@ export function DeliveryNoteForm({
   isLoadingData = false,
   onCancel,
   onSubmit,
+  onCreateAndExecute,
 }: DeliveryNoteFormProps) {
   const [formData, setFormData] = useState<DeliveryNoteFormData>(
     initialFormData || emptyFormData,
@@ -92,6 +96,8 @@ export function DeliveryNoteForm({
   const { data: invoice, isFetching: isFetchingInvoice } = useInvoiceDetail(
     formData.invoiceId || '',
   );
+
+  const { data: warehouses, isLoading: isLoadingWarehouses } = useWarehouses();
 
   // Update form data when initialFormData changes (for edit mode)
   useEffect(() => {
@@ -117,6 +123,7 @@ export function DeliveryNoteForm({
             invoice?.data?.items.map((item: any) => ({
               productId: item.productId,
               quantity: parseInt(item.quantity) || 1,
+              warehouseId: '',
               name: item.name,
               category: item.category || '',
             })) || [],
@@ -147,6 +154,7 @@ export function DeliveryNoteForm({
             quotation?.data?.items.map((item: any) => ({
               productId: item.productId,
               quantity: parseInt(item.quantity) || 1,
+              warehouseId: '',
               name: item.name,
               category: item.category || '',
             })) || [],
@@ -211,6 +219,7 @@ export function DeliveryNoteForm({
         {
           productId: '',
           quantity: 1,
+          warehouseId: '',
         },
       ];
       return {
@@ -550,7 +559,40 @@ export function DeliveryNoteForm({
                     </p>
                   )}
                 </div>
-                <div className='col-span-10 flex flex-col gap-1 lg:col-span-6'>
+                <div className='col-span-12 flex flex-col gap-1 lg:col-span-3'>
+                  <Label.Root htmlFor={`warehouse-${index}`}>
+                    Warehouse <Label.Asterisk />
+                  </Label.Root>
+                  <Select.Root
+                    value={item.warehouseId}
+                    onValueChange={(value) =>
+                      updateItem(index, 'warehouseId', value)
+                    }
+                  >
+                    <Select.Trigger>
+                      <RiStoreLine className='size-6' />
+                      <Select.Value placeholder='Select warehouse' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {isLoadingWarehouses ? (
+                        <Select.Item value='loading' disabled>
+                          Loading warehouses...
+                        </Select.Item>
+                      ) : warehouses?.data && warehouses.data.length > 0 ? (
+                        warehouses.data.map((warehouse) => (
+                          <Select.Item key={warehouse.id} value={warehouse.id}>
+                            {warehouse.name}
+                          </Select.Item>
+                        ))
+                      ) : (
+                        <Select.Item value='no-warehouses' disabled>
+                          No warehouses available
+                        </Select.Item>
+                      )}
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+                <div className='col-span-10 flex flex-col gap-1 lg:col-span-3'>
                   <Label.Root htmlFor={`quantity-${index}`}>
                     Quantity
                   </Label.Root>
@@ -602,16 +644,33 @@ export function DeliveryNoteForm({
           </Button.Root>
         </div>
       </div>
-      <div className='flex justify-end space-x-3'>
+      <div className='flex justify-end gap-3'>
         <Button.Root
           variant='neutral'
-          mode='stroke'
-          onClick={onCancel || (() => router.push('/delivery-notes'))}
+          mode='lighter'
+          onClick={onCancel}
           type='button'
           disabled={isSubmitting}
         >
           Cancel
         </Button.Root>
+        {/* 
+        // DISABLED FOR NOW, buggy race condition. TODO: use its own api
+        {mode === 'create' && onCreateAndExecute && (
+          <Button.Root
+            variant='neutral'
+            mode='filled'
+            type='button'
+            disabled={isSubmitting || formData.items.length === 0}
+            onClick={async () => {
+              if (await validateForm()) {
+                await onCreateAndExecute(formData);
+              }
+            }}
+          >
+            {isSubmitting ? 'Creating & Executing...' : 'Create & Execute'}
+          </Button.Root>
+        )} */}
         <Button.Root
           variant='primary'
           mode='filled'

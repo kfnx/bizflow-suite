@@ -2,16 +2,20 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RiEditLine } from '@remixicon/react';
+import { RiCheckLine, RiCloseLine, RiEditLine } from '@remixicon/react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
+import { DELIVERY_NOTE_STATUS } from '@/lib/db/enum';
 import { hasPermission } from '@/lib/permissions';
 import { DeliveryNoteFormData } from '@/lib/validations/delivery-note';
 import {
   useDeliveryNoteDetail,
+  useExecuteDeliveryNote,
   useUpdateDeliveryNote,
+  useCancelDeliveryNote,
 } from '@/hooks/use-delivery-notes';
+import * as Button from '@/components/ui/button';
 import { PermissionGate } from '@/components/auth/permission-gate';
 import { BackButton } from '@/components/back-button';
 import { DeliveryNoteForm } from '@/components/delivery-notes/delivery-note-form';
@@ -29,6 +33,8 @@ export default function EditDeliveryNotePage({
   const { data: session, status } = useSession();
   const router = useRouter();
   const updateDeliveryNoteMutation = useUpdateDeliveryNote();
+  const executeDeliveryNoteMutation = useExecuteDeliveryNote();
+  const cancelDeliveryNoteMutation = useCancelDeliveryNote();
   const {
     data: deliveryNoteData,
     isLoading: isLoadingData,
@@ -67,6 +73,55 @@ export default function EditDeliveryNotePage({
     }
   };
 
+  const handleExecute = async () => {
+    if (!deliveryNoteData) return;
+
+    if (deliveryNoteData.status === 'delivered') {
+      toast.warning('Delivery note is already delivered');
+      return;
+    }
+
+    try {
+      await executeDeliveryNoteMutation.mutateAsync(params.id);
+      toast.success('Delivery note executed successfully!', {
+        description: 'The delivery note has been marked as delivered.',
+      });
+      router.push('/delivery-notes');
+    } catch (error) {
+      toast.error('Failed to execute delivery note', {
+        description:
+          error instanceof Error ? error.message : 'An error occurred',
+      });
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!deliveryNoteData) return;
+
+    if (deliveryNoteData.status === 'delivered') {
+      toast.warning('Cannot cancel a delivered delivery note');
+      return;
+    }
+
+    if (deliveryNoteData.status === 'cancelled') {
+      toast.warning('Delivery note is already cancelled');
+      return;
+    }
+
+    try {
+      await cancelDeliveryNoteMutation.mutateAsync(params.id);
+      toast.success('Delivery note cancelled successfully!', {
+        description: 'The delivery note has been cancelled.',
+      });
+      router.push('/delivery-notes');
+    } catch (error) {
+      toast.error('Failed to cancel delivery note', {
+        description:
+          error instanceof Error ? error.message : 'An error occurred',
+      });
+    }
+  };
+
   // Transform delivery note data to form data
   const transformedFormData: DeliveryNoteFormData | null = deliveryNoteData
     ? {
@@ -83,6 +138,7 @@ export default function EditDeliveryNotePage({
         items: deliveryNoteData.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
+          warehouseId: item.warehouseId,
         })),
       }
     : null;
@@ -112,6 +168,9 @@ export default function EditDeliveryNotePage({
     );
   }
 
+  const canExecute = deliveryNoteData.status === DELIVERY_NOTE_STATUS.PENDING;
+  const canCancel = deliveryNoteData.status === DELIVERY_NOTE_STATUS.PENDING;
+
   return (
     <PermissionGate permission='deliveries:update'>
       <Header
@@ -123,7 +182,34 @@ export default function EditDeliveryNotePage({
         title='Edit Delivery Note'
         description='Edit delivery note details and delivery information.'
       >
-        <BackButton href='/delivery-notes' label='Back to Delivery Notes' />
+        <div className='flex items-center gap-2'>
+          {canExecute && (
+            <Button.Root
+              variant='primary'
+              size='medium'
+              onClick={handleExecute}
+              disabled={executeDeliveryNoteMutation.isPending}
+            >
+              <Button.Icon as={RiCheckLine} />
+              {executeDeliveryNoteMutation.isPending
+                ? 'Executing...'
+                : 'Execute Delivery'}
+            </Button.Root>
+          )}
+          {canCancel && (
+            <Button.Root
+              variant='error'
+              mode='stroke'
+              size='medium'
+              onClick={handleCancel}
+              disabled={cancelDeliveryNoteMutation.isPending}
+            >
+              <Button.Icon as={RiCloseLine} />
+              {cancelDeliveryNoteMutation.isPending ? 'Cancelling...' : 'Cancel'}
+            </Button.Root>
+          )}
+          <BackButton href='/delivery-notes' label='Back to Delivery Notes' />
+        </div>
       </Header>
 
       <DeliveryNoteForm

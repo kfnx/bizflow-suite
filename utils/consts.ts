@@ -91,26 +91,9 @@ export const PRODUCT_CONDITIONS = {
 export type ProductCondition =
   (typeof PRODUCT_CONDITIONS)[keyof typeof PRODUCT_CONDITIONS];
 
-// Product Status
-export const PRODUCT_STATUS = {
-  IN_STOCK: 'in_stock',
-  OUT_OF_STOCK: 'out_of_stock',
-} as const;
-
-export type ProductStatus =
-  (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
-
 // Get condition options for select components
 export const getConditionOptions = () => {
   return Object.entries(PRODUCT_CONDITIONS).map(([key, value]) => ({
-    label: formatCategory(value),
-    value: value,
-  }));
-};
-
-// Get status options for select components
-export const getStatusOptions = () => {
-  return Object.entries(PRODUCT_STATUS).map(([key, value]) => ({
     label: formatCategory(value),
     value: value,
   }));

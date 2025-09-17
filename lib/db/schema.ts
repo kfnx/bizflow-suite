@@ -528,8 +528,6 @@ export const deliveryNotes = mysqlTable(
     status: mysqlEnum('status', DELIVERY_NOTE_STATUS).default(
       DELIVERY_NOTE_STATUS.PENDING,
     ),
-    deliveredBy: varchar('delivered_by', { length: 36 }), // @deprecated will be removed
-    receivedBy: varchar('received_by', { length: 36 }),
     notes: text('notes'),
     createdBy: varchar('created_by', { length: 36 }).notNull(), // == preparedBy
     createdAt: timestamp('created_at').defaultNow(),
@@ -567,16 +565,6 @@ export const deliveryNotes = mysqlTable(
       foreignColumns: [users.id],
       name: 'fk_delivery_notes_created_by',
     }),
-    foreignKey({
-      columns: [table.deliveredBy],
-      foreignColumns: [users.id],
-      name: 'fk_delivery_notes_delivered_by',
-    }),
-    foreignKey({
-      columns: [table.receivedBy],
-      foreignColumns: [users.id],
-      name: 'fk_delivery_notes_received_by',
-    }),
   ],
 );
 
@@ -590,12 +578,14 @@ export const deliveryNoteItems = mysqlTable(
       .default(sql`(UUID())`),
     deliveryNoteId: varchar('delivery_note_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
+    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
     index('delivery_note_id_idx').on(table.deliveryNoteId),
     index('product_id_idx').on(table.productId),
+    index('warehouse_id_idx').on(table.warehouseId),
     foreignKey({
       columns: [table.deliveryNoteId],
       foreignColumns: [deliveryNotes.id],
@@ -605,6 +595,11 @@ export const deliveryNoteItems = mysqlTable(
       columns: [table.productId],
       foreignColumns: [products.id],
       name: 'fk_delivery_note_items_product',
+    }),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_delivery_note_items_warehouse',
     }),
   ],
 );
@@ -1172,16 +1167,6 @@ export const deliveryNotesRelations = relations(
       fields: [deliveryNotes.createdBy],
       references: [users.id],
     }),
-    deliveredBy: one(users, {
-      fields: [deliveryNotes.deliveredBy],
-      references: [users.id],
-      relationName: 'deliveredBy',
-    }),
-    receivedBy: one(users, {
-      fields: [deliveryNotes.receivedBy],
-      references: [users.id],
-      relationName: 'receivedBy',
-    }),
     deliveryNoteItems: many(deliveryNoteItems),
   }),
 );
@@ -1196,6 +1181,10 @@ export const deliveryNoteItemsRelations = relations(
     product: one(products, {
       fields: [deliveryNoteItems.productId],
       references: [products.id],
+    }),
+    warehouse: one(warehouses, {
+      fields: [deliveryNoteItems.warehouseId],
+      references: [warehouses.id],
     }),
   }),
 );
@@ -1419,7 +1408,7 @@ export interface InvoiceQueryParams {
 
 export interface DeliveryNoteQueryParams {
   search?: string;
-  status?: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
+  status?: 'pending' | 'delivered' | 'cancelled';
   customerId?: string;
   invoiceId?: string;
   quotationId?: string;

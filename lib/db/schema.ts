@@ -578,12 +578,14 @@ export const deliveryNoteItems = mysqlTable(
       .default(sql`(UUID())`),
     deliveryNoteId: varchar('delivery_note_id', { length: 36 }).notNull(),
     productId: varchar('product_id', { length: 36 }).notNull(),
+    warehouseId: varchar('warehouse_id', { length: 36 }).notNull(),
     quantity: int('quantity').notNull(),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [
     index('delivery_note_id_idx').on(table.deliveryNoteId),
     index('product_id_idx').on(table.productId),
+    index('warehouse_id_idx').on(table.warehouseId),
     foreignKey({
       columns: [table.deliveryNoteId],
       foreignColumns: [deliveryNotes.id],
@@ -593,6 +595,11 @@ export const deliveryNoteItems = mysqlTable(
       columns: [table.productId],
       foreignColumns: [products.id],
       name: 'fk_delivery_note_items_product',
+    }),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouses.id],
+      name: 'fk_delivery_note_items_warehouse',
     }),
   ],
 );
@@ -1174,6 +1181,10 @@ export const deliveryNoteItemsRelations = relations(
     product: one(products, {
       fields: [deliveryNoteItems.productId],
       references: [products.id],
+    }),
+    warehouse: one(warehouses, {
+      fields: [deliveryNoteItems.warehouseId],
+      references: [warehouses.id],
     }),
   }),
 );

@@ -80,14 +80,13 @@ CREATE TABLE `delivery_notes` (
 	`branch_id` varchar(36),
 	`delivery_number` varchar(50) NOT NULL,
 	`invoice_id` varchar(36),
+	`quotation_id` varchar(36),
 	`customer_id` varchar(36) NOT NULL,
 	`delivery_date` date NOT NULL,
 	`delivery_method` varchar(100),
 	`driver_name` varchar(100),
 	`vehicle_number` varchar(20),
-	`status` enum('pending','in_transit','delivered','cancelled') DEFAULT 'pending',
-	`delivered_by` varchar(36),
-	`received_by` varchar(36),
+	`status` enum('pending','delivered','cancelled') DEFAULT 'pending',
 	`notes` text,
 	`created_by` varchar(36) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
@@ -182,6 +181,7 @@ CREATE TABLE `invoices` (
 --> statement-breakpoint
 CREATE TABLE `machine_model` (
 	`id` varchar(36) NOT NULL,
+	`model` varchar(100) NOT NULL,
 	`name` varchar(100) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `machine_model_id` PRIMARY KEY(`id`)
@@ -196,6 +196,7 @@ CREATE TABLE `machine_types` (
 --> statement-breakpoint
 CREATE TABLE `part_numbers` (
 	`id` varchar(36) NOT NULL,
+	`number` varchar(100) NOT NULL,
 	`name` varchar(100) NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	CONSTRAINT `part_numbers_id` PRIMARY KEY(`id`)
@@ -221,7 +222,6 @@ CREATE TABLE `products` (
 	`category` enum('serialized','non_serialized','bulk') NOT NULL,
 	`unit_of_measure_id` varchar(36),
 	`brand_id` varchar(36),
-	`quantity` int NOT NULL DEFAULT 1,
 	`machine_type_id` varchar(36),
 	`machine_model` varchar(100),
 	`engine_number` varchar(100),
@@ -229,12 +229,7 @@ CREATE TABLE `products` (
 	`additional_specs` text,
 	`part_number` varchar(100),
 	`batch_or_lot_number` varchar(100),
-	`status` varchar(50) DEFAULT 'in_stock',
 	`price` decimal(17,2) NOT NULL DEFAULT '0.00',
-	`condition` varchar(50) DEFAULT 'new',
-	`warehouse_id` varchar(36),
-	`supplier_id` varchar(36),
-	`import_notes` text,
 	`is_active` boolean DEFAULT true,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -458,11 +453,10 @@ ALTER TABLE `customer_contact_persons` ADD CONSTRAINT `fk_customer_contact_perso
 ALTER TABLE `delivery_note_items` ADD CONSTRAINT `fk_delivery_note_items_delivery_note` FOREIGN KEY (`delivery_note_id`) REFERENCES `delivery_notes`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_note_items` ADD CONSTRAINT `fk_delivery_note_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `invoices`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_quotation` FOREIGN KEY (`quotation_id`) REFERENCES `quotations`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_delivered_by` FOREIGN KEY (`delivered_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `delivery_notes` ADD CONSTRAINT `fk_delivery_notes_received_by` FOREIGN KEY (`received_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_import` FOREIGN KEY (`import_id`) REFERENCES `imports`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `import_items` ADD CONSTRAINT `fk_import_items_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -478,8 +472,6 @@ ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_customer` FOREIGN KEY (`custo
 ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `invoices` ADD CONSTRAINT `fk_invoices_salesman_user` FOREIGN KEY (`salesman_user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `products` ADD CONSTRAINT `fk_products_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `products` ADD CONSTRAINT `fk_products_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_machine_type` FOREIGN KEY (`machine_type_id`) REFERENCES `machine_types`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `fk_products_unit_of_measure` FOREIGN KEY (`unit_of_measure_id`) REFERENCES `unit_of_measures`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -515,6 +507,7 @@ CREATE INDEX `delivery_note_id_idx` ON `delivery_note_items` (`delivery_note_id`
 CREATE INDEX `product_id_idx` ON `delivery_note_items` (`product_id`);--> statement-breakpoint
 CREATE INDEX `delivery_number_idx` ON `delivery_notes` (`delivery_number`);--> statement-breakpoint
 CREATE INDEX `invoice_id_idx` ON `delivery_notes` (`invoice_id`);--> statement-breakpoint
+CREATE INDEX `quotation_id_idx` ON `delivery_notes` (`quotation_id`);--> statement-breakpoint
 CREATE INDEX `customer_id_idx` ON `delivery_notes` (`customer_id`);--> statement-breakpoint
 CREATE INDEX `status_idx` ON `delivery_notes` (`status`);--> statement-breakpoint
 CREATE INDEX `created_by_idx` ON `delivery_notes` (`created_by`);--> statement-breakpoint
@@ -536,9 +529,6 @@ CREATE INDEX `name_idx` ON `permissions` (`name`);--> statement-breakpoint
 CREATE INDEX `name_id_idx` ON `products` (`name`);--> statement-breakpoint
 CREATE INDEX `brand_id_idx` ON `products` (`brand_id`);--> statement-breakpoint
 CREATE INDEX `category_idx` ON `products` (`category`);--> statement-breakpoint
-CREATE INDEX `status_idx` ON `products` (`status`);--> statement-breakpoint
-CREATE INDEX `supplier_id_idx` ON `products` (`supplier_id`);--> statement-breakpoint
-CREATE INDEX `warehouse_id_idx` ON `products` (`warehouse_id`);--> statement-breakpoint
 CREATE INDEX `quotation_id_idx` ON `purchase_orders` (`quotation_id`);--> statement-breakpoint
 CREATE INDEX `number_idx` ON `purchase_orders` (`number`);--> statement-breakpoint
 CREATE INDEX `created_by_idx` ON `purchase_orders` (`created_by`);--> statement-breakpoint

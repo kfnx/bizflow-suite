@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1757602235704,
-      "tag": "0000_low_slipstream",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1757609540877,
-      "tag": "0001_stormy_harrier",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1758015069611,
-      "tag": "0002_orange_jazinda",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1758080942616,
-      "tag": "0003_loud_pepper_potts",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1758081670845,
-      "tag": "0004_flat_kinsey_walden",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1758090271398,
-      "tag": "0005_chunky_roulette",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1758099165758,
-      "tag": "0006_cynical_queen_noir",
+      "when": 1758111197573,
+      "tag": "0000_jittery_pepper_potts",
       "breakpoints": true
     }
   ]

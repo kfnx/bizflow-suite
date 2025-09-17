@@ -29,10 +29,12 @@ import * as Input from '@/components/ui/input';
 import * as Label from '@/components/ui/label';
 import * as Select from '@/components/ui/select';
 import * as TextArea from '@/components/ui/textarea';
+import { ProductSelect } from '@/components/products/product-select';
 
 interface ProductItem {
   id?: string;
   productId?: string;
+  productMode: 'new' | 'existing';
   name: string;
   description?: string;
   category: 'serialized' | 'non_serialized' | 'bulk';
@@ -109,8 +111,15 @@ function ProductItemForm({
   onValidateSerialNumber,
 }: ProductItemFormProps) {
   const handleFieldChange = (field: keyof ProductItem, value: any) => {
-    // Handle category changes - reset quantity to 1 only when changing category
-    if (field === 'category') {
+    // Handle productMode changes - clear existing product fields when switching to new
+    if (field === 'productMode') {
+      const updatedItem = { ...item, [field]: value };
+      if (value === 'new') {
+        // Clear productId when switching to new mode
+        updatedItem.productId = undefined;
+      }
+      onUpdate(updatedItem);
+    } else if (field === 'category') {
       // When changing to serialized, reset quantity to 1 and set unitOfMeasureId to 'Unit'
       // But allow manual quantity changes afterward
       const updatedItem = { ...item, [field]: value };
@@ -167,415 +176,535 @@ function ProductItemForm({
           </Button.Root>
         )}
       </div>
-      <div className='mb-4 grid grid-cols-1 gap-6 sm:grid-cols-2'>
-        <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`category-${index}`}>
-            Type <Label.Asterisk />
-          </Label.Root>
-          <Select.Root
-            value={item.category}
-            onValueChange={(value) => handleFieldChange('category', value)}
+
+      {/* Product Mode Selection */}
+      <div className='mb-6'>
+        <Label.Root htmlFor={`productMode-${index}`}>
+          Product Mode <Label.Asterisk />
+        </Label.Root>
+        <div className='mt-2 grid grid-cols-2 gap-2'>
+          <button
+            type='button'
+            onClick={() => handleFieldChange('productMode', 'new')}
+            className={`text-sm flex items-center justify-center rounded-lg border px-4 py-3 font-medium transition-colors ${
+              item.productMode === 'new'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'hover:border-stroke-soft-300 border-stroke-soft-200 text-text-sub-600'
+            }`}
           >
-            <Select.Trigger id={`category-${index}`}>
-              <Select.Value placeholder='Select type' />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value='serialized'>Serialized</Select.Item>
-              <Select.Item value='non_serialized'>Non-Serialized</Select.Item>
-              <Select.Item value='bulk'>Bulk</Select.Item>
-            </Select.Content>
-          </Select.Root>
-        </div>
-        <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`brandInput-${index}`}>
-            Brand <Label.Asterisk />
-          </Label.Root>
-          <Select.Root
-            value={item.brandId || ''}
-            onValueChange={(value) => handleFieldChange('brandId', value)}
-            disabled={brandsLoading}
+            Create New Product
+          </button>
+          <button
+            type='button'
+            onClick={() => handleFieldChange('productMode', 'existing')}
+            className={`text-sm flex items-center justify-center rounded-lg border px-4 py-3 font-medium transition-colors ${
+              item.productMode === 'existing'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'hover:border-stroke-soft-300 border-stroke-soft-200 text-text-sub-600'
+            }`}
           >
-            <Select.Trigger id={`brandInput-${index}`}>
-              <Select.Value
-                placeholder={
-                  brandsLoading ? 'Loading brands...' : 'Select brand'
-                }
-              />
-            </Select.Trigger>
-            <Select.Content>
-              {brands.map((brand) => (
-                <Select.Item key={brand.id} value={brand.id}>
-                  {brand.name}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Root>
-          {getFieldError('brandId') && (
-            <div className='text-xs text-red-600'>
-              {getFieldError('brandId')}
-            </div>
-          )}
-        </div>
-        <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`name-${index}`}>
-            Name <Label.Asterisk />
-          </Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`name-${index}`}
-                value={item.name}
-                onChange={(e) => handleFieldChange('name', e.target.value)}
-                placeholder='Enter item name'
-              />
-            </Input.Wrapper>
-          </Input.Root>
-          {getFieldError('name') && (
-            <div className='text-xs text-red-600'>{getFieldError('name')}</div>
-          )}
-        </div>
-        <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`description-${index}`}>Description</Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`description-${index}`}
-                value={item.description || ''}
-                onChange={(e) =>
-                  handleFieldChange('description', e.target.value)
-                }
-                placeholder='Enter description (optional)'
-              />
-            </Input.Wrapper>
-          </Input.Root>
-        </div>
-        <div className='flex flex-col gap-2'>
-          <Label.Root htmlFor={`condition-${index}`}>
-            Condition <Label.Asterisk />
-          </Label.Root>
-          <Select.Root
-            value={item.condition}
-            onValueChange={(value) => handleFieldChange('condition', value)}
-          >
-            <Select.Trigger id={`condition-${index}`}>
-              <Select.Value placeholder='Select condition' />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value='new'>New</Select.Item>
-              <Select.Item value='used'>Used</Select.Item>
-              <Select.Item value='refurbished'>Refurbished</Select.Item>
-            </Select.Content>
-          </Select.Root>
-          {getFieldError('condition') && (
-            <div className='text-xs text-red-600'>
-              {getFieldError('condition')}
-            </div>
-          )}
+            Add to Existing Product
+          </button>
         </div>
       </div>
 
-      {/* Category-specific fields */}
-      {item.category === 'serialized' && (
-        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`machineType-${index}`}>
-              Machine Type <Label.Asterisk />
-            </Label.Root>
-            <Select.Root
-              value={item.machineTypeId || ''}
-              onValueChange={(value) =>
-                handleFieldChange('machineTypeId', value)
-              }
-            >
-              <Select.Trigger id={`machineType-${index}`}>
-                <Select.Value placeholder='Select type' />
-              </Select.Trigger>
-              <Select.Content>
-                {machineTypes.map((type) => (
-                  <Select.Item key={type.id} value={type.id}>
-                    {type.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-            {getFieldError('machineTypeId') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('machineTypeId')}
-              </div>
-            )}
+      {/* Existing Product Selection */}
+      {item.productMode === 'existing' && (
+        <div className='mb-6'>
+          <Label.Root htmlFor={`existingProduct-${index}`}>
+            Select Existing Product <Label.Asterisk />
+          </Label.Root>
+          <div className='mt-2'>
+            <ProductSelect
+              value={item.productId || ''}
+              onValueChange={(value) => handleFieldChange('productId', value)}
+              onProductSelect={(product) => {
+                // Auto-fill some fields when selecting existing product
+                const updatedItem = {
+                  ...item,
+                  productId: product.id,
+                  name: product.name,
+                  description: product.description || '',
+                  category: product.category as
+                    | 'serialized'
+                    | 'non_serialized'
+                    | 'bulk',
+                  brandId: product.brandId || '',
+                  condition: 'new' as const,
+                  machineTypeId: product.machineTypeId || '',
+                  unitOfMeasureId: product.unitOfMeasureId || '',
+                  partNumber: product.partNumber || '',
+                  machineModel: product.machineModel || '',
+                };
+                onUpdate(updatedItem);
+              }}
+              placeholder='Select existing product'
+            />
           </div>
+          {getFieldError('productId') && (
+            <div className='text-xs text-red-600'>
+              {getFieldError('productId')}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* For existing products, only show quantity. For new products, show all fields */}
+      {item.productMode === 'existing' ? (
+        // Existing product mode - only show quantity
+        <div className='mb-4'>
           <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`serialNumber-${index}`}>
-              Serial Number <Label.Asterisk />
+            <Label.Root htmlFor={`quantity-${index}`}>
+              Quantity <Label.Asterisk />
             </Label.Root>
             <Input.Root>
               <Input.Wrapper>
                 <Input.Input
-                  id={`serialNumber-${index}`}
-                  value={item.serialNumber || ''}
+                  id={`quantity-${index}`}
+                  type='number'
+                  min='1'
+                  value={item.quantity}
                   onChange={(e) =>
-                    handleFieldChange('serialNumber', e.target.value)
+                    handleFieldChange('quantity', e.target.value)
                   }
-                  onBlur={(e) => onValidateSerialNumber?.(e.target.value)}
-                  placeholder='e.g. SD32'
+                  placeholder='1'
                 />
               </Input.Wrapper>
             </Input.Root>
-            {getFieldError('serialNumber') && (
+            {getFieldError('quantity') && (
               <div className='text-xs text-red-600'>
-                {getFieldError('serialNumber')}
+                {getFieldError('quantity')}
               </div>
             )}
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`machineModel-${index}`}>
-              Machine Model <Label.Asterisk />
-            </Label.Root>
-            <Select.Root
-              value={item.machineModel || ''}
-              onValueChange={(value) =>
-                handleFieldChange('machineModel', value)
-              }
-              disabled={!machineModel}
-            >
-              <Select.Trigger id={`machineModel-${index}`}>
-                <Select.Value
-                  placeholder={
-                    !machineModel ? 'Loading...' : 'Select machine model'
-                  }
-                />
-              </Select.Trigger>
-              <Select.Content>
-                {machineModel.map((machineModel) => (
-                  <Select.Item key={machineModel.id} value={machineModel.id}>
-                    {machineModel.name}
+        </div>
+      ) : (
+        // New product mode - show all fields
+        <>
+          <div className='mb-4 grid grid-cols-1 gap-6 sm:grid-cols-2'>
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor={`category-${index}`}>
+                Type <Label.Asterisk />
+              </Label.Root>
+              <Select.Root
+                value={item.category}
+                onValueChange={(value) => handleFieldChange('category', value)}
+              >
+                <Select.Trigger id={`category-${index}`}>
+                  <Select.Value placeholder='Select type' />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value='serialized'>Serialized</Select.Item>
+                  <Select.Item value='non_serialized'>
+                    Non-Serialized
                   </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-            {getFieldError('machineModel') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('machineModel')}
-              </div>
-            )}
+                  <Select.Item value='bulk'>Bulk</Select.Item>
+                </Select.Content>
+              </Select.Root>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor={`brandInput-${index}`}>
+                Brand <Label.Asterisk />
+              </Label.Root>
+              <Select.Root
+                value={item.brandId || ''}
+                onValueChange={(value) => handleFieldChange('brandId', value)}
+                disabled={brandsLoading}
+              >
+                <Select.Trigger id={`brandInput-${index}`}>
+                  <Select.Value
+                    placeholder={
+                      brandsLoading ? 'Loading brands...' : 'Select brand'
+                    }
+                  />
+                </Select.Trigger>
+                <Select.Content>
+                  {brands.map((brand) => (
+                    <Select.Item key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+              {getFieldError('brandId') && (
+                <div className='text-xs text-red-600'>
+                  {getFieldError('brandId')}
+                </div>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor={`name-${index}`}>
+                Name <Label.Asterisk />
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id={`name-${index}`}
+                    value={item.name}
+                    onChange={(e) => handleFieldChange('name', e.target.value)}
+                    placeholder='Enter item name'
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+              {getFieldError('name') && (
+                <div className='text-xs text-red-600'>
+                  {getFieldError('name')}
+                </div>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor={`description-${index}`}>
+                Description
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id={`description-${index}`}
+                    value={item.description || ''}
+                    onChange={(e) =>
+                      handleFieldChange('description', e.target.value)
+                    }
+                    placeholder='Enter description (optional)'
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label.Root htmlFor={`condition-${index}`}>
+                Condition <Label.Asterisk />
+              </Label.Root>
+              <Select.Root
+                value={item.condition}
+                onValueChange={(value) => handleFieldChange('condition', value)}
+              >
+                <Select.Trigger id={`condition-${index}`}>
+                  <Select.Value placeholder='Select condition' />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value='new'>New</Select.Item>
+                  <Select.Item value='used'>Used</Select.Item>
+                  <Select.Item value='refurbished'>Refurbished</Select.Item>
+                </Select.Content>
+              </Select.Root>
+              {getFieldError('condition') && (
+                <div className='text-xs text-red-600'>
+                  {getFieldError('condition')}
+                </div>
+              )}
+            </div>
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`engineNumber-${index}`}>
-              Engine Number <Label.Asterisk />
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id={`engineNumber-${index}`}
-                  value={item.engineNumber || ''}
-                  onChange={(e) =>
-                    handleFieldChange('engineNumber', e.target.value)
+
+          {/* Category-specific fields */}
+          {item.category === 'serialized' && (
+            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor={`machineType-${index}`}>
+                  Machine Type <Label.Asterisk />
+                </Label.Root>
+                <Select.Root
+                  value={item.machineTypeId || ''}
+                  onValueChange={(value) =>
+                    handleFieldChange('machineTypeId', value)
                   }
-                  placeholder='Engine Number'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-            {getFieldError('engineNumber') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('engineNumber')}
+                >
+                  <Select.Trigger id={`machineType-${index}`}>
+                    <Select.Value placeholder='Select type' />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {machineTypes.map((type) => (
+                      <Select.Item key={type.id} value={type.id}>
+                        {type.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                {getFieldError('machineTypeId') && (
+                  <div className='text-xs text-red-600'>
+                    {getFieldError('machineTypeId')}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className='col-span-full flex flex-col gap-2'>
-            <Label.Root htmlFor={`additionalSpecs-${index}`}>
-              Additional Specifications
-            </Label.Root>
-            <TextArea.Root
-              id={`additionalSpecs-${index}`}
-              value={item.additionalSpecs || ''}
-              onChange={(e) =>
-                handleFieldChange('additionalSpecs', e.target.value)
-              }
-              rows={3}
-              placeholder={`example:
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor={`serialNumber-${index}`}>
+                  Serial Number <Label.Asterisk />
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id={`serialNumber-${index}`}
+                      value={item.serialNumber || ''}
+                      onChange={(e) =>
+                        handleFieldChange('serialNumber', e.target.value)
+                      }
+                      onBlur={(e) => onValidateSerialNumber?.(e.target.value)}
+                      placeholder='e.g. SD32'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+                {getFieldError('serialNumber') && (
+                  <div className='text-xs text-red-600'>
+                    {getFieldError('serialNumber')}
+                  </div>
+                )}
+              </div>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor={`machineModel-${index}`}>
+                  Machine Model <Label.Asterisk />
+                </Label.Root>
+                <Select.Root
+                  value={item.machineModel || ''}
+                  onValueChange={(value) =>
+                    handleFieldChange('machineModel', value)
+                  }
+                  disabled={!machineModel}
+                >
+                  <Select.Trigger id={`machineModel-${index}`}>
+                    <Select.Value
+                      placeholder={
+                        !machineModel ? 'Loading...' : 'Select machine model'
+                      }
+                    />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {machineModel.map((machineModel) => (
+                      <Select.Item
+                        key={machineModel.id}
+                        value={machineModel.id}
+                      >
+                        {machineModel.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                {getFieldError('machineModel') && (
+                  <div className='text-xs text-red-600'>
+                    {getFieldError('machineModel')}
+                  </div>
+                )}
+              </div>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor={`engineNumber-${index}`}>
+                  Engine Number <Label.Asterisk />
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id={`engineNumber-${index}`}
+                      value={item.engineNumber || ''}
+                      onChange={(e) =>
+                        handleFieldChange('engineNumber', e.target.value)
+                      }
+                      placeholder='Engine Number'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+                {getFieldError('engineNumber') && (
+                  <div className='text-xs text-red-600'>
+                    {getFieldError('engineNumber')}
+                  </div>
+                )}
+              </div>
+              <div className='col-span-full flex flex-col gap-2'>
+                <Label.Root htmlFor={`additionalSpecs-${index}`}>
+                  Additional Specifications
+                </Label.Root>
+                <TextArea.Root
+                  id={`additionalSpecs-${index}`}
+                  value={item.additionalSpecs || ''}
+                  onChange={(e) =>
+                    handleFieldChange('additionalSpecs', e.target.value)
+                  }
+                  rows={3}
+                  placeholder={`example:
 engine model WD10G220E23 220 hp
 operating weight 18,500 kg
 year 2023`}
-              simple
-            />
-          </div>
-        </div>
-      )}
-      {(item.category === 'non_serialized' || item.category === 'bulk') && (
-        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`partNumber-${index}`}>
-              Part Number <Label.Asterisk />
-            </Label.Root>
-            <Select.Root
-              value={item.partNumber || ''}
-              onValueChange={(value) => handleFieldChange('partNumber', value)}
-              disabled={!partNumbers}
-            >
-              <Select.Trigger id={`partNumber-${index}`}>
-                <Select.Value
-                  placeholder={
-                    !partNumbers ? 'Loading...' : 'Select part number'
-                  }
+                  simple
                 />
-              </Select.Trigger>
-              <Select.Content>
-                {partNumbers.map((partNumber) => (
-                  <Select.Item key={partNumber.id} value={partNumber.id}>
-                    {partNumber.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-            {getFieldError('partNumber') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('partNumber')}
               </div>
-            )}
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label.Root htmlFor={`batchLotNumber-${index}`}>
-              Batch/Lot Number
-            </Label.Root>
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  id={`batchLotNumber-${index}`}
-                  value={item.batchOrLotNumber || ''}
-                  onChange={(e) =>
-                    handleFieldChange('batchOrLotNumber', e.target.value)
+            </div>
+          )}
+          {(item.category === 'non_serialized' || item.category === 'bulk') && (
+            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor={`partNumber-${index}`}>
+                  Part Number <Label.Asterisk />
+                </Label.Root>
+                <Select.Root
+                  value={item.partNumber || ''}
+                  onValueChange={(value) =>
+                    handleFieldChange('partNumber', value)
                   }
-                  placeholder='Batch or Lot Number (Optional)'
-                />
-              </Input.Wrapper>
-            </Input.Root>
-            {getFieldError('batchOrLotNumber') && (
-              <div className='text-xs text-red-600'>
-                {getFieldError('batchOrLotNumber')}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Common fields for all categories: QTY, Unit Price (CNY), Total (CNY), Unit (IDR), Total (IDR) */}
-      <div className='mt-4 grid grid-cols-12 gap-6'>
-        <div className='col-span-2 flex flex-col gap-2'>
-          <Label.Root htmlFor={`quantity-${index}`}>
-            QTY <Label.Asterisk />
-          </Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`quantity-${index}`}
-                type='number'
-                min='1'
-                value={item.quantity}
-                onChange={(e) => handleFieldChange('quantity', e.target.value)}
-                placeholder='1'
-                disabled={item.category === PRODUCT_CATEGORY.SERIALIZED}
-              />
-            </Input.Wrapper>
-          </Input.Root>
-          {getFieldError('quantity') && (
-            <div className='text-xs text-red-600'>
-              {getFieldError('quantity')}
-            </div>
-          )}
-        </div>
-        <div className='col-span-5 flex flex-col gap-2'>
-          <Label.Root htmlFor={`priceRMB-${index}`}>
-            Price (CNY) <Label.Asterisk />
-          </Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`priceRMB-${index}`}
-                type='text'
-                value={formatNumberWithDots(item.priceRMB)}
-                onChange={(e) => {
-                  const rawValue = parseNumberFromDots(e.target.value);
-                  handleFieldChange('priceRMB', rawValue);
-                }}
-                placeholder='0.00'
-              />
-            </Input.Wrapper>
-          </Input.Root>
-          {getFieldError('priceRMB') && (
-            <div className='text-xs text-red-600'>
-              {getFieldError('priceRMB')}
-            </div>
-          )}
-        </div>
-        <div className='col-span-5 flex flex-col gap-2'>
-          <Label.Root htmlFor={`totalRMB-${index}`}>Total (CNY)</Label.Root>
-          <div className='text-sm px-3 py-2 font-medium'>
-            {formatCurrency(
-              (parseFloat(item.quantity) || 0) *
-                (parseFloat(item.priceRMB) || 0),
-              'CNY',
-            )}
-          </div>
-        </div>
-        <div className='col-span-2 flex flex-col gap-2'>
-          <Label.Root htmlFor={`unit-${index}`}>
-            Unit
-            <Label.Asterisk />
-          </Label.Root>
-          <Select.Root
-            value={item.unitOfMeasureId || ''}
-            onValueChange={(value) =>
-              handleFieldChange('unitOfMeasureId', value)
-            }
-            disabled={item.category === PRODUCT_CATEGORY.SERIALIZED}
-          >
-            <Select.Trigger id={`unit-${index}`}>
-              <Select.Value placeholder='Select' />
-            </Select.Trigger>
-            <Select.Content>
-              {unitOfMeasures.map((unit) => (
-                <Select.Item key={unit.id} value={unit.id}>
-                  {unit.name}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Root>
-          {getFieldError('unitOfMeasureId') && (
-            <div className='text-xs text-red-600'>
-              {getFieldError('unitOfMeasureId')}
-            </div>
-          )}
-        </div>
-        <div className='col-span-5 flex flex-col gap-2'>
-          <Label.Root htmlFor={`priceIDR-${index}`}>Price (IDR)</Label.Root>
-          <Input.Root>
-            <Input.Wrapper>
-              <Input.Input
-                id={`priceIDR-${index}`}
-                type='text'
-                value={formatNumberWithDots(
-                  (
-                    (parseFloat(item.priceRMB) || 0) *
-                    (parseFloat(exchangeRateRMBtoIDR) || 0)
-                  ).toFixed(0),
+                  disabled={!partNumbers}
+                >
+                  <Select.Trigger id={`partNumber-${index}`}>
+                    <Select.Value
+                      placeholder={
+                        !partNumbers ? 'Loading...' : 'Select part number'
+                      }
+                    />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {partNumbers.map((partNumber) => (
+                      <Select.Item key={partNumber.id} value={partNumber.id}>
+                        {partNumber.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                {getFieldError('partNumber') && (
+                  <div className='text-xs text-red-600'>
+                    {getFieldError('partNumber')}
+                  </div>
                 )}
-                readOnly
-              />
-            </Input.Wrapper>
-          </Input.Root>
-        </div>
-        <div className='col-span-5 flex flex-col gap-2'>
-          <Label.Root htmlFor={`totalIDR-${index}`}>Total (IDR)</Label.Root>
-          <div className='text-sm px-3 py-2 font-medium'>
-            {formatCurrency(
-              (parseFloat(item.quantity) || 0) *
-                (parseFloat(item.priceRMB) || 0) *
-                (parseFloat(exchangeRateRMBtoIDR) || 0),
-              'IDR',
-            )}
+              </div>
+              <div className='flex flex-col gap-2'>
+                <Label.Root htmlFor={`batchLotNumber-${index}`}>
+                  Batch/Lot Number
+                </Label.Root>
+                <Input.Root>
+                  <Input.Wrapper>
+                    <Input.Input
+                      id={`batchLotNumber-${index}`}
+                      value={item.batchOrLotNumber || ''}
+                      onChange={(e) =>
+                        handleFieldChange('batchOrLotNumber', e.target.value)
+                      }
+                      placeholder='Batch or Lot Number (Optional)'
+                    />
+                  </Input.Wrapper>
+                </Input.Root>
+                {getFieldError('batchOrLotNumber') && (
+                  <div className='text-xs text-red-600'>
+                    {getFieldError('batchOrLotNumber')}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Common fields for all categories: QTY, Unit Price (CNY), Total (CNY), Unit (IDR), Total (IDR) */}
+          <div className='mt-4 grid grid-cols-12 gap-6'>
+            <div className='col-span-2 flex flex-col gap-2'>
+              <Label.Root htmlFor={`quantity-${index}`}>
+                QTY <Label.Asterisk />
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id={`quantity-${index}`}
+                    type='number'
+                    min='1'
+                    value={item.quantity}
+                    onChange={(e) =>
+                      handleFieldChange('quantity', e.target.value)
+                    }
+                    placeholder='1'
+                    disabled={item.category === PRODUCT_CATEGORY.SERIALIZED}
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+              {getFieldError('quantity') && (
+                <div className='text-xs text-red-600'>
+                  {getFieldError('quantity')}
+                </div>
+              )}
+            </div>
+            <div className='col-span-5 flex flex-col gap-2'>
+              <Label.Root htmlFor={`priceRMB-${index}`}>
+                Price (CNY) <Label.Asterisk />
+              </Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id={`priceRMB-${index}`}
+                    type='text'
+                    value={formatNumberWithDots(item.priceRMB)}
+                    onChange={(e) => {
+                      const rawValue = parseNumberFromDots(e.target.value);
+                      handleFieldChange('priceRMB', rawValue);
+                    }}
+                    placeholder='0.00'
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+              {getFieldError('priceRMB') && (
+                <div className='text-xs text-red-600'>
+                  {getFieldError('priceRMB')}
+                </div>
+              )}
+            </div>
+            <div className='col-span-5 flex flex-col gap-2'>
+              <Label.Root htmlFor={`totalRMB-${index}`}>Total (CNY)</Label.Root>
+              <div className='text-sm px-3 py-2 font-medium'>
+                {formatCurrency(
+                  (parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0),
+                  'CNY',
+                )}
+              </div>
+            </div>
+            <div className='col-span-2 flex flex-col gap-2'>
+              <Label.Root htmlFor={`unit-${index}`}>
+                Unit
+                <Label.Asterisk />
+              </Label.Root>
+              <Select.Root
+                value={item.unitOfMeasureId || ''}
+                onValueChange={(value) =>
+                  handleFieldChange('unitOfMeasureId', value)
+                }
+                disabled={item.category === PRODUCT_CATEGORY.SERIALIZED}
+              >
+                <Select.Trigger id={`unit-${index}`}>
+                  <Select.Value placeholder='Select' />
+                </Select.Trigger>
+                <Select.Content>
+                  {unitOfMeasures.map((unit) => (
+                    <Select.Item key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+              {getFieldError('unitOfMeasureId') && (
+                <div className='text-xs text-red-600'>
+                  {getFieldError('unitOfMeasureId')}
+                </div>
+              )}
+            </div>
+            <div className='col-span-5 flex flex-col gap-2'>
+              <Label.Root htmlFor={`priceIDR-${index}`}>Price (IDR)</Label.Root>
+              <Input.Root>
+                <Input.Wrapper>
+                  <Input.Input
+                    id={`priceIDR-${index}`}
+                    type='text'
+                    value={formatNumberWithDots(
+                      (
+                        (parseFloat(item.priceRMB) || 0) *
+                        (parseFloat(exchangeRateRMBtoIDR) || 0)
+                      ).toFixed(0),
+                    )}
+                    readOnly
+                  />
+                </Input.Wrapper>
+              </Input.Root>
+            </div>
+            <div className='col-span-5 flex flex-col gap-2'>
+              <Label.Root htmlFor={`totalIDR-${index}`}>Total (IDR)</Label.Root>
+              <div className='text-sm px-3 py-2 font-medium'>
+                {formatCurrency(
+                  (parseFloat(item.quantity) || 0) *
+                    (parseFloat(item.priceRMB) || 0) *
+                    (parseFloat(exchangeRateRMBtoIDR) || 0),
+                  'IDR',
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -613,6 +742,7 @@ export function ImportForm({
     const unitUoM = unitOfMeasures.find((uom) => uom.name === 'Unit');
 
     return {
+      productMode: 'new',
       category: 'serialized',
       name: '',
       description: '',
@@ -806,23 +936,37 @@ export function ImportForm({
     }
 
     formData.items.forEach((item, index) => {
-      // Common mandatory fields for all product types (except description)
-      if (!item.name.trim()) {
-        errors[`items.${index}.name`] = 'Name is required';
+      // Product mode validation
+      if (!item.productMode) {
+        errors[`items.${index}.productMode`] = 'Product mode is required';
       }
-      if (!item.brandId?.trim()) {
-        errors[`items.${index}.brandId`] = 'Brand is required';
+
+      // Existing product validation
+      if (item.productMode === 'existing' && !item.productId) {
+        errors[`items.${index}.productId`] =
+          'Please select an existing product';
       }
-      if (!item.condition) {
-        errors[`items.${index}.condition`] = 'Condition is required';
-      }
-      if (!item.priceRMB.trim()) {
-        errors[`items.${index}.priceRMB`] = 'Price is required';
-      } else {
-        const price = parseFloat(item.priceRMB);
-        if (isNaN(price) || price <= 0) {
-          errors[`items.${index}.priceRMB`] =
-            'Price must be a valid number greater than 0';
+
+      // For existing products, only validate quantity. For new products, validate all fields.
+      if (item.productMode === 'new') {
+        // Common mandatory fields for new products
+        if (!item.name.trim()) {
+          errors[`items.${index}.name`] = 'Name is required';
+        }
+        if (!item.brandId?.trim()) {
+          errors[`items.${index}.brandId`] = 'Brand is required';
+        }
+        if (!item.condition) {
+          errors[`items.${index}.condition`] = 'Condition is required';
+        }
+        if (!item.priceRMB.trim()) {
+          errors[`items.${index}.priceRMB`] = 'Price is required';
+        } else {
+          const price = parseFloat(item.priceRMB);
+          if (isNaN(price) || price <= 0) {
+            errors[`items.${index}.priceRMB`] =
+              'Price must be a valid number greater than 0';
+          }
         }
       }
       if (!item.quantity.trim()) {
@@ -835,35 +979,37 @@ export function ImportForm({
         }
       }
 
-      // Category-specific validation
-      if (item.category === 'serialized') {
-        if (!item.machineTypeId) {
-          errors[`items.${index}.machineTypeId`] =
-            'Machine type is required for serialized products';
+      // Category-specific validation - only for new products
+      if (item.productMode === 'new') {
+        if (item.category === 'serialized') {
+          if (!item.machineTypeId) {
+            errors[`items.${index}.machineTypeId`] =
+              'Machine type is required for serialized products';
+          }
+          if (!item.serialNumber?.trim()) {
+            errors[`items.${index}.serialNumber`] =
+              'Serial number is required for serialized products';
+          }
+          if (!item.engineNumber?.trim()) {
+            errors[`items.${index}.engineNumber`] =
+              'Engine number is required for serialized products';
+          }
         }
-        if (!item.serialNumber?.trim()) {
-          errors[`items.${index}.serialNumber`] =
-            'Serial number is required for serialized products';
-        }
-        if (!item.engineNumber?.trim()) {
-          errors[`items.${index}.engineNumber`] =
-            'Engine number is required for serialized products';
-        }
-      }
 
-      if (
-        (item.category === 'non_serialized' || item.category === 'bulk') &&
-        !item.unitOfMeasureId
-      ) {
-        errors[`items.${index}.unitOfMeasureId`] =
-          'Unit of measure is required';
-      }
+        if (
+          (item.category === 'non_serialized' || item.category === 'bulk') &&
+          !item.unitOfMeasureId
+        ) {
+          errors[`items.${index}.unitOfMeasureId`] =
+            'Unit of measure is required';
+        }
 
-      // Part Number validation for non-serialized and bulk
-      if (item.category === 'non_serialized' || item.category === 'bulk') {
-        if (!item.partNumber?.trim()) {
-          errors[`items.${index}.partNumber`] =
-            'Part number is required for non-serialized and bulk products';
+        // Part Number validation for non-serialized and bulk
+        if (item.category === 'non_serialized' || item.category === 'bulk') {
+          if (!item.partNumber?.trim()) {
+            errors[`items.${index}.partNumber`] =
+              'Part number is required for non-serialized and bulk products';
+          }
         }
       }
     });
@@ -881,27 +1027,43 @@ export function ImportForm({
       return;
     }
 
-    // Transform items for API - convert empty strings to undefined for optional fields
-    const transformedItems = formData.items.map((item) => ({
-      id: item.id || undefined,
-      productId: item.productId || undefined,
-      name: item.name,
-      description: item.description?.trim() || undefined,
-      category: item.category,
-      priceRMB: item.priceRMB,
-      quantity: parseInt(item.quantity),
-      notes: item.notes?.trim() || undefined,
-      brandId: item.brandId?.trim() || undefined,
-      condition: item.condition,
-      machineTypeId: item.machineTypeId?.trim() || undefined,
-      unitOfMeasureId: item.unitOfMeasureId?.trim() || undefined,
-      partNumber: item.partNumber?.trim() || undefined,
-      engineNumber: item.engineNumber?.trim() || undefined,
-      serialNumber: item.serialNumber?.trim() || undefined,
-      additionalSpecs: item.additionalSpecs?.trim() || undefined,
-      batchOrLotNumber: item.batchOrLotNumber?.trim() || undefined,
-      machineModel: item.machineModel?.trim() || undefined,
-    }));
+    // Transform items for API - handle existing vs new products differently
+    const transformedItems = formData.items.map((item) => {
+      if (item.productMode === 'existing') {
+        // For existing products, only send productId and quantity
+        return {
+          id: item.id || undefined,
+          productId: item.productId,
+          name: item.name || 'Existing Product', // Keep name for display
+          category: item.category || 'serialized', // Default category
+          priceRMB: '0', // Price will be ignored for existing products
+          quantity: parseInt(item.quantity),
+          condition: 'new' as 'new' | 'used' | 'refurbished', // Default condition
+        };
+      } else {
+        // For new products, send all fields
+        return {
+          id: item.id || undefined,
+          productId: item.productId || undefined,
+          name: item.name,
+          description: item.description?.trim() || undefined,
+          category: item.category,
+          priceRMB: item.priceRMB,
+          quantity: parseInt(item.quantity),
+          notes: item.notes?.trim() || undefined,
+          brandId: item.brandId?.trim() || undefined,
+          condition: item.condition,
+          machineTypeId: item.machineTypeId?.trim() || undefined,
+          unitOfMeasureId: item.unitOfMeasureId?.trim() || undefined,
+          partNumber: item.partNumber?.trim() || undefined,
+          engineNumber: item.engineNumber?.trim() || undefined,
+          serialNumber: item.serialNumber?.trim() || undefined,
+          additionalSpecs: item.additionalSpecs?.trim() || undefined,
+          batchOrLotNumber: item.batchOrLotNumber?.trim() || undefined,
+          machineModel: item.machineModel?.trim() || undefined,
+        };
+      }
+    });
 
     const submitData = {
       ...formData,
@@ -1262,7 +1424,7 @@ export function ImportForm({
                     Subtotal (CNY):
                   </span>
                   <span className='text-paragraph-sm text-text-strong-950'>
-                    ¥{calculateSubtotal().toFixed(2)}
+                    {formatCurrency(calculateSubtotal(), 'CNY')}
                   </span>
                 </div>
                 <div className='flex items-center justify-between'>

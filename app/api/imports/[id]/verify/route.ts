@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 
 import { requirePermission } from '@/lib/auth/authorization';
 import { db } from '@/lib/db';
@@ -62,135 +62,172 @@ export async function POST(
 
     // Process each import item
     for (const item of items) {
-      if (item.category === 'serialized') {
-        // For serialized products, check for duplicates
-        if (!item.serialNumber) {
-          return NextResponse.json(
-            { error: 'Serial number is required for serialized products' },
-            { status: 400 },
-          );
-        }
-
-        const existingProduct = await db
-          .select()
-          .from(products)
-          .where(eq(products.serialNumber, item.serialNumber))
-          .limit(1);
-
-        if (existingProduct.length > 0) {
-          return NextResponse.json(
-            {
-              error: `Product with serial number ${item.serialNumber} already exists`,
-            },
-            { status: 409 },
-          );
-        }
-
-        const productData: InsertProduct = {
-          name: item.name,
-          code: item.serialNumber || item.partNumber || '', // Use serial number as code for serialized products
-          description: item.description,
-          category: item.category,
-          brandId: item.brandId,
-          machineTypeId: item.machineTypeId,
-          machineModel: item.machineModel,
-          serialNumber: item.serialNumber,
-          engineNumber: item.engineNumber,
-          additionalSpecs: item.additionalSpecs,
-          price: (
-            Number(item.priceRMB) * Number(importData[0].exchangeRateRMBtoIDR)
-          ).toFixed(2),
-          isActive: true,
-        };
-        await db.insert(products).values(productData);
-
-        // Get the created product ID by serial number
-        const createdProduct = await db
-          .select({ id: products.id })
-          .from(products)
-          .where(eq(products.serialNumber, item.serialNumber))
-          .orderBy(desc(products.createdAt))
-          .limit(1);
-
-        if (createdProduct.length > 0) {
-          createdProducts.push({
-            productId: createdProduct[0].id,
-            quantity: 1, // Serialized products are always quantity 1
-            condition: item.condition || 'new',
-            notes: `Import from ${importData[0].id} - ${item.serialNumber}`,
-          });
-        }
+      // Check if we're working with existing product or creating new one
+      if (item.productId) {
+        // Adding to existing product - just add quantity to warehouse stocks
+        createdProducts.push({
+          productId: item.productId,
+          quantity: item.quantity || 1,
+          condition: item.condition || 'new',
+          notes: `Import from ${importData[0].id} - Added to existing product`,
+        });
       } else {
-        // For non-serialized/bulk products, check for duplicates by part number
-        if (!item.partNumber) {
-          return NextResponse.json(
-            { error: 'Part number is required for non-serialized products' },
-            { status: 400 },
-          );
-        }
+        // Creating new product
+        if (item.category === 'serialized') {
+          // For serialized products, check for duplicates
+          if (!item.serialNumber) {
+            return NextResponse.json(
+              { error: 'Serial number is required for serialized products' },
+              { status: 400 },
+            );
+          }
 
-        const existingProduct = await db
-          .select()
-          .from(products)
-          .where(eq(products.partNumber, item.partNumber))
-          .limit(1);
+          const existingProduct = await db
+            .select()
+            .from(products)
+            .where(eq(products.serialNumber, item.serialNumber))
+            .limit(1);
 
-        if (existingProduct.length > 0) {
-          return NextResponse.json(
-            {
-              error: `Product with part number ${item.partNumber} already exists`,
-            },
-            { status: 409 },
-          );
-        }
+          if (existingProduct.length > 0) {
+            return NextResponse.json(
+              {
+                error: `Product with serial number ${item.serialNumber} already exists`,
+              },
+              { status: 409 },
+            );
+          }
 
-        // Create new non-serialized product
-        const insertData: InsertProduct = {
-          name: item.name,
-          code: item.partNumber, // Use part number as code for non-serialized products
-          description: item.description,
-          category: item.category,
-          brandId: item.brandId,
-          unitOfMeasureId: item.unitOfMeasureId,
-          partNumber: item.partNumber,
-          batchOrLotNumber: item.batchOrLotNumber,
-          additionalSpecs: item.additionalSpecs,
-          price: (
-            Number(item.priceRMB) * Number(importData[0].exchangeRateRMBtoIDR)
-          ).toFixed(2),
-          isActive: true,
-        };
-        await db.insert(products).values(insertData);
+          const productData: InsertProduct = {
+            name: item.name,
+            code: item.serialNumber || item.partNumber || '', // Use serial number as code for serialized products
+            description: item.description,
+            category: item.category,
+            brandId: item.brandId,
+            machineTypeId: item.machineTypeId,
+            machineModel: item.machineModel,
+            serialNumber: item.serialNumber,
+            engineNumber: item.engineNumber,
+            additionalSpecs: item.additionalSpecs,
+            price: (
+              Number(item.priceRMB) * Number(importData[0].exchangeRateRMBtoIDR)
+            ).toFixed(2),
+            isActive: true,
+          };
+          await db.insert(products).values(productData);
 
-        // Get the created product ID by part number
-        const createdProduct = await db
-          .select({ id: products.id })
-          .from(products)
-          .where(eq(products.partNumber, item.partNumber))
-          .orderBy(desc(products.createdAt))
-          .limit(1);
+          // Get the created product ID by serial number
+          const createdProduct = await db
+            .select({ id: products.id })
+            .from(products)
+            .where(eq(products.serialNumber, item.serialNumber))
+            .orderBy(desc(products.createdAt))
+            .limit(1);
 
-        if (createdProduct.length > 0) {
-          createdProducts.push({
-            productId: createdProduct[0].id,
-            quantity: item.quantity || 1,
-            condition: item.condition || 'new',
-            notes: `Import from ${importData[0].id} - ${item.partNumber}`,
-          });
+          if (createdProduct.length > 0) {
+            createdProducts.push({
+              productId: createdProduct[0].id,
+              quantity: 1, // Serialized products are always quantity 1
+              condition: item.condition || 'new',
+              notes: `Import from ${importData[0].id} - ${item.serialNumber}`,
+            });
+          }
+        } else {
+          // For non-serialized/bulk products, check for duplicates by part number
+          if (!item.partNumber) {
+            return NextResponse.json(
+              { error: 'Part number is required for non-serialized products' },
+              { status: 400 },
+            );
+          }
+
+          const existingProduct = await db
+            .select()
+            .from(products)
+            .where(eq(products.partNumber, item.partNumber))
+            .limit(1);
+
+          if (existingProduct.length > 0) {
+            return NextResponse.json(
+              {
+                error: `Product with part number ${item.partNumber} already exists`,
+              },
+              { status: 409 },
+            );
+          }
+
+          // Create new non-serialized product
+          const insertData: InsertProduct = {
+            name: item.name,
+            code: item.partNumber, // Use part number as code for non-serialized products
+            description: item.description,
+            category: item.category,
+            brandId: item.brandId,
+            unitOfMeasureId: item.unitOfMeasureId,
+            partNumber: item.partNumber,
+            batchOrLotNumber: item.batchOrLotNumber,
+            additionalSpecs: item.additionalSpecs,
+            price: (
+              Number(item.priceRMB) * Number(importData[0].exchangeRateRMBtoIDR)
+            ).toFixed(2),
+            isActive: true,
+          };
+          await db.insert(products).values(insertData);
+
+          // Get the created product ID by part number
+          const createdProduct = await db
+            .select({ id: products.id })
+            .from(products)
+            .where(eq(products.partNumber, item.partNumber))
+            .orderBy(desc(products.createdAt))
+            .limit(1);
+
+          if (createdProduct.length > 0) {
+            createdProducts.push({
+              productId: createdProduct[0].id,
+              quantity: item.quantity || 1,
+              condition: item.condition || 'new',
+              notes: `Import from ${importData[0].id} - ${item.partNumber}`,
+            });
+          }
         }
       }
     }
 
-    // Create warehouseStocks entries for the imported products
+    // Create or update warehouseStocks entries for the imported products
     if (createdProducts.length > 0) {
-      const warehouseStockData = createdProducts.map((product) => ({
-        warehouseId: importData[0].warehouseId,
-        productId: product.productId,
-        condition: product.condition,
-        quantity: product.quantity,
-      }));
+      for (const product of createdProducts) {
+        // Check if warehouse stock already exists for this product
+        const existingStock = await db
+          .select()
+          .from(warehouseStocks)
+          .where(
+            and(
+              eq(warehouseStocks.warehouseId, importData[0].warehouseId),
+              eq(warehouseStocks.productId, product.productId),
+              eq(warehouseStocks.condition, product.condition)
+            )
+          )
+          .limit(1);
 
-      await db.insert(warehouseStocks).values(warehouseStockData);
+        const stock = existingStock[0];
+        if (stock) {
+          // Update existing stock quantity
+          await db
+            .update(warehouseStocks)
+            .set({
+              quantity: (stock.quantity || 0) + product.quantity,
+            })
+            .where(eq(warehouseStocks.id, stock.id));
+        } else {
+          // Create new stock entry
+          await db.insert(warehouseStocks).values({
+            warehouseId: importData[0].warehouseId,
+            productId: product.productId,
+            condition: product.condition,
+            quantity: product.quantity,
+          });
+        }
+      }
     }
 
     // Update import status to verified

@@ -53,6 +53,7 @@ export default function EditImportPage({ params }: EditImportPageProps) {
         importData.items?.map((item) => ({
           id: item.id,
           productId: item.productId || undefined,
+          productMode: (item.productId ? 'existing' : 'new') as 'new' | 'existing',
           name: item.name || '',
           description: item.description || '',
           category: item.category,

@@ -16,10 +16,12 @@ Using Next.js, Drizzle ORM, AlignUI
 
 ## Getting Started
 
-First, install dependencies:
+Install pnpm https://pnpm.io/installation#prerequisites
+
+Install dependencies
 
 ```bash
-pnpm i
+pnpm install
 ```
 
 Run the development server
@@ -30,7 +32,20 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Pages
+Make sure you have docker then run the database and s3 storage
 
-- [Home](http://localhost:3000)
-- [Transactions](http://localhost:3000/quotations)
+```bash
+docker-compose up mysql minio -d
+```
+
+Apply migration to database
+
+```bash
+pnpm db:migrate
+```
+
+Generate database seeds for testing, including users and permission
+
+```bash
+pnpm db:seed
+```
